@@ -6,6 +6,8 @@
 
   \subsection{Rule checking}
   \subsection{Mutual exclusion}
+  Using discrimination tree
+
   \subsection{Caveats}
   For example, mutual exclusion is not perfect: over aproximation of
   unification
@@ -15,6 +17,19 @@
 \section{Formalization in Rocq}
 
   \subsection{The langauge}
+  Input must come before outputs
+
+  Inputs must come before outputs, with Disc tree this is not mandatory, since
+  unification is weaker.
+
+  EG: 
+
+  \includegraphics{code/dt_mut_excl.pdf}
+
+  In the code above, both rules can be used with the query, but, 
+  the discrimination tree, save the world
+
+
   \subsection{The tree semantics}
   \subsection{The stack semantics}
   \subsection{Semantics equivalence}
