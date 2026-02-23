@@ -2,7 +2,7 @@ FNAME=main
 
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
 
-all: tex_code aux
+all: img
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
 	$(MAKE) main
 
@@ -11,14 +11,10 @@ PDFFILES := $(TEXFILES:.tex=.pdf)
 MINFILES := $(shell find elpi-formalization -type f -name '*.v')
 IGNFILES := $(MINFILES:.v=.ign)
 
-aux: $(PDFFILES)
-tex_code: $(IGNFILES)
+img: $(PDFFILES)
 
 %.pdf: %.tex
 	cd $(dir $<) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
-
-%.ign: %.v
-	$(GENERATOR) $<
 
 main:
 	${TEX_CMD} ${FNAME}.tex && \
