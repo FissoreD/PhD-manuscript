@@ -1445,7 +1445,7 @@
 			
 			
 			
-			\newcommand{\acknowledgementname}{Remerciements}
+			\newcommand{\acknowledgementname}{Acknowledgement}
 			\newenvironment{remerciements}{%
 				\if@openright\cleardoublepage\else\clearpage\fi
 				\chapter*{\acknowledgementname}}{\vfill\thispagestyle{empty}}

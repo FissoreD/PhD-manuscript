@@ -1,18 +1,22 @@
+\chapter{Determinacy checking for Elpi}
 
-hard cut as in prolog
 
-\cite{fissore2026}
+\section{Why determinacy?}
+\section{Implementation}
 
-\includegraphics{img/e2t_ind.pdf}
+  \subsection{Rule checking}
+  \subsection{Mutual exclusion}
+  \subsection{Caveats}
+  For example, mutual exclusion is not perfect: over aproximation of
+  unification
 
-Discrimination trees: discriminate rules head
+  Rule checking ignores flexible rule loading
 
-Inputs must come before outputs, with Disc tree this is not mandatory, since
-unification is weaker.
+\section{Formalization in Rocq}
 
-EG: 
+  \subsection{The langauge}
+  \subsection{The tree semantics}
+  \subsection{The stack semantics}
+  \subsection{Semantics equivalence}
+  \subsection{The main theorem}
 
-\includegraphics{code/dt_mut_excl.pdf}
-
-In the code above, both rules can be used with the query, but, 
-the discrimination tree, save the world
