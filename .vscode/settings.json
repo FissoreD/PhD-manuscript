@@ -1,0 +1,49 @@
+{
+  // "explorer.excludeGitIgnore": true,
+  "files.exclude": {
+    "**/*.log": true,
+    "**/*.vtc": true,
+    "**/*.aux": true,
+    "**/*.out": true,
+    "**/*.bbl": true,
+    "**/*.blg": true,
+    "**/*.fdb_latexmk": true,
+    "**/*.fls": true,
+    "**/*.synctex.gz": true,
+  },
+  "latex-workshop.latex.tools": [
+    {
+      "name": "pdflatex",
+      "command": "pdflatex",
+      "args": [
+        "-synctex=1",
+        "-interaction=nonstopmode",
+        "-file-line-error",
+        "--shell-escape",
+        "-pdf",
+        "%DOC%"
+      ]
+    },
+    {
+      "name": "bibtex",
+      "command": "bibtex",
+      "args": [
+        "%DOCFILE%"
+      ],
+      "env": {}
+    },
+  ],
+  "latex-workshop.latex.recipes": [
+    // {
+    //   "name": "pdflatex",
+    //   "tools": [ "pdflatex", "bibtex", "pdflatex", "pdflatex" ]
+    // },
+    {
+      "name": "base",
+      "tools": [
+        "pdflatex",
+        "pdflatex"
+      ]
+    },
+  ]
+}
