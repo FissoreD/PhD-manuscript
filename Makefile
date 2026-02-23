@@ -3,8 +3,8 @@ FNAME=main
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
 
 all:
-	$(MAKE) -C code && \
-	$(MAKE) -C img && \
+	$(MAKE) -C code -j && \
+	$(MAKE) -C img -j && \
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
 	$(MAKE) main
 
