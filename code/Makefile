@@ -6,5 +6,5 @@ TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape
 img: $(PDFFILES)
 
 %.tex: %.elpi
-	(python $(GENERATOR) $<) && $(TEX_CMD) $@ && $(TEX_CMD) $@
+	(python3 $(GENERATOR) $<) && $(TEX_CMD) $@ && $(TEX_CMD) $@
 # 	$(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
