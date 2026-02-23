@@ -1,6 +1,9 @@
 from pathlib import Path
 import sys
 
+mint_opt = r"fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=leftline,framerule=0pt,framesep=1em"
+lang = "elpi.py:ElpiLexer"
+
 def build_cnt(fname,len):
     return "\\documentclass[border=2mm, varwidth]{standalone}" \
         "\\usepackage{minted}" \
@@ -8,7 +11,7 @@ def build_cnt(fname,len):
         "\\newlength{\charwidth}" \
         "\\settowidth{\charwidth}{\\texttt{0}}"\
         f"\\begin{{varwidth}}{{{len}\\charwidth}}" \
-        f"\\inputminted{{elpi}}{{{fname}}}"\
+        f"\\inputminted[{mint_opt}]{{{lang}}}{{{fname}}}"\
         "\\end{varwidth}"\
         "\\end{document}"
 
