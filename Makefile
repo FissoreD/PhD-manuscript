@@ -8,8 +8,6 @@ all: img
 
 TEXFILES := $(shell find img -type f -name '*.tex')
 PDFFILES := $(TEXFILES:.tex=.pdf)
-MINFILES := $(shell find elpi-formalization -type f -name '*.v')
-IGNFILES := $(MINFILES:.v=.ign)
 
 img: $(PDFFILES)
 
