@@ -1,13 +1,22 @@
 \documentclass{these-ISSS}
-\usepackage{hyperref}
+% \usepackage{hyperref}
 
 % \usepackage{macro}
 % \usepackage{custom_ref}
-\usepackage{mathtools}
-\usepackage{stackengine} % For bussproof multiline
-\usepackage{wrapfig}
-\usepackage{theoremNames}
-\usepackage{theoremList}
+% \usepackage{mathtools}
+% \usepackage{stackengine} % For bussproof multiline
+% \usepackage{wrapfig}
+% \usepackage{theoremNames}
+% \usepackage{theoremList}
+% \usepackage{cleveref}
+% \usepackage{minitoc}
+\usepackage{mesmacros}
+
+\dominitoc[n]
+% \dominilof % décommenter pour avoir des listes de figures à chaque chapitre
+% \dominilot % décommenter pour avoir des listes de tables à chaque chapitre
+\setcounter{minitocdepth}{3}
+\renewcommand{\mtctitle}{Sommaire}
 
 \bibliographystyle{plainurl}% the mandatory bibstyle
 
@@ -39,25 +48,11 @@
   BLIBLI
   \end{abstract}
 
-  \part{Context}
-  \chapter{TADA}
-  % \input{chapters/intro.tex}
-  % \input{chapters/context.tex}
-  % \input{chapters/tc.tex}
-  % \input{chapters/detcheck.tex}
-
-  TITI
-
-  \part{Contributions}
-  \chapter{TADA}
-  \chapter{TAD2}
-
-  TEST TEST
-
-  \cite{fissore2023}
-  % \bibliography{bib}
-
-  \part{Conclusion et Perspectives}
+  \input{chap1/main.tex}
+  \input{chap2/main.tex}
+  \input{chap3/main.tex}
+  \input{chap4/main.tex}
+  \input{chap5/main.tex}
 
   \chapter{Conclusion}
   Les macarons c'est bon et ceux de Ladurée sont semble-t-il meilleurs. \cite{F2012}
