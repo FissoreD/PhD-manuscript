@@ -2,18 +2,12 @@ FNAME=main
 
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
 
-all: img
-	$(MAKE) -C code -j && \
+all:
+	$(MAKE) -C code && \
+	$(MAKE) -C img && \
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
 	$(MAKE) main
 
-TEXFILES := $(shell find img -type f -name '*.tex')
-PDFFILES := $(TEXFILES:.tex=.pdf)
-
-img: $(PDFFILES)
-
-%.pdf: %.tex
-	cd $(dir $<) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
 
 main:
 	${TEX_CMD} ${FNAME}.tex && \
