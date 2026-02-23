@@ -14,6 +14,8 @@
     "**/*.loe": true,
     "**/*.lof": true,
     "**/*.toc": true,
+    "**/*.mtc*": true,
+    "**/*.xmpi": true,
   },
   "latex-workshop.latex.tools": [
     {
