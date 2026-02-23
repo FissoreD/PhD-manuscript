@@ -13,7 +13,7 @@ aux:
 
 main:
 	${TEX_CMD} ${FNAME}.tex && \
-	bibtex ${FNAME}.aux && \
+	bibtex ${FNAME} && \
 	${TEX_CMD} ${FNAME}.tex && \
 	${TEX_CMD} ${FNAME}.tex
 
