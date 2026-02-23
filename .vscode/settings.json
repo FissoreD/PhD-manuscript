@@ -10,6 +10,10 @@
     "**/*.fdb_latexmk": true,
     "**/*.fls": true,
     "**/*.synctex.gz": true,
+    "**/*.lbl": true,
+    "**/*.loe": true,
+    "**/*.lof": true,
+    "**/*.toc": true,
   },
   "latex-workshop.latex.tools": [
     {
