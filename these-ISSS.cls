@@ -238,8 +238,8 @@
 \oddsidemargin=2cm
 \evensidemargin=1cm
 
-\RequirePackage[english,french]{babel}
-\selectlanguage{english}
+\RequirePackage[french,english]{babel}
+\selectlanguage{french}
 %\NoAutoSpaceBeforeFDP
 
 \newif\if@mainmatter
