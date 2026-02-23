@@ -1,0 +1,14 @@
+*.log
+*.vtc
+*.aux
+*.out
+*.pdf
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+_minted-main
+tex_code
+tmp
+_minted
