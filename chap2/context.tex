@@ -43,9 +43,17 @@ Cite Haskell~\cite{wadler1996-hs}, in caml it does not exists: \texttt{+.} vs \t
 IRIS:~\cite{iris-junk}
 
 \begin{figure}
-  \includegraphics{./code/base_tc.pdf}
+  \begin{subfigure}{1\textwidth}
+  \includegraphics[width=1\textwidth]{./code/base_tc.pdf}
   \caption{\texttt{Eqb} typeclass in Rocq}
   \label{fig:eqb-tc-coq}
+  \end{subfigure}
+  \begin{subfigure}{1\textwidth}
+  \includegraphics[width=0.75\textwidth]{./code/base_tc_hs.pdf}
+  \caption{\texttt{Eqb} typeclass in Haskell}
+  \label{fig:eqb-tc-hs}
+  \end{subfigure}
+  \caption{Eqb typeclass in different languages}
 \end{figure}
 
 \section{The \elpi language}

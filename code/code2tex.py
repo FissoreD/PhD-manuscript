@@ -5,7 +5,8 @@ mint_opt = r"fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=le
 
 extension_mapper = {
     ".v": "coq",
-    ".elpi": "elpi.py:ElpiLexer"
+    ".elpi": "elpi",
+    ".hs": "hs"
 }
 
 def build_cnt(ext,cnt,len):
