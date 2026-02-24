@@ -1,8 +1,14 @@
-\newcommand{\languages}[1]{\emph{#1}}
+\makeatletter
+\@ifpackageloaded{xspace}{}{\usepackage{xspace}}
+\makeatother
+
+\newcommand{\languages}[1]{\emph{#1}\xspace}
 
 \newcommand{\elpi}{\languages{Elpi}}
+\newcommand{\coqelpi}{\languages{Coq-Elpi}}
 \newcommand{\lprolog}{\languages{$\lambda$prolog}}
 \newcommand{\prolog}{\languages{prolog}}
 \newcommand{\coq}{\languages{Coq}}
 \newcommand{\rocq}{\languages{Rocq}}
 \newcommand{\ocaml}{\languages{OCaml}}
+\newcommand{\chr}{\languages{CHR}}
