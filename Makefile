@@ -5,17 +5,20 @@ TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape
 all:
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
 	$(MAKE) aux && \
-	$(MAKE) main
+	$(MAKE) full
 
 aux:
 	$(MAKE) -C code -j && \
 	$(MAKE) -C img -j
 
+bib:
+	bibtex ${FNAME}
+
 main:
-	${TEX_CMD} ${FNAME}.tex && \
-	bibtex ${FNAME} && \
-	${TEX_CMD} ${FNAME}.tex && \
 	${TEX_CMD} ${FNAME}.tex
+
+full:
+	$(MAKE) main && $(MAKE) bib && $(MAKE) main && $(MAKE) main
 
 update_submodule:
 	git submodule update --remote
