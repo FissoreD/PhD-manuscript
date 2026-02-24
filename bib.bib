@@ -570,7 +570,7 @@
   publisher = {Springer}
 }
 
-@inproceedings{wadler1996-hs,
+@article{wadler1996-hs,
   author     = {Hall, Cordelia V. and Hammond, Kevin and Peyton Jones, Simon L. and Wadler, Philip L.},
   title      = {Type classes in Haskell},
   year       = {1996},
@@ -578,7 +578,7 @@
   publisher  = {Association for Computing Machinery},
   xaddress   = {New York, NY, USA},
   volume     = {18},
-  number     = {2},
+  -number     = {2},
   issn       = {0164-0925},
   url        = {https://doi.org/10.1145/227699.227700},
   doi        = {10.1145/227699.227700},
@@ -919,4 +919,47 @@
   series    = {Texts in Theoretical Computer Science},
   publisher = {Springer Verlag},
   year      = {2004}
+}
+
+@inproceedings{tabling-pie,
+  author    = {Pientka, Brigitte},
+  editor    = {Nieuwenhuis, Robert},
+  title     = {Tabling for Higher-Order Logic Programming},
+  booktitle = {Automated Deduction -- CADE-20},
+  year      = {2005},
+  publisher = {Springer Berlin Heidelberg},
+  address   = {Berlin, Heidelberg},
+  pages     = {54--68},
+  abstract  = {We describe the design and implementation of a higher-order tabled logic programming interpreter where some redundant and infinite computation is eliminated by memoizing sub-computation and re-using its result later. In particular, we focus on the table design and table access in the higher-order setting where many common operations are undecidable in general. To achieve a space and time efficient implementation, we rely on substitution factoring and higher-order substitution tree indexing. Experimental results from a wide range of examples (propositional theorem proving, refinement type checking, small-step evaluator) demonstrate that higher-order tabled logic programming yields a more robust and more powerful proof procedure.},
+  isbn      = {978-3-540-31864-4}
+}
+
+@article{tabling-dm,
+  author     = {Daniel Selsam and
+                Sebastian Ullrich and
+                Leonardo de Moura},
+  title      = {Tabled Typeclass Resolution},
+  journal    = {CoRR},
+  volume     = {abs/2001.04301},
+  year       = {2020},
+  url        = {https://arxiv.org/abs/2001.04301},
+  eprinttype = {arXiv},
+  eprint     = {2001.04301},
+  timestamp  = {Thu, 29 Sep 2022 08:36:57 +0200},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2001-04301.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{chr,
+  title    = {Theory and practice of constraint handling rules},
+  journal  = {The Journal of Logic Programming},
+  volume   = {37},
+  number   = {1},
+  pages    = {95-138},
+  year     = {1998},
+  issn     = {0743-1066},
+  doi      = {https://doi.org/10.1016/S0743-1066(98)10005-5},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0743106698100055},
+  author   = {Thom Frühwirth},
+  abstract = {Constraint Handling Rules (CHR) are our proposal to allow more flexibility and application-oriented customization of constraint systems. CHR are a declarative language extension especially designed for writing user-defined constraints. CHR are essentially a committed-choice language consisting of multi-headed guarded rules that rewrite constraints into simpler ones until they are solved. In this broad survey we aim at covering all aspects of CHR as they currently present themselves. Going from theory to practice, we will define syntax and semantics for CHR, introduce an important decidable property, confluence, of CHR programs and define a tight integration of CHR with constraint logic programming languages. This survey then describes implementations of the language before we review several constraint solvers – both traditional and nonstandard ones – written in the CHR language. Finally we introduce two innovative applications that benefited from using CHR.}
 }
