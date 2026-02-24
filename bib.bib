@@ -483,7 +483,7 @@
   year     = {1992},
   note     = {Duke University},
   xaddress = {USA},
-  abstract = {The type system of the logic programming language $lambda$Prolog is discussed. The incorporation of higher-order notions within this language requires the use of a typing scheme to distinguish between expressions of different function types. Thus $lambda$Prolog is a (strongly) typed language, in contrast to the typeless language that underlies the idea of descriptive types in logic programming. The typing discipline that is employed in the language is based on the notion of simple types in the $lambda$-calculus. This form of typing enforces arity restrictions on functions and predicates and provides a builtin functional hierarchy over terms. The language contains a facility for defining new primitive types and thus permits finer grained distinctions to be introduced by the user. Further, the use of type variables and type constructors provides a form of polymorphism that is similar in certain respects to that present in the language ML. The notion of type checking in $lambda$Prolog is discussed and shown to be an operation that can be performed at the time of compilation. The value of typing distinctions in determining the clarity of programs and their usefulness in conjunction with type checking in preventing run-time errors due to type violations is also discussed. In addition to their function in type checking, types also have a major role in determining computations in the logic programming context. We discuss this aspect of types that is in contrast to their behavior in other programming paradigms and we show how this leads to a presence of types in the runtime environment. While typing has several advantages, it is sometimes to the programmer''s advantage to be able to omit their mention. Type reconstruction provides a means for filling missing type information in and we discuss issues pertinent to this process in the context of $lambda$Prolog.}
+  abstract = {The type system of the logic programming language $\lambda$Prolog is discussed. The incorporation of higher-order notions within this language requires the use of a typing scheme to distinguish between expressions of different function types. Thus $\lambda$Prolog is a (strongly) typed language, in contrast to the typeless language that underlies the idea of descriptive types in logic programming. The typing discipline that is employed in the language is based on the notion of simple types in the $\lambda$-calculus. This form of typing enforces arity restrictions on functions and predicates and provides a builtin functional hierarchy over terms. The language contains a facility for defining new primitive types and thus permits finer grained distinctions to be introduced by the user. Further, the use of type variables and type constructors provides a form of polymorphism that is similar in certain respects to that present in the language ML. The notion of type checking in $\lambda$Prolog is discussed and shown to be an operation that can be performed at the time of compilation. The value of typing distinctions in determining the clarity of programs and their usefulness in conjunction with type checking in preventing run-time errors due to type violations is also discussed. In addition to their function in type checking, types also have a major role in determining computations in the logic programming context. We discuss this aspect of types that is in contrast to their behavior in other programming paradigms and we show how this leads to a presence of types in the runtime environment. While typing has several advantages, it is sometimes to the programmer''s advantage to be able to omit their mention. Type reconstruction provides a means for filling missing type information in and we discuss issues pertinent to this process in the context of $\lambda$Prolog.}
 }
 
 @inproceedings{pfenning1988,
@@ -1028,4 +1028,139 @@
   pages     = {61--80},
   abstract  = {Since logic programming systems directly implement search and unification and since these operations are essential for the implementation of most theorem provers, logic programming languages should make ideal implementation languages for theorem provers. We shall argue that this is indeed the case if the logic programming language is extended in several ways. We present an extended logic programming language where first-order terms are replaced with simply-typed $\lambda$-terms, higher-order unification replaces first-order unification, and implication and universal quantification are allowed in queries and the bodies of clauses. This language naturally specifies inference rules for various proof systems. The primitive search operations required to search for proofs generally have very simple implementations using the logical connectives of this extended logic programming language. Higher-order unification, which provides sophisticated pattern matching on formulas and proofs, can be used to determine when and at what instance an inference rule can be employed in the search for a proof. Tactics and tacticals, which provide a framework for high-level control over search, can also be directly implemented in this extended language. The theorem provers presented in this paper have been implemented in the higher-order logic programming language $\lambda$Prolog.},
   isbn      = {978-3-540-39216-3}
+}
+
+@inproceedings{chr15,
+  author    = {Fr{\"u}hwirth, Thom},
+  editor    = {Bassiliades, Nick
+               and Gottlob, Georg
+               and Sadri, Fariba
+               and Paschke, Adrian
+               and Roman, Dumitru},
+  title     = {Constraint Handling Rules - What Else?},
+  booktitle = {Rule Technologies: Foundations, Tools, and Applications},
+  year      = {2015},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {13--34},
+  abstract  = {Constraint Handling Rules (CHR) is both an effective concurrent declarative constraint-based programming language and a versatile computational formalism. While conceptually simple, CHR is distinguished by a remarkable combination of desirable features:a semantic foundation in classical and linear logic,an effective and efficient sequential and parallel execution modelguaranteed properties like the anytime online algorithm propertiespowerful analysis methods for deciding essential program properties.},
+  isbn      = {978-3-319-21542-6}
+}
+
+@inproceedings{abella,
+  author    = {Gacek, Andrew},
+  title     = {The Abella Interactive Theorem Prover (System Description)},
+  year      = {2008},
+  isbn      = {9783540710691},
+  publisher = {Springer-Verlag},
+  address   = {Berlin, Heidelberg},
+  url       = {https://doi.org/10.1007/978-3-540-71070-7_13},
+  doi       = {10.1007/978-3-540-71070-7_13},
+  abstract  = {Abella [3] is an interactive system for reasoning about aspects of object languages that have been formally presented through recursive rules based on syntactic structure. Abella utilizes a two-level logic approach to specification and reasoning. One level is defined by a specification logic which supports a transparent encoding of structural semantics rules and also enables their execution. The second level, called the reasoning logic, embeds the specification logic and allows the development of proofs of properties about specifications. An important characteristic of both logics is that they exploit the  \"{\i} -tree syntax approach to treating binding in object languages. Amongst other things, Abella has been used to prove normalizability properties of the  \"{\i} -calculus, cut admissibility for a sequent calculus and type uniqueness and subject reduction properties. This paper discusses the logical foundations of Abella, outlines the style of theorem proving that it supports and finally describes some of its recent applications.},
+  booktitle = {Proceedings of the 4th International Joint Conference on Automated Reasoning},
+  pages     = {154–161},
+  numpages  = {8},
+  location  = {Sydney, Australia},
+  series    = {IJCAR '08}
+}
+
+@article{chr-elpi,
+  author  = {Guidi, Ferruccio and Sacerdoti Coen, Claudio and Tassi, Enrico},
+  year    = {2019},
+  month   = {03},
+  pages   = {1-26},
+  title   = {Implementing type theory in higher order constraint logic programming},
+  volume  = {29},
+  journal = {Mathematical Structures in Computer Science},
+  doi     = {10.1017/S0960129518000427}
+}
+
+@article{huet75,
+  title    = {A unification algorithm for typed $\lambda$-calculus},
+  journal  = {Theoretical Computer Science},
+  volume   = {1},
+  number   = {1},
+  pages    = {27-57},
+  year     = {1975},
+  issn     = {0304-3975},
+  doi      = {https://doi.org/10.1016/0304-3975(75)90011-0},
+  url      = {https://www.sciencedirect.com/science/article/pii/0304397575900110},
+  author   = {G.P. Huet},
+  abstract = {A semi-decision algorithm is presented, to search for unification of formulas in typed ω-order λ-calculus, and its correctness is proved. It is shown that the search space is significantly smaller than the one for finding the most general unifiers. In particular, our search is not redundant. This allows our algorithm to have good directionality and convergence properties.}
+}
+
+@article{iris-junk,
+  title   = {Iris from the ground up: A modular foundation for higher-order concurrent separation logic},
+  volume  = {28},
+  doi     = {10.1017/S0956796818000151},
+  journal = {Journal of Functional Programming},
+  author  = {Jung, Ralf and Krebbers, Robbert and Jourdan, Jacques-Henri and Bizjak, Aleš and Birkedal, Lars and DREYER, DEREK},
+  year    = {2018},
+  pages   = {e20}
+}
+
+@inproceedings{10.5555/646190.683572,
+  author    = {Leach, Javier and Nieva, Susana},
+  title     = {A Higher-Order Logic Programming Language with Constraints},
+  year      = {2001},
+  isbn      = {3540417397},
+  publisher = {Springer-Verlag},
+  address   = {Berlin, Heidelberg},
+  abstract  = {We present a framework for the combination of Constraint Logic Programming (CLP) and higher-order Hereditary Harrop Formulas (hoHH). Our aim is to improve the expressiveness of traditional Logic Programming with the benefits of both fields: CLP and hoHH. The result is denoted higher-order Hereditary Harrop Formulas with Constraints (hoHH(C)). The syntax of hoHH is introduced using lambda-terms and is enriched with a basic constraint system. Then an intuitionistic sequent calculus is defined for this combined logic, that preserves the property of an abstract logic programming language. In addition, a sound and complete procedure for goal solving is presented as a transformation system that explains the operational semantics.},
+  booktitle = {Proceedings of the 5th International Symposium on Functional and Logic Programming},
+  pages     = {108–122},
+  numpages  = {15},
+  series    = {FLOPS '01}
+}
+
+@inproceedings{pfenning1993,
+  author    = {Spiro Michaylov and Frank Pfenning},
+  title     = {Higher-Order Logic Programming as Constraint Logic Programming},
+  booktitle = {Position Papers for the First Workshop on Principles and Practice of Constraint Programming},
+  address   = {Newport, Rhode Island},
+  publisher = {Brown University},
+  month     = apr,
+  year      = {1993},
+  pages     = {221--229}
+}
+
+@inproceedings{teyjus,
+  author    = {Nadathur, Gopalan},
+  editor    = {Kuchen, Herbert
+               and Ueda, Kazunori},
+  title     = {The Metalanguage $\lambda$prolog and Its Implementation},
+  booktitle = {Functional and Logic Programming},
+  year      = {2001},
+  publisher = {Springer Berlin Heidelberg},
+  address   = {Berlin, Heidelberg},
+  pages     = {1--20},
+  abstract  = {Stimulated by concerns of software certification especially as it relates to mobile code, formal structures such as specifications and proofs are beginning to play an explicit role in computing. In represent- ing and manipulating such structures, an approach is needed that pays attention to the binding operation that is present in them. The language $\lambda$Prolog provides programming support for a higher-order treatment of abstract syntax that is especially suited to this task. This support is realized by enhancing the traditional strength of logic programming in the metalanguage realm with an ability for dealing directly with binding structure. This paper identifies the features of Prolog that endow it with such a capability, illustrates their use and and describes methods for their implementation. Also discussed is a new realization of Prolog called Teyjus that incorporates the implementation ideas presented.},
+  isbn      = {978-3-540-44716-0}
+}
+
+@inproceedings{miller1988,
+  author    = {Gopalan Nadathur and Dale A. Miller},
+  title     = {An Overview of Lambda-Prolog},
+  booktitle = {Proceedings of the Fifth International Conference and Symposium on Logic Programming},
+  pages     = {810--827},
+  publisher = {MIT Press},
+  address   = {Seattle, WA, USA},
+  year      = {1988}
+}
+
+@book{isabelle,
+  added-at  = {2023-12-13T03:40:04.000+0100},
+  author    = {Nipkow, Tobias and Paulson, Lawrence C. and Wenzel, Markus},
+  biburl    = {https://www.bibsonomy.org/bibtex/26ca90f09d85d8d70b58e441d052da780/admin},
+  ee        = {https://doi.org/10.1007/3-540-45949-9},
+  interhash = {8daeb422681d849d8af4fe40aeaaa7cd},
+  intrahash = {6ca90f09d85d8d70b58e441d052da780},
+  isbn      = {3-540-43376-7},
+  keywords  = {},
+  publisher = {Springer},
+  series    = {Lecture Notes in Computer Science},
+  timestamp = {2023-12-13T03:40:04.000+0100},
+  title     = {Isabelle/HOL - A Proof Assistant for Higher-Order Logic},
+  volume    = 2283,
+  year      = 2002
 }
