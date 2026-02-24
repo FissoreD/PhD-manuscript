@@ -2,36 +2,44 @@
 
 
 \section{Why determinacy?}
+\cite{warren1989,somogy1996,hanus2025}
+
 \section{Implementation}
 
-  \subsection{Rule checking}
-  \subsection{Mutual exclusion}
-  Using discrimination tree
+\subsection{Rule checking}
+\subsection{Mutual exclusion}
+Using discrimination tree
 
-  \subsection{Caveats}
-  For example, mutual exclusion is not perfect: over aproximation of
-  unification
+\subsection{Caveats}
+For example, mutual exclusion is not perfect: over aproximation of
+unification
 
-  Rule checking ignores flexible rule loading
+Rule checking ignores flexible rule loading
 
 \section{Formalization in Rocq}
 
-  \subsection{The langauge}
-  Input must come before outputs
+Using ssreflect~\cite{ssreflect}
 
-  Inputs must come before outputs, with Disc tree this is not mandatory, since
-  unification is weaker.
+\subsection{The langauge}
+Input must come before outputs
 
-  EG: 
+Inputs must come before outputs, with Disc tree this is not mandatory, since
+unification is weaker.
 
-  \includegraphics{code/dt_mut_excl.pdf}
+EG: 
 
-  In the code above, both rules can be used with the query, but, 
-  the discrimination tree, save the world
+\includegraphics{code/dt_mut_excl.pdf}
+
+In the code above, both rules can be used with the query, but, 
+the discrimination tree, save the world
 
 
-  \subsection{The tree semantics}
-  \subsection{The stack semantics}
-  \subsection{Semantics equivalence}
-  \subsection{The main theorem}
+\subsection{The tree semantics}
+\subsection{The stack semantics}
+\cite{pusch1996}
+\subsection{Semantics equivalence}
+
+\cite{yves-equiv}
+
+\subsection{The main theorem}
 
