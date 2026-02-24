@@ -50,10 +50,13 @@ similarity between the two pieces of code is striking, but in Rocq we can go
 further. Type classes can be used not only for function overloading, but also
 for theorem overloading. In coq a class can in fact not also carry function
 specifications, but also the porperties that these functions should satisfy. For
-example, we could have a method, say \emph{eqb\_correct} certifying that for
+example, we could have a method, say \emph{eqP} certifying that for
 each implementation of \emph{eqb} there is a proof that the two objects are
 structurally equivalent. This would also mean that each implementation of
-\emph{Eqb} should implement \emph{eqb\_correct}.
+\emph{Eqb} should implement \emph{eqP}.
+
+This last implementation with eqb and eqP is the one used by
+ssreflect~\cite{ssreflect} through~\cite{hb}
 
 Type classes are deppely used in libraries such as stdpp, iris, ...
 
@@ -127,7 +130,7 @@ CHR Pfenning: \cite{pfenning1993}
 
 Coqelpi: \cite{tassi2018}
 
-Hierarchy Builder: \cite{tassi2020}
+Hierarchy Builder: \cite{hb}
 
 Trackt: \cite{enzo2023}
 
