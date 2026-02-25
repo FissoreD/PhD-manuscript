@@ -46,10 +46,7 @@
     // },
     {
       "name": "base",
-      "tools": [
-        "pdflatex",
-        "pdflatex"
-      ]
+      "tools": [ "pdflatex" ]
     },
   ]
 }
