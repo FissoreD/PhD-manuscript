@@ -1,20 +1,1805 @@
 \chapter{Determinacy checking for \elpi}
 
+\newcommand{\efunc}{efunc}
+\newcommand{\run}{run}
+\newcommand{\epred}{epred}
+\newcommand{\PRED}{pred}
+\newcommand{\DATA}{data}
+\newcommand{\CALLABLE}{callable}
+\newcommand{\vHDo}{vHDo}
+\newcommand{\VAR}{var}
+\newcommand{\TERM}{term}
+\newcommand{\HEAD}{head}
+\newcommand{\STAR}{STAR}
+\newcommand{\ATOM}{atom}
+\newcommand{\RULE}{rule}
+\newcommand{\cut}{cut}
+\newcommand{\piImplCmd}{piimpl}
+\newcommand{\expI}{expI}
+\newcommand{\cdash}{cdash}
+\renewcommand{\pi}{pi}
+\newcommand{\PROG}{prog}
+\newcommand{\SIGMA}{sigma}
+\newcommand{\subst}{subst}
+\newcommand{\prog}{prog}
+\newcommand{\vecL}{vecl}
+\newcommand{\GOAL}{goal}
+\newcommand{\ALT}{alt}
+\newcommand{\TYPE}{type}
+\newcommand{\detI}{detI}
+\newcommand{\relI}{relI}
+\newcommand{\F}{F}
+\newcommand{\SIGN}{sign}
+\newcommand{\EmptySubst}{empty}
+\newcommand{\mutExclAll}{mutExclAll}
+\newcommand{\toI}{toI}
+\newcommand{\toO}{toO}
+\newcommand{\func}{func}
+\newcommand{\BOOL}{BOOL}
+\newcommand{\CTX}{CTX}
+\newcommand{\EmptyList}{EmptyList}
+\newcommand{\mySub}{mySub}
+\newcommand{\minT}{minT}
+\newcommand{\maxT}{maxT}
+\newcommand{\maximize}{maximize}
+\newcommand{\minimize}{minimize}
+\newcommand{\ctx}{ctx}
+\newcommand{\auxfont}{auxfont}
+\newcommand{\sststile}{sststile}
+\newcommand{\checkc}{checkc}
+\newcommand{\ccC}{ccC}
+\newcommand{\checkhi}{checkhi}
+\newcommand{\chiC}{chiC}
+\newcommand{\checkho}{checkho}
+\newcommand{\checka}{checka}
+\newcommand{\checkai}{checkai}
+\newcommand{\checkao}{checkao}
+\newcommand{\assume}{assume}
+\newcommand{\choC}{choC}
+\newcommand{\aC}{aC}
+\newcommand{\caoC}{caoC}
+\newcommand{\cAOi}{cAOi}
+\newcommand{\ccM}{ccM}
+\newcommand{\caC}{caC}
+\newcommand{\iC}{iC}
+\newcommand{\checkAtomFig}{checkAtomFig}
+\newcommand{\inferFig}{inferFig}
+\newcommand{\assumeFig}{assumeFig}
+\newcommand{\isdet}{isdet}
+\newcommand{\isdetq}{isdetq}
+\newcommand{\isdetp}{isdetp}
+\newcommand{\runCmd}{runCmd}
+\newcommand{\xmark}{xmark}
+\newcommand{\cmark}{cmark}
 
-\section{Why and what is determinacy?}
-\cite{warren1989,somogy1996,hanus2025,henderson1996,king2005,king2011}
+\section{Introduction}
 
-% \section{Implementation}
+% We are interested in the static analysis of Elpi programs, in particular
+% in checking their determinacy. Elpi is a higher-order logic programming
+% language, a dialect of $\lambda$Prolog well suited to manipulate
+% incomplete syntax trees with binders (see
+% \cite{miller1991-pf,miller2012} and \cite{dunchev15lpar,tassi2019-1}).
+% Elpi finds applications as an extension
+% language for the Rocq Prover (formerly known as the Coq proof assistant)
+% where it has been used for program and proof synthesis by~\cite{tassi2018,tassi2019,tassi2023,hb} and more recently
+% as the target language for type-class resolution by~\cite{fissore2023,fissore2024}.
 
-\section{Rule checking}
-\section{Mutual exclusion}
-Using discrimination tree
+% In Rocq type-class resolution is used for multiple purposes: From automatic
+% proof search as in~\cite{sozeau2008-tc} to Haskell-style symbol overloading as in~\cite{wadler1996-hs}.
+% For this last application
+% the solution to a query provides the formal meaning of the overloaded symbol
+% and it is of paramount importance that this solution is unique.
+% A static check for this property is of particular
+% interest in the context of the platform of Rocq libraries where code developed
+% by different teams is combined together.
 
-\section{Caveats}
-For example, mutual exclusion is not perfect: over aproximation of
-unification
+% As of today, Elpi comes equipped with a standard type checker~\cite{1992nadathur} but
+% features no determinacy analysis. The literature provides
+% many works on the subject~(among them \cite{warren1989,somogy1996,king2011}), but none
+% can be applied to Elpi due to its higher-order nature.
 
-Rule checking ignores flexible rule loading
+
+
+
+Elpi is a higher-order logic programming language, a dialect of
+\(\lambda\)Prolog, particularly well suited for manipulating
+syntax trees with binders (see \cite{miller1991-pf,miller2012,dunchev15lpar,tassi2019-1}). It is used as an
+extension language for the Rocq Prover (formerly the Coq proof
+assistant) and has become an important piece of infrastructure: several
+projects and libraries depend on Elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}. Examples include the
+Hierarchy-Builder library-structuring tool~\cite{hb},
+which supports the Mathematical Components ecosystem~\cite{assia2022} and
+mechanizations such as the Odd Order and Four Color theorems
+\cite{gonthier2013,gonthier2023},
+and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis framework with industrial
+applications at BlueRock systems.
+
+
+Over the years Elpi was put in the hands of quite a number of Rocq users
+and the most widely cited barrier to entry has been the paradigm shift to a
+logic programming one.
+Rocq users
+are comfortable with typed and functional programming but often lack
+experience with backtracking and its control. Uncontrolled
+backtracking can produce slower programs and complicate debugging.
+
+To lower this barrier we design a system of determinacy signatures that
+allows programmers to declare when a predicate behaves like a
+function: at most one result is produced and the runtime will not
+consider alternative results. This notion of determinism is
+called \emph{semidet} by
+Henderson et al.~\cite{henderson1996} and named \emph{operationally
+deterministic} by Nakamura~\cite{nakamura1986}. Alternative notions
+exist, for example Warren~\cite{warren1989} considers predicates
+\emph{observably deterministic} when they produce the same result
+multiple times or diverge.
+We chose operational determinacy since it matches
+the behavior of functions in mainstream functional languages.
+
+Our determinacy checker covers Elpi's
+higher-order features, including higher-order predicates (for
+example map and fold, see \cref{sec:HO-program}) and dynamic predicates that extend themselves at
+runtime (see \cref{sec:dynamic-prog}). %, and meta-programs that manipulate Elpi code.
+
+We apply these signatures to a large portion of publicly available
+Elpi code in the Rocq ecosystem and report our experience. Our
+findings indicate that most Elpi programs are intended to be
+backtracking-free and require only minimal signatures for the static
+analyzer we implemented to verify determinacy.
+
+%In passing we fix some unwanted backtracking.
+
+% \paragraph{Contributions}
+
+
+\paragraph{Contributions}
+1) we design a language of signatures to assert the determinacy of predicates
+that covers higher-order logic programming constructs such as first-class
+predicates and dynamic predicates; 2) we implement a
+static analyzer for that language; 3) we apply the static analyzer
+to most of the Elpi code available in the Rocq ecosystem.
+
+% Our contribution is a static analyzer that 1)
+% % \begin{itemize}
+% % \item 
+% covers higher-order logic programming constructs such as first-class
+%       predicates, dynamic predicates and meta programs; 2)
+% % \item 
+% can be applied incrementally to a pre-existing code bases since it tracks
+%       miscalled higher-order functions rather than aborting.
+% % \end{itemize}
+
+\section{Elpi and determinacy signatures by examples}\label{sec:intro}
+
+As in most logic programming languages, Elpi programs are organized in rules.
+When rules are not \emph{mutually exclusive}, i.e. multiple rules apply on the same query,
+the runtime continues the computation 
+using the rule with highest priority. Moreover it stores the 
+other rules as a \emph{choice point} and
+can backtrack to that point to continue the computation.
+What makes backtracking tricky to Elpi users is that it is an opt-out feature
+of logic programming: it is left to the programmer to tell the
+runtime to commit to one rule and discard the choice point, rather than
+the other way around. If the user forgets to commit to a rule, his program
+still works but becomes much harder to debug and typically slower to run
+in case of failures.
+
+The simplest example is the list-membership \emph{relation} that
+can succeed more than once if the element we are looking for occurs multiple
+times in the list:
+
+\begin{elpicode}
+mem X [Y|_ ] :- X = Y.    % the head is the X we are looking for, or
+mem X [_|YS] :- mem X YS. % recurse on the tail
+\end{elpicode}
+
+In the code above each line represents a rule. By convention, unification
+variables are capitalized, and following the $\lambda$-calculus tradition
+application is written without parentheses, i.e. $f~x$ rather than $f(x)$.
+Square brackets are used for lists with pipe separating the head from the tail.
+The \eI{:-} symbol separates the head of a rule from its premises. Rules are tried 
+in the order of their declaration by unifying their head with the current query.
+
+The first rule for \eI{mem}
+is the base case: it succeeds if the head of the list is equal to the \eI{X} we are
+looking for. The second one discards the list's head and continues looking for
+\eI{X} in the tail.
+A query such as \eI{mem 2 [2,3,2]} can be solved
+in two different ways: either using rule 1 immediately, or using rule 2
+twice to discard the first two items, and then conclude with rule 1. 
+% Even worse, one can also observe a failure when rule 2 is applied three times.\todo{what?}
+
+Elpi users often have a background in functional programming and simply do
+expect \eI{mem} to be a \emph{function} testing membership, and not
+a relation. Moreover one needs to look, carefully, at how \eI{mem} 
+is implemented in order to see the peril.
+This misconception becomes a problem when they use \eI{mem}
+in a larger piece of code and observe its execution.
+%
+\begin{elpicode}
+main L :- code_before L, mem 1 L, code_after L.
+\end{elpicode}
+%
+For example, in the code above, one may see \eI{code_after} being executed
+multiple times: each choice point left by \eI{mem} enables the runtime to
+backtrack to that point in time and continue from there. Even worse, if
+\eI{code_after} is expensive and fails, one pays its cost  multiple times.
+
+It must be said that backtracking can be very useful in some situations and
+that a programmer with experience in logic programming can take advantage of
+that. We want the Elpi casual user to be able to write code without mastering
+all that, and simply declare that they expect \emph{their code} to
+compute functions.
+%
+\begin{elpicode}
+func main list int -> . % the signature for main
+\end{elpicode}
+%
+The signature starts by a keyword declaring the determinacy of
+the predicate: \efunc{} for deterministic predicates, that we also call functions,
+and \epred{} for any predicate, including both functions and relations.
+Inputs are separated from outputs by the
+arrow symbol, and in the case of \eI{main} there is no output.
+
+\begin{elpicode}
+main L :- code_before L, mem 1 L, code_after L.
+%                        ^^^^^^ error: non-deterministic atom    
+\end{elpicode}
+%
+Since \eI{main} was declared as a function, our static analysis invites the user
+to discard the choice points left by \eI{mem}, for example by inserting a
+\eI{!} (a \emph{cut} directive)
+after it. Assuming \eI{code_after}
+is a functions, this code is accepted, since the cut discards all choice
+points generated by \eI{mem} and \eI{code_before L}.
+% , or by using the \eI{once} higher-order predicate (see next section).
+
+\begin{elpicode}
+main L :- code_before L, mem 1 L, !, code_after L. % OK
+\end{elpicode}
+%
+Note that the programmer may also write a functional membership test as
+follows, and use it in functional code with no additional safeguard. In this case
+the cut discards the second rule as soon as \eI{X = Y} succeeds.
+\begin{elpicode}
+func in int, list int -> .
+in X [Y|_ ] :- X = Y, !. % commit to this rule, discard the next one
+in X [_|YS] :- in X YS.
+
+main L :- code_before L, in 1 L, code_after L. % OK
+\end{elpicode}
+%
+Tracking the use of backtracking code statically is a well known technique
+in logic programming called determinacy analysis~\cite{warren1989,somogy1996}.
+What the literature lacks
+is a treatment of Elpi features not available in plain Prolog,
+see~\ref{sec:HO-program} and \ref{sec:dynamic-prog}. %and \ref{sec:meta-prog}.
+% We recall them in the following sections.
+
+\subsection{Higher-order programs}
+\label{sec:HO-program}
+
+A notable higher-order program is the one turning relations into functions.
+\footnote{The syntax \eI{~\PYG{k+kd}{(pred)}~}, equivalent to \eI{~\PYG{k+kd}{(pred ->)}~},
+is for fully applied predicates, i.e. for terms with neither inputs nor outputs}
+% any predicate
+% into a function.
+%
+\begin{elpicode}
+func once (pred) -> . % a function taking a fully applied predicate
+once P :- P, !.       % the ! commits to the first success
+\end{elpicode}
+
+
+%
+We say that the signature of the \eI{once} predicate marks it as \emph{unconditionally}
+a function: \eI{once} leaves no choice points, no matter what it receives as
+the higher-order argument \eI{P}.
+
+An example of a \emph{conditional} function is
+the predicate to map over a list:
+\begin{elpicode}
+func map (func A -> B), list A -> list B.
+map _ [] [].
+map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
+\end{elpicode}
+%
+We say that the signature of \eI{map} has a \emph{precondition}, namely
+that \eI{F} is a function, and a \emph{postcondition}, namely that
+\eI{map} is a function, i.e., the call \eI{map F L L'} leaves
+no choice points.
+If the precondition is not met the postcondition is not guaranteed to hold and we say
+that \eI{map} is \emph{miscalled}. In this case we weaken its signature to%
+\footnote{We explain in detail this weakining operation in \cref{sec:basic}}:
+%
+\begin{elpicode}
+pred map (func A -> B), list A -> list B.
+\end{elpicode}
+%
+Our static analysis tracks miscalled functions and considers them as
+relations for the analysis of the surrounding code. This is important to
+avoid code duplication, i.e., we can just have one copy of
+\eI{map} in our library.
+We give an example of four scenarios involving calls and miscalls to \eI{map}.
+
+
+% \noindent
+% \begin{minipage}{.5\textwidth}
+\begin{elpicode}
+% a function                      % a relation
+func incr int -> int.             pred get_pdiv int -> int.
+incr 1 2.                         get_pdiv 6 3. get_pdiv 6 2.
+
+       % four predicates calling map or miscalling map
+func p list int -> list int.      pred q list int -> list int.
+p L R :- map incr L R. ~\PYG{c}{\PYGZpc{} OK}~       q L R :- map get_pdiv L R. % OK
+
+func r list int -> list int.      func r1 list int -> list int.
+r L R :- map get_pdiv L R.        r1 L R :- map get_pdiv L R, !. % OK
+           % ^^^^^^^^ error: non-deterministic atom
+\end{elpicode}
+%\vspace{-1.5em}
+% \end{minipage}
+
+Here \eI{p} is a function because the precondition of \eI{map} is respected
+(\eI{incr} is a function).
+The body of \eI{q} contains a miscall to \eI{map}; as a consequence
+\eI{q} may leave choice points. This is not an error because
+\eI{q} is declared to be a relation. 
+The body of \eI{q} and \eI{r} are identical, but
+\eI{r} should be a function and hence the static analyzer complains.
+The predicate \eI{r1} has the same signature of \eI{r} but it
+compensates the miscall to \eI{map} by discarding choice points via
+a cut. The static analyzer accepts this last declaration. We point out that,
+partial applications, like, \eI{(map incr)}, are accepted in our system,
+see \cref{sec:basic}.
+
+
+
+\subsection{Dynamic programs}
+\label{sec:dynamic-prog}
+
+The domain where Elpi really shines is the manipulation of higher-order data
+represented via the so-called $\lambda$-tree syntax~\cite{miller2018}
+also called HOAS~\cite{pfenning1988}.
+Such data is pervasive in interactive provers based on Type Theory
+such as Rocq. In the paradigmatic example below \eI{tm} is
+the data type for $\lambda$-terms.
+%
+\begin{elpicode}
+kind tm type.                       % datatype of $\lambda$-terms in HOAS form
+type app tm -> tm -> tm.            %  - binary application
+type lam (tm -> tm) -> tm.          %  - $\lambda$-abstraction
+\end{elpicode}
+%
+In the HOAS encoding of syntax with binders we do not find a node for variables:
+we re-use the notion of bound variable of the programming language to encode the
+one of the syntax tree. At the level of types we see that the \eI{lam}
+node carries an Elpi function over terms. It is by applying this function
+that one can recover the body of the $\lambda$-abstraction.
+A simple program manipulating higher-order data is the function
+performing a deep copy of a term:
+%
+\begin{elpicode}
+func copy tm -> tm.
+copy (app A B) (app C D) :- copy A C, copy B D.
+copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
+\end{elpicode}
+%
+The copy of an application is built from the copies of the subterms. What is
+more interesting is how one copies under a binder.
+The ``\eI{pi x\ copy x x =>}'' instruction
+generates a fresh constant \eI{x} and adds to the program the
+rule \eI{copy x x} for the rest of the execution of copy. That rule
+explains how to copy the new constant \eI{x}. Intuitively ``\eI{pi x\.. => ..}''
+amounts to a well-bracketed use of Prolog's \texttt{assert/1} and \texttt{retract/1}.
+Finally the code performs a recursive call over \eI{F x}:
+by applying the Elpi function \eI{F} to
+the fresh symbol \eI{x} one obtains the body of the $\lambda$-abstraction
+where the bound variable is replaced
+by the new symbol \eI{x}.
+
+In Elpi, all predicates are \emph{dynamic}, or open, hence
+the code of \eI{copy} can be
+augmented with rules at runtime. 
+% \todo{remark app, lam and each x are different}
+% \todo{we want copy to be a understood as a function}
+Even so \eI{copy} is a function because no
+two rules can apply to the same input: \eI{lam} and \eI{app}
+are different constants, and each constant \eI{x} generated dynamically is
+guaranteed to be fresh by the \eI{pi} operator, hence
+each \eI{copy x x} rule is mutually exclusive with the other rules.
+
+The \eI{copy} predicate, as given, implements the identity and may seem rather useless, 
+but it is not! Since the program is open, one can add new rules for
+\eI{copy} and change its behavior. For example the code below
+computes the weak head normal form of a $\lambda$-term by contracting
+the application of a $\lambda$-abstraction
+to an argument and uses \eI{copy} to perform the substitution:
+
+\begin{elpicode}
+func whd tm -> tm.
+whd (app H A) R :- whd H (lam F), !,           % we fire the redex
+  pi x\ copy x A => copy (F x) S, whd S R.     %   and we continue
+whd X X.                                       % or we stop
+\end{elpicode}
+
+The argument \eI{A} is put in place of the (previously) bound variable in
+\eI{F} by replacing that variable with \eI{x} and
+by running \eI{copy} with the addition of a special rule
+copying \eI{x} to \eI{A}.
+Our static analysis understands this programming pattern
+and is able to recognize that \eI{whd} is also a function.
+In particular the first rule, if taken, discard the second rule (due to the cut)
+and only calls functions.
+
+% TODO: long version
+% \subsection{Meta programs}
+% \label{sec:meta-prog}
+
+% Elpi code is first class, i.e., it can be inspected and generated in Elpi
+% itself.
+% Here we take as
+% an example the code performing the fusion of two calls to \eI{map}~\cite{wadler1989}.\\
+% % \hspace{-.5em}
+% \begin{minipage}{.45\textwidth}
+% \begin{elpicode}
+% func comp (func A -> B),
+%           (func B -> C),
+%           A -> C.
+% comp F G X Z :- F X Y, G Y Z.
+% \end{elpicode}
+% \end{minipage}
+% \begin{minipage}{.5\textwidth}
+% \begin{elpicode}
+% func fuse (func list A -> list B),
+%           (func list B -> list C) ->
+%           (func list A -> list C).
+% fuse (map F) (map G) (map (comp F G)).   
+% \end{elpicode}
+% \end{minipage}
+
+
+% % \begin{elpicode}
+% %   func comp (func A -> B), (func B -> C), A -> C.
+% %   comp F G X Z :- F X Y, G Y Z.
+
+% %   func fuse (func list A -> list B), (func list B -> list C) ->
+% %             (func list A -> list C).
+% %   fuse (map F) (map G) (map (comp F G)). 
+% % \end{elpicode}
+
+% The signature of \eI{fuse} has two preconditions, both inputs
+% should be functions, and two postconditions: \eI{fuse} is a function and
+% the output is also a function.% Our static checker accepts the code above.
+% % \todo{maybe: we want the output to be understood as a function, the reasoning
+% % is done in section xx}
+% The code of \eI{fuse} inspects two programs: if both are
+% mapping a list, respectively with \eI{F} and \eI{G}, then it
+% generates a new program \eI{map (comp F G)}. The static analysis
+% is able to verify that this output is a function following this
+% reasoning: since \eI{map F} and \eI{map G} are functions then
+% also \eI{F} and \eI{G} must be; from that we have that
+% \eI{comp F G} is a function and so is \eI{map (comp F G)}.
+
+% Almost every Rocq extension makes some use of meta programming: it typically
+% concludes by generating a new rule and stores it on disk to make it persist
+% across subsequent invocations of the same program. 
+
+
+
+\section{Elpi's abstract syntax and rule selection}
+
+Any static analysis to rule out non-determinism must depend on the
+operational semantics of the language. In particular
+the order in which rules are applied and the order in which rule premises
+are executed directly impact the scope of the cut directive.
+
+Here we specify the relevant aspects of Elpi.
+Its abstract syntax is given below. %in~\cref{fig:syntaxonly}.
+% \begin{figure}[h]
+  % \begin{framed}
+%   \begin{minipage}{0.45\textwidth}
+  $$
+  \begin{array}{rlrrlr}
+    \PRED & ::= p, q, \ldots & \mathrm{~~predicate} & \qquad
+    \CALLABLE & ::= \PRED \mid  \VAR \mid \CALLABLE\ \TERM & \mathrm{callable} \\
+    \DATA & ::= f, g \ldots x, y, \ldots & \mathrm{constant} &
+    \HEAD & ::= \PRED \mid  \HEAD\ \TERM & \mathrm{head} \\
+    \VAR & ::= \mathrm{X}, \mathrm{Y} \ldots & \mathrm{variable} &
+    \ATOM& ::= \CALLABLE \mid \cut \mid \piImplCmd[\expI]{\DATA}{\RULE}{\ATOM} & \mathrm{atom} \\
+    \TERM & ::= \PRED \mid \DATA \mid \VAR \mid \TERM\ \TERM &\mathrm{term} &
+    \RULE & ::= \HEAD\ \cdash\ \ATOM^* & \mathrm{rule} 
+% \end{array}
+% $$
+% \end{minipage}~
+% \begin{minipage}{0.5\textwidth}
+    % $$
+    % \begin{array}{rlr}
+  \end{array}
+  $$
+% \end{minipage}
+
+% \end{framed}
+%   \vspace{-1em}
+%   \caption{Abstract syntax of Elpi}
+%   \label{fig:syntaxonly}
+% \end{figure}
+
+We assume a set \PRED of predicate names,
+a set \DATA of term constructors, and a set \VAR of unification variables.
+We call the union of these three syntactic categories \emph{symbols}.
+In the syntax of atoms \ATOM we find predicate calls (\CALLABLE), the \cut operator (explained in \cref{sec:hc})
+and the \pi\ operator.%
+\footnote{
+In reality, in Elpi, \eI{pi} and \eI{=>} are two separate operators,
+generating a fresh symbol and loading a rule respectively,
+but for simplicity we only consider their combination.}
+The arguments of predicate calls are in the \TERM\ nonterminal, for terms,
+that includes predicate calls along with first order data construction.
+Because of space constraint we omit from the syntax the construction of
+data with binders since it plays no interesting role in
+the static analysis of determinacy.
+We reserve $s$ for symbols ($\PRED \cup \DATA \cup \VAR$), $v$ for variables, 
+$k$ for terms in $\PRED \cup \DATA$, $a$ and $b$ for atoms, $c$ for callables
+and $r$ for rules.
+Given a rule $h\ \cdash\ b_1 \ldots b_n$ we call $h$ the \emph{head},
+$b_1 \ldots b_n$ the \emph{body}
+and each $b_i$ a \emph{body atom}.
+% In the signatures of the static analyzer,
+We use non-terminals to represent the class of objects they identify; for example,
+\TERM identifies (or is the type of) terms. We use \PROG for the type of programs,
+being lists of rules in \RULE, and we reserve $t$ for terms and $\prog$ for programs.
+%
+% \begin{definition}[Rule priority]
+\paragraph{Rule priority} 
+ Each rule in a program has a unique identifier called priority; 
+  this priority stems from the order in which the rule should be 
+  applied at runtime.
+There exists a unique total order for rules following their priority.
+When a rule is applied, its body atoms are executed in order.
+
+This selection strategy is called SLD and is the standard one for logic programs.
+In this strategy non-determinism arises when:
+1) at least two rules can be used (successfully) to the \emph{same query} (i.e.,
+lack of mutual exclusion between rules, see~\cref{sec:hc});
+2) the call to a non-deterministic predicate, or the miscall of a deterministic one,
+is not followed by a cut (see~\cref{sec:basic}).
+
+
+% To conlude, the algorithm informally:
+% \begin{itemize}
+%   \item checks that each rule is mutually exclusive with the rest of the program
+%   \item that its tail of calls is made of well called functional predicates
+%   \item checks that the pre conditions of rules entail the post conditions
+% \end{itemize}
+
+
+\section{Hard Cut and Mutual Exclusion}
+\label{sec:hc}
+
+We focus on how to address the first source of non-determinism.
+
+In order to precisely describe \cut, we need to introduce the notion of choice
+points, or alternatives.
+The type of an alternative \ALT\ is equal to
+$\SIGMA \times \vecL{\GOAL}$, that is a substitution and a list of goals.
+The type of a goal \GOAL\ is equal to $\PROG \times \ATOM$, that is
+a program and a query (an atom). Since the program can dynamically change due to \pi,
+each (sub)goal must contain the program in which it should be solved.\\
+A substitution $\subst$ is a partial mapping from unification variables
+\VAR to terms \TERM{}. We call this function space \SIGMA\ and we
+write \EmptySubst\ for the empty substitution. We write $\subst \cdot t$ for
+the application of a substitution $\subst$ to a term $t$.
+
+
+\begin{definition}[Hard cut]
+  \label{def:hard-cut}
+Given a rule for predicate $k$ with
+priority $p$
+and
+body $b_1 \ldots b_i\ \cut \ \ldots$, the effect of
+reaching \cut is that the runtime discards all alternatives
+generated by $b_1 \ldots b_i$ and all rules for $k$ with lower priority than $p$.
+\end{definition}
+
+Elpi applies rules by matching the input arguments,
+like B-Prolog's ``matching clauses''~\cite{zhou2012},
+and by unifying the output ones using Miller's algorithm~\cite{miller1991-pf}.
+
+\begin{definition}[Unification / Matching]\label{def:matching}
+Two terms $t$ and $u$ unify if there exists a
+substitution $\subst$ such that $\subst \cdot t = \subst \cdot u$. We say that a term $t$
+matches (the pattern) $u$ if there exists a
+substitution $\subst$ such that $\subst \cdot u = t$ and % $\subst \cdot t = t$.
+the domain of $\subst$ is the free variables of $u$
+\end{definition}
+
+Finally, in the next definition we distinguish between global rules,
+i.e., rules that are part of the program \prog, and local rules that
+are loaded via the \pi operator. For example, the \eI{copy} predicate
+from \cref{sec:dynamic-prog} has two global rules and one local rule.
+
+\begin{definition}[Mutual exclusion ($\mutExclAll~\PROG~\RULE$)]
+  \label{def:mutExcl}
+  Given a program \prog and a rule $r$, such that $r\notin \prog$,
+  % $r = (k~t_1\ldots t_n~t_{n+1}\dots t_m ~\cdash~ b_1 \ldots b_r) $
+  % with
+  % $\ctx\ k = \rho_1 \toI \ldots \toI \rho_{n+1} \toO \ldots \toO \func$,
+  % i.e., the first $n$ arguments are inputs, $k$ is rigid with determinacy \func.
+  we say that $r$ is mutually exclusive with the rules in \prog if
+  % $\func = \relI$. Otherwise, if $\func = \detI$,
+  it has the highest priority and 
+  one of the following additional conditions holds:\\
+  % (a) $\exists i, b_i = \cut$, or\\
+  (a) there is a \cut in the body of $r$, or\\
+  (b) \parbox[t][][t]{.95\textwidth}{$r$ is a gloabl rule and
+      all rules $r'$ in \prog have an input argument not unifying
+      with the corresponding input in $r$, or}\\
+  % $r$ is a rule and
+    % $\forall r' = (k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$
+      % there exists a $d \leq n$ s.t. $t_d$ and $u_d$ do not unify, or}\\
+      \label{def:mut-excl-global}
+  (c) \parbox[t][][t]{.95\textwidth}{$r$ is a local rule
+      introduced via $\pi\ x\ r\ b$, 
+      $x$ is an input of $r$ and for all rules $r'$ in the program,
+      the corresponding input is not a variable
+      %$\exists d \leq n$ s.t.
+      % $t_d = x$ and
+    % forall rules $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
+    % $u_d$ is not a variable (not in \VAR).
+    }
+\end{definition}
+
+% These two conditions are sufficient to avoid the creation of choice points
+% due to rules selection.
+% For example the query \eI{q 1 R} has only one solution (\eI{R = 3})
+% in the program below, while \eI{p 1 R} has two (\eI{R = 3} and \eI{R = 2}).
+% TODO meglio\\
+For example, the rules for predicate \eI{p} below are not mutually exclusive, so choice points may
+remain after a query resolution, hence introducing non-determinism.
+For instance, \eI{p 1 X} has two solutions, namely
+\eI{X = 3} and \eI{X = 2}.\\
+
+
+\noindent
+\begin{minipage}{.33\textwidth}
+\begin{elpicode}
+pred p int -> int.
+p 1 3. 
+p 1 2.
+\end{elpicode}
+\end{minipage}
+\begin{minipage}{.33\textwidth}
+\begin{elpicode}
+func q int -> int.
+q 1 3.
+q 2 4.
+\end{elpicode}
+\end{minipage}
+\noindent
+\begin{minipage}{.33\textwidth}
+\begin{elpicode}
+func r int -> int.
+r X R :- p X R, !. 
+r X R :- q X R.             
+\end{elpicode}
+\end{minipage}
+
+\noindent
+Conversely, \eI{q} satisfies mutual exclusion: no query can trigger both
+rules. Note that, since inputs are matched, a query like \eI{q X Y} has no
+solution in Elpi. Standard Prolog implementation would reject the query as
+not well moded since the input \eI{X} is not ground.
+Both rules for \eI{r} match any input.
+If the first rule succeeds, the \cut\ removes the alternatives
+created by the call to \eI{p} and also 
+discards the 
+other rule \eI{r X R :- q X R}. 
+If the first rule fails, the \cut is not reached hence
+the second rule is not discarded.
+Thus, at most one rule can succeed for \eI{q}.
+
+The predicates \eI{s} and \eI{s1} below illustrate the role of \pi.
+
+\begin{minipage}{.5\textwidth}
+\begin{elpicode}
+func s int -> int.
+s X R :- pi y\ q y 3 => q X R.
+                           % error: mutxecl violated  ^^^^^
+\end{elpicode}
+\end{minipage}
+\begin{minipage}{.5\textwidth}
+\begin{elpicode}
+func s1 int -> int.
+s1 X R :- pi y\ q 1 5 => q X R. 
+~ ~
+\end{elpicode}
+\end{minipage}
+\noindent
+
+The local rule
+\eI{q y 3} is mutually exclusive with the rules for \eI{q} above
+since \eI{y} is fresh: each time the rule is loaded
+\eI{y} is different from \eI{1} and \eI{2} and any other
+fresh constants generated before. On the contrary the local rule \eI{q 1 5}
+is not mutually exclusive: the query \eI{s1 1 R} has two results, namely
+\eI{R = 5} and  \eI{R = 3}.
+
+Note that condition \textit{(c)} also rules out the following example,
+since the \pi-quantified symbol \eI{y} is not used in input position.
+
+\begin{elpicode}
+func s2 int -> int.
+s2 1 R :- pi y\ q 3 5 => s2 2 R. 
+s2 2 R :- pi y\ q 3 6 => q 3 R. 
+%               ^^^^^ error: mutxecl violated
+\end{elpicode}
+
+Both rules for \eI{s2} load a local rule for \eI{q}. All these local
+rules are mutually exclusive with the global rules in the program, but the query 
+\eI{s2 2 R} has two results namely \eI{R = 5} and  \eI{R = 6}. 
+
+
+
+\section{Static analysis of determinacy signatures}
+\label{sec:basic}
+\label{sec:staticanalysis}
+
+% Given a body atom of the form \piImplCmd{x}{r}{b} we
+% call $r$ a \emph{local rule}, i.e., a rule that is available for the execution of
+% $b$ only.
+
+The abstract syntax of signatures is given below. %in~\cref{fig:syntaxsign}.
+Predicate signatures \TYPE\ start with input arguments from the $\SIGN_i$ non-terminal,
+continue with output arguments from the $\SIGN_o$ non-terminal and end
+with a determinacy marker \F: \detI for functions and \relI for relations (respectively \eI{func}
+and \eI{pred} in the concrete syntax). % used in the introduction). 
+% \begin{figure}[b]
+  % \begin{framed}
+%   \begin{minipage}{0.45\textwidth}
+  $$
+  \begin{array}{rlrrlr}
+    \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{sign.\ start} & \qquad
+    \F & ::= \detI \mid \relI & \mathrm{~~determinacy} \\
+    \SIGN_o & ::=     \F\ \mid \SIGN_i \toO \SIGN_o \mid \STAR \toO \SIGN_o & \mathrm{sign.\ stop} &
+    \STAR & ::= \star & \mathrm{all\ data} \\
+    \TYPE   & ::= \SIGN_i& \mathrm{signature} 
+% \end{array}
+% $$
+% \end{minipage}~
+% \begin{minipage}{0.5\textwidth}
+    % $$
+    % \begin{array}{rlr}
+  \end{array}
+  $$
+% \end{minipage}
+% \end{framed}
+%   \vspace{-1em}
+%   \caption{Abstract syntax of predicate signatures}
+%   \label{fig:syntaxsign}
+% \end{figure}
+We collapse
+all data types into a single type \STAR\ and
+we disallow to store predicates into data, i.e., one cannot form a list of
+predicates.
+Note that the grammar of \TYPE\ forces all input arguments to come first.
+We  reserve $d$ for instances of type \STAR, $\rho$ and $\tau$ for signatures and $\func$ for instances of \F.
+For example the signature
+\eI{func map (func A -> B), list A -> list B}
+corresponds to
+$(\star \toI \star \toO \detI) \toI \star \toI \star \toO \detI$.
+
+We denote booleans $\BOOL = \{ \top, \bot\}$;
+contexts \CTX being partial
+maps from symbols to signatures. 
+We use $\EmptyList$ for the empty list and $x :: xs$ for prepending the element $x$
+to a list $xs$. 
+We reserve 
+$\Gamma$ for
+contexts.
+
+% We denote with $\_\times\_$, $\vecL{\phantom{i}\_~}$ and $\_\to\_$ the product,
+% list and function space of types, respectively.
+
+
+% \todo{serve \V per eq, ma poi exp?}
+% \marginpar{pred-> is allowed}
+
+% When two substitutions have disjoint domains we write $\sigma_1 \cup \sigma_2$
+% as the (disjoint) union of two substitutions.
+
+%\todo{consumer?}
+
+% As this paper does not really focus on type checking (the interested reader can
+% refer to~\cite{1992nadathur}) we collapse all non-predicate types to
+% a single node \texttt{exp} %for regular data or \V{} for 
+% and polymorphic data.
+% %\todo{what about \V?}
+% %  At the same time we enrich the $o$ type
+% % of propositions with a marker in \D and  
+% We also rule out predicates inside data,
+% such as list of predicates, for space constraints.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\subsubsection{Operations on signatures.}\label{sec:static}
+% In order to be able to detect miscalls 
+We compare signatures using the standard subtyping relation of functional
+languages. In particular, we compare inputs contravariantly and outputs
+covariantly. It is similar to
+\cite{hanus2025}, except for the absence of the \texttt{Any} terminal.
+% We compare signature using
+% the relation  \mySub\ that is weaker than syntactic equality.
+% It is defined by the rules below.
+\detI is smaller than \relI since functions generate a ``smaller number
+of results'' than relations.
+%
+% \vspace{-5pt}
+$$
+\small
+\begin{array}{c}
+\star \mySub \star \qquad \func \mySub \func \qquad\detI \mySub \relI \\
+\rho \toI \tau \mySub \rho' \toI \tau'  \mathrm{~~iff~~} \rho' \mySub \rho \land \tau \mySub \tau' \\
+\rho \toO \tau \mySub \rho' \toO \tau'  \mathrm{~~iff~~} \rho \mySub \rho' \land \tau \mySub \tau'
+\end{array}
+$$
+%
+The static analysis needs often to keep the stronger or weaker signature among
+two. We hence derive from \mySub\ a \minT and \maxT operators defined below.
+%
+$$
+\small
+\begin{array}{l}
+\minT\ \star\ \star = \star\qquad \minT\ \func \ \func = \func \\
+% \minT\ \detI \ \detI = \detI \quad \minT\ \relI\ \relI = \relI\\
+\minT\ \detI\ \relI = \minT\ \relI\ \detI = \detI \\
+\minT\ (\rho \toI \tau)\ (\rho' \toI \tau') = \maxT\ \rho\ \rho' \toI \minT\ \tau\ \tau' \\
+\minT\ (\rho \toO \tau)\ (\rho' \toO \tau') = \minT\ \rho\ \rho' \toO \minT\ \tau\ \tau'
+\end{array}
+\;\;\;
+\begin{array}{l}
+\maxT\ \star\ \star = \star\qquad \maxT\ \func\ \func = \func \\
+% \maxT\ \detI \ \detI = \detI \quad \maxT\ \relI\ \relI = \relI\\
+\maxT\ \detI\ \relI = \maxT\ \relI\ \detI = \relI \\
+\maxT\ (\rho \toI \tau)\ (\rho' \toI \tau') = \minT\ \rho\ \rho' \toI \maxT\ \tau\ \tau'\\
+\maxT\ (\rho \toO \tau)\ (\rho' \toO \tau') = \maxT\ \rho\ \rho' \toO \maxT\ \tau\ \tau'
+\end{array}
+$$
+%
+When a predicate is miscalled we need to weaken its signature. 
+
+% in order to accept, as its first argument, a relation.
+We define \minimize and \maximize as follows:
+%
+$$
+\small
+\begin{array}{l}
+\minimize\ \star = \star\\
+\minimize\ \relI = \detI \quad
+\minimize\ \detI = \detI\\
+\minimize\ (\rho \toI \tau) = \maximize\ \rho \toI \minimize\ \tau\\
+\minimize\ (\rho \toO \tau) = \minimize\ \rho \toO \minimize\ \tau
+\end{array}
+\;\;\;
+\begin{array}{l}
+\maximize\ \star = \star\\
+\maximize\ \detI = \relI\quad
+\maximize\ \relI = \relI \\
+\maximize\ (\rho \toI \tau) = \minimize\ \rho \toI \maximize\ \tau \\
+\maximize\ (\rho \toO \tau) = \maximize\ \rho \toO \maximize\ \tau 
+\end{array}
+$$
+%
+The set of signatures that only differ by a leaf in \func[] form a lattice
+w.r.t. the order relation \mySub, the join operator \maxT and meet operator
+\minT. The infimum of the lattice is computed by \minimize and the supremum
+is computed by \maximize.
+
+In~\cref{sec:HO-program} we have weakened the signature of \eI{map}
+from $\tau = (\star \toI \star \toO \detI) \toI \star \toI \star \toO \detI$
+to $(\star \toI \star \toO \detI) \toI \star \toI \star \toO \relI$.
+
+One could define the supremum of $\tau$ as
+$\tau' = (\star \toI \star \toO \relI) \toI \star \toI \star \toO \relI$,
+which intuitively amounts to considering all $\detI$ as $\relI$, i.e., dropping
+all $\detI$ in case of error. 
+However, this would contradict the lattice
+property: $\maxT\ \tau\ (\maximize\ \tau) = \maximize\ \tau$, since we would
+have $\maxT\ \tau\ \tau' = \tau'$, but $\tau \not\mySub \tau'$. Moreover, since
+we compare input signatures using \mySub, this alternative definition of 
+\maximize (resp. \minimize) would not make the checker accept more
+programs.
+
+
+
+\subsubsection{The idea.}
+The static analyzer accumulates
+knowledge on variables in a context $\Gamma$ initially only containing the signature
+of predicates. The checking algorithm considers one rule at a time.
+It begins by updating \ctx using the preconditions
+on the \emph{inputs} of the head, then it scans all body atoms
+and finally checks the postconditions: the determinacy of the body
+and the determinacy of the \emph{outputs} of the head.
+
+For example, consider the predicates \eI{comp} and \eI{compose} below: 
+\eI{comp} is a function
+that takes
+as input two functions \eI{F} and \eI{G}, and
+calls them in sequence, whereas \eI{compose} builds a new function
+from the two received in input.
+% We define $s_1 := (int \toI int \toO \detI)$ and $s_2 := (int \toI int \toO
+% \relI)$ The static checker verifies whether the body atoms behave
+% deterministically. To ensure this property, we start with a context \ctx\ in
+% which all predicates have defined signatures and no variables are present.
+% Consider a predicate \eI{r} with the signature $s_1 \toI s_2 \toI s_1 \toO
+% \detI$. In other words, \eI{r} is a function that takes as input a function
+% and a relation, and that returns a function.
+\begin{elpicode}
+func comp (func int -> int), (func int -> int), int -> int.
+comp F G X Z :- F X Y, G Y Z.
+
+func compose (func int -> int), (func int -> int) -> (func int -> int).
+compose F G (comp F G).
+\end{elpicode}
+
+After updating \ctx w.r.t. the preconditions of \eI{comp},
+\ctx flags \eI{F} and \eI{G} as functions. Then the algoritms scans all
+body atoms computing the \maxT of their determinacies: since both
+\eI{F X Y} and \eI{G Y Z} are \detI, also their \maxT is. Finally
+the analyzer checks that the determinacy of the body matches the declared one.\\
+The analysis for \eI{compose} needs to check two postconditions:
+1) the \emph{output} term \eI{comp F G} is a function, since the two arguments of \eI{comp}
+match its signature; 2) the body of \eI{compose} is deterministic since empty.
+
+We now move to an example that involes a non-deterministic body atom.
+
+\begin{elpicode}
+func r (func int -> int), (pred int -> int), int -> int.
+r F G X Y :- map G [X] [Z], !, compose F F H, H Z Y.
+\end{elpicode}
+%
+After analyzing the head the context asserts that \eI{F} (resp. \eI{G})
+is a function (resp. a relation).
+In the body of \eI{r}, the first atom is non-deterministic,
+since \eI{G} violates the preconditions of \eI{map}. The signature of
+\eI{map G [X] [Z]} is hence \text{\auxfont weak}ened to \relI. Even if this atom could
+generate multiple alternatives, the \cut\ commits to the first one
+restoring the determinism of
+the body of \eI{r} up to that point.
+The call to \eI{compose} satisfies its preconditions, so its
+postconditions apply:
+the entire atom \eI{compose F F H} is considered deterministic
+\emph{and}
+\eI{H} is marked as a function in \ctx.
+The final atom \eI{H Z Y} is also deterministic because of the knowledge
+about \eI{H} accumulated so far in \ctx.
+
+
+% \begin{elpicode}
+% func optimize (func) -> (func).
+% optimize (comp F G L L') (map (comp F' G') L L') :-
+%   pi l l'\ optimize (F l l') (map F' l l'), optimize (G l l') (map G' l l').
+% optimize (comp F G L L') (comp (take N) (map F') L L') :-
+%   pi l l\ comptimize (F l l') (map F' l l'), optimize (G l l') (take N l l').
+% optimize (comp pred succ X Y) (id X Y).
+
+% % optimize (comp map) (comp map)
+
+% % func f (func list int -> list int), int -> int.
+% % f F X Y :- fuse F (map G), G X Y.
+% \end{elpicode}
+
+
+% Once the body of \eI{r} is
+% analyzed, we verify the postconditions of the signature of \eI{r}:
+% 1) the output \eI{H} has the determinacy required;
+% \eI{r} is a function, since its body is deterministic.
+% foo\\
+% foo\\
+% foo\\
+% foo\\
+% foo
+% \todo{kill rule: merge a bot e a top + fix description}
+% \todo{fure rules for ca o with tm i}
+% \todo{la miscall su H mette in gamma il weke, quindi si parla di min dei due}
+% \todo{cita leq e max nel testo sopra}
+% \todo{not 24 rules}
+
+\subsubsection{The algorithm.}
+\label{sec:algo}
+We present the static analyzer using derivation rules.
+Each procedure has an associated entails-like symbol, e.g.,
+$\footnotesize
+\text{context} \sststile{\text{name}}{\text{flag}} \text{intake} = \text{result}
+$.
+We use the equal sign to ``mode'' the rule, i.e., separate
+what is given to the rule from what is generated by it.
+The static analyzer is composed of seven procedures for a total of 24 rules.
+Here we list only the interesting ones, leaving the rest to the appendix in
+\cite{fissore2026}. TODO: the appendix is todo
+
+The main entry point is \checkc (\ccC{\PROG}{\CTX}{\DATA}{\RULE}),
+that verifies if a rule validates the signature
+ascribed to its predicate. The procedure stores in $\Gamma$ all the
+knowledge available on variables in \VAR and it verifies that the precondition
+made by the signature entails the postcondition.
+\vspace{.5em}
+
+{\hspace{-2em} \small \ccM}
+% \checkRuleFig  
+
+In particular the \checkhi(\chiC{\CTX}{\TERM}{\TYPE}{\CTX}) procedures
+loads in $\Gamma_1$ the information assumed
+from the head inputs while \checkho(\choC{\CTX}{\TERM}{\TYPE})
+verifies that $\Gamma_{n+1}$ entails the
+postcondition. Each of the $n$ body atoms $b_i$ is processed by
+\checka(\cref{fig:check-atom}, \caC{\PROG}{\CTX}{\F}{\ATOM}{\F}{\CTX})
+that updates the context and computes the determinacy of the
+entire body $\func_{n+1}$.
+
+\checkAtomFig  
+
+We now focus on the analysis of an atom.
+The \checka procedure has two rules to handle
+\cut~\ref{rule:check-atom-cut} and \pi~\ref{rule:check-atom-pi},
+and two more rules to handle predicate calls~\ref{rule:check-atom-call}
+and predicate miscalls~\ref{rule:check-atom-miscall}. The \cut operator resets the current
+determinacy to \detI, while \pi introduces a fresh symbol,
+checks the hypothetical rule and proceeds after adding $r$ to \prog.
+Rule~\ref{rule:check-atom-call} verifies that the preconditions for $c$ are
+met, and assumes its postcondition generating an updated $\Gamma'$. The 
+determinacy is set to the maximum of current determinacy and the one of the
+predicate. When the preconditions are not met the context is left untouched and
+the current determinacy is set to \relI.
+
+
+The most interesting procedure is the one to check if the preconditions
+of a predicate call are met, that is \checkai (\cref{fig:infer}, \iC{\CTX}{\TERM}{\TYPE}{\BOOL}). The procedure
+ignores data arguments %~\ref{rule:infer-app-data}
+and output arguments %~\ref{rule:infer-app-o}
+and simply fetches from the context the signature of constants and variables~\ref{rule:infer-var}.
+Rule~\ref{rule:infer-app-it} is the standard typing rule for
+application: if the input argument matches the expected signature it
+computes the return type, signaling no miscalls (i.e. $\top$).
+When the head or the argument contain a miscall, or when the argument 
+does not match the expected signature, the rule~\ref{rule:infer-app-ib} signals a miscall and
+computes the return type by weakening the one obtained from the head, i.e.,
+the predicate call is considered as a relation, and the signature of the
+output arguments is also recursively weakened.
+
+\inferFig
+
+
+The procedure to update the context when an atom is found to be
+a good call is \checkao (\caoC{\CTX}{\TERM}{\TYPE}{\CTX}).
+Other than ignoring input arguments %~\ref{rule:check-head-output-in}
+% and fetching the signature of symbols in the context~\ref{rule:check-atom-output-k},
+it calls \assume on output arguments.
+\vspace{.5em}
+
+\begin{center}\small \cAOi\end{center}
+
+% \checkAtomOutFig  
+
+The \assume procedure (\cref{fig:assume}, \aC{\CTX}{\TERM}{\TYPE}{\CTX})  updates the context
+when it encounters variables~\ref{rule:assume-var}. When variable is
+already ascribed a signature in the context, we keep the stronger signature.
+Data %~\ref{rule:assume-app-data} 
+and output arguments %~\ref{rule:assume-app-o}
+are skipped, while input arguments are recursively traversed: the signature
+of variables in their input positions are also updated in the context.
+% This is what makes the \eI{fuse} example work.
+
+\assumeFig
+
+
+The processing of the head of a rule is akin to the one of body atoms, but
+symmetric in which arguments are used to strengthen the context and
+which are checked for conformance. The \checkhi procedure (\chiC{\CTX}{\TERM}{\TYPE}{\CTX})
+called at the
+very beginning of~\ref{rule:check-rule}, ignores outputs and calls
+\assume on inputs. 
+
+The \checkho (\choC{\CTX}{\TERM}{\TYPE}) procedure is called at the very end.
+
+\begin{center}\small \vHDo\end{center}
+
+It ignores
+input arguments but checks that the output ones satisfy the ascribed signature
+in the current context, that is the result of assuming the rule
+preconditions and all the postconditions of well called body atoms.
+
+
+
+% \checkHeadInFig  
+% \checkHeadOutFig  
+% \checkHeadInOutFig  
+% \vspace{-1em}
+% \newpage
+
+% \subsubsection{Meta programs}
+% \label{sec:meta-prog}
+
+% Elpi code is first class, i.e., it can be inspected and generated in Elpi
+% itself.
+% Here we take as
+% an example the code performing the fusion of two calls to \eI{map}~\cite{wadler1989}.
+% % \hspace{-.5em}
+% % \begin{minipage}{.5\textwidth}
+% \begin{elpicode}
+% func fuse (func list int -> list int) -> (func list int -> list int).
+% fuse (comp (map F) (map G)) (map (comp F G)).
+% fuse (map F) (map F).
+
+% func f (func list int -> list int), int -> int.
+% f F X Y :- fuse F (map G), G X Y.
+% \end{elpicode}
+
+
+
+% % \end{minipage}
+
+
+% % \begin{elpicode}
+% %   func comp (func A -> B), (func B -> C), A -> C.
+% %   comp F G X Z :- F X Y, G Y Z.
+
+% %   func fuse (func list A -> list B), (func list B -> list C) ->
+% %             (func list A -> list C).
+% %   fuse (map F) (map G) (map (comp F G)). 
+% % \end{elpicode}
+
+% The signature of \eI{fuse} has two preconditions, both inputs
+% should be functions, and two postconditions: \eI{fuse} is a function and
+% the output is also a function.% Our static checker accepts the code above.
+% % \todo{maybe: we want the output to be understood as a function, the reasoning
+% % is done in section xx}
+% The code of \eI{fuse} inspects two programs: if both are
+% mapping a list, respectively with \eI{F} and \eI{G}, then it
+% generates a new program \eI{map (comp F G)}. The static analysis
+% is able to verify that this output is a function following this
+% reasoning: since \eI{map F} and \eI{map G} are functions then
+% also \eI{F} and \eI{G} must be; from that we have that
+% \eI{comp F G} is a function and so is \eI{map (comp F G)}.
+
+% Almost every Rocq extension makes some use of meta programming: it typically
+% concludes by generating a new rule and stores it on disk to make it persist
+% across subsequent invocations of the same program. 
+% more\\
+% more\\
+% more\\
+% more\\
+% more\\
+% more\\
+% more\\
+% more\\
+% more
+
+\section{Determinism guarantees}
+
+In order to express \emph{operational determinacy}
+we need to use an operational semantics for Elpi.
+That semantics, for its higher-order logic-programming part,
+is essentially the one given by~\cite{qi2009} using a last-in-first-out goal selection.
+However it must be
+complemented with a treatment of choice points to describe
+the behavior of the cut operator following~\cite{vink1989}.
+Moreover Elpi has a peculiar runtime threatment of input arguments, that
+are matched rather than unified (see~\cref{def:matching}). 
+
+
+
+% \begin{definition}[Hard cut]
+%   \label{def:hard-cut}
+% Given a rule for predicate $k$ with
+% priority $p$
+% and
+% body $b_1 \ldots b_i\ \cut\ b_{i+1} \ldots b_n$: the body atoms are executed in
+% order and the effect of
+% reaching \cut is that the runtime discards all alternatives
+% generated by $b_1 \ldots b_i$ and all rules for $k$ with a priority lower than $p$.
+% \end{definition}
+% For example the query \eI{q 1 R} has only one solution (\eI{R = 3})
+% in the program below, while \eI{p 1 R} has two (\eI{R = 3} and \eI{R = 2}).\\
+% \begin{minipage}{.6\textwidth}
+% \begin{elpicode}
+% pred q int -> int.
+% q X R :- p X R, !. % higher priority
+% q X 1.             % lower priority
+% \end{elpicode}
+% \end{minipage}
+% \begin{minipage}{.4\textwidth}
+% \begin{elpicode}
+% pred p -> int.
+% p 1 3. % higher priority
+% p 1 2. % lower priority
+% \end{elpicode}
+% \end{minipage}
+
+For space constraints we omit the rules defining \run, they can be found
+in the appendix of TODO. % or in~\cite{hdr}. %The entrypoint of a computation is called a
+%goal and corresponds to a query atom $q$ and a program \prog.
+%  that is executed via \runCmd{(\EmptyList,q) :: \EmptyList}{\EmptyList}{\EmptySubst}{\_}{\_}.
+
+\begin{definition}[Operational semantics $(\run{} : \ALT \times \vecL{\ALT} \to \SIGMA \times \vecL{\ALT})$]
+  \label{def:op-sem}
+Run is a partial function from a non-empty list of alternatives to a solution
+consisting in a substitution and a list of yet-to-be-explored alternatives.\\
+The properties of \run{} relevant to the current paper are:
+\begin{enumerate}
+\item $\cut$ behaves as per \cref{def:hard-cut}
+\item $\pi\ x\ r\ b$ generates a fresh constant for $x$ available in $r$ and $b$
+\item $\pi\ x\ r\ b$ loads $r$ in the program giving it the highest priority
+\item input arguments are matched against the query as per~\cref{def:matching}
+\end{enumerate}
+\end{definition}
+
+
+
+% \begin{definition}[Global rule / Local rule]
+% A rule $r$ is said to be global if it occurs in the program \prog;
+% local rules are rules loaded via the \pi operator.
+% \end{definition}
+% For example, the implementation of \eI{copy} 
+% (from \cref{sec:dynamic-prog}) has two global rules and one local
+% rule.
+% 
+% 
+% \begin{definition}[Mutual exclusion for global rules (\mutExclAll)]
+%   Given a program \prog, a context \ctx,
+%   and a rule $r$.
+%   % \vspace{-8pt} 
+%   % $r = (k~\overbrace{t_1\ldots t_n}^{inputs}~\overbrace{t_{n+1}\dots t_m}^{outputs}
+%   % ~\cdash~ b_1 \ldots b_r)$. If
+%   If
+%   $\ctx\ k = \sigma_1 \toI \ldots \toI \sigma_{n+1} \toO \ldots \toO \func$
+%   we say that $r$ is valid with respect to determinacy in \prog whenever
+%   $\func = \relI$. Otherwise, if $\func = \detI$, let $L_1$ (resp. $L_2$) be
+%   the list of rules in \prog with higher (resp. lower) priority than $r$ such
+%   that their input arguments unify with the inputs of $r$. Then:\\
+%   (a) $L_1$ is empty, and\\
+%   (b) ($L_2$ is empty, or $\exists$ a \cut in the body of $r$)\\
+%   \label{def:mut-excl}
+% \end{definition}
+% 
+% \begin{definition}[Mutual exclusion for local rules (\mutExclAll)]
+%   Given a program \prog, a context \ctx, a name $d$ and a rule
+%   % \vspace{-8pt} 
+%   $r = (k~\overbrace{t_1\ldots t_n}^{inputs}~\overbrace{t_{n+1}\dots t_m}^{outputs}
+%   ~\cdash~ b_1 \ldots b_r)$. If
+%   % If
+%   $\ctx\ k = \sigma_1 \toI \ldots \toI \sigma_{n+1} \toO \ldots \toO \func$
+%   we say that $r$ is valid with respect to determinacy in \prog whenever
+%   $\func = \relI$. Otherwise:\\
+%   (c) $\exists$ a \cut in the body of $r$\\
+%   (d) there exists a $j \leq n$ s.t. $t_j = d$ and
+%     forall rule $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
+%     $u_j$ is not a variable.
+%   \label{def:mut-excl-local}
+% \end{definition}
+
+% \begin{definition}[Mutual exclusion (\mutExclAll)]
+%   Given a program \prog and a rule 
+%   % \vspace{-8pt} 
+%   $r = (k~\overbrace{t_1\ldots t_n}^{inputs}~\overbrace{t_{n+1}\dots t_m}^{outputs} ~\cdash~ b_1 \ldots b_r) $
+%   with\todo{given \ctx and v}\todo{v should be a datum}
+%   $\ctx\ k = \sigma_1 \toI \ldots \toI \sigma_{n+1} \toO \ldots \toO \func$,
+%   i.e., the first $n$ arguments are inputs and $k$ has determinacy \func,
+%   we say that $r$
+%   can be added to \prog via \pi\ (hence with higher priority)
+%   whenever $\func = \relI$.
+%   Otherwise, if $\func = \detI$,
+%   one of the following additional conditions must hold:\\
+%   (a) $\exists i, b_i = \cut$, or\\
+%   (b) \parbox[t][][t]{.95\textwidth}{$r$ is toplevel and
+%     $\forall r' = (k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$
+%       there exists a $d \leq n$ s.t. $t_d$ and $u_d$ do not unify, or}\\
+%   (c) \parbox[t][][t]{.95\textwidth}{there exists a $d \leq n$ s.t. $t_d = v$ and
+%     forall rule $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
+%     $u_d$ is not a variable (not in \VAR).}
+%       \label{def:mut-excl}
+% \end{definition}
+%
+% The intuition is that we build the program from the end, always adding new rules on top.
+% Case (a) is justified by the hard-cut semantics (1) combined with the highest
+% priority of $r$ in \prog (3). For example if we add rule at line 1 and that
+% constrains a cut, rule at line 2 is going to be discarded when rule 1 succeeds.
+% Case (b) addresses mutually exclusive heads for toplevel rules; in the
+% example below rule at line 5 is mutually exclusive with rule at line 6 since
+% \eI{1} and \eI{2} do not unify.
+
+% \hspace{-1.65em}
+% \begin{minipage}{.5\textwidth}
+% \begin{elpicode}[4]
+% pred q int -> int. 
+% q 1 2. % r1     
+% \end{elpicode}
+% \end{minipage}
+% \begin{minipage}{.5\textwidth}
+% \begin{elpicode}[1]
+% pred p -> int.  
+% p 2 :- b.      
+% \end{elpicode}
+% \end{minipage}
+% 
+% Let us first consider \mutExclAll for global rules. Let \prog[_1] be the
+% program in the snippet above containing the rule $r_1$. Adding
+% $r_2 :=$ \eI{q 2 3} to \prog[_1] is always safe: since the inputs of
+% $r_1$ and $r_2$ do not unify, the two lists $L_1$ and $L_2$ are empty.
+% Therefore, conditions $(a)$ and $(b)$ are satisfied. This means that the
+% two rules can never be used on the same goal, thus avoiding the creation
+% of choice points. \\
+% The insertion of rule $r_3 :=$ \eI{q 1 4 :- a, !} into \prog[_1] is more
+% delicate. If $r_3$ has higher priority than $r_1$, then $L_1 = \EmptyList$
+% and $L_2 := [r_1]$. Otherwise, $L_1 := [r_1]$ and $L_2 := \EmptyList$. \\
+% In the first case, both $(a)$ and $(b)$ are respected, and in fact the
+% program is deterministic: the query \eI{q 1 X} may use rules $r_1$
+% \emph{and} $r_3$ since it unifies with their heads, but if $r_3$ succeeds,
+% it discards $r_1$ due to the \cut. If $r_3$ fails, then the program
+% produces the unique solution \eI{2}. \\
+% In the second case, condition $(a)$ is not satisfied, and determinacy is
+% broken: the query \eI{q 1 X} succeeds with \eI{2} but leaves $r_3$
+% as a valid choice point for a future evaluation, thereby breaking
+% determinacy. \\
+% 
+% For local rules we have that there is no rules with higher priority when it is
+% added in \prog. Therefore $L_1$ would be always empty and case $(a)$ always
+% true. Case $(c)$ for local rules is the same as case $(b)$.
+% 
+% Case (d) check the new rule uses the fresh constant introduce by \pi\ 
+% in a place where no other rule has a wildcard. In the example
+% below rule \eI{p x 4} is mutually exclusive with rule at line 9 but
+% not with rule at line 10.
+% \begin{elpicode}[7]
+% pred p int -> int.             % case c)
+% p 1 R :- pi x\ p x 4 => p 2 R. % new. ok: x fresh
+% p 2 4 :- !.                    % pre existing. ok: 2 != x
+% p A 3.                         % pre existing. ko: A wildcard
+% \end{elpicode}
+% Note that (b) is unsound if applied to local rules
+% since they can be loaded multiple times: in case (c) the local
+% rule is required to use the variable that is guaranteed to be fresh at each
+% load.
+
+% \begin{definition}[Deterministic query (\isdet)] We say that a query atom $b$ is
+\begin{definition}[Operationally deterministic execution ($\isdet~\PROG~\ATOM$)] 
+  We say that a query atom $b$ is
+  operationally deterministic in a program \prog iff % for all substitution $s$
+  $$
+       \forall \sigma, \runCmd{(\prog,b) :: \EmptyList}{\EmptyList}{\sigma}{a}{\_} 
+        ~\Rightarrow~ a = \EmptyList
+  $$
+\end{definition}
+
+In other words a deterministic query leaves no alternatives when it succeeds.
+We now link the static check to the deterministic execution of a query.
+
+\begin{definition}[Checked program ($\isdetp~\CTX~\PROG$)] A program \prog
+is checked against a context of signatures \ctx iff it validates these rules:\\
+  
+  % \begin{bprooftree}
+  %   \AxiomC{\phantom{ \ccC{\prog}{\ctx}{x}{r}}}
+  %   % \RightLabelM{r1}
+  %   \UnaryInfC{\isdetp~\ctx~\EmptyList}
+  % \end{bprooftree}
+  % \begin{bprooftree}
+  %   \AxiomC{\ensuremath{
+  %     \isdetp~\ctx~\prog \qquad \mutExclAll~\prog~r \qquad \ccC{\prog}{\ctx}{x}{r}
+  %   }}
+  %   % \RightLabelM{r1}
+  %   \UnaryInfC{\isdetp~\ctx~(r :: \prog)}
+  % \end{bprooftree}
+  TODO
+
+\end{definition}
+
+
+The intuition is that we build the program from the end, always adding new rules with
+highest priority.
+% Case (a) in \cref{def:mutExcl} is justified by the hard-cut semantics (1) (in \cref{def:op-sem}) combined with the highest
+% priority of the rule containing the cut.
+% For example in the snippet below even if the two rules
+% for \eI{p} can apply to the same query, when rule at line 2 succeeds
+% rule at line 3 has been discard by the cut.
+% Case (b) addresses mutually exclusive heads for global rules; in the
+% example below the rules for \eI{q} at lines 5 and 6 are mutually exclusive
+% since \eI{1} and \eI{2} do not unify.
+
+% \hspace{-1.65em}
+% \begin{minipage}{.5\textwidth}
+% \begin{elpicode}[1]
+% pred p -> int.  % case a)
+% p 1 :- a, !, b. % new. OK: cut
+% p 1 :- b.       % pre existing
+% \end{elpicode}
+% \end{minipage}
+% \begin{minipage}{.5\textwidth}
+% \begin{elpicode}[4]
+% pred q int -> int. % case b)
+% q 1 3.             % new. OK: 1 $\neq$ 2
+% q 2 4.             % pre existing
+% \end{elpicode}
+% \end{minipage}
+%
+% Let us first consider \mutExclAll for global rules. Let \prog[_1] be the
+% program in the snippet above containing the rule $r_1$. Adding
+% $r_2 :=$ \eI{q 2 3} to \prog[_1] is always safe: since the inputs of
+% $r_1$ and $r_2$ do not unify, the two lists $L_1$ and $L_2$ are empty.
+% Therefore, conditions $(a)$ and $(b)$ are satisfied. This means that the
+% two rules can never be used on the same goal, thus avoiding the creation
+% of choice points. \\
+% The insertion of rule $r_3 :=$ \eI{q 1 4 :- a, !} into \prog[_1] is more
+% delicate. If $r_3$ has higher priority than $r_1$, then $L_1 = \EmptyList$
+% and $L_2 := [r_1]$. Otherwise, $L_1 := [r_1]$ and $L_2 := \EmptyList$. \\
+% In the first case, both $(a)$ and $(b)$ are respected, and in fact the
+% program is deterministic: the query \eI{q 1 X} may use rules $r_1$
+% \emph{and} $r_3$ since it unifies with their heads, but if $r_3$ succeeds,
+% it discards $r_1$ due to the \cut. If $r_3$ fails, then the program
+% produces the unique solution \eI{2}. \\
+% In the second case, condition $(a)$ is not satisfied, and determinacy is
+% broken: the query \eI{q 1 X} succeeds with \eI{2} but leaves $r_3$
+% as a valid choice point for a future evaluation, thereby breaking
+% determinacy. \\
+% Concerning local rules, mutual exclusion works ...\todo{TODO}
+%
+% Case (c) checks that the new rule uses the fresh constant introduce by \pi\ 
+% in a place where no other rule has a wildcard.
+% %  In the example
+% % below rule \eI{p x 4} is mutually exclusive with rules at line 8 or 9 but
+% % not with the rule at line 10.
+% % \begin{elpicode}[7]
+% % pred p int -> int.             % case c)
+% % p 1 R :- pi x\ p x 4 => p 2 R. % new. OK: x fresh
+% % p 2 4 :- !.                    % pre existing. OK: 2 $\neq$ x
+% % p A 3.                         % pre existing. KO: A wildcard
+% % \end{elpicode}
+% Note that case (b) would be unsound if applied to local rules
+% since they can be loaded multiple times: case (c) requires the local
+% rule to use the variable that is guaranteed to be fresh at each
+% load.
+
+\begin{definition}[Checked query atom ($\isdetq~\CTX~\ATOM$)] An atom $b$
+is checked against a context of signatures \ctx iff 
+\vspace{-.5pt}
+$$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
+
+\end{definition}
+
+
+
+
+\begin{theorem}[Static analysis]
+  Given program \prog, a context of signatures \ctx and a query atom $b$,
+  $
+  \isdetp~\ctx~\prog \land \isdetq~\ctx~b \Rightarrow \isdet~\prog~b
+  $.
+  \label{th:1}
+\end{theorem}
+
+The proof of~\cref{th:1} has been mechanized in the Rocq proof assistant,
+formerly known as Coq, for the first-order part~\cite{formalproof}. The mechanization for
+the higher-order part is ongoing.
 
 \section{Experience report}
+
+The static analyzer we describe was integrated in the \href{https://github.com/LPCIC/elpi}{Elpi language}
+version 3.0. It
+consists of
+about $200$ lines of OCaml code for the implementation of \mutExclAll and about $800$
+lines of code for the implementation of \checkc, along with all the related
+auxiliary functions.
+We have  ported some Rocq libraries written using Elpi: Rocq-Elpi, Hierarchy Builder,
+Algebra Tactics, Trocq, and BRiCk.
+
+We can divide the porting of these libraries into two categories: libraries in
+which we have traversed all the predicates and carefully changed \epred markers
+to \efunc (Elpi, Rocq-Elpi, and Hierarchy Builder), and libraries that have been ported to just pass the
+static analyzer.
+In particular, the latter class of libraries
+measures the minimal cost for adapting code to the changes we made to
+the Elpi and Rocq-Elpi standard libraries. The typical
+example of code requiring a fix is code that loads
+a local rule containing no cut, typically \eI{copy}.
+
+
+We summarize these results in \cref{tab:report}.
+\begin{table}[b]
+  \begin{center}
+    \begingroup
+    \setlength{\tabcolsep}{6pt} % Default value: 6pt
+    %\renewcommand{\arraystretch}{1.5} % Default value: 1
+    \begin{tabular}{c|c|c|c|c}
+      Software          & LOC   & \% \detI & \cut added & \cut needed (bugs) \\
+      \hline
+      Elpi              & 1448  & 97\%     & 1          & 1  (100\%)         \\
+      Rocq-Elpi         & 13164 & 79\%     & 91         & 78 (85\%)          \\
+      Hierarchy Builder & 5326  & 94\%     & 33         & 30 (90\%)          \\
+      \hline
+      Algebra Tactics   & 1799  & --       & 1          & 1  (100\%)         \\
+      Trocq             & 2918  & --       & 4          & 4  (100\%)         \\
+      BRiCk (public)    & 2500  & --       & 11         & 11 (100\%)         \\
+      BRiCk (private)   & 7500  & --       & 6         & 6  (100\%)         \\
+      \hline\hline
+      Total             & 34655 & 85\%     & 147        & 131 (89\%)
+    \end{tabular}
+    \endgroup
+  \end{center}
+  % \vspace{-1em}
+  \caption{Experience report}
+  % \vspace{-1em}
+  \label{tab:report}
+\end{table}
+In the Elpi standard library, we annotated $272$ predicates out of
+$281$ as functions, with $37$ occurrences of higher-order arguments, as in
+\texttt{map, filter, fold}, etc. We identified $1$ error, i.e., a missing cut.
+In Rocq-Elpi, we have $928$ functions out of $1181$, with $62$
+higher-order predicates. We added $91$ cuts to please the static analyzer,
+$78$ of which were clearly bugs in the code. The remaining $13$ cuts are due to
+\mutExclAll, which is not powerful enough to discriminate among rules.
+The algorithm could be improved to better distinguish mutual exclusion
+by extending~\cref{def:mutExcl}, as in~\cite{lopez2005}, but the
+problem is, in general, undecidable. An example of this issue is given below:
+
+\begin{elpicode}
+  func fact int -> int.
+  fact 0 1.
+  fact N R :- N > 0, N' is N - 1, fact N' R', R is N * R'.
+\end{elpicode}
+
+The two rules for \eI{~\PYG{n+nf}{fact}~} are in mutual exclusion:
+the input cannot be \textit{0} and \textit{greater than 0} at the same time.
+But a complete algorithm identifying all of these scenarios does not exists,
+and we require an explicit \cut in the first rule.
+
+In Hierarchy Builder, we have $460$ functions out of $488$, with $33$
+higher-order arguments, and we have corrected $30$ bugs in the code.
+
+Overall, we can conclude that $85\%$ of the predicates were functions.
+% This is a strong justification for our work and assists users in writing their
+% code.
+
+In Algebra Tactics, we
+added 1 cut over 1799 lines of codes; in Trocq, we added 4 cuts over 2918
+lines of code.  None of these libraries were using \eI{copy} as a relation, i.e. to
+generate all possible copies of a term.
+The BRiCk application has some public code we ported
+ourselves and some closed source code ported by the BlueRock company, that we
+thank for sharing these numebrs.
+In the public code we added 11 cuts over 2500 lines of
+code, while in the private one they added 11 cuts over 7500 lines.
+
+
+
+% The determinacy checker runs, on average, faster than the type checker.
+
+
+
+\section{Related work and concluding remarks}
+
+\begin{table}[b]
+  \begin{center}
+    \begingroup
+    \setlength{\tabcolsep}{5pt} % Default value: 6pt
+    \begin{tabular}{l|l|c|c|c|c}
+                                  Authors  & System  & Mode analysis & Dynamic & H.O.        & Miscalls         \\
+      \hline
+      \cite{warren1989} & SB-Prolog & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{lopez2005} & Ciao & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{king2011}   & Red Alert & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{somogy1996} & Mercury & required   & \xmark        & \cmark$\ddagger$ & \xmark $\dagger$ \\
+      \cite{hanus2025}  & Curry & no need    & \xmark        & \cmark           & \cmark           \\
+      Fissore and Tassi & Elpi      & no need    & \cmark        & \cmark           & \cmark
+      % Mixtus        & \cmark      & \xmark          & \nicefrac{1}{2} & \xmark  & \xmark \\
+    \end{tabular}
+    \endgroup
+  \end{center}
+  % \vspace{-1em}
+  \caption{Comparison with related work}
+  % \vspace{-1em}
+  \label{tab:comparison}
+\end{table}
+
+
+We summarize several related works
+in~\cref{tab:comparison}.
+% summarizes the main differences between our approach to
+%determinacy checking and related work.
+%
+% The papers referenced in the first column of the table correspond to
+%\cite{warren1989,somogy1996,king2011,hanus2025}. 
+One key difference between our work and~\cite{warren1989,lopez2005,somogy1996,king2011,hanus2025}
+is that they focus on \textit{closed}
+predicates, that do not evolve during execution, while
+$\lambda$Prolog, hence Elpi, allows rules to be dynamically loaded.
+%
+For closed predicates, programs can be transformed into
+\textit{super-homogeneous} form by merging all rules into one with
+disjunctions. % (or equivalently the \textit{case} constructor).
+This simplifies determinacy inference and may allow to compile the code to
+a faster binary.
+However, this transformation is not feasible in our dynamic setting (\cref{sec:dynamic-prog}).
+% and in particular the check for mutual exclusion
+% needs a higher degree of sophistication.
+
+Regarding modes, Elpi's matching procedure over input arguments allows us to
+dispense with explicit mode analysis -- an essential component in
+\cite{warren1989,lopez2005,somogy1996,king2011}.
+
+We differ from Red Alert~\cite{king2011} in that we pick an operational semantics that
+explicitly represents choice points as a list of alternatives, and that
+hence is very close to the actual behavior of Elpi's runtime. They pick a
+denotational semantics over the super-homogeneous form
+that in turn lets them  formulate
+the static analyzer as an abstract interpreter. It is unclear if a denotational
+semantics can be written without transforming the program in super-homogeneous form.
+
+Some of the higher-order features of the Elpi language are available in
+Mercury~\cite{somogy1996}, although in a more constrained way ($\ddagger$).
+For example
+\eI{once} from \cref{sec:HO-program} is considerably more useful
+if the input relation is allowed to be non-ground, e.g, \eI{once (map get_pdiv [6] L)}.
+% Additionally, Elpi’s strong integration with an interactive theorem prover like
+% Rocq prevents us from relying on ground input terms.
+We allow higher-order predicates to
+be miscalled, while Mercury does not.
+Instead, it requires higher-order functions to be annotated with explicit
+mode and determinacy signatures for each possible behavior. As a result, Mercury
+ascribes
+\href{https://github.com/Mercury-Language/mercury/blob/5900de3e8c1bc1dcc75799b350b381ff9b9774f2/library/list.m#L1587C1-L1597C75}{$11$ signatures}
+to the \texttt{foldr} predicate
+and any call that does not match exactly one of these signatures results in a
+compilation failure ($\dagger$). % For instance, \textit{list.filter\_map\_corresponding} fails
+% if the higher-order function is deterministic rather than semi-deterministic.
+Elpi targets less technically inclined users, more familiar with functional programming languages
+than logic ones, hence we strive for simplicity,
+defining only one determinacy class and immediately classifying wrong calls as
+non-deterministic.
+As a result the signature for \eI{foldr} is just
+\eI{func foldr (func L, A -> A), list L, A -> A},
+ familiar to our audience.
+% Finally this design choice aligns
+% with our query of providing static guarantees on programs rather than
+% helping the compiler to produce
+% efficient, specialized, machine code.
+
+The ``determinism types'' of Curry~\cite{hanus2025} are much more similar to
+our signatures, and Curry supports miscalled functions as well.
+In the work of Hanus and Prott the \texttt{Any} type stands for non-determinism
+and like a black hole it absorbs the determinism
+of the surrounding sub-terms. This is a convenient way to capture all miscalls
+and treat them uniformly. In our presentation, we have no equivalent; instead,
+we use \maximize to change the signature of a term when a miscall
+is detected~\ref{rule:infer-app-ib} (or atom
+calls~\ref{rule:check-atom-miscall}). The advantage is that \maximize
+only changes the leaves (\F) of the signature while leaving its structure
+intact. Although we do not analyze data in this paper, our set of rules can be
+complemented to perform full type checking (in addition to determinacy
+checking) in one pass.
+
+In Curry the \texttt{allValues} builtin
+can be used to turn a relation into a function. Prolog, and also Elpi,
+provide a similar \texttt{findall} builtin, but in addition to that they
+also let one commit to the first result by either using \eI{once},
+or by placing a \cut after the non-deterministic call.
+It is this ``after the fact'' commitment that make the analysis a bit more complex.
+In fact, in the body of a deterministic predicate we can have
+calls to relations (or miscalled functions) and still consider the rules
+valid with respect to determinacy (see \ref{rule:check-atom-cut}).
+The notion of \textit{functional context} in~\cite{warren1989}
+is closely related to this difficulty.
+
+% TODO: long version
+% Another difference from \cite{hanus2025} is that when a variable is the output
+% of a miscalled predicate, its signature can change over time. For instance, if
+% we have \eI{compose rel1 rel2 R, R = copy, R T1 T2}, where \eI{compose}
+% and \eI{copy} are taken respectively from \cref{sec:dynamic-prog,sec:meta-prog},
+% \eI{rel1} and \eI{rel2} are two relations. The miscalled predicate
+% \eI{compose} makes \eI{R} a relation. However, thanks to the assignment
+% \eI{R = copy}, we change our mind and declare \eI{R} as a function.
+% Therefore, the call \eI{R T1 T2} is considered a function.
+
+Our experience report confirms most of the Elpi code out there is made
+of functional predicates and that the static analyzer accepts the vast
+majority of it requiring no changes. The main improvement we will consider
+is about \emph{mode subtyping} for higher-order arguments.
+In the definition of \mySub we currently accept
+only arrows that have the same input/output mode. However, it seems possible to
+relax this condition. For example we could allow passing to \eI{map}
+a function of type $\star \toO \star \toO \detI$, since the modes
+of higher-order arguments seem to play no role in the determinacy of
+code that receives and calls them.
+
+
+
+% \subsection{Conclusion}
+
+% As we can see, determinacy is an important aspect when working with logic
+% programs. This is demonstrated by the vast number of papers on this domain and,
+% of course, the practical benefit that a user gets from a static checker for
+% determinism. The experience we gained while porting libraries depending on Elpi
+% is a good indicator that, in most cases, we are writing functions in our
+% Prolog-like language. Therefore, having a checker guaranteeing that determinacy
+% is preserved is beneficial. Moreover, we noticed that this change in the Elpi
+% code is easy to port to old libraries; only a few lines of code need to be
+% changed if new rules for functional predicates are added.
+
+
+% \subsection{Future work}
+
+% \paragraph{Polymorphism and data carrying programs}
+
+% In \cref{sec:HO-program}, we presented the signature of \eI{map} and
+% briefly mentioned that \eI{map} is polymorphic. Its signature includes type
+% variables, which are not represented in \cref{fig:syntax}. We could extend our
+% syntax to account for type variables, but in this case, we must carefully
+% consider the concrete instantiation of these variables in the checking
+% algorithm. For example:
+
+% \begin{elpicode}
+%   func id A -> A.
+%   id X X.
+% \end{elpicode}
+
+% \eI{id} is a function with intuitive behavior. In a system that considers
+% type variables in signatures, we would accept the rule for \eI{id}: it is a
+% function since there is only one rule with empty body (i.e. no choice points are
+% created for any call to \eI{id}), and the output has the same type as the
+% input. The focus should be on calls to \eI{id}. In the call \eI{id q R},
+% the signature of \eI{R} depends on the signature of \eI{q}. If the
+% signature of \eI{q} is $\sigma$, then the instantiated signature of
+% \eI{id} in this case is $\sigma \toI \sigma \toO \detI$, which means that
+% $\ctx\ \text{\eI{R}}$ should be $\sigma$.
+
+% Another interesting aspect of polymorphism is that inductive types, such as
+% lists, may be polymorphic. In this case, we would remove the $\star$ terminal
+% from the syntax, as we can no longer consider data irrelevant for determinacy
+% checking. Data could carry programs with them. For instance, we could consider
+% lists of predicates or lists of relations and accessing and querying their
+% elements impacts determinacy.
+
+% \paragraph{Mode subtyping}
+
+% We mentioned that we do not perform mode analysis. Instead, we exploit
+% Elpi's \textit{input} mode, which encompasses this problem by performing term
+% matching without variable unification. In the definition of \mySub, we perform a
+% strict comparison between two arrows: two arrows are related by \mySub only if
+% they have the same input/output mode. However, it is possible to
+% relax this strong condition.
+
+% For example, in \cref{sec:HO-program}, we defined \eI{map} to be a function
+% if its higher-order argument is a function of type $s_1 := A \toI B \toO \detI$.
+% If we call \eI{map} with a predicate of type $s_2 := A \toO B \toO \detI$,
+% the current determinacy checker will consider the call relational due to the
+% mode mismatch on the leftmost arrow in $s_1$ and $s_2$. However, the signature
+% $s_2$ can be considered weaker than $s_1$: $s_1$ is a signature for predicates
+% that are ``more often'' functions than those with signature $s_2$.
+% The change of mode comparison for \mySub, should also take account for
+% the \minT and \maxT relations.
+
+
+% \vspace{-1em}
+
+
+% \section{Why and what is determinacy?}
+% \cite{warren1989,somogy1996,hanus2025,henderson1996,king2005,king2011}
+
+% % \section{Implementation}
+
+% \section{Rule checking}
+% \section{Mutual exclusion}
+% Using discrimination tree
+
+% \section{Caveats}
+% For example, mutual exclusion is not perfect: over aproximation of
+% unification
+
+% Rule checking ignores flexible rule loading
+
+% \section{Experience report}
 
