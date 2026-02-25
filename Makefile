@@ -4,12 +4,21 @@ TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape
 
 all:
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
-	$(MAKE) aux && \
-	$(MAKE) full
+	$(MAKE) aux && $(MAKE) full
 
-aux:
-	$(MAKE) -C code -j && \
+# START AUX
+aux: img code ho
+
+code:
+	$(MAKE) -C code -j
+
+img:
 	$(MAKE) -C img -j
+
+ho:
+	$(MAKE) -C HO-unif-for-free main
+
+# END AUX
 
 bib:
 	bibtex ${FNAME}
@@ -23,9 +32,15 @@ full:
 update_submodule:
 	git submodule update --remote
 
+clean:
+	git clean -dfx && \
+	git submodule foreach --recursive git clean -dfx
+
 ci:
 	(docker rm latex || true)  && \
 	docker create --name latex dfissore/latex2025:latest && \
 	docker cp ./ latex:/data/ && docker ps -a && \
 	docker start -i latex && docker cp latex:/data/main.pdf . && \
 	mkdir -p pdf && mv main.pdf pdf
+
+.PHONY: img code
