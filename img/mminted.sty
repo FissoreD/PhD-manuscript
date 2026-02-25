@@ -6,10 +6,11 @@
 % |_|  |_|_____|_| \_|  |_|  |______|_____/ 
 
 \usepackage{minted}
-\newcommand{\elpiIn}[1]{\text{\mintinline[fontsize=\small,escapeinside=~~]{elpi}{#1}}}
-\newcommand{\coqIn}[1]{\text{\mintinline[fontsize=\small,escapeinside=~~]{coq}{#1}}}
-\newcommand{\eI}[1]{\text{\elpiIn{#1}}}
-\newcommand{\cI}[1]{\text{\coqIn{#1}}}
+
+\newcommand{\minline}[2]{\text{\mintinline[fontsize=\small,escapeinside=~~]{#1}{#2}}}
+\newcommand{\eI}[1]{\minline{elpi}{#1}}
+\newcommand{\cI}[1]{\minline{coq}{#1}}
+\newcommand{\mlI}[1]{\minline{ocaml}{#1}}
 
 \newcommand{\mintopt}{fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=leftline,framerule=0pt,framesep=1em}
 

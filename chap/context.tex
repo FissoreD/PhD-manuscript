@@ -23,6 +23,9 @@ Function vs Propositions
 
 \subsection{Elaboration}
 
+As explained in~\cite{elaboration}, raw text is the mean bridging the communication
+between the and the theorem prover. This 
+
 \begin{figure}
   \includegraphics[width=1\textwidth]{elaboration.pdf}
   \caption{Elaboration skeme}
@@ -32,10 +35,52 @@ Function vs Propositions
 In \cref{fig:elaboration} (taken from~\cite{elaboration}), we have a skematical
 representation of the elaboration process. \cite{elaboration}
 
-Coercions: \cite{barthe95}
+\paragraph{Typechecking} The rich type theory of the Coq system confers to type
+inference the power of computing values and proofs. 
+
+\paragraph{Coercions} \cite{barthe95}: Used in general to forget information
+about an object
+
+\paragraph{Canonical structures}: \cite{cs}
+Used to enrich the information about an object. In mathComp
 
 
 \subsection{Ad-hoc polymorphism: Type classes}
+
+\paragraph{A bit of history}
+Polymorphism is indoubtly a key feature of functional languages. In its lecture
+notes, Strachey~\cite{polymorphism}, makes the distinction between to kinds of
+polymorphism, parametric polymorphism and ad-hoc polymorphism. Parametric
+polymorphic functions are \emph{uniform}, in the sense that they behave in the
+same way independently of their instantiation. For instance, the \emph{length}
+function with type \mlI{'a list -> int}, computing the length of a list returns
+$7$ for a list of $7$ elements.
+
+% \begin{minted}{coq}
+% AA
+% \end{minted}
+
+
+
+Type-class resolution is part of the elaborator and, since it is an key aspect
+of this PhD, we dedicate a full section to it.
+
+The notion of type class has been introduced in~\cite{wadler1989-tc} has a way
+to overload arithmetic operators. Differently from \emph{parametric}
+polymorphism, where a 
+
+
+Used to enrich the information about an object.
+
+Programming in a way reminiscent of Prolog, used by Gonthier in Odd Order Theorem.
+
+Extend the unification alogirhm of the coq system, looking in a databae of hints
+
+
+
+
+
+In the elaboration phase, one of the 
 
 What is a method?
 
@@ -82,6 +127,12 @@ IRIS:~\cite{iris-junk}
   \caption{Eqb typeclass in different languages}
   \label{fig:eqb-tc}
 \end{figure}
+
+
+\paragraph{Typeclasses vs Canonical structures}
+
+``Find me a structure that works'' $\to$ typeclasses\\
+``This type already carries its structure'' $\to$ canonical structures
 
 \section{The \elpi language}
 
