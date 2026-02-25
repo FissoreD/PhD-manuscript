@@ -45,8 +45,8 @@
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{times}
-\RequirePackage{fancyvrb}
-\RequirePackage{fancybox}
+% \RequirePackage{fancyvrb}
+% \RequirePackage{fancybox}
 \RequirePackage{lastpage}
 \RequirePackage{eso-pic}
 \RequirePackage{pgffor}
@@ -1862,17 +1862,17 @@
 	\medskip\textbf{#1}\begin{sf}}{\end{sf}\par\medskip}
 
 % Environnement VerbProgram
-\renewcommand{\theFancyVerbLine}{%
-	{\red\tiny%
-		\arabic{FancyVerbLine}}}
-\newlength{\programskip}
-\setlength{\programskip}{2cm}
-\newlength{\numprogskip}
-\setlength{\numprogskip}{2pt}
-\DefineVerbatimEnvironment{VerbProgram}%
-{Verbatim}{xleftmargin=4mm,resetmargins=true,numbers=left,%
-	numbersep=\numprogskip,samepage=true,formatcom=\footnotesize,%
-	commandchars=\\\@\~}
+% \renewcommand{\theFancyVerbLine}{%
+% 	{\red\tiny%
+% 		\arabic{FancyVerbLine}}}
+% \newlength{\programskip}
+% \setlength{\programskip}{2cm}
+% \newlength{\numprogskip}
+% \setlength{\numprogskip}{2pt}
+% \DefineVerbatimEnvironment{VerbProgram}%
+% {Verbatim}{xleftmargin=4mm,resetmargins=true,numbers=left,%
+% 	numbersep=\numprogskip,samepage=true,formatcom=\footnotesize,%
+% 	commandchars=\\\@\~}
 
 
 % La macro ToDo permet de marquer les endroits incomplets ou \`a revoir.
