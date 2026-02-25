@@ -36,7 +36,7 @@
 \typeout{par Frédéric Goualard, ..., Lucas, Norwin, DoccY, Marie Pelleau.}
 \typeout{\RCSId}
 
-\RequirePackage{keyval}
+% \RequirePackage{keyval}
 \RequirePackage[final]{graphicx}
 \graphicspath{{images/}{img/}{fig/}}
 \IfFileExists{pst-grad}{\RequirePackage{pst-grad}}{\RequirePackage{gradient}}
@@ -48,9 +48,9 @@
 % \RequirePackage{fancyvrb}
 % \RequirePackage{fancybox}
 \RequirePackage{lastpage}
-\RequirePackage{eso-pic}
-\RequirePackage{pgffor}
-\RequirePackage{multibib}
+% \RequirePackage{eso-pic}
+% \RequirePackage{pgffor}
+% \RequirePackage{multibib}
 \frenchspacing
 
 %% Emprunté sur http://www.tuteurs.ens.fr/logiciels/latex/nouveau_package.html %%
