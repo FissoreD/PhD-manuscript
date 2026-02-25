@@ -17,6 +17,10 @@
     "**/*.mtc*": true,
     "**/*.xmpi": true,
     "**/*.maf": true,
+    "**/.latexminted_config": true,
+    "**/elpi.py": true,
+    "**/_minted": true,
+    "code/*.tex": true,
   },
   "latex-workshop.latex.tools": [
     {
