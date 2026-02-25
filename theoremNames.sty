@@ -5,20 +5,21 @@
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	
 	\theoremstyle{plain}
-	\newtheorem{theorem}{Théorème}[section]
-	\newtheorem{lemma}[theorem]{Lemme}
+	\newtheorem{theorem}{Theorem}[section]
+	\newtheorem{lemma}[theorem]{Lemma}
 	\newtheorem{invariant}[theorem]{Invariant}
+	\newtheorem{axiom}[theorem]{Axiom}
 	\newtheorem{proposition}[theorem]{Proposition}
-	\newtheorem{corollary}[theorem]{Corollaire}
-	\newtheorem{preuve}{Preuve}[chapter]
+	\newtheorem{corollary}[theorem]{Corollary}
+	% \newtheorem{preuve}{Preuve}[chapter]
 	
 	\theoremstyle{definition}
-	\newtheorem{definition}{Définition}[section]
+	\newtheorem{definition}{Definition}[section]
 	
 	\newtheoremstyle{note}{}{}{}{}{\itshape}{~--~}{ }{\thmname{#1}\thmnumber{ #2}}
 	\theoremstyle{note}
-	\newtheorem{example}{Exemple}[section]
-	\newtheorem{remark}{Remarque}[section]
+	\newtheorem{example}{Example}[section]
+	\newtheorem{remark}{Remark}[section]
 	
 	\renewenvironment{proof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\end{list}$\square$\medskip}
 	\newenvironment{myproof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\hfill$\diamond$\end{list}\smallskip}
