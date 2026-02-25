@@ -135,29 +135,70 @@ parameters; \eI{:-} separates the rule's head from the premises, and
 <<\eI{pi w\ p}>> introduces a fresh nominal constant \eI{w}
 for the premise \eI{p}.
 
+\begin{figure}  
 \begin{elpicode}
-finite   (app [con"fin", N]).                         ~\\customlabel{clause:r1}{(r1)}~
-decision (app [con"nfact", N, NF]).                   ~\\customlabel{clause:r2}{(r2)}~
-decision (all A x\ app [P, x]) :- finite A,           ~\\customlabel{clause:r3}{(r3)}~
+finite   (app [con"fin", N]).                % (r1)
+decision (app [con"nfact", N, NF]).          % (r2)
+decision (all A x\ app [P, x]) :- finite A,  % (r3)
   pi w\ decision (app [P, w]).
 \end{elpicode}
+\caption{Rules in elpi}
+\label{fig:rules-elpi}
+\end{figure}
+
 
 \noindent
-Unfortunately this encoding of rule \ref{clause:r3} does not work
+Unfortunately this encoding of rule \emph{r3} in \ref{fig:rules-elpi} does not work
 since it uses the predicate \cI{P} as a first order term: for the meta
 language its type is \eI{tm}. If we try to back-chain the rule
-\ref{clause:r3} on the encoding of the goal \ref{goal:g} given here
+\emph{r3} in \ref{fig:rules-elpi} on the encoding of the goal below given here
 
 \begin{elpicode}
-decision (all (app [con"fin", con"7"]) x\              ~\\customlabel{goal:g}{(g)}~
-  app [con"nfact", x, con"3"]).
+decision (all (app [con"fin", con"7"]) x\ app [con"nfact", x, con"3"]).
+\end{elpicode}
+
+
+\noindent
+we obtain an unsolvable unification problem below:
+the two lists of terms have different lengths!
+%The root cause is that
+%\ref{problem:p} is an higher order in CIC, but becomes
+%first order in the meta language due to the ``naive'' encoding.
+
+\begin{elpicode}
+app [con"nfact", x, con"3"] = app [P, x]
 \end{elpicode}
 
 \noindent
-Once the head of rule \ref{clause:r3a} unifies with the goal \ref{goal:g},
-the premise <<\elpiIn{link Pm A P}>> brings the assignment \ref{solution:pm}
-back to the domain \elpiIn{tm} of Coq terms, obtaining the expected solution
-\ref{solution:intro}:
+The problem above has no solution in a first-order language
+where \elpiIn{P} can only stand for a predicate symbol, while in a higher-order
+language \elpiIn{P} can stand for any 1-argument predicate.
+
+In this paper we study a more sophisticated encoding of Coq terms and rules
+that, on a first approximation, would reshape rule r3 in \ref{fig:rules-elpi} as follows:
+
+\begin{elpicode}
+decision (all A x\ Pm x) :- link Pm P A, finite A,    % (r3')
+  pi x\ decision (app [P, x]).
+\end{elpicode}
+
+\noindent
+Since \elpiIn{Pm} is a higher-order unification variable
+of type \elpiIn{tm -> tm},
+with \elpiIn{x}
+in its scope, the unification problem
+admits one solution:
+
+\begin{elpicode}
+app [con"nfact", x, con"3"] = Pm x
+Pm = x\ app [con"nfact", x, con"3"]
+\end{elpicode}
+
+\noindent
+Once the head of rule \emph{r3'} unifies with the goal,
+the premise <<\elpiIn{link Pm A P}>> brings the assignment for \emph{Pm}
+back to the domain \elpiIn{tm} of Coq terms, obtaining the expected solution: 
+% \ref{solution:intro}:
 
 \begin{elpicode}
 P = lam A x\ app [con"nfact", x, con"3"]
@@ -179,7 +220,7 @@ under the \elpiIn{pi w\ }\hspace{-0.4em}).
 % decision (app [lam A (a\ app [con"nfact", a, con"3"]), w])
 % \end{elpicode}
 % \noindent
-In turn, this redex prevents rule \ref{clause:r2} from backchaining properly since
+In turn, this redex prevents rule \emph{r2} in \ref{fig:rules-elpi} from backchaining properly since
 the following unification problem has no solution:
 
 \begin{elpicode}
@@ -289,19 +330,17 @@ explicit scope.
 \setlength{\abovecaptionskip}{0pt}
 \setlength{\belowcaptionskip}{-13pt}
 \begin{figure}[b] %[H]
-  % \begin{tabular}{ll}
-  % \begin{minipage}{0.21\textwidth}
-  %  \inputrawelpicode{code/fo_tm}
-  % \end{minipage}
-  % &
-  % \begin{minipage}{0.24\textwidth}
-  %  \inputrawelpicode{code/ho_tm}
-  % \end{minipage}
-  % \end{tabular}\vspace{4pt}
-  % \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
-  % \label{code:common-terms}
-  % \Description[code:common-terms]{code:common-terms}
-  TODO
+  \begin{tabular}{ll}
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=1\textwidth]{HO-unif-for-free/img/fo_tm.pdf}
+  \end{minipage}
+  &
+  \begin{minipage}{0.5\textwidth}
+    \includegraphics[width=1\textwidth]{HO-unif-for-free/img/ho_tm.pdf}
+  \end{minipage}
+  \end{tabular}\vspace{4pt}
+  \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
+  \label{code:common-terms}
 \end{figure}
 }
 %\todo{use faddr for Fo}
@@ -358,6 +397,7 @@ we use an HOAS encoding, they also capture $\alpha$-equivalence.
 In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 
 % \input{code/feq}
+\includegraphics{HO-unif-for-free/img/feq.pdf}
 
 \begin{elpicode}
   ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
@@ -411,7 +451,7 @@ pointing out their differences.
 \Ho{}'s unification signature is:
 
 % \input{code/ue_type}
-TODO
+\includegraphics{HO-unif-for-free/img/ue_type.pdf}
 
 \noindent
 We write 
@@ -773,8 +813,7 @@ We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
 Unification variables are identified by a (unique) memory address.
 The memory and its associated operations are described below:
 
-% \input{code/mem_types}
-TODO
+\includegraphics{HO-unif-for-free/img/mem_types.pdf}
 
 \noindent
 If a memory cell is \elpiIn{none}, then the corresponding unification variable
@@ -787,8 +826,7 @@ instantiation of the same assignment to different scopes.
 This is expressed by the \elpiIn{inctx} container, and in particular
 its \elpiIn{abs} binding constructor.
 
-% \input{code/ho_subst}
-TODO
+\includegraphics{HO-unif-for-free/img/ho_subst.pdf}
 
 \noindent
 A solution to a \Fo{} variable is, instead, a plain term, that is, \elpiIn{fsubst}
@@ -798,8 +836,7 @@ is an abbreviation for \elpiIn{mem to}.
 %
 The compiler establishes a mapping between variables of the two languages.
 
-% \input{code/comp_base_types}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_base_types.pdf}
 
 \noindent
 Each \elpiIn{mvariable} is stored in the mapping together with
@@ -812,8 +849,12 @@ the following property:
   \elpiIn{(uva A L)} is such that \elpiIn{L} has length \elpiIn{N}.
 \end{invariant}
 
-% \input{code/alloc_mapping}
-TODO
+
+\inlinefigure{%
+\includegraphics{HO-unif-for-free/img/alloc_mapping.pdf}%
+\captionof{figure}{Malloc code}
+\label{clause:malloc}
+}
 
 \noindent
 When a single \elpiIn{ovariable} occurs multiple times with different numbers
@@ -835,14 +876,13 @@ approximation, and then ensures the mapping is bijective by introducing
 % to a \elpiIn{uva} (as per \cref{sec:simulation,sec:beta}),
 % preventing nested applications to materialize.
 % \input{code/fderef}
-TODO
+
 It is worth examining the code of \elpiIn{deref}, that
 applies the substitution to a \Ho{} term. Notice how assignments are moved
 to the current scope, i.e. the \elpiIn{abs}-bound variables are renamed
 with the names in the scope of the unification variable occurrence.
 
-% \input{code/deref}
-TODO
+\includegraphics{HO-unif-for-free/img/deref.pdf}
 
 \noindent
 Note that \elpiIn{move} strongly relies on invariant \ref{inv:uvaarity}: the length
@@ -851,8 +891,7 @@ they have the same simple type for the meta-level, and therefore the number of
 \elpiIn{abs} nodes in the assignment matches that length.
 This guarantees that \elpiIn{move} never fails.
 
-% \input{code/move}
-TODO
+\includegraphics{HO-unif-for-free/img/move.pdf}
 
 We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
 <<\elpiIn{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
@@ -867,13 +906,12 @@ variables linked to the problematic terms. Terms in \maybebeta do not
 need a link since \Ho{} variables faithfully represent
 the problematic term thanks to their scope.
 
-% \input{code/comp_links}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_links.pdf}
 
 \noindent
 The right-hand side of a link, the problematic term, can occur under binders.
 To accommodate this situation, the compiler wraps \elpiIn{baselink} using
-the \elpiIn{inctx} container (see~\ref{data:inctx} also used for \elpiIn{subst}).
+the \elpiIn{inctx} container. % (see~\ref{data:inctx} also used for \elpiIn{subst}).
 
 \begin{invariant}[Link left hand side]\label{inv:linklhs}
   The left-hand side of a suspended link
@@ -952,10 +990,9 @@ The signature of the \elpiIn{comp} predicate below allows for the generation of
 links (suspended unification problems), which plays no role in this section
 but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
-% \input{code/comp_base}
-TODO
-% \input{code/compile.tex}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_base.pdf}
+
+\includegraphics{HO-unif-for-free/img/compile.pdf}
 
 \noindent
 With respect to \cref{sec:problem-statement}, the signature also allows
@@ -965,8 +1002,7 @@ in order to allocate space for the variables, i.e. it sets their memory
 address to \elpiIn{none} (a detail not worth mentioning in the
 previous sections).
 
-% \input{code/comp_lam}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_lam.pdf}
 
 \noindent
 In the code above, the syntax \elpiIn{pi x y\..} is syntactic sugar for
@@ -982,8 +1018,7 @@ an additional \elpiIn{abs} node binding \elpiIn{v}. In this way links generated
 deep inside the compiled terms can be moved outside their original context
 of binders.
 
-% \input{code/comp_close_links}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_close_links.pdf}
 
 % \noindent
 % \todo{remove pruning optimization from code above}
@@ -997,8 +1032,7 @@ fail. It is at this granularity that we can relate steps in the
 two languages.
 
 
-% \input{code/hstep}
-TODO
+\includegraphics{HO-unif-for-free/img/hstep.pdf}
 
 \noindent
 Note that the infix notation \elpiIn{((A ~\Ue~B) C D)} is syntactic sugar for
@@ -1007,8 +1041,7 @@ Note that the infix notation \elpiIn{((A ~\Ue~B) C D)} is syntactic sugar for
 Reconsidering links is a fixpoint process because the progress of a link
 can update the substitution, which may then enable another link to progress.
 
-% \input{code/progress}
-TODO
+\includegraphics{HO-unif-for-free/img/progress.pdf}
 
 \subsubsection{Progress}
 In the base compilation scheme, \elpiIn{progress1} is the identity function
@@ -1103,8 +1136,7 @@ We omit to sketch the proof of this property for brevity.
 
 We already have all the ingredients to show the code of \Uo{}.
 
-% \input{code/unif_fo}
-TODO
+\includegraphics{HO-unif-for-free/img/unif_fo.pdf}
 
 \noindent
 So far the compiler is very basic. It does not really
@@ -1222,6 +1254,7 @@ higher-order unification problem succeed.
 %   {{{X,A,0}}}
 %   {{}}
 TODO
+
 The unification problem $\hoUnifPb_1$ fails while trying to unify
 $A \appsep x$ and $x$, which is equivalent to <<\elpiIn{app [uva A [], x]}>>
 versus \elpiIn{x}.
@@ -1236,8 +1269,8 @@ We add the following rule before rule~\ref{rule:compapp}, where
 \elpiIn{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
-% input{code/comp_base_beta}
-TODO
+\includegraphics{HO-unif-for-free/img/comp_base_beta.pdf}
+
 
 \noindent
 Note that compiling \elpiIn{Ag} cannot create new mappings nor links, since \elpiIn{Ag}
@@ -1640,8 +1673,7 @@ since it does not break
 The following rule is inserted just before rule~\ref{rule:complam} from the code in
 \cref{sec:compilation}.
 
-% \input{code/comp_eta}
-TODo
+\includegraphics{HO-unif-for-free/img/comp_eta.pdf}
 
 \noindent
 Whenever \elpiIn{o-lam F} is detected to be in
@@ -2277,7 +2309,12 @@ has the following property:
 We insert this rule
 just before rule~\ref{rule:compapp}:
 
-% \input{code/comp_beta}
+\fbox{%
+  \begin{minipage}{1\textwidth}
+    \includegraphics{HO-unif-for-free/img/comp_beta.pdf}%
+    \captionof{figure}{This is a non-floating caption.}
+  \end{minipage}
+}
 
 \noindent
 The list \elpiIn{Ag} is split into two parts: 

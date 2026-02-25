@@ -101,3 +101,15 @@
 % \renewcommand{\mtctitle}{Sommaire}
 
 \usepackage{cleveref}
+
+
+\setlength{\fboxrule}{0pt}  % no border
+\setlength{\fboxsep}{0pt}   % optional: no padding
+
+\newcommand{\inlinefigure}[1]{
+\fbox{%
+  \begin{minipage}{1\textwidth}
+    #1
+  \end{minipage}
+}
+}

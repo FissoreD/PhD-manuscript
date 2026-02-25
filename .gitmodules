@@ -1,0 +1,4 @@
+[submodule "HO-unif-for-free"]
+	path = HO-unif-for-free
+	url = https://github.com/FissoreD/HO-unif-for-free
+	branch = phd
