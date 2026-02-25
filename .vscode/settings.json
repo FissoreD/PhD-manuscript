@@ -16,6 +16,7 @@
     "**/*.toc": true,
     "**/*.mtc*": true,
     "**/*.xmpi": true,
+    "**/*.maf": true,
   },
   "latex-workshop.latex.tools": [
     {
