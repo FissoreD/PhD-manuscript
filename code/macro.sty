@@ -1,0 +1,85 @@
+\usepackage{amsthm}
+\usepackage{bussproofs}
+\usepackage{amssymb}
+\usepackage{xspace}
+\usepackage{stackengine}
+
+\newcommand{\mappend}{\ensuremath{\mathbin{+\!\!+}}\xspace}
+
+\AtBeginDocument{
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Environnement pour les théorèmes, définitions, exemples et autre   %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  \theoremstyle{plain}
+  \newtheorem{theorem}{Theorem}[section]
+  \newtheorem{lemma}[theorem]{Lemma}
+  \newtheorem{invariant}[theorem]{Invariant}
+  \newtheorem{axiom}[theorem]{Axiom}
+  \newtheorem{proposition}[theorem]{Proposition}
+  \newtheorem{corollary}[theorem]{Corollary}
+  % \newtheorem{preuve}{Preuve}[chapter]
+
+  \theoremstyle{definition}
+  \newtheorem{definition}{Definition}[section]
+
+  \newtheoremstyle{note}{}{}{}{}{\itshape}{~--~}{ }{\thmname{#1}\thmnumber{ #2}}
+  \theoremstyle{note}
+  \newtheorem{example}{Example}[section]
+  \newtheorem{remark}{Remark}[section]
+
+  \renewenvironment{proof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\end{list}$\square$\medskip}
+  \newenvironment{myproof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\hfill$\diamond$\end{list}\smallskip}
+}
+
+\newcommand{\FV}{fv}
+\newcommand{\m}{}
+\newcommand{\step}{step}
+\newcommand{\steptag}{steptag}
+\newcommand{\coloneq}{coloneq}
+\newcommand{\msome}{msome}
+\newcommand{\mnone}{mnone}
+\newcommand{\koC}{koC}
+\newcommand{\okC}{okC}
+\newcommand{\orC}{orC}
+\newcommand{\andC}{andC}
+\newcommand{\cutC}{cutC}
+\newcommand{\cutl}{cutl}
+\newcommand{\cutr}{cutr}
+\newcommand{\taC}{taC}
+\newcommand{\na}{na}
+\newcommand{\pathend}{pathend}
+\newcommand{\getend}{getend}
+
+\newcommand{\incomplete}{incomplete}
+\newcommand{\success}{success}
+\newcommand{\failed}{failed}
+
+% \newcommand{\run}{run}
+\newcommand{\nur}{nur}
+
+\newcommand{\stept}{stept}
+\newcommand{\stopt}{stopt}
+\newcommand{\failt}{failt}
+\newcommand{\backt}{backt}
+
+\newcommand{\fails}{fails}
+\newcommand{\calls}{calls}
+\newcommand{\cuts}{cuts}
+\newcommand{\stops}{stops}
+
+\newcommand{\ttl}{ttl}
+\newcommand{\ltt}{ltt}
+\newcommand{\vast}{vast}
+\newcommand{\mnil}{mnil}
+\newcommand{\saveas}{saveas}
+\newcommand{\matching}{matching}
+\newcommand{\unify}{unify}
+
+
+\newcommand{\UnifRel}{\ensuremath{\simeq}}
+\newcommand{\EqualRel}{\ensuremath{=}}
+
+\newcommand{\Ue}{\ensuremath{\UnifRel_m}\xspace}
+\newcommand{\Uo}{\ensuremath{\UnifRel_o}\xspace}
+\newcommand{\Eo}{\ensuremath{\EqualRel_o}\xspace}

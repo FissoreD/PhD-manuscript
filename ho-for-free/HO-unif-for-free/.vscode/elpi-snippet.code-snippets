@@ -1,0 +1,40 @@
+{
+	"lambda": {
+		"scope": "elpi",
+		"prefix": ["lambda", "\\lambda"],
+		"body": [
+			"λ"
+		],
+		"description": "lambda"
+	},
+	"beta": {
+		"scope": "elpi",
+		"prefix": ["beta","\\beta"],
+		"body": [
+			"β"
+		],
+		"description": "beta"
+	},
+	"sigma": {
+		"scope": "elpi",
+		"prefix": [
+			"sigma",
+			"\\sigma"
+		],
+		"body": [
+			"𝜎"
+		],
+		"description": "sigma"
+	},
+	"exists": {
+		"scope": "elpi",
+		"prefix": [
+			"exists",
+			"\\exists"
+		],
+		"body": [
+			"∃"
+		],
+		"description": "exists"
+	}
+}

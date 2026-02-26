@@ -21,6 +21,7 @@
     "**/elpi.py": true,
     "**/_minted": true,
     "code/*.tex": true,
+    "**/__pycache__": true
   },
   "latex-workshop.latex.tools": [
     {

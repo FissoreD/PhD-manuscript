@@ -332,11 +332,11 @@ explicit scope.
 \begin{figure}[b] %[H]
   \begin{tabular}{ll}
   \begin{minipage}{0.5\textwidth}
-    \includegraphics[width=1\textwidth]{HO-unif-for-free/img/fo_tm.pdf}
+    \includegraphics[width=1\textwidth]{ho-for-free/img/fo_tm.pdf}
   \end{minipage}
   &
   \begin{minipage}{0.5\textwidth}
-    \includegraphics[width=1\textwidth]{HO-unif-for-free/img/ho_tm.pdf}
+    \includegraphics[width=1\textwidth]{ho-for-free/img/ho_tm.pdf}
   \end{minipage}
   \end{tabular}\vspace{4pt}
   \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
@@ -399,7 +399,7 @@ In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 % \input{code/feq}
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{HO-unif-for-free/img/feq.pdf}%
+    \includegraphics{ho-for-free/img/feq.pdf}%
     \captionof{figure}{FO eq}
     \label{fig:feq}
   \end{minipage}
@@ -457,7 +457,7 @@ pointing out their differences.
 \Ho{}'s unification signature is:
 
 % \input{code/ue_type}
-\includegraphics{HO-unif-for-free/img/ue_type.pdf}
+\includegraphics{ho-for-free/img/ue_type.pdf}
 
 \noindent
 We write 
@@ -819,7 +819,7 @@ We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
 Unification variables are identified by a (unique) memory address.
 The memory and its associated operations are described below:
 
-\includegraphics{HO-unif-for-free/img/mem_types.pdf}
+\includegraphics{ho-for-free/img/mem_types.pdf}
 
 \noindent
 If a memory cell is \elpiIn{none}, then the corresponding unification variable
@@ -832,7 +832,7 @@ instantiation of the same assignment to different scopes.
 This is expressed by the \elpiIn{inctx} container, and in particular
 its \elpiIn{abs} binding constructor.
 
-\includegraphics{HO-unif-for-free/img/ho_subst.pdf}
+\includegraphics{ho-for-free/img/ho_subst.pdf}
 
 \noindent
 A solution to a \Fo{} variable is, instead, a plain term, that is, \elpiIn{fsubst}
@@ -842,7 +842,7 @@ is an abbreviation for \elpiIn{mem to}.
 %
 The compiler establishes a mapping between variables of the two languages.
 
-\includegraphics{HO-unif-for-free/img/comp_base_types.pdf}
+\includegraphics{ho-for-free/img/comp_base_types.pdf}
 
 \noindent
 Each \elpiIn{mvariable} is stored in the mapping together with
@@ -857,7 +857,7 @@ the following property:
 
 
 \inlinefigure{%
-\includegraphics{HO-unif-for-free/img/alloc_mapping.pdf}%
+\includegraphics{ho-for-free/img/alloc_mapping.pdf}%
 \captionof{figure}{Malloc code}
 \label{clause:malloc}
 }
@@ -888,7 +888,7 @@ applies the substitution to a \Ho{} term. Notice how assignments are moved
 to the current scope, i.e. the \elpiIn{abs}-bound variables are renamed
 with the names in the scope of the unification variable occurrence.
 
-\includegraphics{HO-unif-for-free/img/deref.pdf}
+\includegraphics{ho-for-free/img/deref.pdf}
 
 \noindent
 Note that \elpiIn{move} strongly relies on invariant \ref{inv:uvaarity}: the length
@@ -897,7 +897,7 @@ they have the same simple type for the meta-level, and therefore the number of
 \elpiIn{abs} nodes in the assignment matches that length.
 This guarantees that \elpiIn{move} never fails.
 
-\includegraphics{HO-unif-for-free/img/move.pdf}
+\includegraphics{ho-for-free/img/move.pdf}
 
 We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
 <<\elpiIn{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
@@ -912,7 +912,7 @@ variables linked to the problematic terms. Terms in \maybebeta do not
 need a link since \Ho{} variables faithfully represent
 the problematic term thanks to their scope.
 
-\includegraphics{HO-unif-for-free/img/comp_links.pdf}
+\includegraphics{ho-for-free/img/comp_links.pdf}
 
 \noindent
 The right-hand side of a link, the problematic term, can occur under binders.
@@ -998,13 +998,13 @@ but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{HO-unif-for-free/img/comp_base.pdf}%
+    \includegraphics{ho-for-free/img/comp_base.pdf}%
     \captionof{figure}{Comp FO}
     \label{fig:comp-fo}
   \end{minipage}
 }
 
-\includegraphics{HO-unif-for-free/img/compile.pdf}
+\includegraphics{ho-for-free/img/compile.pdf}
 
 \noindent
 With respect to \cref{sec:problem-statement}, the signature also allows
@@ -1016,7 +1016,7 @@ previous sections).
 
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{HO-unif-for-free/img/comp_lam.pdf}%
+    \includegraphics{ho-for-free/img/comp_lam.pdf}%
     \captionof{figure}{Comp FO}
     \label{fig:comp-lam}
   \end{minipage}
@@ -1036,7 +1036,7 @@ an additional \elpiIn{abs} node binding \elpiIn{v}. In this way links generated
 deep inside the compiled terms can be moved outside their original context
 of binders.
 
-\includegraphics{HO-unif-for-free/img/comp_close_links.pdf}
+\includegraphics{ho-for-free/img/comp_close_links.pdf}
 
 % \noindent
 % \todo{remove pruning optimization from code above}
@@ -1050,7 +1050,7 @@ fail. It is at this granularity that we can relate steps in the
 two languages.
 
 
-\includegraphics{HO-unif-for-free/img/hstep.pdf}
+\includegraphics{ho-for-free/img/hstep.pdf}
 
 \noindent
 Note that the infix notation \elpiIn{((A ~\Ue~B) C D)} is syntactic sugar for
@@ -1059,7 +1059,7 @@ Note that the infix notation \elpiIn{((A ~\Ue~B) C D)} is syntactic sugar for
 Reconsidering links is a fixpoint process because the progress of a link
 can update the substitution, which may then enable another link to progress.
 
-\includegraphics{HO-unif-for-free/img/progress.pdf}
+\includegraphics{ho-for-free/img/progress.pdf}
 
 \subsubsection{Progress}
 In the base compilation scheme, \elpiIn{progress1} is the identity function
@@ -1154,7 +1154,7 @@ We omit to sketch the proof of this property for brevity.
 
 We already have all the ingredients to show the code of \Uo{}.
 
-\includegraphics{HO-unif-for-free/img/unif_fo.pdf}
+\includegraphics{ho-for-free/img/unif_fo.pdf}
 
 \noindent
 So far the compiler is very basic. It does not really
@@ -1287,7 +1287,7 @@ We add the following rule before rule $r_@$ in~\ref{fig:comp-fo}, where
 \elpiIn{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
-\includegraphics{HO-unif-for-free/img/comp_base_beta.pdf}
+\includegraphics{ho-for-free/img/comp_base_beta.pdf}
 
 
 \noindent
@@ -1690,7 +1690,7 @@ since it does not break
 \paragraph{Compilation}
 The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}.
 
-\includegraphics{HO-unif-for-free/img/comp_eta.pdf}
+\includegraphics{ho-for-free/img/comp_eta.pdf}
 
 \noindent
 Whenever \elpiIn{o-lam F} is detected to be in
@@ -2326,7 +2326,7 @@ has the following property:
 We insert this rule
 just before rule $r_@$ in \ref{fig:comp-fo}
 
-\includegraphics{HO-unif-for-free/img/comp_beta.pdf}
+\includegraphics{ho-for-free/img/comp_beta.pdf}
 
 \noindent
 The list \elpiIn{Ag} is split into two parts: 

@@ -16,7 +16,7 @@ img:
 	$(MAKE) -C img -j
 
 ho:
-	$(MAKE) -C HO-unif-for-free main
+	$(MAKE) -C ho-for-free main
 
 # END AUX
 

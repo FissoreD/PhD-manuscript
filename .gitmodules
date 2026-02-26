@@ -1,8 +1,11 @@
-[submodule "HO-unif-for-free"]
-	path = HO-unif-for-free
+[submodule "ho-for-free/HO-unif-for-free"]
+	path = ho-for-free/HO-unif-for-free
 	url = https://github.com/FissoreD/HO-unif-for-free
 	branch = phd
-[submodule "elpi-formalization"]
-	path = elpi-formalization
-	url = https://github.com/FissoreD/elpi-formalization/
+[submodule "snip-extractor"]
+	path = snip-extractor
+	url = https://github.com/FissoreD/snip-extractor
+[submodule "formalization/elpi-formalization"]
+	path = formalization/elpi-formalization
+	url = https://github.com/FissoreD/elpi-formalization
 	branch = phd

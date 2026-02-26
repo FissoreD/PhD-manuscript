@@ -1,0 +1,5 @@
+img/*
+!img/mminted.sty
+!img/macro.sty
+!img/elpi.py
+!img/.latexminted_config

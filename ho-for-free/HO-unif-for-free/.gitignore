@@ -1,0 +1,11 @@
+*.txt
+.aux
+*.html
+paper/code/*.tex
+
+img/*
+!img/*.sty
+!img/elpi.py
+!img/.latexminted_config
+__pycache__
+*.log

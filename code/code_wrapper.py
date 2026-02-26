@@ -9,26 +9,23 @@ extension_mapper = {
     ".hs": "hs"
 }
 
-def build_cnt(ext,cnt,len):
-    mint_tag = f"{extension_mapper[ext]}code"
-    return "\\documentclass[border=2mm, varwidth=100cm]{standalone}\n" \
-        "\\usepackage{mminted}\n" \
-        "\\begin{document}\n" \
-        "\\newlength{\charwidth}\n" \
-        "\\settowidth{\charwidth}{\\small\\texttt{m}}\n" \
-        f"\\begin{{varwidth}}{{{len+2}\\charwidth}}\n" \
-        f"\\begin{{{mint_tag}}}\n"\
-        f"{cnt}\n"\
-        f"\\end{{{mint_tag}}}\n"\
-        "\\end{varwidth}\n"\
-        "\\end{document}"
-
-
 def max_len(l):
     m = 0
     for i in l:
         m = max(m, len(i))
     return m
+
+def build_cnt(cnt:str):
+    cnt_list = cnt.split("\n")
+    len = max_len(cnt_list)
+    return "\\documentclass[border=2mm, varwidth=100cm]{standalone}\n" \
+        "\\usepackage{mminted}\n" \
+        "\\usepackage{macro}\n" \
+        "\\begin{document}\n" \
+        f"\\begin{{varwidth}}{{{len+3}\\charwidth}}\n" \
+        f"{cnt}\n" \
+        "\\end{varwidth}"\
+        "\\end{document}"
 
 # excludes all the content before the first occurence of START
 # if START is absent then it returns all the document
@@ -45,10 +42,13 @@ def build_file(fname):
     with open(fname) as cnt:
         cnt = cnt.readlines()
         cnt = clean_cnt(cnt)
-        l = max_len(cnt)
         path = Path(fname)
-        cnt = "".join(cnt)
-        cnt = build_cnt(path.suffix,cnt,l)
+        mint_tag = f"{extension_mapper[path.suffix]}code"
+        cnt_flat = "".join(cnt)
+        cnt = f"\\begin{{{mint_tag}}}\n" \
+            f"{cnt_flat}\n" \
+            f"\\end{{{mint_tag}}}\n"
+        cnt = build_cnt(cnt)
         with open(path.stem + ".tex", "w") as fout:
             fout.write(cnt)
 

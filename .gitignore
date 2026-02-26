@@ -19,3 +19,4 @@ _minted
 *.mtc*
 *.xmpi
 *.maf
+**/__pycache__

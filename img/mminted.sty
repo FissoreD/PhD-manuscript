@@ -6,6 +6,10 @@
 % |_|  |_|_____|_| \_|  |_|  |______|_____/ 
 
 \usepackage{minted}
+\usepackage{amsmath}
+
+\newlength{\charwidth}
+\settowidth{\charwidth}{\small\texttt{m}}
 
 \newcommand{\minline}[2]{\text{\mintinline[fontsize=\small,escapeinside=~~]{#1}{#2}}}
 \newcommand{\eI}[1]{\minline{elpi}{#1}}

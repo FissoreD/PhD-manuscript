@@ -1,0 +1,19 @@
+accumulate common.
+accumulate mem.
+accumulate object_language.
+accumulate meta_language.
+accumulate comp.
+accumulate test.
+
+main [] :- !,
+  internal-tests,
+  std.findall (declare-test _ _ _) L,
+  failsafe => runtests L [].
+main [NS] :- !,
+  internal-tests,
+  N is string_to_int NS, 
+  std.findall (declare-test _ _ (test N _)) L,
+  runtests L [].
+main L :-
+  partition (x\ x = "tex") L ["tex"|_] L1, !,
+  tex => main L1.
