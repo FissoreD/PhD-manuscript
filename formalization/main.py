@@ -98,9 +98,10 @@ def clean_line(escape):
 if __name__ == "__main__":
     out = sys.argv[1]
     fname = sys.argv[2]
+    thout = sys.argv[3] if len(sys.argv) > 2 else out
     extract_code.bussproof(out,clean_line).read_file(fname)
     if fname.endswith(".v"):
         extract_code.snip("(*", "*)", "coqcode","cI",out,"v",clean_line).read_file(fname)
-        extract_code.theorem("coqcode","cI",out,clean_line).read_file(fname)
+        extract_code.theorem("coqcode","cI",thout,clean_line).read_file(fname)
     if fname.endswith(".elpi"):
         extract_code.snip("%", "", "elpicode","eI",out,"elpi",clean_line).read_file(fname)
