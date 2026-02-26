@@ -1,4 +1,5 @@
 \chapter{Determinacy checking for \elpi}
+\newcommand{\infer}{\text{check input}\xspace}
 
 \newcommand{\efunc}{efunc}
 \newcommand{\run}{run}
@@ -62,8 +63,6 @@
 \newcommand{\ccM}{ccM}
 \newcommand{\caC}{caC}
 \newcommand{\iC}{iC}
-\newcommand{\checkAtomFig}{checkAtomFig}
-\newcommand{\inferFig}{inferFig}
 \newcommand{\assumeFig}{assumeFig}
 \newcommand{\isdet}{isdet}
 \newcommand{\isdetq}{isdetq}
@@ -1031,7 +1030,14 @@ knowledge available on variables in \VAR and it verifies that the precondition
 made by the signature entails the postcondition.
 \vspace{.5em}
 
-{\hspace{-2em} \small \ccM}
+\begin{figure}
+  \centering
+  \includegraphics{det_check/ccm.pdf}
+  \caption{
+        Check rule
+        }
+      \label{rule:check-rule}
+\end{figure}  
 % \checkRuleFig  
 
 In particular the \checkhi(\chiC{\CTX}{\TERM}{\TYPE}{\CTX}) procedures
@@ -1043,16 +1049,24 @@ postcondition. Each of the $n$ body atoms $b_i$ is processed by
 that updates the context and computes the determinacy of the
 entire body $\func_{n+1}$.
 
-\checkAtomFig  
+\begin{figure}
+  \centering
+  \includegraphics{det_check/check_atom.pdf}
+  \caption{
+        Rules for \checka: its type is
+        \caC{\PROG}{\CTX}{\F}{\ATOM}{\F}{\CTX}
+        }
+      \label{fig:check-atom}
+\end{figure}  
 
 We now focus on the analysis of an atom.
 The \checka procedure has two rules to handle
-\cut~\ref{rule:check-atom-cut} and \pi~\ref{rule:check-atom-pi},
-and two more rules to handle predicate calls~\ref{rule:check-atom-call}
-and predicate miscalls~\ref{rule:check-atom-miscall}. The \cut operator resets the current
+\cut~($a_!$ in \ref{fig:check-atom}) and \pi~($a_\forall$ in~\ref{fig:check-atom}),
+and two more rules to handle predicate calls~($a_c$ in~\ref{fig:check-atom})
+and predicate miscalls~($a_\bot$ in~\ref{fig:check-atom}). The \cut operator resets the current
 determinacy to \detI, while \pi introduces a fresh symbol,
 checks the hypothetical rule and proceeds after adding $r$ to \prog.
-Rule~\ref{rule:check-atom-call} verifies that the preconditions for $c$ are
+Rule~$a_c$ verifies that the preconditions for $c$ are
 met, and assumes its postcondition generating an updated $\Gamma'$. The 
 determinacy is set to the maximum of current determinacy and the one of the
 predicate. When the preconditions are not met the context is left untouched and
@@ -1063,17 +1077,25 @@ The most interesting procedure is the one to check if the preconditions
 of a predicate call are met, that is \checkai (\cref{fig:infer}, \iC{\CTX}{\TERM}{\TYPE}{\BOOL}). The procedure
 ignores data arguments %~\ref{rule:infer-app-data}
 and output arguments %~\ref{rule:infer-app-o}
-and simply fetches from the context the signature of constants and variables~\ref{rule:infer-var}.
-Rule~\ref{rule:infer-app-it} is the standard typing rule for
+and simply fetches from the context the signature of constants and variables~($tm_k^i$ in~\ref{fig:infer}).
+Rule~$tm_\top^i$ is the standard typing rule for
 application: if the input argument matches the expected signature it
 computes the return type, signaling no miscalls (i.e. $\top$).
 When the head or the argument contain a miscall, or when the argument 
-does not match the expected signature, the rule~\ref{rule:infer-app-ib} signals a miscall and
+does not match the expected signature, the rule~$tm_\bot^i$ signals a miscall and
 computes the return type by weakening the one obtained from the head, i.e.,
 the predicate call is considered as a relation, and the signature of the
 output arguments is also recursively weakened.
 
-\inferFig
+\begin{figure}
+  \centering
+  \includegraphics{det_check/check_input.pdf}
+  \caption{
+      Rules for \infer: its type is
+      \iC{\CTX}{\TERM}{\TYPE}{\BOOL}} % aka (\infert)}
+  \label{fig:infer}
+\end{figure}  
+
 
 
 The procedure to update the context when an atom is found to be
@@ -1088,13 +1110,22 @@ it calls \assume on output arguments.
 % \checkAtomOutFig  
 
 The \assume procedure (\cref{fig:assume}, \aC{\CTX}{\TERM}{\TYPE}{\CTX})  updates the context
-when it encounters variables~\ref{rule:assume-var}. When variable is
+when it encounters variables~(rule $tm_X^o$). When variable is
 already ascribed a signature in the context, we keep the stronger signature.
 Data %~\ref{rule:assume-app-data} 
 and output arguments %~\ref{rule:assume-app-o}
 are skipped, while input arguments are recursively traversed: the signature
 of variables in their input positions are also updated in the context.
 % This is what makes the \eI{fuse} example work.
+
+\begin{figure}
+  \centering
+  \includegraphics{det_check/assume_output.pdf}
+  \caption{
+    Rules for \assume: its type is
+    \aC{\CTX}{\TERM}{\TYPE}{\CTX}}
+  \label{fig:assume}
+\end{figure}  
 
 \assumeFig
 
@@ -1675,8 +1706,8 @@ and like a black hole it absorbs the determinism
 of the surrounding sub-terms. This is a convenient way to capture all miscalls
 and treat them uniformly. In our presentation, we have no equivalent; instead,
 we use \maximize to change the signature of a term when a miscall
-is detected~\ref{rule:infer-app-ib} (or atom
-calls~\ref{rule:check-atom-miscall}). The advantage is that \maximize
+is detected (such as, $tm_\bot^i$ in~\ref{fig:infer} or atom
+calls $a_\bot$ in~\ref{fig:check-atom}). The advantage is that \maximize
 only changes the leaves (\F) of the signature while leaving its structure
 intact. Although we do not analyze data in this paper, our set of rules can be
 complemented to perform full type checking (in addition to determinacy
@@ -1690,7 +1721,7 @@ or by placing a \cut after the non-deterministic call.
 It is this ``after the fact'' commitment that make the analysis a bit more complex.
 In fact, in the body of a deterministic predicate we can have
 calls to relations (or miscalled functions) and still consider the rules
-valid with respect to determinacy (see \ref{rule:check-atom-cut}).
+valid with respect to determinacy (see $a_!$ in~\ref{fig:check-atom}).
 The notion of \textit{functional context} in~\cite{warren1989}
 is closely related to this difficulty.
 

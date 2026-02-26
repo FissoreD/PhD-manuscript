@@ -1,0 +1,120 @@
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ASSUME
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\newcommand{\ruleAssume}[2]{\customlabel{#1}{(\ensuremath{\text{\procfont tm}{{\text{\procfont o}}\atop{#2}}})}}
+
+
+
+\newcommand{\ruleAVar}{\ruleAssume{rule:assume-var}{X}}
+\newcommand{\aV}{
+  \begin{bprooftree}
+    % \AxiomC{\ensuremath{\ctx~ X = \tau' ~\lor~ \tau = \tau'}}
+    \AxiomC{\ensuremath{\tau' = \mathrm{if}~ X \in \ctx ~\mathrm{then}~ \ctx~ X ~\mathrm{else}~ \tau}}
+    \RightLabelM{\ruleAVar}
+    \UnaryInfC{\aC{\ctx}{X}{\tau}{\ctx + \{X \mapsto \minT~ \tau~ \tau'\}}}
+  \end{bprooftree}
+}
+\newcommand{\ruleAConst}{\ruleAssume{rule:assume-const}{k}}
+\newcommand{\aK}{
+  \begin{bprooftree}
+    \AxiomC{\ensuremath{\ctx~ k = \tau' \quad \tau' \mySub \tau}}
+    \RightLabelM{\ruleAConst}
+    \UnaryInfC{\aC{\ctx}{k}{\tau}{\ctx}}
+  \end{bprooftree}
+}
+\newcommand{\ruleAAppStar}{\ruleAssume{rule:assume-app-data}{\star}}
+\newcommand{\aAS}{
+  \begin{bprooftree}
+    \AxiomC{\ensuremath{\aC{\ctx}{f}{\expI \toI \tau}{\ctx'}}}
+    \RightLabelM{\ruleAAppStar}
+    \UnaryInfC{\aC{\ctx}{f~d}{\tau}{\ctx'}}
+  \end{bprooftree}
+}
+\newcommand{\ruleAAppI}{\ruleAssume{rule:assume-app-i}{i}}
+\newcommand{\aAI}{
+  \begin{bprooftree}
+    \AxiomC{\ensuremath{\aC{\ctx}{f}{\rho \toI \tau}{\ctx'} \qquad \aC{\ctx'}{t}{\rho}{\ctx''}}}
+    \RightLabelM{\ruleAAppI}
+    \UnaryInfC{\aC{\ctx}{f~t}{\tau}{\ctx''}}
+  \end{bprooftree}
+}
+\newcommand{\ruleAAppO}{\ruleAssume{rule:assume-app-o}{o}}
+\newcommand{\aAO}{
+  \begin{bprooftree}
+    \AxiomC{\aC{\ctx}{f}{\_ \toO \tau}{\ctx'}}
+    \RightLabelM{\ruleAAppO}
+    \UnaryInfC{\aC{\ctx}{f~t}{\tau}{\ctx'}}
+  \end{bprooftree}
+}
+
+
+\newcommand{\assumeFig}{
+  % \begin{subfigure}[b]{1\textwidth}
+  \begin{figure}[t]
+    % \vspace{-2.1em}
+    % \begin{framed}
+
+      \centering
+      \aV{}
+      \aK{}
+      % \aAS{}
+      % \aAO{}
+      \aAI{}
+
+      % \assumeExpr{0.48}
+      % \assumeAppN{0.48}
+      % \assumeApp{1}
+      % %\assumeExprL{0.48}
+      % % \assumeCut{0.3}
+      % \assumeHd{1}
+      % \assumePiImpl{0.65}
+
+      % \assumeUnif{0.3}
+
+
+      % \assumeLam{1}
+
+    % \end{framed}
+    %   \vspace{-1em}
+  \end{figure}
+}
+
+\newcommand{\assumeFigFull}{
+  % \begin{subfigure}[b]{1\textwidth}
+  \begin{figure}[t]
+    % \vspace{-2.1em}
+    % \begin{framed}
+
+      \centering
+      \aV{}
+      \aK{}
+      \aAS{}
+      \aAO{}
+      \aAI{}
+
+      % \assumeExpr{0.48}
+      % \assumeAppN{0.48}
+      % \assumeApp{1}
+      % %\assumeExprL{0.48}
+      % % \assumeCut{0.3}
+      % \assumeHd{1}
+      % \assumePiImpl{0.65}
+
+      % \assumeUnif{0.3}
+
+
+      % \assumeLam{1}
+
+    % \end{framed}
+    %   \vspace{-1em}
+      \caption{
+        Rules for \assume: its type is
+          \aC{\CTX}{\TERM}{\TYPE}{\CTX}}
+      \label{fig:assume-full}
+  \end{figure}
+}
