@@ -1,7 +1,3 @@
-[submodule "ho-for-free/HO-unif-for-free"]
-	path = ho-for-free/HO-unif-for-free
-	url = https://github.com/FissoreD/HO-unif-for-free
-	branch = phd
 [submodule "snip-extractor"]
 	path = snip-extractor
 	url = https://github.com/FissoreD/snip-extractor
