@@ -4,7 +4,7 @@ TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape
 
 all:
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
-	$(MAKE) aux && $(MAKE) full
+	$(MAKE) aux -j && $(MAKE) full
 
 # START AUX
 aux: img code ho
@@ -16,7 +16,7 @@ img:
 	$(MAKE) -C img -j
 
 ho:
-	$(MAKE) -C ho-for-free main
+	$(MAKE) -C ho-for-free main -j
 
 # END AUX
 

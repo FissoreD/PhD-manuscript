@@ -11,7 +11,7 @@ PDFFILES := $(TEXFILES:.tex=.pdf)
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
 
 main:
-	$(MAKE) generator -j4 && $(MAKE) latex -j4
+	$(MAKE) generator -j && $(MAKE) latex -j
 
 generator: $(IGNFILES)
 
