@@ -11,16 +11,16 @@ extension_mapper = {
 
 def build_cnt(ext,cnt,len):
     mint_tag = f"{extension_mapper[ext]}code"
-    return "\\documentclass[border=2mm, varwidth]{standalone}" \
-        "\\usepackage{mminted}" \
-        "\\begin{document}" \
-        "\\newlength{\charwidth}" \
-        "\\settowidth{\charwidth}{\\texttt{0}}"\
-        f"\\begin{{varwidth}}{{{len}\\charwidth}}" \
+    return "\\documentclass[border=2mm, varwidth=100cm]{standalone}\n" \
+        "\\usepackage{mminted}\n" \
+        "\\begin{document}\n" \
+        "\\newlength{\charwidth}\n" \
+        "\\settowidth{\charwidth}{\\small\\texttt{m}}\n" \
+        f"\\begin{{varwidth}}{{{len+2}\\charwidth}}\n" \
         f"\\begin{{{mint_tag}}}\n"\
         f"{cnt}\n"\
         f"\\end{{{mint_tag}}}\n"\
-        "\\end{varwidth}"\
+        "\\end{varwidth}\n"\
         "\\end{document}"
 
 
