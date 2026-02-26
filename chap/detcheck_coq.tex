@@ -1,49 +1,5 @@
 \chapter{First-order static determinacy checker formalization}
 
-\newcommand{\FV}{fv}
-\newcommand{\step}{step}
-\newcommand{\steptag}{steptag}
-\newcommand{\coloneq}{coloneq}
-\newcommand{\msome}{msome}
-\newcommand{\mnone}{mnone}
-\newcommand{\koC}{koC}
-\newcommand{\okC}{okC}
-\newcommand{\orC}{orC}
-\newcommand{\andC}{andC}
-\newcommand{\cutC}{cutC}
-\newcommand{\cutl}{cutl}
-\newcommand{\cutr}{cutr}
-\newcommand{\taC}{taC}
-\newcommand{\na}{na}
-\newcommand{\pathend}{pathend}
-\newcommand{\getend}{getend}
-
-\newcommand{\incomplete}{incomplete}
-\newcommand{\success}{success}
-\newcommand{\failed}{failed}
-
-% \newcommand{\run}{run}
-\newcommand{\nur}{nur}
-
-\newcommand{\stept}{stept}
-\newcommand{\stopt}{stopt}
-\newcommand{\failt}{failt}
-\newcommand{\backt}{backt}
-
-\newcommand{\fails}{fails}
-\newcommand{\calls}{calls}
-\newcommand{\cuts}{cuts}
-\newcommand{\stops}{stops}
-
-\newcommand{\ttl}{ttl}
-\newcommand{\ltt}{ltt}
-\newcommand{\vast}{vast}
-\newcommand{\mnil}{mnil}
-\newcommand{\saveas}{saveas}
-\newcommand{\matching}{matching}
-\newcommand{\unify}{unify}
-
-
 \elpi is a dialect of \lprolog (see \cite{miller1991-pf,miller2012,dunchev15,tassi2019-1})
 used as an extension language for the \rocq prover (formerly the \coq proof
 assistant). \elpi has become an important infrastructure component: several
@@ -777,12 +733,9 @@ successful path that maps \eI{R} to \eI{2}. Calling \na\ on this tree returns
 Some interesting properties of \na are shown below; they illustrate how \na
 complements \step with respect to failed, successful, and incomplete trees.
 
-% \mvspace{}
-% \input{tex_code/incomplete_prune_id.tex}
-% \input{tex_code/na_failed.tex}
-% \input{tex_code/naNfail.tex}
-TODO
-% \mvspace{}
+\input{formalization/theorem/incomplete_prune_id.tex}
+\input{formalization/theorem/na_failed.tex}
+\input{formalization/theorem/naNfail.tex}
 
 
 % For example, in \cref{tree-ex1-exp} the step procedure has created a failed
@@ -827,8 +780,7 @@ solutions.
 
 \begin{figure}
 
-  % \input{runbp.tex}
-  TODO
+  \input{runbp.tex}
   % \begin{prooftree}
   %   \AxiomC{$\success\ A$}
   %   \RightLabel{$\run\_done$}
@@ -892,10 +844,9 @@ proved.
 %   $$
 % \end{lemma}
 
-% \input{tex_code/runSST_or.tex}
-% \input{tex_code/runNT_or.tex}
-% \input{tex_code/runNF_or.tex}
-TODO
+\input{formalization/theorem/runSST_or.tex}
+\input{formalization/theorem/runNT_or.tex}
+\input{formalization/theorem/runNF_or.tex}
 % $$$$
 
 \Cref{th:runSSTor,th:runNTor,th:runNFor} correspond to the introduction rules
@@ -908,34 +859,33 @@ disjunction from its right-hand side can only occur after the left-hand side
 has been disproved.
 Depicted as rules:
 
-% $$
-% \begin{bprooftree}
-%   \AxiomC{$A \quad (A ~\mathrm{cuts})$}
-%   \RightLabel{$(\lor_{il})$}
-%   \UnaryInfC{$A \lor B $}
-% \end{bprooftree}
-% \qquad
-% \begin{bprooftree}
-%   \AxiomC{$\lnot A \quad (A ~\mathrm{cuts})$}
-%   \RightLabel{$(\lor_{ir1})$}
-%   \UnaryInfC{$\lnot (A \lor B) $}
-% \end{bprooftree}
-% \qquad
-% \begin{bprooftree}
-%   \AxiomC{$\lnot A$}
-%   \AxiomC{$B \quad (A ~\mathrm{does~not~cut})$}
-%   \RightLabel{$(\lor_{ir2})$}
-%   \BinaryInfC{$A \lor B$}
-% \end{bprooftree}
-% $$
-TODO
+% TODO: externalize in standalone
+$$
+\begin{bprooftree}
+  \AxiomC{$A \quad (A ~\mathrm{cuts})$}
+  \RightLabel{$(\lor_{il})$}
+  \UnaryInfC{$A \lor B $}
+\end{bprooftree}
+\qquad
+\begin{bprooftree}
+  \AxiomC{$\lnot A \quad (A ~\mathrm{cuts})$}
+  \RightLabel{$(\lor_{ir1})$}
+  \UnaryInfC{$\lnot (A \lor B) $}
+\end{bprooftree}
+\qquad
+\begin{bprooftree}
+  \AxiomC{$\lnot A$}
+  \AxiomC{$B \quad (A ~\mathrm{does~not~cut})$}
+  \RightLabel{$(\lor_{ir2})$}
+  \BinaryInfC{$A \lor B$}
+\end{bprooftree}
+$$
 
 \Cref{th:runorSST,th:runorSNT} are elimination
 rules for disjunction. 
 
-% \input{tex_code/run_orSST.tex}
-% \input{tex_code/run_orSNT.tex}
-TODO
+\input{formalization/theorem/run_orSST.tex}
+\input{formalization/theorem/run_orSNT.tex}
 
 
 
@@ -1081,44 +1031,43 @@ stack.
 We propose an example of the execution of \nur in \cref{ex-elpi}. The
 arrows in the images represent the cut-to pointers. 
 
-% \begin{figure}[!hb]
-%   \centering
-%   \begin{subfigure}{0.2\textwidth}
-%     \includegraphics[width=0.35\textwidth, keepaspectratio]{./src/exec_example1E/elpi0.pdf}
-%     \caption{Initial query}
-%     \label{ex-elpi0}
-%   \end{subfigure}
-%   \begin{subfigure}{0.4\textwidth}
-%     \includegraphics[width=\textwidth, keepaspectratio]{./src/exec_example1E/elpi1.pdf}
-%     \caption{Stack after call to \eI{g 0 R}}
-%     \label{ex-elpi1}
-%   \end{subfigure}
-%   ~\\~\\
-%   \begin{subfigure}{0.5\textwidth}
-%     \includegraphics[width=\textwidth, keepaspectratio]{./src/exec_example1E/elpi2.pdf}
-%     \caption{Stack after evaluating \cref{ex-elpi1}}
-%     \label{ex-elpi2}
-%   \end{subfigure}
-%   \begin{subfigure}{0.48\textwidth}
-%     \includegraphics[width=\textwidth, keepaspectratio]{./src/exec_example1E/elpi3.pdf}
-%     \caption{Stack after evaluating \cref{ex-elpi2}}
-%     \label{ex-elpi3}
-%   \end{subfigure}
-%   ~\\~\\
-%   \begin{subfigure}{0.48\textwidth}
-%     \includegraphics[width=\textwidth, keepaspectratio]{./src/exec_example1E/elpi4.pdf}
-%     \caption{Stack after evaluating \cref{ex-elpi3}}
-%     \label{ex-elpi4}
-%   \end{subfigure}
-%   \begin{subfigure}{0.45\textwidth}
-%     \includegraphics[width=\textwidth, keepaspectratio]{./src/exec_example1E/elpi5.pdf}
-%     \caption{Stack after evaluating \cref{ex-elpi4}}
-%     \label{ex-elpi5}
-%   \end{subfigure}
-%   \caption{Example of execution}
-%   \label{ex-elpi}
-% \end{figure}
-TODO
+\begin{figure}[!hb]
+  \centering
+  \begin{subfigure}{0.2\textwidth}
+    \includegraphics[width=0.35\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi0.pdf}
+    \caption{Initial query}
+    \label{ex-elpi0}
+  \end{subfigure}
+  \begin{subfigure}{0.4\textwidth}
+    \includegraphics[width=\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi1.pdf}
+    \caption{Stack after call to \eI{g 0 R}}
+    \label{ex-elpi1}
+  \end{subfigure}
+  ~\\~\\
+  \begin{subfigure}{0.5\textwidth}
+    \includegraphics[width=\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi2.pdf}
+    \caption{Stack after evaluating \cref{ex-elpi1}}
+    \label{ex-elpi2}
+  \end{subfigure}
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi3.pdf}
+    \caption{Stack after evaluating \cref{ex-elpi2}}
+    \label{ex-elpi3}
+  \end{subfigure}
+  ~\\~\\
+  \begin{subfigure}{0.48\textwidth}
+    \includegraphics[width=\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi4.pdf}
+    \caption{Stack after evaluating \cref{ex-elpi3}}
+    \label{ex-elpi4}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=\textwidth, keepaspectratio]{img/det_check_coq/exec_example1E/elpi5.pdf}
+    \caption{Stack after evaluating \cref{ex-elpi4}}
+    \label{ex-elpi5}
+  \end{subfigure}
+  \caption{Example of execution}
+  \label{ex-elpi}
+\end{figure}
 
 We have not drawn arrows coming out of call atoms since the interpreter
 ignores the cut-alternatives in this case. 
@@ -1278,14 +1227,13 @@ note that \ref{tree-ex3} and \ref{tree-ex4} are both translated into
 the same stack. Consequently, there are transitions in \run that are not visible
 in \nur.
 %
-% \begin{figure}[b]
-%   \begin{center}
+\begin{figure}[b]
+  \begin{center}
     
-%     \includegraphics[width=0.8\textwidth, keepaspectratio]{src/t2lex.pdf}
-%   \end{center}
-% \caption{Example of \ttl execution\label{fig:cc}}
-% \end{figure}
-TODO
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/det_check_coq/t2lex.pdf}
+  \end{center}
+\caption{Example of \ttl execution\label{fig:cc}}
+\end{figure}
 %
 As an example of a call to \ttl, we take the tree and the stack in~\cref{fig:cc},
 which are respectively taken from \cref{tree-ex2,ex-elpi2}. The red arrows
@@ -1387,8 +1335,7 @@ These silent transitions must be skipped
 when proving the equivalence between the two semantics. Therefore, we
 prove the following lemma.
 
-% \input{tex_code/pruneF_t2l.tex}
-TODO
+\input{formalization/theorem/pruneF_t2l.tex}
 
 \begin{proof}By induction on the tree $t$. %\marginpar{dire di $v$}
 \end{proof}
@@ -1433,8 +1380,7 @@ tree that translates to the given stack has an equivalent execution,
 i.e. gives the same solution and returns a unexplored tree that
 translates to the unexplored stack.
 
-% \input{tex_code/elpi_to_tree.tex}
-TODO
+\input{formalization/theorem/elpi_to_tree.tex}
 
 \noindent
 \begin{minipage}{0.75\textwidth}
@@ -1518,9 +1464,8 @@ The \eI{backchain} function uses \eI{matching} or \eI{unify} on the arguments $q
 depending if the argument is in \emph{input} or \emph{output} mode.
 We assume two important properties of our unification routines.
 
-% \input{tex_code/unif_trans.tex}
-% \input{tex_code/matchunif.tex}
-TODO
+\input{formalization/theorem/unif_trans.tex}
+\input{formalization/theorem/matchunif.tex}
 
 We also assume that refreshing variables does not affect unification.
  In
@@ -1541,9 +1486,8 @@ unification also succeeds. In other words, this theorem accounts for
 $\alpha$-equivalence of terms and the unification of terms with disjoint
 variables.
 
-% \input{tex_code/refresh_for.tex}
-% \input{tex_code/unif_ren.tex}
-TODO
+\input{formalization/theorem/refresh_for.tex}
+\input{formalization/theorem/unif_ren.tex}
 
 In \cref{fig:progx}, the rules of the program are equipped with three
 signatures, one per predicate. Besides the arity of each predicate, a
@@ -1567,13 +1511,11 @@ fails or, if it succeeds, the resulting tree of alternatives is $\mnone$.
 % Below, we define \texttt{is\_det}.
 
 
-% \input{tex_code/is_det.tex}
-TODO
+\input{formalization/theorem/is_det.tex}
 
 The theorem we want to prove is the following one:
 
-% \input{tex_code/det_check_call.tex}
-TODO
+\input{formalization/theorem/det_check_call.tex}
 
 Here, \cI{check_~$\mathbb{P}$~} denotes the function that checks the program
 with respect to mutual exclusion and rule checking, and \cI{tm_is_det}
@@ -1590,8 +1532,7 @@ To address this issue, we introduce the notion of deterministic trees
 (\cI{det_tree}), show that a tree satisfying this condition enjoys the
 desired properties, and then prove the following more general theorem:
 
-% \input{tex_code/det_check_tree.tex}
-TODO
+\input{formalization/theorem/det_check_tree.tex}
 
 Our target theorem \cI{det_check_call} is a corollary of \cI{det_check_tree}.
 

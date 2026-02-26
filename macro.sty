@@ -1,11 +1,16 @@
 \usepackage{amsthm}
 \usepackage{bussproofs}
+\newenvironment{bprooftree}
+  {\leavevmode\hbox\bgroup}
+  {\DisplayProof\egroup\vspace{.3em}}
+
 \usepackage{amssymb}
 \usepackage{xspace}
 \usepackage{stackengine}
 
 \newcommand{\mappend}{\ensuremath{\mathbin{+\!\!+}}\xspace}
-
+\newcommand{\codenames}[1]{\texttt{#1}\xspace}
+ 
 \AtBeginDocument{
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   % Environnement pour les théorèmes, définitions, exemples et autre   %

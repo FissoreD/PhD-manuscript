@@ -7,7 +7,7 @@ all:
 	$(MAKE) aux -j && $(MAKE) full
 
 # START AUX
-aux: img code ho
+aux: img code ho formalization
 
 code:
 	$(MAKE) -C code -j
@@ -17,6 +17,9 @@ img:
 
 ho:
 	$(MAKE) -C ho-for-free main -j
+
+formalization:
+	$(MAKE) -C formalization -j
 
 # END AUX
 
