@@ -1,26 +1,17 @@
 FNAME=main
 
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
+SUBDIRS := img code formalization ho-for-free
 
 all:
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
 	$(MAKE) aux -j && $(MAKE) full
 
 # START AUX
-aux: img code ho formalization
+aux: $(SUBDIRS)
 
-code:
-	$(MAKE) -C code -j
-
-img:
-	$(MAKE) -C img -j
-
-ho:
-	$(MAKE) -C ho-for-free main -j
-
-formalization:
-	$(MAKE) -C formalization -j
-
+$(SUBDIRS):
+	$(MAKE) -C $@ -j
 # END AUX
 
 bib:
@@ -47,4 +38,4 @@ ci:
 	docker start -i latex && docker cp latex:/data/main.pdf . && \
 	mkdir -p pdf && mv main.pdf pdf
 
-.PHONY: img code
+.PHONY: $(SUBDIRS)

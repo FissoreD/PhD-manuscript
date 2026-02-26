@@ -11,6 +11,9 @@ TEXFILES := $(shell find . -type f -regex ".*\.tex")
 PDFFILES := $(TEXFILES:.tex=.pdf)
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
 
+main:
+	$(MAKE) generator -j && $(MAKE) latex -j
+
 test:
 	cd $(SRC) && timeout 4 elpi main.elpi $(ENV) -exec "main" -- $(ONLY) $(TEX)
 
@@ -29,8 +32,6 @@ latex: $(PDFFILES)
 %.pdf: %.tex
 	cd $(OUT) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
 
-main:
-	$(MAKE) generator -j && $(MAKE) latex -j
 
 
 
