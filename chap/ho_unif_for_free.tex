@@ -397,7 +397,13 @@ we use an HOAS encoding, they also capture $\alpha$-equivalence.
 In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 
 % \input{code/feq}
-\includegraphics{HO-unif-for-free/img/feq.pdf}
+\fbox{%
+  \begin{minipage}{1\textwidth}
+    \includegraphics{HO-unif-for-free/img/feq.pdf}%
+    \captionof{figure}{FO eq}
+    \label{fig:feq}
+  \end{minipage}
+}
 
 \begin{elpicode}
   ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
@@ -990,7 +996,13 @@ The signature of the \elpiIn{comp} predicate below allows for the generation of
 links (suspended unification problems), which plays no role in this section
 but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
-\includegraphics{HO-unif-for-free/img/comp_base.pdf}
+\fbox{%
+  \begin{minipage}{1\textwidth}
+    \includegraphics{HO-unif-for-free/img/comp_base.pdf}%
+    \captionof{figure}{Comp FO}
+    \label{fig:comp-fo}
+  \end{minipage}
+}
 
 \includegraphics{HO-unif-for-free/img/compile.pdf}
 
@@ -1002,7 +1014,13 @@ in order to allocate space for the variables, i.e. it sets their memory
 address to \elpiIn{none} (a detail not worth mentioning in the
 previous sections).
 
-\includegraphics{HO-unif-for-free/img/comp_lam.pdf}
+\fbox{%
+  \begin{minipage}{1\textwidth}
+    \includegraphics{HO-unif-for-free/img/comp_lam.pdf}%
+    \captionof{figure}{Comp FO}
+    \label{fig:comp-lam}
+  \end{minipage}
+}
 
 \noindent
 In the code above, the syntax \elpiIn{pi x y\..} is syntactic sugar for
@@ -1265,7 +1283,7 @@ compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
 
 \subsection{Compilation and decompilation}
 
-We add the following rule before rule~\ref{rule:compapp}, where
+We add the following rule before rule $r_@$ in~\ref{fig:comp-fo}, where
 \elpiIn{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
@@ -1275,7 +1293,7 @@ terms is a list of distinct names.
 \noindent
 Note that compiling \elpiIn{Ag} cannot create new mappings nor links, since \elpiIn{Ag}
 is made of bound variables, and the hypothetical rule 
-\ref{rule:complamh}
+in~\ref{fig:comp-lam}
 loaded by \elpiIn{comp-lam}
 grants this property.
 
@@ -1310,7 +1328,7 @@ No change to \elpiIn{progress} since no link is added.
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
    is decompiled to $\rho = \{ Y \mapsto \lambda \vec{y}.s[\vec{w}/\vec{y}]\}$.
-   Thanks to \ref{clause:beta1} we have
+   Thanks to rule $r_{\beta_l}$ in \ref{fig:feq} we have
    $(\lambda \vec{y}.s[\vec{w}/\vec{y}])~\vec{w} \Eo s$.
   \end{proof}
   
@@ -1568,7 +1586,7 @@ A $\beta$-normal term $s = \lambda x_1 \ldots x_n.t$
 \end{lemma}
 \begin{proof}[Proof sketch]
 Since our terms are in $\beta$-normal form the only
-rule that can play a role is \ref{clause:eta1}, and note that
+rule that can play a role is $r_{\eta_l}$ in \ref{fig:feq}, and note that
 that rule uses \elpiIn{beta} to add an argument to an
 application or to the scope of a variable.
 If the term $s$ is not exactly $x$ (case 1)
@@ -1670,8 +1688,7 @@ since it does not break
 % term compilation.
 
 \paragraph{Compilation}
-The following rule is inserted just before rule~\ref{rule:complam} from the code in
-\cref{sec:compilation}.
+The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}.
 
 \includegraphics{HO-unif-for-free/img/comp_eta.pdf}
 
@@ -1879,13 +1896,13 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
     \item $s_2 \notin \maybeeta$,
           in this case $s_2$ is compiled to $t_2$ and the unification step $u$ assigns $t_2$ to $X$
           and triggers \progressetaleft.
-          If $s_1$ and $s_2$ are equal thanks to \ref{clause:eta1} then
+          If $s_1$ and $s_2$ are equal thanks to $r_{\eta_l}$ in \ref{fig:feq} then
           progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$ namly
-          $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule \ref{clause:lam-lam}
+          $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule $r_{\lambda\lambda}$ in \ref{fig:feq}
           and the link progress $p$ unifies $\lambda x.t_1$ with $t_2$.
           Alternatively, if $s_1$ are different $s_2$
           it cannot be because of the $\lambda$ constructor in the head of $t_1$,
-          since rule \ref{clause:lam-lam} or rule \ref{clause:eta1} move under it, eventually finding two
+          since rule $r_{\lambda\lambda}$ in \ref{fig:feq} or rule $r_{\eta_l}$ in \ref{fig:feq} move under it, eventually finding two
           different subterms $s_1'$ and $s_2'$. By \cref{th:fidelity-beta},
           \Ue fails on terms $t_1'$ and $t_2'$ even if \progressetaleft
           $\eta$-expands $t_2$.
@@ -2261,7 +2278,7 @@ and \progress routines.
 In particular $\hoUnifPb_1$ generates $\sigma = \{~ A
 \mapsto \lambda x. a ~\}$ making $\sigma\hoUnifPb_2$ equal to
 $(\lambda x. a) \appsep a \Ue a$ that \Ue{} cannot solve since it
-lacks rules \ref{clause:beta1} and \ref{clause:beta2}.
+lacks rules $r_{\beta_l}$ and $r_{\beta_r}$ in \ref{fig:feq}.
 
 To address this problem the compiler must recognize
 \notllambda terms
@@ -2307,14 +2324,9 @@ has the following property:
 \subsection{Compilation and decompilation}
 
 We insert this rule
-just before rule~\ref{rule:compapp}:
+just before rule $r_@$ in \ref{fig:comp-fo}
 
-\fbox{%
-  \begin{minipage}{1\textwidth}
-    \includegraphics{HO-unif-for-free/img/comp_beta.pdf}%
-    \captionof{figure}{This is a non-floating caption.}
-  \end{minipage}
-}
+\includegraphics{HO-unif-for-free/img/comp_beta.pdf}
 
 \noindent
 The list \elpiIn{Ag} is split into two parts: 
