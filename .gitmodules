@@ -5,4 +5,4 @@
 [submodule "elpi-formalization"]
 	path = elpi-formalization
 	url = https://github.com/FissoreD/elpi-formalization/
-	branch = paper-itp
+	branch = phd
