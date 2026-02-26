@@ -2,3 +2,7 @@
 	path = HO-unif-for-free
 	url = https://github.com/FissoreD/HO-unif-for-free
 	branch = phd
+[submodule "elpi-formalization"]
+	path = elpi-formalization
+	url = https://github.com/FissoreD/elpi-formalization/
+	branch = paper-itp

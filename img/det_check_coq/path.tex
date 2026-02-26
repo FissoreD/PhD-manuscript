@@ -1,0 +1,25 @@
+\documentclass[crop,tikz]{standalone}%
+
+\usepackage{tree}
+
+\begin{document}
+
+\begin{tikzpicture}[distances]
+  \node[orNode,draw=none] (ROOT) {\phantom{A}}
+  node[orNode,draw=none] at (ROOT.center){\orN}
+  node[orNode] at (ROOT.center) {\phantom{A}}
+    % child { \nDead{LL} }
+    child {  
+      child { \nAnd{LR}
+        child { 
+          \nOr{LRL} 
+            child { \nOK{ok} }
+            child { \nCall{fx}{f X} }
+        }
+        child { \nCall{LLR}{g X Y} }
+      }
+    }
+    child { \nCall{hx}{h X} };
+\end{tikzpicture}
+
+\end{document}

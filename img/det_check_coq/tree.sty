@@ -1,0 +1,121 @@
+% \usepackage{libertine}
+\usepackage{amssymb}
+% \usepackage{ulem}
+% \usepackage{macro}
+
+\newcommand{\xbar}[1]{\ensuremath{\overline{\textrm{#1}}}}
+
+\usepackage[table,dvipsnames]{xcolor}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+
+\newcommand{\SIZE}{10pt}
+%%% Trees
+\usepackage[linguistics]{forest}
+\usepackage{tikz}
+\usetikzlibrary{trees}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{shapes.geometric, shapes.misc}
+
+\definecolor{darkgreen}{RGB}{0,100,0}
+\definecolor{darkorange}{RGB}{225,110,0}
+% \newcommand{\}{def}
+
+\tikzset{
+  rect/.style={
+      shape border rotate=0,
+      regular polygon,
+      regular polygon sides=4,
+      % minimum height=1em,
+      inner sep=0
+    },
+  mtriangle/.style={
+      % shape border rotate=0,
+      regular polygon,
+      regular polygon sides=3,
+      dashed,
+      draw,
+      minimum height=4em,
+      % text width=\SIZE,
+      % inner sep=0
+    },
+  moct/.style={
+    % shape border rotate=0,
+    regular polygon,
+    regular polygon sides=8,
+    % minimum height=1em,
+    % text width=\SIZE,
+    % inner sep=0
+  },
+  allRed/.style={
+      draw=red,
+      text=red,
+      font=\bfseries,
+    },
+  allBlue/.style={
+    draw=blue,
+    text=blue,
+    font=\bfseries,
+  },
+  allGreen/.style={
+    draw=darkgreen,
+    text=darkgreen,
+    font=\bfseries,
+  },
+  allOrange/.style={
+    draw=darkorange,
+    text=darkorange,
+    font=\bfseries,
+  },
+  allBlack/.style={
+    % draw=blue,
+    text=black,
+    font=\bfseries,
+  },
+  andNode/.style={ allBlue, circle },
+  orNode/.style={ allOrange, circle },
+  okNode/.style={ allGreen, circle, },
+  koNode/.style={ allRed, circle, },
+  deadNode/.style={ allRed, circle, dashed},
+  atomNode/.style={ allBlack, rect, },
+  distances/.style={level distance=13mm, sibling distance=13mm}
+}
+
+\newcommand{\iText}[1]{\adjustbox{max width=\SIZE}{\small{#1}}}
+\usepackage{bm}
+\newcommand{\orN}{\ensuremath{\bm{\lor}}}   % or node
+\newcommand{\andN}{\ensuremath{\bm{\land}}} % and node
+\newcommand{\okN}{\ensuremath{\bm{\top}}}
+\newcommand{\cutN}{\ensuremath{!}}
+\newcommand{\koN}{\ensuremath{\bm{\bot}}}
+\newcommand{\deadN}{\ensuremath{{\mathsf{X}}}}
+
+% ARGUMEMTS: NODE TYPE, NODE TXT, NODE TAG
+\newcommand{\nodebuild}[3]{
+  node[#1](#2){\phantom{A}}                 %
+  node[#1,draw=none] at (#2.center){#3} %
+  node[#1]at (#2.center){\phantom{A}}                 %
+}
+
+\newcommand{\nOK}[1]{ \nodebuild{okNode}{#1}{\okN} }
+\newcommand{\nKO}[1]{ \nodebuild{koNode}{#1}{\koN} }
+\newcommand{\nDead}[1]{ \nodebuild{koNode}{#1}{\deadN} }
+
+\newcommand{\nOr}[1]{ \nodebuild{orNode}{#1}{\orN} }
+\newcommand{\nAnd}[1]{ \nodebuild{andNode}{#1}{\andN} }
+\newcommand{\nCut}[1]{ \nodebuild{atomNode}{#1}{\cutN} }
+\newcommand{\nCall}[2]{ \nodebuild{atomNode}{#1}{#2} }
+\newcommand{\nAny}[1]{ node(#1)  {\iText{\dots}} }
+
+\newcommand{\curnodeNW}[1]{%
+\draw[->, thick, black] ($(#1.north west)+(-0.3,0.3)$) -- (#1.north west)
+}
+
+\newcommand{\curnodeNE}[1]{%
+  \draw[->, thick, black] ($(#1.north east)+(0.3,0.3)$) -- (#1.north east)
+}
+
+
+% \newcommand{\nOK}[1]{\node[text=green] at (#1.center) {\okN}}
+% \newcommand{\nOK}[1]{\node[text=green] at (#1.center) {\okN}}
+

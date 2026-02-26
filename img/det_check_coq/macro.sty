@@ -1,0 +1,160 @@
+% ASCI ART FROM : patorjk.com style BIG
+\newenvironment{bprooftree}
+  {\leavevmode\hbox\bgroup}
+  {\DisplayProof\egroup}
+\usepackage{xspace}
+
+% \edef\OrigFamilyDefault{\familydefault}
+% \edef\OrigSFDefault{\sfdefault}
+% \usepackage[extralight,medium]{josefin}
+% \newcommand{\procfont}{\josefinsemibold}
+% \newcommand{\auxfont}{\josefinlight}
+% \AtBeginDocument{%
+%   \renewcommand{\familydefault}{\OrigFamilyDefault}%
+%   \renewcommand{\sfdefault}{\OrigSFDefault}%
+% }
+% \newcommand{\codenames}[1]{{\procfont #1}\xspace}
+
+% \newcommand{\codenames}[1]{\emph{#1}\xspace}
+ \newcommand{\codenames}[1]{\texttt{#1}\xspace}
+\newcommand{\languages}[1]{\textsc{#1}\xspace}
+\newcommand{\rulelabel}[1]{\small{\textit{#1}}\xspace}
+
+%  _____  _____   ____   _____     _               _   _  _____
+% |  __ \|  __ \ / __ \ / ____|   | |        /\   | \ | |/ ____|
+% | |__) | |__) | |  | | |  __    | |       /  \  |  \| | |  __
+% |  ___/|  _  /| |  | | | |_ |   | |      / /\ \ | . ` | | |_ |
+% | |    | | \ \| |__| | |__| |   | |____ / ____ \| |\  | |__| |
+% |_|    |_|  \_\\____/ \_____|   |______/_/    \_\_| \_|\_____|
+
+\newcommand{\elpiP}{\languages{Elpi}}
+\newcommand{\prologP}{\languages{Prolog}}
+\newcommand{\sprologP}{\languages{SWI-Prolog}}
+\newcommand{\lprologP}{\languages{$\lambda$prolog}}
+\newcommand{\coqP}{\languages{Coq}}
+\newcommand{\rocqP}{\languages{Rocq}}
+\newcommand{\isabelleP}{\languages{Isabelle/HOL}}
+
+% INLINE MINTED
+\newcommand{\mvspace}{\vspace{5pt}}
+
+\usepackage{bussproofs}
+\newenvironment{myRule}[1]{%
+  \begin{minipage}{#1\textwidth}
+    \centering
+    \begin{prooftree}%
+      } % Here will be put the body
+      {
+    \end{prooftree}
+    \vspace{2pt}
+  \end{minipage}
+}
+
+
+%  _________     _______  ______  _____ 
+% |__   __\ \   / /  __ \|  ____|/ ____|
+%    | |   \ \_/ /| |__) | |__  | (___  
+%    | |    \   / |  ___/|  __|  \___ \ 
+%    | |     | |  | |    | |____ ____) |
+%    |_|     |_|  |_|    |______|_____/ 
+\newcommand{\program}{\ensuremath{\mathcal{P}}\xspace}
+\newcommand{\rules}{\ensuremath{\mathcal{R}}\xspace}
+\newcommand{\fvT}{\ensuremath{\mathcal{F}_{\!\!\nu}}\xspace}
+
+%  _______ _____  ______ ______    _____ ____  _   _  _____ _______ 
+% |__   __|  __ \|  ____|  ____|  / ____/ __ \| \ | |/ ____|__   __|
+%    | |  | |__) | |__  | |__    | |   | |  | |  \| | (___    | |   
+%    | |  |  _  /|  __| |  __|   | |   | |  | | . ` |\___ \   | |   
+%    | |  | | \ \| |____| |____  | |___| |__| | |\  |____) |  | |_  
+%    |_|  |_|  \_\______|______|  \_____\____/|_| \_|_____/   |_(_) 
+
+\newcommand{\orC}{\codenames{Or}}   % or node
+\newcommand{\andC}{\codenames{And}} % and node
+\newcommand{\okC}{\codenames{OK}}
+\newcommand{\cutC}{\codenames{Cut}}
+\newcommand{\koC}{\codenames{KO}}
+% \newcommand{\deadC}{\codenames{Dead}}
+\newcommand{\taC}{\codenames{Todo}}
+
+\newcommand{\stopt}{\rulelabel{StopT}}
+\newcommand{\stept}{\rulelabel{StepT}}
+\newcommand{\backt}{\rulelabel{BackT}}
+\newcommand{\failt}{\rulelabel{FailT}}
+
+\newcommand{\stops}{\rulelabel{StopS}}
+\newcommand{\cuts}{\rulelabel{CutS}}
+\newcommand{\calls}{\rulelabel{CallS}}
+\newcommand{\fails}{\rulelabel{FailS}}
+
+%  ______ _    _ _   _  _____ _______ _____ ____  _   _  _____ 
+% |  ____| |  | | \ | |/ ____|__   __|_   _/ __ \| \ | |/ ____|
+% | |__  | |  | |  \| | |       | |    | || |  | |  \| | (___  
+% |  __| | |  | | . ` | |       | |    | || |  | | . ` |\___ \ 
+% | |    | |__| | |\  | |____   | |   _| || |__| | |\  |____) |
+% |_|     \____/|_| \_|\_____|  |_|  |_____\____/|_| \_|_____/ 
+
+
+\newcommand{\backchain}{\codenames{bc}\xspace}
+\newcommand{\cutr}{\ensuremath{\color{red}!_r}\space}
+\newcommand{\cutl}{\ensuremath{\color{red}!_l}\space}
+\newcommand{\nilC}{\ensuremath{\varnothing}\xspace}
+
+\newcommand{\isdead}{\codenames{is\_dead}}
+\newcommand{\success}{\codenames{success}}
+\newcommand{\failed}{\codenames{failed}}
+\newcommand{\incomplete}{\codenames{incomplete}}
+
+% \newcommand{\getend}{\codenames{get\_end}}
+\newcommand{\getend}{\codenames{next}}
+% \newcommand{\pathend}{\codenames{path\_end}}
+\newcommand{\pathend}{\codenames{next\_tree}}
+\newcommand{\getsubst}{\codenames{get\_subst}}
+\newcommand{\saveas}{\codenames{save\_as}}
+
+\newcommand{\ttl}{\codenames{t2l}}
+\newcommand{\ltt}{\codenames{l2t}}
+\newcommand{\vast}{\codenames{valid\_tree}}
+\newcommand{\run}{\codenames{runT}}
+\newcommand{\nur}{\codenames{runS}}
+\newcommand{\vt}{\codenames{vt}} % valid_tree
+\newcommand{\step}{\codenames{step}}
+\newcommand{\na}{\codenames{prune}}
+\newcommand{\tree}{\codenames{tree}}
+\newcommand{\sigmaF}{\codenames{sigma}}
+\newcommand{\programF}{\codenames{program}}
+\newcommand{\steptag}{\codenames{tag}}
+\newcommand{\FV}{\ensuremath{\mathcal{F}_{\!\!\nu}}}
+\newcommand{\unify}{\codenames{unify}}
+\newcommand{\matching}{\codenames{matching}}
+
+
+%  __  __ _____ _   _ _______ ______ _____  
+% |  \/  |_   _| \ | |__   __|  ____|  __ \ 
+% | \  / | | | |  \| |  | |  | |__  | |  | |
+% | |\/| | | | | . ` |  | |  |  __| | |  | |
+% | |  | |_| |_| |\  |  | |  | |____| |__| |
+% |_|  |_|_____|_| \_|  |_|  |______|_____/ 
+
+
+\newcommand{\elpiIn}[1]{\text{\mintinline[fontsize=\small,escapeinside=~~]{elpi}{#1}}}
+\newcommand{\coqIn}[1]{\text{\mintinline[fontsize=\small,escapeinside=~~]{coq}{#1}}}
+\newcommand{\eI}[1]{\text{\elpiIn{#1}}}
+\newcommand{\cI}[1]{\text{\coqIn{#1}}}
+
+\newenvironment{coqcode}{%
+  % \vspace{0.2em}%
+  \VerbatimEnvironment
+  \begin{minted}[fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=leftline,framerule=0pt,framesep=1em]{coq}%
+}{%
+  \end{minted}%
+  % \vspace{0.2em}%
+}
+
+\newenvironment{elpicode}{%
+  % \vspace{0.2em}%
+  \VerbatimEnvironment
+  \begin{minted}[fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=leftline,framerule=0pt,framesep=1em]{elpi}%
+}{%
+  \end{minted}%
+  % \vspace{0.2e m}%
+}

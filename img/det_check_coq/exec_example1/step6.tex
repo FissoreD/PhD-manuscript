@@ -1,0 +1,36 @@
+\documentclass[tikz]{standalone}%
+
+\usepackage{../tree}
+
+\begin{document}
+
+\begin{forest}
+for tree={
+  % minimum height=5em,
+  l sep=3em, s sep=3em,
+  align=right
+}
+[\orN,orNode
+ [\deadN, deadNode,edge=dashed]
+  [\andN, andNode,edge label={node[midway,right] {$\sigma_1$}}
+    [\orN,orNode
+      [\deadN, deadNode,edge=dashed]
+      [\deadN, deadNode,edge=dashed]
+      [\okN,okNode,edge label={node[midway,right] {$\sigma_4$}}]
+      [{{!}},edge label={node[midway,right] {$\sigma_5$}}]
+    ]
+    [\orN,orNode,edge label={node[midway,right] {$R_1$}}
+      [\deadN, deadNode,edge=dashed]
+      [\okN,okNode,edge label={node[midway,right] {$\sigma_6$}}]
+    ]
+    [{{!}},name=cut,edge label={node[midway,right] {$R_2$}}]
+  ]
+  [\andN,andNode,edge label={node[midway,right] {$\sigma_2$}}
+    [{{f D E}}]
+    [{{f E F}},edge label={node[midway,right] {$R_3$}}]
+  ]
+] 
+\curnodeNE{cut};
+\end{forest}
+
+\end{document}

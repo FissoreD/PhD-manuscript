@@ -1,0 +1,38 @@
+\documentclass[crop,tikz]{standalone}%
+
+\usepackage{tree}
+\usepackage{macro}
+
+\begin{document}
+
+
+\begin{forest}
+for tree={
+  % minimum height=5em,
+  l sep=3em, s sep=3em,
+  align=right
+}
+[\andN,andNode
+    [\orN,orNode
+      [\andN,andNode
+        [\orN, orNode, name=s1
+          [\okN,okNode]
+          [, mtriangle]
+          [, mtriangle]
+        ]
+        [\okN,okNode, name=s2]
+        [\cutN, name=cut]
+      ] 
+      [, mtriangle, name=u1]
+      [, mtriangle, name=u2]
+    ]
+    [, mtriangle]
+] 
+% \draw[thick,red,->,out=south west,in=south east] (cut) -- node[right] {$\vec{a}$} (s1);
+\path [thick, red, ->] (cut) edge[bend left=40] node[below]{\cutl} (s1);
+\path [thick, red, ->] (cut) edge[bend left=30] node[above]{\cutl} (s2);
+\path [thick, red, ->] (cut) edge[bend right=30] node[right]{\cutr} (u1);
+\path [thick, red, ->] (cut) edge[bend right=30] node[right]{\cutr} (u2);
+\end{forest}
+
+\end{document}
