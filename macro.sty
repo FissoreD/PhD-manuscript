@@ -1,12 +1,13 @@
 \usepackage{amsthm}
 \usepackage{bussproofs}
-\newenvironment{bprooftree}
-  {\leavevmode\hbox\bgroup}
-  {\DisplayProof\egroup\vspace{.3em}}
-
+\usepackage{hyperref}
 \usepackage{amssymb}
 \usepackage{xspace}
 \usepackage{stackengine}
+
+\newenvironment{bprooftree}
+  {\leavevmode\hbox\bgroup}
+  {\DisplayProof\egroup\vspace{.3em}}
 
 \newcommand{\mappend}{\ensuremath{\mathbin{+\!\!+}}\xspace}
 \newcommand{\codenames}[1]{\texttt{#1}\xspace}
