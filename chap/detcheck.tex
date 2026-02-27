@@ -1,41 +1,50 @@
 \chapter{Determinacy checking for \elpi}
-\newcommand{\infer}{\text{check input}\xspace}
 
-\newcommand{\efunc}{efunc}
-\newcommand{\epred}{epred}
-\newcommand{\PRED}{pred}
-\newcommand{\DATA}{data}
-\newcommand{\CALLABLE}{callable}
-\newcommand{\vHDo}{vHDo}
-\newcommand{\VAR}{var}
-\newcommand{\TERM}{term}
-\newcommand{\HEAD}{head}
+\newcommand{\infer}{\text{check input}\xspace}
+\newcommand{\syntaxfont}{\ffmfamily}
+
+\newcommand{\epred}{\eI{~\PYG{k+kd}{pred}~}\xspace}
+\newcommand{\efunc}{\eI{~\PYG{k+kd}{func}~}\xspace}
+\newcommand{\PRED}[1][]{\ensuremath{\mathbb{P}#1}\xspace}
+\newcommand{\DATA}[1][]{\ensuremath{\mathbb{K}#1}\xspace}
+\newcommand{\CALLABLE}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
+\def\CALL{\CALLABLE}
+\newcommand{\VAR}[1][]{\ensuremath{\mathbb{V}#1}\xspace}
+\newcommand{\TERM}[1][]{\ensuremath{\mathbb{T\!m}#1}}
+\newcommand{\HEAD}[1][]{\ensuremath{\mathbb{H}#1}\xspace}
+% \newcommand{\STAR}{\ensuremath{{\medstar\hspace{-4.5pt}\rule[.6pt]{.4pt}{3.3pt}}\hspace{5pt}}\xspace}
 \newcommand{\STAR}{STAR}
-\newcommand{\ATOM}{atom}
-\newcommand{\RULE}{rule}
+\newcommand{\RULE}[1][]{\ensuremath{\mathbb{R}}#1\xspace}
+\newcommand{\ATOM}[1][]{\ensuremath{\mathbb{A}#1}\xspace}
+\newcommand{\GOAL}{goal}
+\newcommand{\PROG}{\ensuremath{\mathbb{P}}\xspace}
+\newcommand{\SIGMA}{\ensuremath{\mathbb{\Sigma}}} 
+\newcommand{\ALT}{\ensuremath{\mathbb{L}}}
+\newcommand{\SIGN}[1][]{\ensuremath{\mathbb{S}#1}}
+\newcommand{\BOOL}{\ensuremath{\mathbb{B}}}
+\newcommand{\TYPE}[1][]{\ensuremath{\mathbb{T\!y}#1}}
+
+\newcommand{\cdash}{\texttt{:-}} % colon-dash
+% \newcommand{\cut}{\text{\syntaxfont cut}\xspace}
 \newcommand{\cut}{cut}
+
 \newcommand{\piImplCmd}{piimpl}
 \newcommand{\expI}{expI}
-\newcommand{\cdash}{cdash}
 \renewcommand{\pi}{pi}
-\newcommand{\PROG}{prog}
-\newcommand{\SIGMA}{sigma}
-\newcommand{\subst}{subst}
+\newcommand{\subst}[1][]{\ensuremath{\sigma#1}\xspace}
 \newcommand{\prog}{prog}
-\newcommand{\vecL}{vecl}
-\newcommand{\GOAL}{goal}
-\newcommand{\ALT}{alt}
-\newcommand{\TYPE}{type}
+\newcommand{\vecL}[1]{\overrightarrow{\vphantom{t}#1}}
 \newcommand{\detI}{detI}
 \newcommand{\relI}{relI}
 \newcommand{\F}{F}
-\newcommand{\SIGN}{sign}
 \newcommand{\EmptySubst}{empty}
 \newcommand{\mutExclAll}{mutExclAll}
 \newcommand{\toI}{toI}
 \newcommand{\toO}{toO}
+% \newcommand{\toI}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont i}}}{\rightarrowtriangle}}
+% \newcommand{\toO}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont o}}}{\rightarrowtriangle}}
+
 \newcommand{\func}{func}
-\newcommand{\BOOL}{BOOL}
 \newcommand{\CTX}{CTX}
 \newcommand{\EmptyList}{EmptyList}
 \newcommand{\mySub}{mySub}
@@ -69,6 +78,7 @@
 \newcommand{\runCmd}{runCmd}
 \newcommand{\xmark}{xmark}
 \newcommand{\cmark}{cmark}
+\newcommand{\vHDo}{vHDo}
 
 \section{Introduction}
 
