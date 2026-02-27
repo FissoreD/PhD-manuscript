@@ -10,13 +10,31 @@ implementation point of view, typeclasses are
 
 Rule base automation!
 
-\section{From \rocq goals to \elpi proofs}
+% \section{From \rocq goals to \elpi proofs}
 
-\subsection{Rule encoding}
+\section{Class encoding}
 
-The hooks
+register hook
 
-\subsection{Goal encoding}
+\section{Instance encoding}
+
+register hook
+\subsection{From term to clause}
+
+In a first version we could be naif and have: tc-class TERM,
+but this is not good for X reasons:
+
+\begin{itemize}
+  \item We cannot benefit from modes
+  \item We cannot benefit from indexing
+  \item We cannot benefit from determinacy checker
+\end{itemize}
+
+\subsection{Conditional instances: encoding premises}
+
+\subsection{Rule priorities}
+
+\section{Goal encoding}
 
 \section{Alternative search indexing}
 
@@ -35,5 +53,13 @@ Discrimination trees: opt for lists and tree depths.
 \cite{tabling-dm,tabling-pie}
 
 
-\section{Results and discussion}
+\section{Discussion}
+
+\subsection{User defined rules}
+Hint extern etc
+
+\subsection{Accessing the database}
+
+
+\subsection{Experimental results}
 
