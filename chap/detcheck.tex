@@ -1034,7 +1034,10 @@ Other than ignoring input arguments %~\ref{rule:check-head-output-in}
 it calls \assume on output arguments.
 \vspace{.5em}
 
-\begin{center}\small \cAOi\end{center}
+\begin{center}
+\includegraphics{det_check/cAOi.pdf}
+\end{center}
+
 
 % \checkAtomOutFig  
 
@@ -1066,7 +1069,9 @@ very beginning of~\ref{rule:check-rule}, ignores outputs and calls
 
 The \checkho (\choC{\CTX}{\TERM}{\TYPE}) procedure is called at the very end.
 
-\begin{center}\small \vHDo\end{center}
+\begin{center}
+\includegraphics{det_check/vHDo.pdf}
+\end{center}
 
 It ignores
 input arguments but checks that the output ones satisfy the ascribed signature
@@ -1181,7 +1186,7 @@ are matched rather than unified (see~\cref{def:matching}).
 % \end{minipage}
 
 For space constraints we omit the rules defining \run, they can be found
-in the appendix of TODO. % or in~\cite{hdr}. %The entrypoint of a computation is called a
+in the appendix of TODO or in~\cite{hdr}. %The entrypoint of a computation is called a
 %goal and corresponds to a query atom $q$ and a program \prog.
 %  that is executed via \runCmd{(\EmptyList,q) :: \EmptyList}{\EmptyList}{\EmptySubst}{\_}{\_}.
 
@@ -1339,21 +1344,11 @@ In other words a deterministic query leaves no alternatives when it succeeds.
 We now link the static check to the deterministic execution of a query.
 
 \begin{definition}[Checked program ($\isdetp~\CTX~\PROG$)] A program \prog
-is checked against a context of signatures \ctx iff it validates these rules:\\
-  
-  % \begin{bprooftree}
-  %   \AxiomC{\phantom{ \ccC{\prog}{\ctx}{x}{r}}}
-  %   % \RightLabelM{r1}
-  %   \UnaryInfC{\isdetp~\ctx~\EmptyList}
-  % \end{bprooftree}
-  % \begin{bprooftree}
-  %   \AxiomC{\ensuremath{
-  %     \isdetp~\ctx~\prog \qquad \mutExclAll~\prog~r \qquad \ccC{\prog}{\ctx}{x}{r}
-  %   }}
-  %   % \RightLabelM{r1}
-  %   \UnaryInfC{\isdetp~\ctx~(r :: \prog)}
-  % \end{bprooftree}
-  TODO
+is checked against a context of signatures \ctx iff it validates these rules:
+%
+\begin{center}
+  \includegraphics{det_check/cAOi.pdf}
+\end{center}
 
 \end{definition}
 

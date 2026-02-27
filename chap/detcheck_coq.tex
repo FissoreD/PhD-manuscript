@@ -477,19 +477,17 @@ the next alternative and continues from there, if one exists.
 
 \begin{figure}[b]
   \begin{subfigure}{0.45\textwidth}
-    % \input{tex_code/next.tex}
-    TODO
+    \includegraphics{formalization/img/next.pdf}
     % \caption{Defintion of \getend}
     % \label{fig:getend}
   \end{subfigure}
   \begin{subfigure}{0.45\textwidth}
-      % \input{tex_code/get_subst.tex}
-      % \input{tex_code/path_end.tex}
-      % \input{tex_code/succ_path.tex}
-      % \input{tex_code/failed_path.tex}
-      % \input{tex_code/path_atom.tex}
-    % \input{tex_code/next_aux.tex}
-    TODO
+      % \includegraphics{formalization/img/get_subst.pdf}
+      % \includegraphics{formalization/img/path_end.pdf}
+      % \includegraphics{formalization/img/succ_path.pdf}
+      % \includegraphics{formalization/img/failed_path.pdf}
+      % \includegraphics{formalization/img/path_atom.pdf}
+    \includegraphics{formalization/img/next_aux.pdf}
     \vspace{20pt}
       % \caption{Functions from \getend}
       % \label{fig:geten/d-aux}
@@ -497,6 +495,7 @@ the next alternative and continues from there, if one exists.
   \caption{\getend and derived functions}
   \label{fig:getend}
 \end{figure}
+
 
 % To support incremental construction, the semantics uses helper functions based
 % on \getend{}. Given a tree, \getend{} returns the branch on which
@@ -589,9 +588,8 @@ accounts for the interpretation of predicate calls and non-superficial cuts.
 The \step procedure evaluates atoms. In particular, it leaves the tree
 unchanged when the tree is \emph{success} or \emph{failed}.
 
-% \input{tex_code/success_step.tex}
-% \input{tex_code/failed_step.tex}
-TODO
+\input{formalization/theorem/success_step.tex}
+\input{formalization/theorem/failed_step.tex}
 
 The \step procedure expands \cI{Todo} nodes by calling \cI{backchain}, which returns a list
 $l$ of alternatives. If $l$ is empty, then the current call atom is replaced by
@@ -812,8 +810,8 @@ solutions.
 
 The set of rules defining \run is deterministic.
 
-% \input{tex_code/runT_det.tex}
-TODO
+\input{formalization/theorem/runT_det.tex}
+
 
 The proof is by induction on the first \run derivation and is immediate,
 because the rules are selected based on \pathend\ $t$. In particular, the
