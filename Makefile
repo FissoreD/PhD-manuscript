@@ -1,6 +1,6 @@
 FNAME=main
 
-TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
+TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error
 SUBDIRS := img code formalization ho-for-free
 
 all:

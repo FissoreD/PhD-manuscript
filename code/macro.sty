@@ -8,6 +8,12 @@
 \usepackage{MnSymbol}
 \usepackage{mathbbol}
 \usepackage[T1]{fontenc} % recommended for text fonts
+\usepackage{turnstile}
+\usepackage{framed}
+\usepackage{nicefrac}
+\usepackage{stmaryrd}
+\usepackage{fetamont}
+\usepackage{nameref}
 
 \definecolor{pink}{rgb}{0.8,0,0.4}
 \definecolor{bleu}{rgb}{0,0.6,0.8}
@@ -155,6 +161,14 @@
 \newcommand{\infer}{\text{check input}\xspace}
 % \newcommand{\syntaxfont}{\ffmfamily}
 \newcommand{\syntaxfont}{}
+\newcommand{\githubUrl}{TODO}
+
+\newcommand*{\fullref}[1]{\cref{#1} (\textsc{\nameref{#1}})}
+\newcommand*{\Fullref}[1]{\Cref{#1} (\textsc{\nameref{#1}})}
+\newcommand{\progBetaLL}{\emph{\llambda-progress-refine}\xspace}
+\newcommand{\progBetaRH}{\emph{\llambda-progress-\rhs}\xspace}
+% \newcommand{\progBetaDedup}{\emph{progress-\llambda-dedup}\xspace}
+\newcommand{\progBetaFail}{\emph{\llambda-progress-fail}\xspace}
 
 \newcommand{\epred}{\eI{~\PYG{k+kd}{pred}~}\xspace}
 \newcommand{\efunc}{\eI{~\PYG{k+kd}{func}~}\xspace}
@@ -199,12 +213,6 @@
 \newcommand{\F}{F}
 \newcommand{\EmptySubst}{\ensuremath{\varepsilon}}
 \def\mutExclAll{\text{\auxfont mut\_excl}\xspace}
-
-\usepackage{turnstile}
-\usepackage{framed}
-\usepackage{nicefrac}
-\usepackage{stmaryrd}
-\usepackage{fetamont}
 
 \newcommand{\toI}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont i}}}{\rightarrowtriangle}}
 \newcommand{\toO}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont o}}}{\rightarrowtriangle}}

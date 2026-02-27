@@ -9,7 +9,7 @@ IGNFILES := $(ELPIFILES:.elpi=.ign)
 
 TEXFILES := $(shell find . -type f -regex ".*\.tex")
 PDFFILES := $(TEXFILES:.tex=.pdf)
-TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
+TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error 
 
 main:
 	$(MAKE) generator -j && $(MAKE) latex -j

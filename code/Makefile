@@ -3,7 +3,7 @@ PDFFILES := $(TEXFILES:.elpi=.tex)
 PDFFILES := $(PDFFILES:.v=.tex)
 PDFFILES := $(PDFFILES:.hs=.tex)
 GENERATOR := code_wrapper.py
-TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape 
+TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error
 
 img: $(PDFFILES)
 
