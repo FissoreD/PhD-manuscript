@@ -1039,9 +1039,9 @@ and explain why the do not hinder termination.
 \subsubsection{Scope check}\label{sec:sc}
 The predicate \eI{scope-check} 
 replaces each
-link of the form TODO%\linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
-a link TODO
-% \linketaM{{x_1\ldots x_n}}{X_{x_1\ldots x_n}}{t'} whenever $\{x_1\ldots x_n\} \subset \Gamma$.
+link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
+a link
+\linketaM{{x_1\ldots x_n}}{X_{x_1\ldots x_n}}{t'} whenever $\{x_1\ldots x_n\} \subset \Gamma$.
 The term $t' = \lambda x.Y_{{x_1\ldots x_n}~x}$ is obtained after
 executing $\lambda x.Y_{{x_1\ldots x_n}~x} \Ue t$ using a fresh $Y$.
 This unification
@@ -1705,8 +1705,7 @@ we know for sure if their head lambdas can be $\eta$-contracted.
 
 \newcommand{\progressetaleft}{\emph{$\eta$-progress-\lhs}\xspace}
 \begin{definition}[\progressetaleft]\label{def:progressetaleft}
-% A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
-TODO
+A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
 $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 \begin{enumerate}
   \item if $X = a$ or $X = y$ or $X = f \appsep a_1\ldots a_n$
@@ -1722,10 +1721,8 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 
 \newcommand{\progressetadedup}{\emph{$\eta$-progress-deduplicate}\xspace}
 \begin{definition}[\progressetadedup]\label{def:progressetadedup}
-  % A link \linketaM{\Gamma}{X_{\vec{s}}}{T} is removed from \linkStore when
-  TODo
-  % another link \linketaM{\Delta}{X_{\vec{r}}}{T'} is in  \linkStore.
-  TODo
+  A link \linketaM{\Gamma}{X_{\vec{s}}}{T} is removed from \linkStore when
+  another link \linketaM{\Delta}{X_{\vec{r}}}{T'} is in  \linkStore.
   By \cref{inv:uvaarity} the length of $\vec{s}$ and $\vec{r}$ is the same;
   hence we can move the term $T'$ from $\Delta$ to $\Gamma$ by renaming its
   bound variables, i.e. $T'' = T'[\vec{r}/\vec{s}]$.
@@ -1744,8 +1741,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 % \noteD[inline]{Below the proof of \cref{prop:w-preservation}, ho usato 3 lemmi ausiliari,
 % forse si può compattare in una prova più piccola?}
 \begin{lemma}
-  % Given a \linketa \linketaM{\Gamma}{X}{\lambda x.t}, the unification done by \progressetaleft is between
-  TODO
+  Given a \linketa \linketaM{\Gamma}{X}{\lambda x.t}, the unification done by \progressetaleft is between
   terms in \wellb.
   \label{lemma:unif-eta-1}
 \end{lemma}
@@ -1780,10 +1776,8 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 \end{lemma}
 
 \begin{proof}
-  % Given two \linketa{}s \linketaM{\Gamma_1}{X}{\lambda x.t} and
-  TODO
-  % \linketaM{\Gamma_2}{Y}{\lambda x.t'} 
-  TODO
+  Given two \linketa{}s \linketaM{\Gamma_1}{X}{\lambda x.t} and
+  \linketaM{\Gamma_2}{Y}{\lambda x.t'} 
   the unification is performed between $t$ and $t'$.
   By \cref{lem:w-enforcement-maybeeta} both terms are in
   \wellb.
@@ -1910,8 +1904,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 
 The example at the beginning of \cref{sec:eta}, once
 $\sigma = \{~ A \mapsto f ~\}$, triggers \progressetaleft since the link
-% becomes \linketaM{}{f}{\lambda x.B_{x}} and the \lhs is a constant.
-TODO
+becomes \linketaM{}{f}{\lambda x.B_{x}} and the \lhs is a constant.
 This rule runs $\lambda x.f \appsep x \Ue{} \lambda x.B_{x}$,
 resulting in $\sigma = \{~ A \mapsto f ~;~ B_{x} \mapsto f ~\}$.
 Since $X$ is mapped to $B$ and $B_x$ is decompiled into $\lambda x.f \appsep x$,
@@ -2142,8 +2135,7 @@ If we take back the example given at the beginning of this section,
 
 \noindent
 Note that $\mapping{X}{C}{0}$ disappears from \mapStore
-% in favour of the auxiliary \linketa \linketaM{}{C}{\lambda x.B_{x}}.
-TODO
+in favour of the auxiliary \linketa \linketaM{}{C}{\lambda x.B_{x}}.
 The resolution of $\hoUnifPb_1$ assignes $a$ to $A$. This wakes up
 $\linkStore_2$ by \progressetaleft, assigning <<$f \appsep x$>> to $B_x$.
 The resolution of $\hoUnifPb_2$ instantiates $C$ to $\lambda x.a$, which, in
@@ -2370,9 +2362,8 @@ If any \linkbeta remains in \linkStore, decompilation fails.
 \subsection{Progress}
 
 
-%We add the followins rules to \eI{progress1}.
-% Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
-TODO
+We add the followins rules to \eI{progress1}.
+Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 
 \begin{definition}[\progBetaLL]
   Let $\sigma$ be a substitution such that $\sigma t_1$ is a name $s$
@@ -2382,8 +2373,7 @@ TODO
   If $m > 1$, then $l$ is replaced by the link
   $\linkbetaM{\Gamma}{T}{Y_{s_1\dots s_n~s}\appsep t_2\dots t_m}$
   (where $Y$ is a fresh variable of arity $n+1$) and link
-  % \linketaM{\Gamma}{X_{s_1\dots s_n}}{\lambda x.Y_{s_1\dots s_n~x}}
-  TODO
+  \linketaM{\Gamma}{X_{s_1\dots s_n}}{\lambda x.Y_{s_1\dots s_n~x}}
   is added to \linkStore.   
   %
   % A link \linkbetaM{\Gamma}{T}{\rhsBeta} is removed from \linkStore, if given
@@ -2437,8 +2427,7 @@ we introduce the following
 
 \newcommand{\progressetaright}{\emph{$\eta$-progress-\rhs}\xspace}
 \begin{definition}[\progressetaright]\label{def:progressetaright} A link
-% \linketaM{\Gamma}{X}{T} is removed from \linkStore when either 
-TODO
+\linketaM{\Gamma}{X}{T} is removed from \linkStore when either 
 \begin{itemize}
   \item $\testmaybeeta~T$ does not hold (anymore), in this case $X$ is unified
         with $T$; or

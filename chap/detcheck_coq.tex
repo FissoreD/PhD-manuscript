@@ -895,31 +895,30 @@ rule that is stronger than the usual one (depicted on the left).
 If $A$ does not cut, the elimination rule has the usual two premises, together
 with the additional constraint that whenever $B$ holds, $A$ must have failed.
 This again reflects the depth-first traversal of the proof tree.
-
-% $$
-% \begin{bprooftree}
-%   \AxiomC{$A \lor B$}
-%   \AxiomC{[A]}
-%   \noLine
-%   \UnaryInfC{$C$}
-%   \AxiomC{$(A ~\mathrm{cuts})$}
-%   \RightLabel{$(\lor_{e1})$}
-%   \TrinaryInfC{$C$}
-% \end{bprooftree}
-% \qquad
-% \begin{bprooftree}
-%   \AxiomC{$A \lor B$}
-%   \AxiomC{[A] }
-%   \noLine
-%   \UnaryInfC{$C$}
-%   \AxiomC{$[\lnot A, B] \phantom{\quad (A ~\mathrm{does~not~cut})}$}
-%   \noLine
-%   \UnaryInfC{$C \quad (A ~\mathrm{does~not~cut})$} 
-%   \RightLabel{$(\lor_{e2})$}
-%   \TrinaryInfC{C}
-% \end{bprooftree}
-% $$
-TODO
+%
+$$
+\begin{bprooftree}
+  \AxiomC{$A \lor B$}
+  \AxiomC{[A]}
+  \noLine
+  \UnaryInfC{$C$}
+  \AxiomC{$(A ~\mathrm{cuts})$}
+  \RightLabel{$(\lor_{e1})$}
+  \TrinaryInfC{$C$}
+\end{bprooftree}
+\qquad
+\begin{bprooftree}
+  \AxiomC{$A \lor B$}
+  \AxiomC{[A] }
+  \noLine
+  \UnaryInfC{$C$}
+  \AxiomC{$[\lnot A, B] \phantom{\quad (A ~\mathrm{does~not~cut})}$}
+  \noLine
+  \UnaryInfC{$C \quad (A ~\mathrm{does~not~cut})$} 
+  \RightLabel{$(\lor_{e2})$}
+  \TrinaryInfC{C}
+\end{bprooftree}
+$$
 
 It is worth recalling that the ``$A$ cuts'' side-condition in the rules above is
 precisely the boolean result returned by \run. Without this information, it is
@@ -985,8 +984,7 @@ Definition stepS p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ens
 \end{coqcode}
   \end{minipage}
 
-  % \input{nurbp.tex}
-  TODO
+  \input{nurbp.tex}
 
   \caption{Rule system for \nur}
   \label{fig:nur-rules}
@@ -1150,8 +1148,7 @@ may have been explored, and consequently must be a valid tree.
 \begin{figure}  
 
   \begin{minipage}{0.50\textwidth}
-    % \input{tex_code/valid_tree.tex}
-    TODO
+    \includegraphics{formalization/img/valid_tree.pdf}
     % \caption{Valid tree}
   \end{minipage}
   \begin{minipage}{.40\textwidth}
@@ -1324,8 +1321,7 @@ we hide it behind existentials.
 
 % The definition we use is the following:
 
-% \input{tex_code/runt1.tex}
-TODO
+\input{formalization/theorem/runt1.tex}
 
 From \cref{tree-ex,ex-elpi}, we observe that, upon backtracking, \run may perform
 more steps than \nur before returning a solution or a failure.

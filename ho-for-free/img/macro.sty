@@ -59,8 +59,8 @@
   \newtheorem{example}{Example}[section]
   \newtheorem{remark}{Remark}[section]
 
-  \renewenvironment{proof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\end{list}$\square$\medskip}
-  \newenvironment{myproof}[1][Démonstration]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\hfill$\diamond$\end{list}\smallskip}
+  \renewenvironment{proof}[1][Proof]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\end{list}$\square$\medskip}
+  \newenvironment{myproof}[1][Proof]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\hfill$\diamond$\end{list}\smallskip}
 }
 
 \newcommand{\FV}{fv}
@@ -138,6 +138,7 @@
 \newcommand{\linkbeta}{\linkMacro{\llambda}}
 \newcommand{\linketa} {\linkMacro{\eta}}
 
+
 %\newcommand{\Fo}{\texorpdfstring{\ensuremath{\mathcal{F}_{\!o}\xspace}}{Fo}} % space non va
 %\newcommand{\Ho}{\texorpdfstring{\ensuremath{\mathcal{H}_o}\xspace}{Ho}}
 \newcommand{\Fo}{\texorpdfstring{\ensuremath{\mathcal{O}}\xspace}{O}}
@@ -161,7 +162,7 @@
 \newcommand{\infer}{\text{check input}\xspace}
 % \newcommand{\syntaxfont}{\ffmfamily}
 \newcommand{\syntaxfont}{}
-\newcommand{\githubUrl}{TODO}
+\newcommand{\githubUrl}{\url{https://github.com/FissoreD/ho-unif-for-free}}
 
 \newcommand*{\fullref}[1]{\cref{#1} (\textsc{\nameref{#1}})}
 \newcommand*{\Fullref}[1]{\Cref{#1} (\textsc{\nameref{#1}})}
