@@ -4,6 +4,8 @@
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{MnSymbol}
 
 \definecolor{pink}{rgb}{0.8,0,0.4}
 \definecolor{bleu}{rgb}{0,0.6,0.8}
@@ -17,7 +19,6 @@
 \PassOptionsToPackage{bookmarks = true, bookmarksnumbered = true, breaklinks = true, colorlinks = true, citecolor = citeColor, linkcolor = linkColor}{hyperref}
 \usepackage{hyperref}
 
-\usepackage{amssymb}
 \usepackage{xspace}
 \usepackage{stackengine}
 
@@ -148,3 +149,112 @@
 \newcommand{\foUnifPb}{\ensuremath{\mathbb{P}}\xspace}
 \newcommand{\hoUnifPb}{\ensuremath{\mathbb{Q}}\xspace}
 
+
+\newcommand{\infer}{\text{check input}\xspace}
+% \newcommand{\syntaxfont}{\ffmfamily}
+\newcommand{\syntaxfont}{}
+
+\newcommand{\epred}{\eI{~\PYG{k+kd}{pred}~}\xspace}
+\newcommand{\efunc}{\eI{~\PYG{k+kd}{func}~}\xspace}
+\newcommand{\PRED}[1][]{\ensuremath{\mathbb{P}#1}\xspace}
+\newcommand{\DATA}[1][]{\ensuremath{\mathbb{K}#1}\xspace}
+\newcommand{\CALLABLE}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
+\def\CALL{\CALLABLE}
+\newcommand{\VAR}[1][]{\ensuremath{\mathbb{V}#1}\xspace}
+\newcommand{\TERM}[1][]{\ensuremath{\mathbb{T\!m}#1}}
+\newcommand{\HEAD}[1][]{\ensuremath{\mathbb{H}#1}\xspace}
+% \newcommand{\STAR}{\ensuremath{{\medstar\hspace{-4.5pt}\rule[.6pt]{.4pt}{3.3pt}}\hspace{5pt}}\xspace}
+\newcommand{\STAR}{STAR}
+\newcommand{\RULE}[1][]{\ensuremath{\mathbb{R}}#1\xspace}
+\newcommand{\ATOM}[1][]{\ensuremath{\mathbb{A}#1}\xspace}
+\newcommand{\GOAL}{goal}
+\newcommand{\PROG}{\ensuremath{\mathbb{P}}\xspace}
+\newcommand{\SIGMA}{\ensuremath{\mathbb{\Sigma}}}
+\newcommand{\ALT}{\ensuremath{\mathbb{L}}}
+\newcommand{\SIGN}[1][]{\ensuremath{\mathbb{S}#1}}
+\newcommand{\BOOL}{\ensuremath{\mathbb{B}}}
+\newcommand{\TYPE}[1][]{\ensuremath{\mathbb{T\!y}#1}}
+\newcommand{\CTX}{\ensuremath{\mathbb{\Gamma}}\xspace}
+
+\newcommand{\cdash}{\texttt{:-}} % colon-dash
+% \newcommand{\cut}{\text{\syntaxfont cut}\xspace}
+\newcommand{\cut}{cut}
+
+\newcommand{\piImplCmd}{piimpl}
+\renewcommand{\pi}{\text{\syntaxfont pi}\xspace}
+\newcommand{\subst}[1][]{\ensuremath{\sigma#1}\xspace}
+\newcommand{\prog}[1][]{\ensuremath{\mathcal{P}#1}\xspace}
+
+\newcommand{\vecL}[1]{\overrightarrow{\vphantom{t}#1}}
+\newcommand{\detT}[1]{\texttt{#1}}
+
+\newcommand{\detI}{\detT{Fun}\xspace}
+\newcommand{\relI}{\detT{pred}\xspace}
+\newcommand{\expI}{\detT{exp}\xspace}
+
+\newcommand{\F}{F}
+\newcommand{\EmptySubst}{\ensuremath{\varepsilon}}
+\newcommand{\mutExclAll}{mutExclAll}
+\newcommand{\toI}{toI}
+\newcommand{\toO}{toO}
+% \newcommand{\toI}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont i}}}{\rightarrowtriangle}}
+% \newcommand{\toO}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont o}}}{\rightarrowtriangle}}
+
+\newcommand{\maximize}{\texttt{weaken}\xspace}
+\newcommand{\minimize}{\texttt{strenghten}\xspace}
+
+% \newcommand{\func}{func}
+\newcommand{\func}[1][]{\ensuremath{\mathcal{D}#1}}
+\newcommand{\EmptyList}{\ensuremath{\varnothing}}
+\newcommand{\mySub}{\ensuremath{\subseteq}\xspace}
+\newcommand{\maxT}{\texttt{max}\xspace}
+\newcommand{\minT}{\texttt{min}\xspace}
+\newcommand{\ctx}[1][]{\ensuremath{\Gamma#1}\xspace}
+
+\newcommand{\sststile}{}
+\newcommand{\procfont}{}
+\newcommand{\auxfont}{}
+
+\newcommand{\checkaInfix}{\ensuremath{\sststile{\text{\procfont a}}{}}}
+\newcommand{\caC}[6]{\ensuremath{#1,\ #2,\ #3 \checkaInfix #4 = #5,\ #6}}
+\newcommand{\checkc}{\texttt{check}\ensuremath{_\cdash}\xspace}
+\newcommand{\checkcInfix}{\ensuremath{\sststile{\text{\procfont r}}{}}}
+\newcommand{\ccC}[4]{\ensuremath{#1,\ #2 \checkcInfix #4}}
+
+\newcommand{\checkhi}{\text{\procfont assume head input}\xspace}
+\newcommand{\checkhiInfix}{\ensuremath{\sststile{\text{\procfont hd}}{\text{\procfont i}}}}
+\newcommand{\chiC}[4]{\ensuremath{#1 \checkhiInfix #2 = #3,\ #4}}
+
+\newcommand{\checkho}{\text{\procfont check head output}\xspace}
+\newcommand{\checka}{\text{\procfont check atom}\xspace}
+\newcommand{\checkai}{\infer}
+\newcommand{\checkao}{\text{\procfont assume call output}\xspace}
+\newcommand{\assume}{\text{\procfont assume output}\xspace}
+
+\newcommand{\checkhoInfix}{\ensuremath{\sststile{\text{\procfont hd}}{\text{\procfont o}}}}
+\newcommand{\choC}[3]{\ensuremath{#1 \checkhoInfix #2 : #3}}
+
+\newcommand{\assumeInfix}{\ensuremath{\sststile{\text{\procfont tm}}{\text{\procfont o}}}}
+\newcommand{\aC}[4]{\ensuremath{#1 \assumeInfix #2 : #3 = #4}}
+
+\newcommand{\checkaoInfix}{\ensuremath{\sststile{\text{\procfont ca}}{\text{\procfont o}}}}
+\newcommand{\caoC}[4]{\ensuremath{#1 \checkaoInfix #2 : #3 = #4}}
+
+\newcommand{\inferInfix}{\ensuremath{\sststile{\text{\procfont tm}}{\text{\procfont i}}}}
+\newcommand{\iC}[4]{\ensuremath{#1 \inferInfix #2 = #3,\ #4}}
+
+
+\newcommand{\isdet}{\text{\auxfont deterministic}\ensuremath{_\text{\procfont a}}\xspace}
+\newcommand{\isdetq}{\text{\auxfont checked}\ensuremath{_\text{\procfont a}}\xspace}
+\newcommand{\isdetp}{\text{\auxfont checked}\ensuremath{_\text{\procfont p}}\xspace}
+
+\newcommand{\runCmd}[5]{\ensuremath{\run\ (#3,\ #1)\ #2 \arr (#5, #4)}}
+
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+\newcommand{\arr}{\ensuremath{=}}
+
+\newcommand{\vHDo}{vHDo}
+\newcommand{\cAOi}{cAOi}
+\newcommand{\ccM}{ccM}
