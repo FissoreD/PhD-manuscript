@@ -1,36 +1,9 @@
 \chapter{Higher-order unification support}
 
-\newcommand{\llambda}{EE}
-\newcommand{\elpiIn}[1]{\eI{#1}}
-\newcommand{\coqIn}[1]{\cI{#1}}
-
-% \newcommand{\Eo}{FO}
-\newcommand{\Ee}{FO}
-\newcommand{\Fo}{FO}
-\newcommand{\Ho}{FO}
-% \newcommand{\Ue}{FO}
-% \newcommand{\Uo}{FO}
 \newcommand{\githubUrl}{TODO}
-\newcommand{\appsep}{appsep}
-% \newcommand{\UnifRel}{UnifRel}
-% \newcommand{\EqualRel}{UnifRel}
 
-\newcommand{\foUnifPb}{foUnifPb}
-\newcommand{\hoUnifPb}{hoUnifPb}
-
-\newcommand{\linkStore}{linkStore}
-\newcommand{\mapStore}{mapStore}
 \newcommand{\fullref}{fullref}
 \newcommand{\Fullref}{Fullref}
-
-\newcommand{\linketa}{linketa}
-\newcommand{\linkbeta}{linkbeta}
-\newcommand{\linkbetaM}{betaM}
-\newcommand{\linketaM}{etaM}
-
-\newcommand{\lhs}{lhs}
-\newcommand{\rhs}{rhs}
-\newcommand{\mapping}{mapping}
 
 \label{sec:intro}
 We aim to implement a
@@ -171,8 +144,8 @@ app [con"nfact", x, con"3"] = app [P, x]
 
 \noindent
 The problem above has no solution in a first-order language
-where \elpiIn{P} can only stand for a predicate symbol, while in a higher-order
-language \elpiIn{P} can stand for any 1-argument predicate.
+where \eI{P} can only stand for a predicate symbol, while in a higher-order
+language \eI{P} can stand for any 1-argument predicate.
 
 In this paper we study a more sophisticated encoding of Coq terms and rules
 that, on a first approximation, would reshape rule r3 in \ref{fig:rules-elpi} as follows:
@@ -183,9 +156,9 @@ decision (all A x\ Pm x) :- link Pm P A, finite A,    % (r3')
 \end{elpicode}
 
 \noindent
-Since \elpiIn{Pm} is a higher-order unification variable
-of type \elpiIn{tm -> tm},
-with \elpiIn{x}
+Since \eI{Pm} is a higher-order unification variable
+of type \eI{tm -> tm},
+with \eI{x}
 in its scope, the unification problem
 admits one solution:
 
@@ -196,8 +169,8 @@ Pm = x\ app [con"nfact", x, con"3"]
 
 \noindent
 Once the head of rule \emph{r3'} unifies with the goal,
-the premise <<\elpiIn{link Pm A P}>> brings the assignment for \emph{Pm}
-back to the domain \elpiIn{tm} of Coq terms, obtaining the expected solution: 
+the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
+back to the domain \eI{tm} of Coq terms, obtaining the expected solution: 
 % \ref{solution:intro}:
 
 \begin{elpicode}
@@ -210,11 +183,11 @@ is not trivial and does not only concern the head of rules, but the entire seque
 of unification problems that constitute the execution of a logic program.
 
 In fact
-the solution for \elpiIn{P} above generates a
+the solution for \eI{P} above generates a
 (Coq) $\beta$-redex in the second premise (the predicate
-under the \elpiIn{pi w\ }\hspace{-0.4em}).
+under the \eI{pi w\ }\hspace{-0.4em}).
 % We show below the premise before and
-% after the instantiation of \elpiIn{P}:
+% after the instantiation of \eI{P}:
 % \begin{elpicode}
 % decision (app [                   P                  , w])
 % decision (app [lam A (a\ app [con"nfact", a, con"3"]), w])
@@ -311,19 +284,19 @@ In order to reason about unification we provide a description of the
 are first-class terms, i.e. they have a concrete syntax as
 shown in \cref{code:common-terms}.
 Unification variables
-in \Fo{} (\elpiIn{o-uva} term constructor) have no explicit scope:
-the ``arguments'' of a higher-order variable are given via the \elpiIn{o-app}
-constructor. For example the term <<\coqIn{P x}>> is represented as
-<<\elpiIn{o-app [o-uva N, x]}>>, where \elpiIn{N} is the memory address
-of \elpiIn{P} and \elpiIn{x} is a bound variable.
-In \Ho{} the representation of <<\coqIn{P x}>> is instead <<\elpiIn{uva N [x]}>>,
+in \Fo{} (\eI{o-uva} term constructor) have no explicit scope:
+the ``arguments'' of a higher-order variable are given via the \eI{o-app}
+constructor. For example the term <<\cI{P x}>> is represented as
+<<\eI{o-app [o-uva N, x]}>>, where \eI{N} is the memory address
+of \eI{P} and \eI{x} is a bound variable.
+In \Ho{} the representation of <<\cI{P x}>> is instead <<\eI{uva N [x]}>>,
 since unification variables are higher-order and come equipped with an
 explicit scope.
 %
 % We keep these languages
-%minimal, for example, we omit the \elpiIn{all} quantifier of CIC we used
+%minimal, for example, we omit the \eI{all} quantifier of CIC we used
 %in the example in Section~\ref{sec:intro} together with the type notation of
-%terms carried by the \elpiIn{lam} constructor.
+%terms carried by the \eI{lam} constructor.
 %
 
 {
@@ -365,10 +338,10 @@ Here are few examples:\\
 {
 \setlength{\tabcolsep}{1em}
 \begin{tabular}{ll}
-  $f\appsep a$                  & \elpiIn{app [con "f", con "a"]}\\
-  $\lambda x.\lambda y.F_{x y}$ & \elpiIn{lam x\ lam y\ uva F [x, y]} \\
-  $\lambda x.F_{x} \appsep a$   & \elpiIn{lam x\ app [uva F [x], con "a"]} \\
-  $\lambda x.F_{x} \appsep x$   & \elpiIn{lam x\ app [uva F [x], x]} \\
+  $f\appsep a$                  & \eI{app [con "f", con "a"]}\\
+  $\lambda x.\lambda y.F_{x y}$ & \eI{lam x\ lam y\ uva F [x, y]} \\
+  $\lambda x.F_{x} \appsep a$   & \eI{lam x\ app [uva F [x], con "a"]} \\
+  $\lambda x.F_{x} \appsep x$   & \eI{lam x\ app [uva F [x], x]} \\
 \end{tabular}
 }
 \vspace{4pt}
@@ -414,20 +387,20 @@ In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 \end{elpicode}
 
 \noindent
-Note that the symbol \elpiIn{|} separates the head of a list from the tail;
-that \elpiIn{forall2} applies a binary predicate to two lists (of equal
-length); and that \elpiIn{=>} is $\lambda$Prolog syntax for
+Note that the symbol \eI{|} separates the head of a list from the tail;
+that \eI{forall2} applies a binary predicate to two lists (of equal
+length); and that \eI{=>} is $\lambda$Prolog syntax for
 implication and is used to augment the
 current program with an extra rule. Both procedures use implication to
-assume that the fresh nominal constants introduces by \elpiIn{pi} are
+assume that the fresh nominal constants introduces by \eI{pi} are
 equal to themselves.
 
 The main point in showing these equality tests is to remark how
 weaker \Ee is, and to identify the four rules that need special
 treatment in the implementation of \Uo.
-For brevity, we omit the code of \elpiIn{beta}:
-it is sufficient to know that <<\elpiIn{beta F L R}>> computes in \elpiIn{R} the
-weak-head normal form of <<\elpiIn{o-app [F|L]}>>.
+For brevity, we omit the code of \eI{beta}:
+it is sufficient to know that <<\eI{beta F L R}>> computes in \eI{R} the
+weak-head normal form of <<\eI{o-app [F|L]}>>.
 
 \paragraph{Substitution: $\rho s$ and $\sigma t$}
 
@@ -812,7 +785,7 @@ We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
 \subsection{Memory map (\mapStore) and substitution (\texorpdfstring{$\rho$ and $\sigma$}{rho and sigma})}
 \label{sec:grounwork}
 
-% The predicate to test this condition is called \elpiIn{pattern-fragment}:
+% The predicate to test this condition is called \eI{pattern-fragment}:
 
 % \input{code/pattern_fragment}
 
@@ -822,22 +795,22 @@ The memory and its associated operations are described below:
 \includegraphics{ho-for-free/img/mem_types.pdf}
 
 \noindent
-If a memory cell is \elpiIn{none}, then the corresponding unification variable
-is not set. \elpiIn{assign} sets an unset cell to the given value, while
-\elpiIn{new} finds the first unused address and sets it to \elpiIn{none}.
+If a memory cell is \eI{none}, then the corresponding unification variable
+is not set. \eI{assign} sets an unset cell to the given value, while
+\eI{new} finds the first unused address and sets it to \eI{none}.
 
 Since each \Ho unification variable occurs together with a scope,
 its assignment needs to be abstracted over it to enable the
 instantiation of the same assignment to different scopes.
-This is expressed by the \elpiIn{inctx} container, and in particular
-its \elpiIn{abs} binding constructor.
+This is expressed by the \eI{inctx} container, and in particular
+its \eI{abs} binding constructor.
 
 \includegraphics{ho-for-free/img/ho_subst.pdf}
 
 \noindent
-A solution to a \Fo{} variable is, instead, a plain term, that is, \elpiIn{fsubst}
-is an abbreviation for \elpiIn{mem to}.
-%We call \elpiIn{fsubst} the memory of \Fo{}, while we call \elpiIn{subst}
+A solution to a \Fo{} variable is, instead, a plain term, that is, \eI{fsubst}
+is an abbreviation for \eI{mem to}.
+%We call \eI{fsubst} the memory of \Fo{}, while we call \eI{subst}
 %the one of \Ho.
 %
 The compiler establishes a mapping between variables of the two languages.
@@ -845,14 +818,14 @@ The compiler establishes a mapping between variables of the two languages.
 \includegraphics{ho-for-free/img/comp_base_types.pdf}
 
 \noindent
-Each \elpiIn{mvariable} is stored in the mapping together with
+Each \eI{mvariable} is stored in the mapping together with
 its arity (a number) so that the code of \ref{clause:malloc} below can preserve
 the following property:
 
 \begin{invariant}[Unification-variable arity]\label{inv:uvaarity}
-  Each variable \elpiIn{A}
-  in \Ho has a (unique) arity \elpiIn{N} and each occurrence
-  \elpiIn{(uva A L)} is such that \elpiIn{L} has length \elpiIn{N}.
+  Each variable \eI{A}
+  in \Ho has a (unique) arity \eI{N} and each occurrence
+  \eI{(uva A L)} is such that \eI{L} has length \eI{N}.
 \end{invariant}
 
 
@@ -863,7 +836,7 @@ the following property:
 }
 
 \noindent
-When a single \elpiIn{ovariable} occurs multiple times with different numbers
+When a single \eI{ovariable} occurs multiple times with different numbers
 of arguments, the compiler generates multiple mappings for it, on a first
 approximation, and then ensures the mapping is bijective by introducing
 \linketa; this detail is discussed in section \ref{sec:invariant1}.
@@ -871,37 +844,37 @@ approximation, and then ensures the mapping is bijective by introducing
 %Applying the substitution corresponds to dereferencing a term with respect to
 %the memory.
 %  To ease the comparison we split \Fo{} dereferencing into a
-% \elpiIn{fder} step and a \elpiIn{napp} one. The former step replaces references
+% \eI{fder} step and a \eI{napp} one. The former step replaces references
 % to memory cells that are set with their values, and has a corresponding
-% operation in \Ho, namely \elpiIn{deref}. On the contrary \elpiIn{napp}
+% operation in \Ho, namely \eI{deref}. On the contrary \eI{napp}
 % has no corresponding operation in \Ho, and only ensures that
-% terms of the form <<\elpiIn{o-app[o-app L1|L2]}>> are replaced by
-% <<\elpiIn{o-app L3}>> where \elpiIn{L3} is the concatenation of \elpiIn{L1}
-% and \elpiIn{L2}. The reasons for this asymmetry is
-% that an \elpiIn{o-app} node with a flexible head is always mapped
-% to a \elpiIn{uva} (as per \cref{sec:simulation,sec:beta}),
+% terms of the form <<\eI{o-app[o-app L1|L2]}>> are replaced by
+% <<\eI{o-app L3}>> where \eI{L3} is the concatenation of \eI{L1}
+% and \eI{L2}. The reasons for this asymmetry is
+% that an \eI{o-app} node with a flexible head is always mapped
+% to a \eI{uva} (as per \cref{sec:simulation,sec:beta}),
 % preventing nested applications to materialize.
 % \input{code/fderef}
 
-It is worth examining the code of \elpiIn{deref}, that
+It is worth examining the code of \eI{deref}, that
 applies the substitution to a \Ho{} term. Notice how assignments are moved
-to the current scope, i.e. the \elpiIn{abs}-bound variables are renamed
+to the current scope, i.e. the \eI{abs}-bound variables are renamed
 with the names in the scope of the unification variable occurrence.
 
 \includegraphics{ho-for-free/img/deref.pdf}
 
 \noindent
-Note that \elpiIn{move} strongly relies on invariant \ref{inv:uvaarity}: the length
+Note that \eI{move} strongly relies on invariant \ref{inv:uvaarity}: the length
 of the arguments of all occurrences of a unification variable is the same. Hence,
 they have the same simple type for the meta-level, and therefore the number of
-\elpiIn{abs} nodes in the assignment matches that length.
-This guarantees that \elpiIn{move} never fails.
+\eI{abs} nodes in the assignment matches that length.
+This guarantees that \eI{move} never fails.
 
 \includegraphics{ho-for-free/img/move.pdf}
 
 We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
-<<\elpiIn{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
-for <<\elpiIn{lam x\lam y\y}>>.
+<<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
+for <<\eI{lam x\lam y\y}>>.
 
 \subsection{Links (\linkStore)}
 
@@ -916,8 +889,8 @@ the problematic term thanks to their scope.
 
 \noindent
 The right-hand side of a link, the problematic term, can occur under binders.
-To accommodate this situation, the compiler wraps \elpiIn{baselink} using
-the \elpiIn{inctx} container. % (see~\ref{data:inctx} also used for \elpiIn{subst}).
+To accommodate this situation, the compiler wraps \eI{baselink} using
+the \eI{inctx} container. % (see~\ref{data:inctx} also used for \eI{subst}).
 
 \begin{invariant}[Link left hand side]\label{inv:linklhs}
   The left-hand side of a suspended link
@@ -934,7 +907,7 @@ In the examples we represent links as equations
 %between two terms
 under a context.
 The equality sign is subscripted with the
-kind of \elpiIn{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
+kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
 \begin{elpicode}
 abs x\ val (link-llam (uva A [x]) (app[uva F [x],con "a"]))
 \end{elpicode}
@@ -992,7 +965,7 @@ In order to bring back the substitution from \Ho{} to \Fo{} the compiler
 builds a ``memory map'' connecting the \Fo{} variables to the \Ho ones.
 % using the routine \ref{clause:malloc}.
 
-The signature of the \elpiIn{comp} predicate below allows for the generation of
+The signature of the \eI{comp} predicate below allows for the generation of
 links (suspended unification problems), which plays no role in this section
 but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
@@ -1011,7 +984,7 @@ With respect to \cref{sec:problem-statement}, the signature also allows
 for updates to the substitution.
 The code above uses that possibility
 in order to allocate space for the variables, i.e. it sets their memory
-address to \elpiIn{none} (a detail not worth mentioning in the
+address to \eI{none} (a detail not worth mentioning in the
 previous sections).
 
 \fbox{%
@@ -1023,16 +996,16 @@ previous sections).
 }
 
 \noindent
-In the code above, the syntax \elpiIn{pi x y\..} is syntactic sugar for
-iterated \elpiIn{pi} abstraction, as in \elpiIn{pi x\ pi y\..}.
-The auxiliary predicate \elpiIn{fold6} folds a predicate
+In the code above, the syntax \eI{pi x y\..} is syntactic sugar for
+iterated \eI{pi} abstraction, as in \eI{pi x\ pi y\..}.
+The auxiliary predicate \eI{fold6} folds a predicate
 with three accumulators (the memory map, the links and the substitution)
 over a lists to obtain a new list and the final values of the
 accumulators.
 
-The auxiliary function \elpiIn{close-links} tests if the bound variable
-\elpiIn{v} really occurs in the link. If it does, the link is wrapped into
-an additional \elpiIn{abs} node binding \elpiIn{v}. In this way links generated
+The auxiliary function \eI{close-links} tests if the bound variable
+\eI{v} really occurs in the link. If it does, the link is wrapped into
+an additional \eI{abs} node binding \eI{v}. In this way links generated
 deep inside the compiled terms can be moved outside their original context
 of binders.
 
@@ -1053,8 +1026,8 @@ two languages.
 \includegraphics{ho-for-free/img/hstep.pdf}
 
 \noindent
-Note that the infix notation \elpiIn{((A ~\Ue~B) C D)} is syntactic sugar for
-\elpiIn{((~\Ue\!\!\!~) A B C D)}.
+Note that the infix notation \eI{((A ~\Ue~B) C D)} is syntactic sugar for
+\eI{((~\Ue\!\!\!~) A B C D)}.
 
 Reconsidering links is a fixpoint process because the progress of a link
 can update the substitution, which may then enable another link to progress.
@@ -1062,15 +1035,15 @@ can update the substitution, which may then enable another link to progress.
 \includegraphics{ho-for-free/img/progress.pdf}
 
 \subsubsection{Progress}
-In the base compilation scheme, \elpiIn{progress1} is the identity function
+In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
-Sections \ref{sec:eta} and \ref{sec:beta} add rules to \elpiIn{progress1}
+Sections \ref{sec:eta} and \ref{sec:beta} add rules to \eI{progress1}
 and explain why the do not hinder termination.
 % For brevity we omit the code
-% that applies the substitution \elpiIn{S1} to all terms in \linkStore.
+% that applies the substitution \eI{S1} to all terms in \linkStore.
 
 \subsubsection{Scope check}\label{sec:sc}
-The predicate \elpiIn{scope-check} 
+The predicate \eI{scope-check} 
 replaces each
 link of the form TODO%\linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
 a link TODO
@@ -1092,7 +1065,7 @@ unification problem $X \Ue f~Y$ cannot generate a cyclic substitution alone,
 but should be disallowed if $\linkStore$ contains a link like
 $\linketaM{}{Y}{\lambda z.X_z}$: we don't know yet if $Y$ will feature
 a lambda in head position, but we surely know it contains $X$.
-The procedure \elpiIn{occur-check-links} is in charge of
+The procedure \eI{occur-check-links} is in charge of
 performing this check that is needed in order to
 guarantee \fullref{prop:fidelity}.
 
@@ -1115,20 +1088,20 @@ For example,
 $F\appsep x\appsep y = F\appsep x\appsep z$ requires allocating a 
 variable $G$ in order to express the assignment $F_{ab} \mapsto G_a$.
 
-The final step is to decompile each assignment. The \elpiIn{val}
+The final step is to decompile each assignment. The \eI{val}
 node carries a term that is easy to decompile since \mapStore is a bijection.
-Since the \elpiIn{o-lam} node
+Since the \eI{o-lam} node
 carries no additional information (other than the function body),
-each \elpiIn{abs} node can be decompiled to a \elpiIn{o-lam} one.
+each \eI{abs} node can be decompiled to a \eI{o-lam} one.
 
-However, if the \elpiIn{o-lam} node was carrying more information,
+However, if the \eI{o-lam} node was carrying more information,
 as is the case for Coq where it holds the type of the bound variable,
 one would need to store this piece of information in the memory map,
 were we store the arity (that is a very simple function type).
 
 \begin{proposition}[Compilation round trip]\label{prop:comprt}
-  % \elpiIn{compile F T [] M [] L [] S} then 
-  % if \elpiIn{T} $\in$ S
+  % \eI{compile F T [] M [] L [] S} then 
+  % if \eI{T} $\in$ S
   If $\C{s}{t}{m}{l}$ and $l \in \linkStore$ and $m \in \mapStore$
   and
   $\sigma = \{ A \mapsto t\}$ and $\mapping{X}{A}{n} \in \mapStore$
@@ -1181,8 +1154,8 @@ terms can be made equal by a substitution $\rho$,
 we can produce this $\rho$ by finding
 a $\sigma$ via \Ue{} on the corresponding \Ho terms and by decompiling it.
 If we look at the syntax of \Fo{}, the only interesting case is
-<<\elpiIn{o-uva X ~\Uo~s}>>. In this case, after compilation, we have
-<<\elpiIn{uva Y [] ~\Ue~t}>>
+<<\eI{o-uva X ~\Uo~s}>>. In this case, after compilation, we have
+<<\eI{uva Y [] ~\Ue~t}>>
 that succeeds with $\sigma = \{ Y \mapsto t\}$ and
 $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \end{proof}
@@ -1191,7 +1164,7 @@ $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \fullref{prop:fidelity} hold if $\;\wellb{(\foUnifPb)}$. \label{thm:fidfow}
 \end{theorem}
 \begin{proof}[Proof sketch]
-Since \elpiIn{progress1} is a no-op then \fstep and \hstep are the same.
+Since \eI{progress1} is a no-op then \fstep and \hstep are the same.
 By \cref{prop:uniffow}, \Ue is equivalent to \Uo in \wellb.
 \end{proof}
 
@@ -1274,27 +1247,27 @@ higher-order unification problem succeed.
 TODO
 
 The unification problem $\hoUnifPb_1$ fails while trying to unify
-$A \appsep x$ and $x$, which is equivalent to <<\elpiIn{app [uva A [], x]}>>
-versus \elpiIn{x}.
+$A \appsep x$ and $x$, which is equivalent to <<\eI{app [uva A [], x]}>>
+versus \eI{x}.
 In order to exploit the higher-order unification algorithm of the meta language,
 we %need to 
 compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
-%,which is \elpiIn{uva A [x]}.
+%,which is \eI{uva A [x]}.
 
 \subsection{Compilation and decompilation}
 
 We add the following rule before rule $r_@$ in~\ref{fig:comp-fo}, where
-\elpiIn{pattern-fragment} is a predicate checking if a list of
+\eI{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
 \includegraphics{ho-for-free/img/comp_base_beta.pdf}
 
 
 \noindent
-Note that compiling \elpiIn{Ag} cannot create new mappings nor links, since \elpiIn{Ag}
+Note that compiling \eI{Ag} cannot create new mappings nor links, since \eI{Ag}
 is made of bound variables, and the hypothetical rule 
 in~\ref{fig:comp-lam}
-loaded by \elpiIn{comp-lam}
+loaded by \eI{comp-lam}
 grants this property.
 
 % The only detail worth discussing is the fact that the procedure updates a
@@ -1304,16 +1277,16 @@ grants this property.
 
 \paragraph{Decompilation}
 No change
-to \elpiIn{commit-link}
+to \eI{commit-link}
 since no link is added.
 % by the compilation of 
-%\maybebeta terms, no modification to the \elpiIn{commit-link}
+%\maybebeta terms, no modification to the \eI{commit-link}
 %is needed.
 
 \paragraph{Progress}
-No change to \elpiIn{progress} since no link is added.
+No change to \eI{progress} since no link is added.
 % Similarly to decompilation, since no link is produced,
-% no modification to the \elpiIn{progress} predicate is needed.
+% no modification to the \eI{progress} predicate is needed.
 
 \begin{lemma}[Properties of \Uo in $\wellb_\beta$]\label{prop:uniffowb}
   Given the updated compilation scheme, the \Uo of~\cref{sec:founif}
@@ -1323,7 +1296,7 @@ No change to \elpiIn{progress} since no link is added.
 
   \begin{proof}[Proof sketch]
   If we look at the \Fo{} terms, there is one more interesting case,
-  namely \elpiIn{o-app[o-uva X|W] ~\Uo~s} when \elpiIn{W}
+  namely \eI{o-app[o-uva X|W] ~\Uo~s} when \eI{W}
   are distinct names compiled to $\vec{w}$. In this case
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
@@ -1383,9 +1356,9 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % \end{elpicode}
 
 % \otext{Goal: $s_1 \Uo s_2$ is compiled into $t_1 \Ue t_2$}
-% \otext{What is done: uvars \elpiIn{fo_uv} of OL are replaced into uvars \elpiIn{ho_uv} of the ML}
-% \otext{Each \elpiIn{fo_uv} is linked to an \elpiIn{ho_uv} of the OL}
-% \otext{Example needing the compiler v0 (tra l'altro lo scope è ignorato):\\ \elpiIn{lam x\ app[con"g",app[uv 0, x]] ~\Uo~lam x\ app[con"g", c"a"]}}
+% \otext{What is done: uvars \eI{fo_uv} of OL are replaced into uvars \eI{ho_uv} of the ML}
+% \otext{Each \eI{fo_uv} is linked to an \eI{ho_uv} of the OL}
+% \otext{Example needing the compiler v0 (tra l'altro lo scope è ignorato):\\ \eI{lam x\ app[con"g",app[uv 0, x]] ~\Uo~lam x\ app[con"g", c"a"]}}
 % \otext{Links used to instantiate vars of elpi}
 % \otext{After all links, the solution in links are compacted and given to coq}
 % \otext{It is not so simple, see next sections (multi-vars, eta, beta)}
@@ -1397,10 +1370,10 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % original term, it is replaced with a meta variable, and if the OL variable is
 % applied to a list of distinct names $L$, then this list becomes the scope of the variable.
 % For all the other constructors of
-% \elpiIn{tm}, the same term constructor is returned and its arguments are
+% \eI{tm}, the same term constructor is returned and its arguments are
 % recursively compiled. The predicate in charge for term compilation is:
 
-% \elpiIn{type comp tm -> tm -> links -> links -> subst -> subst -> o}.
+% \eI{type comp tm -> tm -> links -> links -> subst -> subst -> o}.
 
 % \noindent
 % where, we take the term of the OL, produce the term of the ML, take a list
@@ -1432,7 +1405,7 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % \end{elpicode}
 
 % \noindent
-% we have the main unification problem where the nested \elpiIn{app} nodes have
+% we have the main unification problem where the nested \eI{app} nodes have
 % lists of different lengths making the unification to fail. The compilation of
 % these terms produces a new unification problem with the following shape:
 
@@ -1442,17 +1415,17 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % \end{elpicode}
 
 % \noindent
-% The main difference is the replacement of the subterm \elpiIn{app[uv 0, x]} of
-% the OL with the subterm \elpiIn{uv 0 [x]}. Variable indexes are chosen by the
-% ML, that is, the index \elpiIn{0} for that unification variable of the OL term
-% has not the sam meaning of the index \elpiIn{0} in the ML. There exists two
+% The main difference is the replacement of the subterm \eI{app[uv 0, x]} of
+% the OL with the subterm \eI{uv 0 [x]}. Variable indexes are chosen by the
+% ML, that is, the index \eI{0} for that unification variable of the OL term
+% has not the sam meaning of the index \eI{0} in the ML. There exists two
 % different substitution mapping, one for the OL and one for the ML and the indexes
 % of variable point to the respective substitution.
 
 % decomp che mappa abs verso lam
 % \noindent
 % \otext{An other example: \\
-%   \elpiIn{lam x\ app[f, app[X, x]] = Y, (lam x\ x) = X.}}
+%   \eI{lam x\ app[f, app[X, x]] = Y, (lam x\ x) = X.}}
 
 % \section{Use of multivars}
 
@@ -1489,8 +1462,8 @@ $\rho = \{~ X \mapsto f ~\}$, the corresponding problem in
 TODo
 
 \noindent
-The reason is that <<\elpiIn{lam x\ uva A [x]}>> and
-<<\elpiIn{con"f"}>> start with different term constructors.
+The reason is that <<\eI{lam x\ uva A [x]}>> and
+<<\eI{con"f"}>> start with different term constructors.
 
 In order to guarantee \cref{prop:simulation}, we detect
 lambda abstractions that can disappear by $\eta$-contraction
@@ -1523,7 +1496,7 @@ Each \linketa is kept in the link store \linkStore during execution
 and is activated under some conditions.
 Activation is implemented
 in \cref{sec:etaprogress}
-by extending the \elpiIn{progress1}
+by extending the \eI{progress1}
 predicate defined in \cref{sec:execution}.
 
 \subsection{Detection of \maybeeta}\label{sec:etadetection}
@@ -1587,7 +1560,7 @@ A $\beta$-normal term $s = \lambda x_1 \ldots x_n.t$
 \begin{proof}[Proof sketch]
 Since our terms are in $\beta$-normal form the only
 rule that can play a role is $r_{\eta_l}$ in \ref{fig:feq}, and note that
-that rule uses \elpiIn{beta} to add an argument to an
+that rule uses \eI{beta} to add an argument to an
 application or to the scope of a variable.
 If the term $s$ is not exactly $x$ (case 1)
 it can only be an $\eta$-redex of $x$, or a unification
@@ -1682,7 +1655,7 @@ since it does not break
 
 \subsection{Compilation and decompilation}\label{sec:etacomp}
 
-% Thanks to the \elpiIn{maybe-eta} predicate, we can detect ``$\eta$-problematic''
+% Thanks to the \eI{maybe-eta} predicate, we can detect ``$\eta$-problematic''
 % terms and, consequently replace them with fresh \Ho unification variables at
 % compilation time. The code below illustrate how this relation is used to for
 % term compilation.
@@ -1693,10 +1666,10 @@ The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}
 \includegraphics{ho-for-free/img/comp_eta.pdf}
 
 \noindent
-Whenever \elpiIn{o-lam F} is detected to be in
-\maybeeta it is compiled to \elpiIn{lam F1} and replaced by the fresh
-variable \elpiIn{A}. This variable sees all the names free in
-\elpiIn{lam F1} and is connected to \elpiIn{lam F1} via a \linketa.
+Whenever \eI{o-lam F} is detected to be in
+\maybeeta it is compiled to \eI{lam F1} and replaced by the fresh
+variable \eI{A}. This variable sees all the names free in
+\eI{lam F1} and is connected to \eI{lam F1} via a \linketa.
 \Fullref{inv:linklhs} holds for this link. Moreover:
 
 \begin{corollary}
@@ -1709,7 +1682,7 @@ variable \elpiIn{A}. This variable sees all the names free in
   By contradiction, suppose that the rule above is applied and that
   the \rhs of the link is $\lambda x.\lambda y.t$, where $x$ and $y$ occur in $t$.
   If $\testmaybeeta{}~\lambda y.t$ holds then the recursive call to
-  \elpiIn{comp} (made by \elpiIn{comp-lam}) must have put a fresh variable
+  \eI{comp} (made by \eI{comp-lam}) must have put a fresh variable
   in its place, so this case is impossible.
   Otherwise, if $\testmaybeeta{}~\lambda y.t$ does not hold, then also
   $\testmaybeeta{}~\lambda x.\lambda y.t$ does not hold either, contradicting
@@ -1834,7 +1807,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 \end{proof}
 
 \begin{lemma}
-  \elpiIn{progress} terminates.
+  \eI{progress} terminates.
   \label{lemma:prog-eta-terminates}
 \end{lemma}
 
@@ -1845,17 +1818,17 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   Moreover each rule only relies on terminating operations such as \Ue,
   $\eta$-contraction, $\eta$-redex, relocation (a recursive copy of a
   finite term).
-  % The addition of rules for \elpiIn{progres1} complicates the function
-  % \elpiIn{progress}. We can note, however, that they do not prevent the
-  % termination of \elpiIn{progress}. 1) If a link is activated it is removed from
-  % \linkStore and the recursive call to \elpiIn{progress} will have a smaller
+  % The addition of rules for \eI{progres1} complicates the function
+  % \eI{progress}. We can note, however, that they do not prevent the
+  % termination of \eI{progress}. 1) If a link is activated it is removed from
+  % \linkStore and the recursive call to \eI{progress} will have a smaller
   % list of links to recurse on. Moreover, link activation only runs terminating
   % instructions (such as unification). 2) If a link is deduplicated, the
-  % termination of \elpiIn{progress} is still guaranteed since again we reduce
+  % termination of \eI{progress} is still guaranteed since again we reduce
   % \linkStore and the instructions run by link deduplications are all
   % terminating. 3) If a link is neither activated nor deduplicated, i.e. it
   % remains suspended, then \linkStore remains unchanged like the substitution;
-  % therefore, \elpiIn{if (L = L1, S1 = S2)} succeeds and \elpiIn{progress}
+  % therefore, \eI{if (L = L1, S1 = S2)} succeeds and \eI{progress}
   % terminates.
 \end{proof}  
 
@@ -2074,7 +2047,7 @@ In order to grant fidelity, we add a new link progression for \linketa{}s.
 \begin{definition}[\progressetaright]\label{def:progressetaright} A link
 \linketaM{\Gamma}{X}{t} is removed from \linkStore when either 1)
 $\testmaybeeta~t$ does not hold (anymore) or 2) by $\eta$-contracting $t$ to
-$t'$ where $t'$ does not start with the \elpiIn{lam} constructor. In the
+$t'$ where $t'$ does not start with the \eI{lam} constructor. In the
 first case, $X$ is unified with $t$, and in the second one, $X$ is unified with
 $t'$ (under the context $\Gamma$).
 \end{definition}
@@ -2106,7 +2079,7 @@ $t'$ (under the context $\Gamma$).
   term then $t_2$ must be the $\eta$-redex of $t_1$, implying $q = 0$. If it
   is not the case, then \progressetaleft
   would eventually cause a failure. 2) If $t_1$ is a
-  unification variable then \elpiIn{scope-check} guarantees that $t_2$ does not use
+  unification variable then \eI{scope-check} guarantees that $t_2$ does not use
   $x_1\dots x_p$ as free variables, causing otherwise a unification failure.
   After this check, $m - n - p$ links of \chain remain suspended, as we expect:
   decompilation is charged to wake all links in \linkStore and eventually relate
@@ -2304,9 +2277,9 @@ has the following property:
 \end{invariant}
 
 \noindent Note that the shape of such as \rhs is
-  <<\elpiIn{app [uva X S | L]}>>, where
-  \elpiIn{S} is \elpiIn{[s~$_1$~, ~$\ldots$~, s~$_n$~]}
-  and \elpiIn{L} is  \elpiIn{[t~$_1$~, ~$\ldots$~, t~$_m$~]}.
+  <<\eI{app [uva X S | L]}>>, where
+  \eI{S} is \eI{[s~$_1$~, ~$\ldots$~, s~$_n$~]}
+  and \eI{L} is  \eI{[t~$_1$~, ~$\ldots$~, t~$_m$~]}.
   
 % \linkbeta are put in \linkStore and activated when \rhs falls in \llambda. 
 % \noteE[inline]{un po' ridondante con 8.2, non so se serva}
@@ -2329,22 +2302,22 @@ just before rule $r_@$ in \ref{fig:comp-fo}
 \includegraphics{ho-for-free/img/comp_beta.pdf}
 
 \noindent
-The list \elpiIn{Ag} is split into two parts: 
-\elpiIn{Pf} is in \llambda, and can be empty; 
-\elpiIn{Extra} cannot be empty and is such that
-<<\elpiIn{append Pf Extra Ag}>>.
+The list \eI{Ag} is split into two parts: 
+\eI{Pf} is in \llambda, and can be empty; 
+\eI{Extra} cannot be empty and is such that
+<<\eI{append Pf Extra Ag}>>.
 The \rhs of the \linkbeta is
-the application of a fresh variable \elpiIn{C} having
-in scope all names in \elpiIn{Pf1} (the compilation of \elpiIn{Pf}).
-The variable \elpiIn{B}, returned as the compiled term, is a fresh variable
-having in scope all the free variables occurring in \elpiIn{Pf1} and
-\elpiIn{Extra1} (the compilation of \elpiIn{Extra}).
+the application of a fresh variable \eI{C} having
+in scope all names in \eI{Pf1} (the compilation of \eI{Pf}).
+The variable \eI{B}, returned as the compiled term, is a fresh variable
+having in scope all the free variables occurring in \eI{Pf1} and
+\eI{Extra1} (the compilation of \eI{Extra}).
 This construction enforces \fullref{inv:beta-rhs}.
 
 % In the following, we pose $X_{s_1\dots s_n}$ to represent a variable $X$ with
 % the list of distinct names $s_1\dots s_n$ as scope. Moreover, $X_{s_1\dots
 % s_n}\appsep t_1\dots t_m$ is the application of that variable to the list of
-% terms $t_1\dots t_m$. Note that \rhsBeta is equivalent to \elpiIn{app[uva N S |
+% terms $t_1\dots t_m$. Note that \rhsBeta is equivalent to \eI{app[uva N S |
 % T]}.
 
 % \noteD{Si puo togliere se serve spazio}
@@ -2355,8 +2328,8 @@ This construction enforces \fullref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   Assume we have a \linkbeta, by contradiction, if $m = 0$, then the original
-%   \Fo{} term has the shape \elpiIn{o-app[o-uva M | Ag]} where \elpiIn{Ag} is a
-%   list of distinct names (i.e. the list \elpiIn{Extra} is empty). This case is
+%   \Fo{} term has the shape \eI{o-app[o-uva M | Ag]} where \eI{Ag} is a
+%   list of distinct names (i.e. the list \eI{Extra} is empty). This case is
 %   however captured by rule~\ref{rule:complam} (from \cref{sec:compilation}) and
 %   no \linkbeta is produced which contradicts our initial assumption.
 % \end{proof}
@@ -2371,11 +2344,11 @@ This construction enforces \fullref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   By construction, the lists $s_1\dots s_n$ and $t_1\dots t_m$ are built by splitting
-%   the list \elpiIn{Ag} from the original term \elpiIn{o-app [o-uva A|Ag]}.
-%   $s_1\dots s_n$ is the longest prefix of the compiled terms in \elpiIn{Ag} which is
+%   the list \eI{Ag} from the original term \eI{o-app [o-uva A|Ag]}.
+%   $s_1\dots s_n$ is the longest prefix of the compiled terms in \eI{Ag} which is
 %   in \llambda. Therefore, by definition of \llambda, $t_1$ must appear  
 %   in $s_1\dots s_n$, otherwise $s_1\dots s_n$ is not the longest prefix in
-%   \llambda, or it is a term with a constructor of \elpiIn{tm} as functor.  
+%   \llambda, or it is a term with a constructor of \eI{tm} as functor.  
 % \end{proof}
 % \end{comment}
 
@@ -2407,7 +2380,7 @@ If any \linkbeta remains in \linkStore, decompilation fails.
 % \newcommand{\progBetaDedup}{\emph{progress-\llambda-dedup}\xspace}
 \newcommand{\progBetaFail}{\emph{\llambda-progress-fail}\xspace}
 
-%We add the followins rules to \elpiIn{progress1}.
+%We add the followins rules to \eI{progress1}.
 % Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 TODO
 
@@ -2479,7 +2452,7 @@ TODO
 \begin{itemize}
   \item $\testmaybeeta~T$ does not hold (anymore), in this case $X$ is unified
         with $T$; or
-  \item $T$ $\eta$-contracts to a term $T'$ not starting with the \elpiIn{lam}
+  \item $T$ $\eta$-contracts to a term $T'$ not starting with the \eI{lam}
         constructor. In this case $X$ is unified with $T'$
 \end{itemize}
 \end{definition}
@@ -2488,7 +2461,7 @@ The idea behind this rule is to instantiate the \lhs variable of a \linketa
 whenever its \rhs is for sure a \wellb term.
 
 \begin{lemma}
-  \elpiIn{progress} terminates
+  \eI{progress} terminates
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -2508,15 +2481,15 @@ whenever its \rhs is for sure a \wellb term.
   terminating operations and, if its permises succeed, the considered
   \linketa is removed from \linkStore, ensuring termination.
   %
-  % \Cref{def:progBetaRH} makes \elpiIn{progress} terminates, since it makes a
+  % \Cref{def:progBetaRH} makes \eI{progress} terminates, since it makes a
   % \linkbeta disappear from \linkStore. On the other hand, \cref{def:progBetaLL},
   % creates each time a new \linketa and replace the old \linkbeta with a new one.
   % This progression can however triggered at most $m$ times, since each new
   % \linkbeta as a smaller list of applied variables. At the $m^{th}$ progression,
   % the \linkbeta is removed from \linkStore which is now filled by $m$ new
-  % \linketa. By \cref{lemma:prog-eta-terminates}, we know that \elpiIn{progress}
+  % \linketa. By \cref{lemma:prog-eta-terminates}, we know that \eI{progress}
   % terminates if \linkStore is made by only \linketa and therefore
-  % \elpiIn{progress} still terminates.
+  % \eI{progress} still terminates.
   %\noteE[inline]{is it ok?}
   % \noteE[inline]{funziona. per essere più precisi io parlerei di ordine lessicografico (tipico ordine ben fondato usato per dimostrare terminazione). Nl nostro caso è la tripla (argomenti extra dei beta, numero di beta, numero di eta).}
 \end{proof}
@@ -2635,7 +2608,7 @@ solver~\cite{sozeau2008-tc},
 
 In this section we show how we can implement these strategies
 by simply adding (or removing) rules to the
-\elpiIn{progress} predicate.
+\eI{progress} predicate.
 In the example below $\foUnifPb_1$ is in \notllambda.
 %
 % make test ONLY=7005 TEX=tex
@@ -2656,9 +2629,9 @@ Instead of failing when the \lhs of $\linkStore_1$ becomes rigid (equal to $a$),
 we keep it in \linkStore until the head of its \rhs also become rigid.
 In this case, since both the \lhs and \rhs have rigid heads, they can be unified.
 While this relaxed rule does not break \fullref{prop:fidelity} per se,
-the \elpiIn{occur-check-links} procedure becomes incomplete since
+the \eI{occur-check-links} procedure becomes incomplete since
 \fullref{inv:linklhs} is broken. Also note that delaying unification outside \llambda can leave \linkbeta for the
-decompilation phase. Therefore \elpiIn{commit-links} should
+decompilation phase. Therefore \eI{commit-links} should
 be modified accordingly.
 
 If instead we want \Uo{} to follow the second strategy and pick an
@@ -2670,7 +2643,7 @@ $X a$ to $Y$. This heuristic is used by~\cite{sozeau2008-tc}.
 
 %\input{code/progress_heuristic}
 %\noindent
-%Note that \elpiIn{UV} is in \llambda as well as \elpiIn{T}. 
+%Note that \eI{UV} is in \llambda as well as \eI{T}. 
 % \vspace{-1em}
 \section{Actual implementation in Elpi}\label{sec:implementation}
 
@@ -2701,12 +2674,12 @@ link-eta L R :- declare_constraint (link-eta L R) [L,R].
 
 \noindent
 The second snippet illustrates the deduplication of \linketa. The syntax
-<<\elpiIn{N ~$\triangleright$~ G ?- P}>> denotes a $\lambda$Prolog sequent, that is a 
-goal \elpiIn{P} under a set \elpiIn{G} of hypothetical rules (introduced
-by \elpiIn{=>}) and where the program context binds (via the \elpiIn{pi}
-operator) eigenvariables in \elpiIn{N}. Sequents are presented to
+<<\eI{N ~$\triangleright$~ G ?- P}>> denotes a $\lambda$Prolog sequent, that is a 
+goal \eI{P} under a set \eI{G} of hypothetical rules (introduced
+by \eI{=>}) and where the program context binds (via the \eI{pi}
+operator) eigenvariables in \eI{N}. Sequents are presented to
 CHR with their higher order unification variables replaced by
-``frozen constants'', that is $A_{xyz}$ becomes <<\elpiIn{uvar ~$f_A$~ [x,y,z]}>>
+``frozen constants'', that is $A_{xyz}$ becomes <<\eI{uvar ~$f_A$~ [x,y,z]}>>
 for a fresh constant $f_A$. Frozen constants are ``defrost'' when
 they are part of a new goal (see \cite[section 4.3]{tassi2019-1}).
 
@@ -2719,15 +2692,15 @@ they are part of a new goal (see \cite[section 4.3]{tassi2019-1}).
 
 \noindent
 The first directive matches a constraint
-whose \lhs is a variable \elpiIn{X}; the second matches and removes
+whose \lhs is a variable \eI{X}; the second matches and removes
 a constraint on the same variable; the third
-relocates \elpiIn{T2} and the latter crafts the new goal that unifies
-\elpiIn{T1} with \elpiIn{T2'} under \elpiIn{G1} and the set of
-heigenvariables \elpiIn{N1}.
+relocates \eI{T2} and the latter crafts the new goal that unifies
+\eI{T1} with \eI{T2'} under \eI{G1} and the set of
+heigenvariables \eI{N1}.
 
-% Remark that \fullref{inv:uvaarity} makes it possible to relocate \elpiIn{T2}
+% Remark that \fullref{inv:uvaarity} makes it possible to relocate \eI{T2}
 % using the name-to-name mapping obtained by zipping
-% the lists (of equal length) \elpiIn{LX1} and \elpiIn{LX2}.
+% the lists (of equal length) \eI{LX1} and \eI{LX2}.
 
 \noindent
 \section{Related work and conclusion}
@@ -2744,7 +2717,7 @@ regular routine, i.e. write rules as follows
 \end{elpicode}
 
 \noindent
-where \elpiIn{unify} is a regular predicate.
+where \eI{unify} is a regular predicate.
 This method fails to take advantage of the logic
 programming engine provided by the meta language since
 it removes all the data from the rule's heads and makes
@@ -2771,7 +2744,7 @@ without relying on introspection primitives such as Prolog's
 \texttt{functor/3} and \texttt{arg/3}. To avoid that constants 
 cannot be symbols of the meta language, but must rather
 live in
-an open world, akin to the \elpiIn{string} data type used in the \elpiIn{con}
+an open world, akin to the \eI{string} data type used in the \eI{con}
 constructor.
 
 In the literature we could find a related encoding of the Calculus of
@@ -2826,7 +2799,7 @@ especially in the early phase of this work, but unfortunately we could not.
 The main reason is that the logic of Abella does not let one quantify over
 predicates nor use the cut operator. Eliminating cut or
 higher order
-combinators like \elpiIn{map} or \elpiIn{forall2} is surely
+combinators like \eI{map} or \eI{forall2} is surely
 possible, but 
 has a high cost in verbosity given how pervasively they are used.
 Moreover, and more importantly, it creates a distance

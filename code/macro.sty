@@ -82,9 +82,44 @@
 \newcommand{\unify}{unify}
 
 
-\newcommand{\UnifRel}{\ensuremath{\simeq}}
+\newcommand{\appsep}{\ensuremath{\textcolor{lightgray}{\cdot}}}
 \newcommand{\EqualRel}{\ensuremath{=}}
+\newcommand{\nEqualRel}{\ensuremath{\new}}
+\newcommand{\UnifRel}{\ensuremath{\simeq}}
+\newcommand{\nUnifRel}{\ensuremath{\not\simeq}}
+
+\newcommand{\Uo}{\texorpdfstring{\ensuremath{\UnifRel_o}\xspace}{unif\_o}}
+\newcommand{\nUo}{\ensuremath{\nUnifRel_o}\xspace}
+\newcommand{\Eo}{\ensuremath{\EqualRel_o}\xspace}
+\newcommand{\nEo}{\ensuremath{\nEqualRel_o}\xspace}
 
 \newcommand{\Ue}{\ensuremath{\UnifRel_m}\xspace}
-\newcommand{\Uo}{\ensuremath{\UnifRel_o}\xspace}
-\newcommand{\Eo}{\ensuremath{\EqualRel_o}\xspace}
+\newcommand{\nUe}{\ensuremath{\nUnifRel_m}\xspace}
+\newcommand{\Ee}{\ensuremath{\EqualRel_m}\xspace}
+\newcommand{\nEe}{\ensuremath{\nEqualRel_m}\xspace}
+\newcommand{\llambda}{\ensuremath{\mathcal{L}}\xspace}
+
+\newcommand{\linkMacro}[1]{\ensuremath{#1}\texttt{-link}\xspace}
+
+\newcommand{\linkbeta}{\linkMacro{\llambda}}
+\newcommand{\linketa} {\linkMacro{\eta}}
+
+%\newcommand{\Fo}{\texorpdfstring{\ensuremath{\mathcal{F}_{\!o}\xspace}}{Fo}} % space non va
+%\newcommand{\Ho}{\texorpdfstring{\ensuremath{\mathcal{H}_o}\xspace}{Ho}}
+\newcommand{\Fo}{\texorpdfstring{\ensuremath{\mathcal{O}}\xspace}{O}}
+\newcommand{\Ho}{\texorpdfstring{\ensuremath{\mathcal{M}}\xspace}{M}}
+
+\newcommand*{\eqtau}{\ensuremath{\mathrel{\overset{\mathrm{\tau}}{=}}}}
+
+\newcommand{\linketaM}[3]{\ensuremath{#1 \vdash #2 =_\eta #3}}
+\newcommand{\linkbetaM}[3]{\ensuremath{#1 \vdash #2 =_{\llambda} #3}}
+\newcommand{\mapping}[3]{\ensuremath{#1 \mapsto #2^#3}}
+
+\newcommand{\lhs}{lhs\xspace}
+\newcommand{\rhs}{rhs\xspace}
+
+\newcommand{\linkStore}{\texorpdfstring{\ensuremath{\mathbb{L}}\xspace}{L}}
+\newcommand{\mapStore}{\texorpdfstring{\ensuremath{\mathbb{M}}\xspace}{M}}
+\newcommand{\foUnifPb}{\ensuremath{\mathbb{P}}\xspace}
+\newcommand{\hoUnifPb}{\ensuremath{\mathbb{Q}}\xspace}
+
