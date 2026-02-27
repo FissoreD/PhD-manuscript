@@ -1,4 +1,6 @@
 img/*
 !img/mminted.sty
 !img/macro.sty
-theorem
+theorem/*
+!theorem/mminted.sty
+!theorem/macro.sty
