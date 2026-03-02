@@ -53,16 +53,18 @@ forms of polymorphism: parametric polymorphism and ad-hoc polymorphism.
 Parametric polymorphic functions are \emph{uniform}, meaning that their behavior
 does not depend on the specific type at which they are instantiated. For
 example, the function \emph{length}, with type \mlI{'a list -> int}, returns $7$
-when applied to any list of seven elements, regardless of the instantiation of
-\mlI{'a}. The implementation is identical for all types.
+when applied to any list of seven elements. In other words, the compiler
+reuses the same implementation of \emph{length} for every call, regardless of
+the instantiation of \mlI{'a}.
 
 Parametric polymorphism is widely used and highly practical in functional
-programming. However, it is often insufficient when modeling mathematical
-structures. In mathematics, the symbol $+$ has a consistent intuitive meaning,
-and no ambiguity arises in expressions such as $1 + 2$ or $\pig + e$. In the
-former, $+$ denotes addition over integers; in the latter, it denotes addition
-over real (or rational) numbers. The same symbol is used for operations that
-share common algebraic properties.
+programming. However, it is not suitable for modeling mathematical
+function overloading. In mathematics, the symbol $+$ has a consistent,
+intuitive meaning, and no ambiguity arises in expressions such as $1 + 2$
+or $\pig + e$. In the first expression, $+$ denotes addition over integers;
+in the second, it denotes addition over real (or rational) numbers. The same
+symbol is consistently used for operations that share common algebraic
+properties.
 
 In contrast, the simply typed lambda calculus does not allow a single symbol to
 have multiple type-dependent interpretations. This limitation appears in
@@ -79,7 +81,10 @@ polymorphism, enabling a single symbol to be associated with multiple
 type-specific implementations while preserving static type safety.
 
 \paragraph{Type classes}
-The possibility of sharing symbol is often called symbol overloading.
+A type class is a structure parametrized by one (or more) types $t$ and contains
+the signatures of a set of functions (called \emph{methods}) that may depend on
+$t$. A type class serves as an interface that its instances are required to
+implement.
 
 
 They are implemented in Haskell for the first time and then in coq, in coq
