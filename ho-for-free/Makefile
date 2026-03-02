@@ -7,8 +7,8 @@ GENERATOR = main.py
 ELPIFILES := $(shell find . -type f -regex ".*\.\(elpi\|v\|hs\)")
 IGNFILES := $(ELPIFILES:.elpi=.ign)
 
-TEXFILES := $(shell find . -type f -regex ".*\.tex")
-PDFFILES := $(TEXFILES:.tex=.pdf)
+TEXFILES_img := $(shell find $(OUT) -type f -regex ".*\.tex")
+PDFFILES_img := $(TEXFILES_img:.tex=.pdf)
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error 
 
 main:
@@ -24,15 +24,26 @@ trace:
 
 generator: $(IGNFILES)
 
-latex: $(PDFFILES)
+latex: $(PDFFILES_img)
 
 %.ign: %.elpi
 	mkdir -p $(OUT) && python3 $(GENERATOR) $(OUT) $<	
 
 %.pdf: %.tex
-	cd $(OUT) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
+	cd $(dir $<) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
+
+TEXFILES_links := $(shell find $(LOG_links) -type f -regex ".*\.tex")
+PDFFILES_links := $(TEXFILES_links:.tex=.pdf)
+OUT_links := links
+LOG_links := log
+
+links_pdf: $(PDFFILES_links)
+
+links:
+	make -C HO-unif-for-free/ test TEX=tex > $(LOG_links) && \
+	python3 parse_link.py $(OUT_links) $(LOG_links) && \
+	$(MAKE) links_pdf
 
 
 
-
-.PHONY: paper
+.PHONY: paper links

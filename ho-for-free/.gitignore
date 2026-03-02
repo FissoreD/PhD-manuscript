@@ -3,3 +3,6 @@ img/*
 !img/macro.sty
 !img/elpi.py
 !img/.latexminted_config
+links/*
+!links/mminted.sty
+!links/macro.sty
