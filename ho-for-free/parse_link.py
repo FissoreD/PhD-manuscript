@@ -32,7 +32,7 @@ def print_fo_ho(eq_symb:str,eq_list:str):
         p = e * 2
         res += f"{eq_list[p]} & {eq_symb} & {eq_list[p+1]}"
         if e != stop - 1:
-            res += " & "
+            res += " \quad & "
     return stop, res
 
 def wrap_line(desc:str,l:str):
@@ -73,7 +73,7 @@ def parse_line(line: str):
     # mapL = f"\\multicolumn{{{entries6}}}{{l}}{{test}}"
     _, mapL = print_map(map)
     _, linkL = print_link(link)
-    mapL = f"\\multicolumn{{{entries6}}}{{l}}{{{mapL}}}" if linkL != "" else ""
+    mapL = f"\\multicolumn{{{entries6}}}{{l}}{{{mapL}}}" if mapL != "" else ""
     linkL = f"\\multicolumn{{{entries6}}}{{l}}{{{linkL}}}" if linkL != "" else ""
     l1 = [("foUnifPb", foL), ("hoUnifPb", feL), ("mapStore",mapL), ("linkStore", linkL)]
     r = ""
@@ -84,10 +84,14 @@ def parse_line(line: str):
 
 def parse_lines(fout, fname, lines: list[str]):
     cnt = 0
+    test_nb = None
     for i, line in enumerate(lines):
         if line.startswith("-->"):
             cnt+=1
-            test_nb, entries, r = parse_line(line)
+            test_nb1, entries, r = parse_line(line)
+            if test_nb != test_nb1:
+                cnt = 1
+            test_nb = test_nb1
             write_file(wrapper(entries,r), f"{fout}/{fname}{test_nb}-{cnt}.tex")
     return r
 

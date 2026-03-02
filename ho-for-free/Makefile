@@ -12,7 +12,7 @@ PDFFILES_img := $(TEXFILES_img:.tex=.pdf)
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error 
 
 main:
-	$(MAKE) generator -j && $(MAKE) latex -j
+	$(MAKE) links && $(MAKE) generator -j && $(MAKE) latex -j
 
 test:
 	cd $(SRC) && timeout 4 elpi main.elpi $(ENV) -exec "main" -- $(ONLY) $(TEX)
