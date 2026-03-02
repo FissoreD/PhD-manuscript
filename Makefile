@@ -8,13 +8,13 @@ SUBDIRS := img code formalization ho-for-free
 
 all:
 	echo '{"security":{"enable_cwd_config": true}}' > ~/.latexminted_config && \
-	$(MAKE) aux -j && $(MAKE) full
+	$(MAKE) aux && $(MAKE) full
 
 # START AUX
 aux: $(SUBDIRS)
 
 $(SUBDIRS):
-	$(MAKE) -C $@ -j
+	$(MAKE) -C $@
 # END AUX
 
 bib:

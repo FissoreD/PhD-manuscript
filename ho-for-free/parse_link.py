@@ -7,8 +7,8 @@ def read_file(f):
     return cnt
 
 def write_file(cnt, fout):
-    cnt = code_wrapper.build_cnt(cnt)
-    cnt = cnt.replace("macro","../../macro")
+    # cnt = code_wrapper.build_cnt(cnt)
+    # cnt = cnt.replace("macro","../../macro")
     if os.path.exists(fout):
         with open(fout, "r") as fr:
             cnt1 = fr.read()

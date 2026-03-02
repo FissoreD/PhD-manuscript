@@ -12,7 +12,8 @@ PDFFILES_img := $(TEXFILES_img:.tex=.pdf)
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error 
 
 main:
-	$(MAKE) links && $(MAKE) generator -j && $(MAKE) latex -j
+	$(MAKE) links && $(MAKE) generator 
+# 	&& $(MAKE) latex
 
 test:
 	cd $(SRC) && timeout 4 elpi main.elpi $(ENV) -exec "main" -- $(ONLY) $(TEX)
@@ -42,8 +43,8 @@ links_pdf: $(PDFFILES_links)
 links:
 	eval $$(opam env) && \
 	make -C HO-unif-for-free/ test TEX=tex > $(LOG_links) && \
-	python3 parse_link.py $(OUT_links) $(LOG_links) && \
-	$(MAKE) links_pdf -j
+	python3 parse_link.py $(OUT_links) $(LOG_links)
+# 	$(MAKE) links_pdf -j
 
 
 

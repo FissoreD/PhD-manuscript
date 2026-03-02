@@ -299,11 +299,11 @@ explicit scope.
 \begin{figure}[b] %[H]
   \begin{tabular}{ll}
   \begin{minipage}{0.5\textwidth}
-    \includegraphics[width=1\textwidth]{ho-for-free/img/fo_tm.pdf}
+    \input{ho-for-free/img/fo_tm.tex}
   \end{minipage}
   &
   \begin{minipage}{0.5\textwidth}
-    \includegraphics[width=1\textwidth]{ho-for-free/img/ho_tm.pdf}
+    \input{ho-for-free/img/ho_tm.tex}
   \end{minipage}
   \end{tabular}\vspace{4pt}
   \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
@@ -366,7 +366,7 @@ In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 % \input{code/feq}
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{ho-for-free/img/feq.pdf}%
+    \input{ho-for-free/img/feq.tex}%
     \captionof{figure}{FO eq}
     \label{fig:feq}
   \end{minipage}
@@ -424,7 +424,7 @@ pointing out their differences.
 \Ho{}'s unification signature is:
 
 % \input{code/ue_type}
-\includegraphics{ho-for-free/img/ue_type.pdf}
+\input{ho-for-free/img/ue_type.tex}
 
 \noindent
 We write 
@@ -786,7 +786,7 @@ We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
 Unification variables are identified by a (unique) memory address.
 The memory and its associated operations are described below:
 
-\includegraphics{ho-for-free/img/mem_types.pdf}
+\input{ho-for-free/img/mem_types.tex}
 
 \noindent
 If a memory cell is \eI{none}, then the corresponding unification variable
@@ -799,7 +799,7 @@ instantiation of the same assignment to different scopes.
 This is expressed by the \eI{inctx} container, and in particular
 its \eI{abs} binding constructor.
 
-\includegraphics{ho-for-free/img/ho_subst.pdf}
+\input{ho-for-free/img/ho_subst.tex}
 
 \noindent
 A solution to a \Fo{} variable is, instead, a plain term, that is, \eI{fsubst}
@@ -809,7 +809,7 @@ is an abbreviation for \eI{mem to}.
 %
 The compiler establishes a mapping between variables of the two languages.
 
-\includegraphics{ho-for-free/img/comp_base_types.pdf}
+\input{ho-for-free/img/comp_base_types.tex}
 
 \noindent
 Each \eI{mvariable} is stored in the mapping together with
@@ -824,7 +824,7 @@ the following property:
 
 
 \inlinefigure{%
-\includegraphics{ho-for-free/img/alloc_mapping.pdf}%
+\input{ho-for-free/img/alloc_mapping.tex}%
 \captionof{figure}{Malloc code}
 \label{clause:malloc}
 }
@@ -855,7 +855,7 @@ applies the substitution to a \Ho{} term. Notice how assignments are moved
 to the current scope, i.e. the \eI{abs}-bound variables are renamed
 with the names in the scope of the unification variable occurrence.
 
-\includegraphics{ho-for-free/img/deref.pdf}
+\input{ho-for-free/img/deref.tex}
 
 \noindent
 Note that \eI{move} strongly relies on invariant \ref{inv:uvaarity}: the length
@@ -864,7 +864,7 @@ they have the same simple type for the meta-level, and therefore the number of
 \eI{abs} nodes in the assignment matches that length.
 This guarantees that \eI{move} never fails.
 
-\includegraphics{ho-for-free/img/move.pdf}
+\input{ho-for-free/img/move.tex}
 
 We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
 <<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
@@ -879,7 +879,7 @@ variables linked to the problematic terms. Terms in \maybebeta do not
 need a link since \Ho{} variables faithfully represent
 the problematic term thanks to their scope.
 
-\includegraphics{ho-for-free/img/comp_links.pdf}
+\input{ho-for-free/img/comp_links.tex}
 
 \noindent
 The right-hand side of a link, the problematic term, can occur under binders.
@@ -965,13 +965,13 @@ but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{ho-for-free/img/comp_base.pdf}%
+    \input{ho-for-free/img/comp_base.tex}%
     \captionof{figure}{Comp FO}
     \label{fig:comp-fo}
   \end{minipage}
 }
 
-\includegraphics{ho-for-free/img/compile.pdf}
+\input{ho-for-free/img/compile.tex}
 
 \noindent
 With respect to \cref{sec:problem-statement}, the signature also allows
@@ -983,7 +983,7 @@ previous sections).
 
 \fbox{%
   \begin{minipage}{1\textwidth}
-    \includegraphics{ho-for-free/img/comp_lam.pdf}%
+    \input{ho-for-free/img/comp_lam.tex}%
     \captionof{figure}{Comp FO}
     \label{fig:comp-lam}
   \end{minipage}
@@ -1003,7 +1003,7 @@ an additional \eI{abs} node binding \eI{v}. In this way links generated
 deep inside the compiled terms can be moved outside their original context
 of binders.
 
-\includegraphics{ho-for-free/img/comp_close_links.pdf}
+\input{ho-for-free/img/comp_close_links.tex}
 
 % \noindent
 % \todo{remove pruning optimization from code above}
@@ -1017,7 +1017,7 @@ fail. It is at this granularity that we can relate steps in the
 two languages.
 
 
-\includegraphics{ho-for-free/img/hstep.pdf}
+\input{ho-for-free/img/hstep.tex}
 
 \noindent
 Note that the infix notation \eI{((A ~\Ue~B) C D)} is syntactic sugar for
@@ -1026,7 +1026,7 @@ Note that the infix notation \eI{((A ~\Ue~B) C D)} is syntactic sugar for
 Reconsidering links is a fixpoint process because the progress of a link
 can update the substitution, which may then enable another link to progress.
 
-\includegraphics{ho-for-free/img/progress.pdf}
+\input{ho-for-free/img/progress.tex}
 
 \subsubsection{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
@@ -1121,7 +1121,7 @@ We omit to sketch the proof of this property for brevity.
 
 We already have all the ingredients to show the code of \Uo{}.
 
-\includegraphics{ho-for-free/img/unif_fo.pdf}
+\input{ho-for-free/img/unif_fo.tex}
 
 \noindent
 So far the compiler is very basic. It does not really
@@ -1170,7 +1170,7 @@ while \hoUnifPb their corresponding compiled version with memory mapping
 \mapStore and links \linkStore. For example:
 %
 
-% \includegraphics{}
+% \input{}
 
 $$
 \begin{array}{rrclrcll}
@@ -1243,7 +1243,7 @@ The basic compiler given in
 the previous section is unable to make the following
 higher-order unification problem succeed.
 
-% \includegraphics{ho-for-free/links/log7006-1.pdf}
+% \input{ho-for-free/links/log7006-1.tex}
 $$
 \begin{array}{rrcll}
 \foUnifPb = \{ & \lambda x.(f\appsep (X\appsep x)\appsep a) & \Uo & \lambda x.(f\appsep x\appsep a) & \}\\
@@ -1266,7 +1266,7 @@ We add the following rule before rule $r_@$ in~\ref{fig:comp-fo}, where
 \eI{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
-\includegraphics{ho-for-free/img/comp_base_beta.pdf}
+\input{ho-for-free/img/comp_base_beta.tex}
 
 
 \noindent
@@ -1480,7 +1480,8 @@ in their place and moves the problematic term
 from \hoUnifPb to \linkStore (\cref{sec:etacomp}). The compilation
 of the problem \foUnifPb above is refined to: 
 
-\includegraphics{ho-for-free/links/log1310-1.pdf}
+% \input{ho-for-free/links/log1310-1.tex}
+\input{ho-for-free/links/log1310-1.tex}
 
 \noindent
 As per \cref{inv:linklhs} the \linketa left-hand side is a variable
@@ -1665,7 +1666,7 @@ since it does not break
 \paragraph{Compilation}
 The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}.
 
-\includegraphics{ho-for-free/img/comp_eta.pdf}
+\input{ho-for-free/img/comp_eta.tex}
 
 \noindent
 Whenever \eI{o-lam F} is detected to be in
@@ -1956,7 +1957,8 @@ When it is the case the
 memory map \mapStore generated by the compiler is not
 a bijection. For example:
 
-\includegraphics{ho-for-free/links/log70071-1.pdf}
+% \input{ho-for-free/links/log70071-1.tex}
+\input{ho-for-free/links/log70071-1.tex}
 
 in the unification problems \foUnifPb above, $X$ is used with arity $1$ in
 $\foUnifPb_1$ and with arity $0$ in $\foUnifPb_2$. 
@@ -2108,7 +2110,8 @@ $t'$ (under the context $\Gamma$).
 If we take back the example given at the beginning of this section,
 \mapdeduplication produces the following result:
 
-\includegraphics{ho-for-free/links/log70071-2.pdf}
+% \input{ho-for-free/links/log70071-2.tex}
+\input{ho-for-free/links/log70071-2.tex}
 
 \noindent
 Note that $\mapping{X}{C}{0}$ disappears from \mapStore
@@ -2262,7 +2265,7 @@ has the following property:
 We insert this rule
 just before rule $r_@$ in \ref{fig:comp-fo}
 
-\includegraphics{ho-for-free/img/comp_beta.pdf}
+\input{ho-for-free/img/comp_beta.tex}
 
 \noindent
 The list \eI{Ag} is split into two parts: 
@@ -2567,7 +2570,8 @@ by simply adding (or removing) rules to the
 \eI{progress} predicate.
 In the example below $\foUnifPb_1$ is in \notllambda.
 
-\includegraphics{ho-for-free/links/log7005-1.pdf}
+% \input{ho-for-free/links/log7005-1.tex}
+\input{ho-for-free/links/log7005-1.tex}
 %
 % make test ONLY=7005 TEX=tex
 % \printAlll

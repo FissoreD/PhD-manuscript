@@ -46,15 +46,44 @@ about an object
 \subsection{Ad-hoc polymorphism}
 
 \paragraph{A bit of history}
-Polymorphism is indoubtly a key feature of functional languages. In its lecture
-notes, Strachey~\cite{polymorphism}, makes the distinction between two kinds of
-polymorphism, parametric polymorphism and ad-hoc polymorphism. Parametric
-polymorphic functions are \emph{uniform}, in the sense that they behave in the
-same way independently of their instantiation. For instance, the \emph{length}
-function with type \mlI{'a list -> int}, computing the length of a list returns
-$7$ for a list of $7$ elements for any intiantiation of the \mlI{'a} type.
-Parametric polymorphism is practical and very used in functional programming,
-however, we often 
+
+Polymorphism is a fundamental feature of functional programming languages. In
+his lecture notes, Strachey~\cite{polymorphism} distinguishes between two main
+forms of polymorphism: parametric polymorphism and ad-hoc polymorphism.
+Parametric polymorphic functions are \emph{uniform}, meaning that their behavior
+does not depend on the specific type at which they are instantiated. For
+example, the function \emph{length}, with type \mlI{'a list -> int}, returns $7$
+when applied to any list of seven elements, regardless of the instantiation of
+\mlI{'a}. The implementation is identical for all types.
+
+Parametric polymorphism is widely used and highly practical in functional
+programming. However, it is often insufficient when modeling mathematical
+structures. In mathematics, the symbol $+$ has a consistent intuitive meaning,
+and no ambiguity arises in expressions such as $1 + 2$ or $\pig + e$. In the
+former, $+$ denotes addition over integers; in the latter, it denotes addition
+over real (or rational) numbers. The same symbol is used for operations that
+share common algebraic properties.
+
+In contrast, the simply typed lambda calculus does not allow a single symbol to
+have multiple type-dependent interpretations. This limitation appears in
+practical languages such as \ocaml, where integer and floating-point additions
+are represented by distinct operators, $+$ and $+.$, respectively. Thus, one
+writes $1 + 2$ for integers and $\pig +\!.\ e$ for floating-point numbers. In
+general, a different symbol must be introduced for each type implementing a
+given mathematical operation.
+
+To address the need for a shared notation for operations that sharing common
+properties across types, Wadler and Blott introduced the notion of type classes
+in 1989~\cite{wadler1989-tc}. Type classes provide a principled form of ad-hoc
+polymorphism, enabling a single symbol to be associated with multiple
+type-specific implementations while preserving static type safety.
+
+\paragraph{Type classes}
+The possibility of sharing symbol is often called symbol overloading.
+
+
+They are implemented in Haskell for the first time and then in coq, in coq
+they also bring proof and propositions
 
 \paragraph{Canonical structures}: \cite{cs}
 Used to enrich the information about an object. In mathComp
