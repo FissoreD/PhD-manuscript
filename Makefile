@@ -1,3 +1,6 @@
+MAKEFLAGS += --halt=now,fail=1
+export MAKEFLAGS
+
 FNAME=main
 
 TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-error
