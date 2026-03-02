@@ -33,7 +33,7 @@ clean:
 ci:
 	(docker rm latex || true)  && \
 	$(MAKE) update_submodule && \
-	docker create --name latex dfissore/latex2025:latest && \
+	docker create --name latex dfissore/latex2025-elpi:latest && \
 	docker cp ./ latex:/data/ && docker ps -a && \
 	docker start -i latex && docker cp latex:/data/main.pdf . && \
 	mkdir -p pdf && mv main.pdf pdf

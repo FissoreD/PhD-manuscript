@@ -41,21 +41,24 @@ inference the power of computing values and proofs.
 \paragraph{Coercions} \cite{barthe95}: Used in general to forget information
 about an object
 
-\paragraph{Canonical structures}: \cite{cs}
-Used to enrich the information about an object. In mathComp
 
 
-\subsection{Ad-hoc polymorphism: Type classes}
+\subsection{Ad-hoc polymorphism}
 
 \paragraph{A bit of history}
 Polymorphism is indoubtly a key feature of functional languages. In its lecture
-notes, Strachey~\cite{polymorphism}, makes the distinction between to kinds of
+notes, Strachey~\cite{polymorphism}, makes the distinction between two kinds of
 polymorphism, parametric polymorphism and ad-hoc polymorphism. Parametric
 polymorphic functions are \emph{uniform}, in the sense that they behave in the
 same way independently of their instantiation. For instance, the \emph{length}
 function with type \mlI{'a list -> int}, computing the length of a list returns
 $7$ for a list of $7$ elements for any intiantiation of the \mlI{'a} type.
-The compiler has no 
+Parametric polymorphism is practical and very used in functional programming,
+however, we often 
+
+\paragraph{Canonical structures}: \cite{cs}
+Used to enrich the information about an object. In mathComp
+
 
 % \begin{minted}{coq}
 % AA
@@ -157,7 +160,7 @@ Prolog semantics: \cite{debray1988}
 
 HOAS: \cite{pfenning1988}
 
-\subsection{Hints about unification}
+\subsection{Higer-order unification}
 
 Miller: \cite{miller1991-pf}
 
