@@ -289,8 +289,8 @@ theory and a \Ho{} language with a simpler one.
 %do now allow to mistake one for the other.
 %\todo{cleanup}
 
-\paragraph{Notational conventions}
-
+\textbf{Notational conventions} 
+%
 When we write \Ho terms outside code blocks we follow the
 usual $\lambda$-calculus notation, reserving $f, g, a, b$ for constants,
 $x, y, z$ for bound variables and $X, Y, Z, F, G, H$ for unification variables.
@@ -324,7 +324,7 @@ terms in \Ho{}.
 % define the equational theory and
 % substitution (unification-variable assignment).
 
-\subsubsection{Term equality: \Eo and \Ee}
+\paragraph{Term equality: \Eo and \Ee}
 For both languages, we extend the equational theory
 over ground terms to the full language by adding reflexivity for
 unification variables, i.e. a unification variable is equal to itself
@@ -1000,7 +1000,7 @@ can update the substitution, which may then enable another link to progress.
 
 \input{ho-for-free/img/progress.tex}
 
-\subsubsection{Progress}
+\paragraph{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
 Sections \ref{sec:eta} and \ref{sec:beta} add rules to \eI{progress1}
@@ -1008,7 +1008,7 @@ and explain why the do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
 
-\subsubsection{Scope check}\label{sec:sc}
+\paragraph{Scope check}\label{sec:sc}
 The predicate \eI{scope-check} 
 replaces each
 link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
@@ -1024,7 +1024,7 @@ is pruned of a name that occurs (rigidly) in $t$:
 links represent suspended unification problems
 \emph{that may succeed}.
 
-\subsubsection{Occur check}\label{sec:oc}
+\paragraph{Occur check}\label{sec:oc}
 Since compilation moves problematic terms out of the sight of \Ue{},
 that procedure can only perform a partial occur check. For example, the
 unification problem $X \Ue f~Y$ cannot generate a cyclic substitution alone,

@@ -425,34 +425,6 @@ are executed directly impact the scope of the cut directive.
 
 Here we specify the relevant aspects of Elpi.
 Its abstract syntax is given below. %in~\cref{fig:syntaxonly}.
-% \begin{figure}[h]
-  % \begin{framed}
-%   \begin{minipage}{0.45\textwidth}
-  $$
-  \begin{array}{rlrrlr}
-    \PRED & ::= p, q, \ldots & \mathrm{~~predicate} & \qquad
-    \CALLABLE & ::= \PRED \mid  \VAR \mid \CALLABLE\ \TERM & \mathrm{callable} \\
-    \DATA & ::= f, g \ldots x, y, \ldots & \mathrm{constant} &
-    \HEAD & ::= \PRED \mid  \HEAD\ \TERM & \mathrm{head} \\
-    \VAR & ::= \mathrm{X}, \mathrm{Y} \ldots & \mathrm{variable} &
-    \ATOM& ::= \CALLABLE \mid \cut \mid \piImplCmd[\expI]{\DATA}{\RULE}{\ATOM} & \mathrm{atom} \\
-    \TERM & ::= \PRED \mid \DATA \mid \VAR \mid \TERM\ \TERM &\mathrm{term} &
-    \RULE & ::= \HEAD\ \cdash\ \ATOM^* & \mathrm{rule} 
-% \end{array}
-% $$
-% \end{minipage}~
-% \begin{minipage}{0.5\textwidth}
-    % $$
-    % \begin{array}{rlr}
-  \end{array}
-  $$
-% \end{minipage}
-
-% \end{framed}
-%   \vspace{-1em}
-%   \caption{Abstract syntax of Elpi}
-%   \label{fig:syntaxonly}
-% \end{figure}
 
 We assume a set \PRED of predicate names,
 a set \DATA of term constructors, and a set \VAR of unification variables.
@@ -756,7 +728,7 @@ contexts.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\subsubsection{Operations on signatures.}\label{sec:static}
+\subsection{Operations on signatures.}\label{sec:static}
 % In order to be able to detect miscalls 
 We compare signatures using the standard subtyping relation of functional
 languages. In particular, we compare inputs contravariantly and outputs
@@ -846,7 +818,7 @@ programs.
 
 
 
-\subsubsection{The idea.}
+\subsection{The idea.}
 The static analyzer accumulates
 knowledge on variables in a context $\Gamma$ initially only containing the signature
 of predicates. The checking algorithm considers one rule at a time.
@@ -939,7 +911,7 @@ about \eI{H} accumulated so far in \ctx.
 % \todo{cita leq e max nel testo sopra}
 % \todo{not 24 rules}
 
-\subsubsection{The algorithm.}
+\subsection{The algorithm.}
 \label{sec:algo}
 We present the static analyzer using derivation rules.
 Each procedure has an associated entails-like symbol, e.g.,
@@ -1086,7 +1058,7 @@ preconditions and all the postconditions of well called body atoms.
 % \vspace{-1em}
 % \newpage
 
-% \subsubsection{Meta programs}
+% \subsection{Meta programs}
 % \label{sec:meta-prog}
 
 % Elpi code is first class, i.e., it can be inspected and generated in Elpi
