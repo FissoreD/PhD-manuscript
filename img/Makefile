@@ -4,5 +4,5 @@ TEX_CMD = pdflatex -synctex=1 -interaction=nonstopmode --shell-escape -halt-on-e
 
 img: $(PDFFILES)
 
-%.pdf: %.tex
+%.pdf: %.tex ../macro.sty
 	cd $(dir $<) && $(TEX_CMD) $(notdir $<) && $(TEX_CMD) $(notdir $<)
