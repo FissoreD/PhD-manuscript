@@ -90,15 +90,7 @@ implement.
 They are implemented in Haskell for the first time and then in coq, in coq
 they also bring proof and propositions
 
-\paragraph{Canonical structures}: \cite{cs}
-Used to enrich the information about an object. In mathComp
-
-
-% \begin{minted}{coq}
-% AA
-% \end{minted}
-
-
+Priorities
 
 Type-class resolution is part of the elaborator and, since it is an key aspect
 of this PhD, we dedicate a full section to it.
@@ -114,13 +106,7 @@ Programming in a way reminiscent of Prolog, used by Gonthier in Odd Order Theore
 
 Extend the unification alogirhm of the coq system, looking in a databae of hints
 
-
-
-
-
 In the elaboration phase, one of the 
-
-What is a method?
 
 Wadler: \cite{wadler1989-tc}
 
@@ -167,12 +153,57 @@ IRIS:~\cite{iris-junk}
 \end{figure}
 
 
+
+\paragraph{Canonical structures}: \cite{cs}
+Used to enrich the information about an object. In mathComp
+
+
+% \begin{minted}{coq}
+% AA
+% \end{minted}
+
+
 \paragraph{Typeclasses vs Canonical structures}
 
 ``Find me a structure that works'' $\to$ typeclasses\\
 ``This type already carries its structure'' $\to$ canonical structures
 
 \section{The \elpi language}
+
+\subsection{Operational semantics}
+
+\paragraph{Backchaining}
+  % $$
+  % \!\! \mathcal{F}(\prog, \pred\, \vecL{t}, \vecL{g}, \subst, a) =
+  % \bigg[
+  %   %\bigg(
+  %   \subst['],
+  %   %\Big(
+  %   %\underbrace{
+  %     \big(\big[(\prog, g, a) \mid g \in\! \vecL{b}\big] \atsign\ \vecL{g}\big)
+  %   %}_{\mathrm{premises}} \atsign ~ \vecL{g}
+  %   \ \kIF\ \mathcal{H}(\vecL{tu}, \subst) = \subst['] \not= \bot
+  %   %\Big)
+  %   %\bigg)
+  %   ~\bigg\rvert~
+  %   (\clauseCmd{\pred}{\vecL{u}}{\vecL{b}}) \in \prog\ \pred
+  %   \bigg]
+  % $$
+  % $$
+  % \mathcal{H}(\vecL{tu}, \subst) = \fold\ \unify\ \vecL{tu_o}\ (\fold\ \match\ \vecL{tu_i}\ \subst)
+  % $$
+
+\begin{figure}[h]
+  \centering
+  \includegraphics{img/det_check/dynamic.pdf}
+  \caption{Elpi semantics}
+\end{figure}
+
+%
+
+\paragraph{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator}
+
+\paragraph{Higher-order programming}
 
 Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
 
@@ -190,19 +221,22 @@ WAM: \cite{ait1991-wam}
 
 Prolog semantics: \cite{debray1988}
 
-\subsection{\texorpdfstring{$\lambda$}{lambda}-terms representation}
-
 HOAS: \cite{pfenning1988}
 
 \subsection{Higer-order unification}
 
+
+\paragraph{Occur check}
+
+\paragraph{Unification in the pattern-fragment (\llambda)}
+
 Miller: \cite{miller1991-pf}
+
 
 Huet: \cite{huet75}
 
 Modes: \cite{zhou2012}
 
-\subsection{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator}
 
 SWI prolog: \cite{swi-prolog-cut}
 
@@ -218,7 +252,43 @@ CHR elpi: \cite[section 4.3]{chr-elpi}
 
 CHR Pfenning: \cite{pfenning1993}
 
-\section{\coqelpi: \rocq and \elpi interleaving}
+% \section{\coqelpi: \rocq and \elpi interleaving}
+\section{\coqelpi: a logical framework for \rocq}
+
+% \subsection{Object language (\Fo{}) and Meta programming (\Ho{})}
+Distinction between object and meta-language
+
+\subsection{HOAS: \texorpdfstring{$\lambda$}{lambda}-terms representation}
+
+In order to implement such a search in Elpi, we shall describe the encoding
+of Coq terms and then the encoding of instances as rules.
+Elpi comes equipped with
+a Higher-Order Abstract Syntax (HOAS~\cite{pfenning1988}) datatype of
+Coq terms, called \eI{tm}, that includes (among others) the following
+constructors:
+
+\begin{elpicode}
+type lam  tm -> (tm -> tm) -> tm.     % lambda abstraction
+type app  list tm -> tm.              % n-ary application
+type all  tm -> (tm -> tm) -> tm.     % forall quantifier
+type con  string -> tm.               % constants
+\end{elpicode}
+
+\subsection{Unification in \Fo{} and \Ho{}}
+
+In order to reason about unification we provide a description of the
+\Fo{} and \Ho languages where unification variables
+are first-class terms, i.e. they have a concrete syntax as
+shown in \cref{code:common-terms}.
+Unification variables
+in \Fo{} (\eI{o-uva} term constructor) have no explicit scope:
+the ``arguments'' of a higher-order variable are given via the \eI{o-app}
+constructor. For example the term <<\cI{P x}>> is represented as
+<<\eI{o-app [o-uva N, x]}>>, where \eI{N} is the memory address
+of \eI{P} and \eI{x} is a bound variable.
+In \Ho{} the representation of <<\cI{P x}>> is instead <<\eI{uva N [x]}>>,
+since unification variables are higher-order and come equipped with an
+explicit scope.
 
 Coqelpi: \cite{tassi2018}
 

@@ -65,24 +65,11 @@ of rule 3 with the goal, and in particular, it has to solve the unification
 problem \cI{P x = nfact x 3}. This higher-order problem falls in the so-called 
 pattern fragment and admits a unique solution:
 \begin{elpicode}
-P = ~$\lambda$~x.nfact x 3                                       ~\\customlabel{solution:intro}{(\\rho)}~
+P = ~$\lambda$~x.nfact x 3
 \end{elpicode}
 In the rest of this paper, we refer to the pattern fragment as
-\\llambda~\cite{miller1991-pf}.
+\llambda~\cite{miller1991-pf}.
 
-In order to implement such a search in Elpi, we shall describe the encoding
-of Coq terms and then the encoding of instances as rules.
-Elpi comes equipped with
-a Higher-Order Abstract Syntax (HOAS~\cite{pfenning1988}) datatype of
-Coq terms, called \eI{tm}, that includes (among others) the following
-constructors:
-
-\begin{elpicode}
-type lam  tm -> (tm -> tm) -> tm.     % lambda abstraction
-type app  list tm -> tm.              % n-ary application
-type all  tm -> (tm -> tm) -> tm.     % forall quantifier
-type con  string -> tm.               % constants
-\end{elpicode}
 
 \noindent
 Following the standard syntax of $\lambda$Prolog~\cite{miller2012},
@@ -209,7 +196,7 @@ procedure that only captures a $\beta\eta$-equivalence and only operates
 in \llambda. The similarity is striking, but one needs to exercise some caution in order to
 simulate a higher-order logic program in Coq using the unification of Elpi.
 
-\paragraph{Contributions}
+% \paragraph{Contributions}
 In this paper we identify a minimal language \Fo{} in which the problems
 sketched in the introduction can be formally described.
 We detail an encoding of a logic program in \Fo{} to a strongly related
@@ -271,21 +258,6 @@ a (first order) language \Fo{} with a rich equational
 theory and a \Ho{} language with a simpler one.
 
 
-\subsection{Preliminaries: \Fo{} and \Ho{}}
-
-In order to reason about unification we provide a description of the
-\Fo{} and \Ho languages where unification variables
-are first-class terms, i.e. they have a concrete syntax as
-shown in \cref{code:common-terms}.
-Unification variables
-in \Fo{} (\eI{o-uva} term constructor) have no explicit scope:
-the ``arguments'' of a higher-order variable are given via the \eI{o-app}
-constructor. For example the term <<\cI{P x}>> is represented as
-<<\eI{o-app [o-uva N, x]}>>, where \eI{N} is the memory address
-of \eI{P} and \eI{x} is a bound variable.
-In \Ho{} the representation of <<\cI{P x}>> is instead <<\eI{uva N [x]}>>,
-since unification variables are higher-order and come equipped with an
-explicit scope.
 %
 % We keep these languages
 %minimal, for example, we omit the \eI{all} quantifier of CIC we used
@@ -614,12 +586,12 @@ unifiers, namely $\sigma_1 = \{~ F \mapsto \lambda x.x ~\}$ and
 $\sigma_2 = \{~ F \mapsto \lambda x.a ~\}$. The first problem picks $\sigma_2$,
 making the second problem re-enter \llambda.
 
-\paragraph{Backtracking} We omit it from our model of logic-program execution
-since it plays a very minor role, orthogonal to higher-order unification.
-We point out that each \emph{run} corresponds to a (proof search) branch in the
-logic program that either fails at some point, or succeeds. A computation that
-succeeds by backtracking, exploring multiple branches, could be
-modeled as a set of runs with a (possibly non-empty) common prefix.
+% \paragraph{Backtracking} We omit it from our model of logic-program execution
+% since it plays a very minor role, orthogonal to higher-order unification.
+% We point out that each \emph{run} corresponds to a (proof search) branch in the
+% logic program that either fails at some point, or succeeds. A computation that
+% succeeds by backtracking, exploring multiple branches, could be
+% modeled as a set of runs with a (possibly non-empty) common prefix.
 
 \subsection{The solution (in a nutshell)}
 \label{sec:nutshell}

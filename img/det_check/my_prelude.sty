@@ -193,7 +193,7 @@
 \renewcommand{\pi}{\text{\syntaxfont pi}\xspace}
 \newcommand{\cdash}{\text{:-}} % colon-dash
 \newcommand{\tailcut}{\texttt{tail\_cut}\xspace}
-\newcommand{\arr}{\ensuremath{=}}
+\newcommand{\arr}{\ensuremath{\rightsquigarrow}}
 \newcommand{\detAtom}{\texttt{call\_det}}
 
 \def\locExcl{\texttt{mut\_excl\_hypothetical}}
@@ -230,7 +230,7 @@
 \newcommand{\runCmdFQ}[2]{\ensuremath{\run\ #1\ #2 \arr \bot}}
 % \newcommand{\callCmd}[3]{\ensuremath{(\call\ #1\ #2\ #3)}\xspace}
 \newcommand{\callCmd}[1]{\ensuremath{#1\xspace}}
-\newcommand{\goalCmd}[3]{\ensuremath{(#1,\ #2)}\xspace}
+\newcommand{\goalCmd}[3]{\ensuremath{(#1,\ #2, #3)}\xspace}
 \newcommand{\clauseCmd}[3]{\ensuremath{#1 \cdash #3}}
 \newcommand{\implCmd}[2]{\ensuremath{#1\ #2}}
 \newcommand{\piCmd}[3][]{\ensuremath{\pi\ #2\expandafter\ifx\expandafter\relax
@@ -267,17 +267,7 @@
 \newcommand{\evdash}{\ensuremath{\colondash}\xspace}
 % \newcommand{\piimpl}{{\ensuremath{\forall\Rightarrow}}\xspace}
 \newcommand{\piimpl}{\pi\xspace}
-
-\newenvironment{myRule}[1]{%
-  % \begin{minipage}{#1\textwidth}
-  %   \centering
-    \begin{prooftree}%
-      } % Here will be put the body
-      {
-    \end{prooftree}
-    % \vspace{2pt}
-  % \end{minipage}
-}
+\newcommand{\bchain}{\ensuremath{\mathcal{B}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Static check rule system: start

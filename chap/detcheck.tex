@@ -1335,7 +1335,7 @@ The properties of \run{} relevant to the current paper are:
   We say that a query atom $b$ is
   operationally deterministic in a program \prog iff % for all substitution $s$
   $$
-       \forall \sigma, \runCmd{(\prog,b) :: \EmptyList}{\EmptyList}{\sigma}{a}{\_} 
+       \forall \sigma, \runCmd{(\prog,b) :: \EmptyList}{\EmptyList}{\sigma}{a}{\_}{\_} 
         ~\Rightarrow~ a = \EmptyList
   $$
 \end{definition}
