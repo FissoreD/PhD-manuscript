@@ -96,9 +96,20 @@ all types, type classes rely on instance resolution. When compiling a call to a
 type class method, the compiler finds the right implementation by selecting the
 instance of the type class associated with the given type.
 
-As a simple example, we choose the \texttt{Eqb} type class, parametrized by a
+As a simple example, we choose the \emph{Eqb} type class, parametrized by a
 type \emph{'a} and containing the method \emph{eqb} allowing to test if two
-objects of type \emph{'a} are equal. In \cref{fig:eqb-tc}, we give two
+objects of type \emph{'a} are equal. Using the \rocq syntax the \emph{Eqb}
+class can be defined as follows:
+
+% TODO: extract from file
+{
+  \centering
+  \cI{Class Eqb T := {eqb : T -> T -> bool}.}  \par
+}
+
+
+
+In \cref{fig:eqb-tc}, we give two
 implementations of \texttt{Eqb} in the \haskell and \rocq languages. The
 similarity between the two pieces of code is striking showing how much they are
 an accepted standard in the functional langauges.
@@ -122,20 +133,7 @@ Cite Haskell~\cite{wadler1996-hs}, in caml it does not exists: \texttt{+.} vs
 
 IRIS:~\cite{iris-junk}
 
-\begin{figure}
-  \begin{subfigure}{1\textwidth}
-  \includegraphics{./code/base_tc.pdf}
-  \caption{\texttt{Eqb} typeclass in Rocq}
-  \label{fig:eqb-tc-coq}
-  \end{subfigure}
-  \begin{subfigure}{1\textwidth}
-  \includegraphics{./code/base_tc_hs.pdf}
-  \caption{\texttt{Eqb} typeclass in Haskell}
-  \label{fig:eqb-tc-hs}
-  \end{subfigure}
-  \caption{Eqb typeclass in different languages}
-  \label{fig:eqb-tc}
-\end{figure}
+% \begin{figx
 
 
 
