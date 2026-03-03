@@ -43,6 +43,7 @@ links_pdf: $(PDFFILES_links)
 links:
 	eval $$(opam env) && \
 	make -C HO-unif-for-free/ test TEX=tex > $(LOG_links) && \
+	mkdir -p $(OUT_links) && \
 	python3 parse_link.py $(OUT_links) $(LOG_links)
 # 	$(MAKE) links_pdf -j
 
