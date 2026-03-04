@@ -24,7 +24,7 @@ Function vs Propositions
 \subsection{Elaboration}
 
 As explained in~\cite{elaboration}, raw text is the mean bridging the communication
-between the and the theorem prover. This 
+between the and the theorem prover. This
 
 What is a hole: missing information
 
@@ -40,7 +40,7 @@ representation of the elaboration process. \cite{elaboration}
 \paragraphTwo{Notation}
 
 \paragraphTwo{Typechecking} The rich type theory of the Coq system confers to type
-inference the power of computing values and proofs. 
+inference the power of computing values and proofs.
 
 \paragraphTwo{Coercions} \cite{barthe95}: Used in general to forget information
 about an object
@@ -82,7 +82,7 @@ given mathematical operation.
 To address the need for a shared notation for operations and
 properties across types, Wadler and Blott introduced the notion of type classes
 in 1989~\cite{wadler1989-tc} and were soon implemented in
-\haskell~\cite{wadler1996-hs} as a pervasive feature of the langauge. Then
+\haskell~\cite{wadler1996-hs} as a pervasive feature of the language. Then
 other languages, such as \rocq~\cite{sozeau2008-tc} also extended their
 type system to allow this kind of overloading.
 
@@ -92,10 +92,10 @@ type system to allow this kind of overloading.
 Type classes provide a principled form of ad-hoc polymorphism, enabling
 a single symbol to be associated with multiple type-specific implementations
 while preserving static type safety.
-They provide structure parameterized by one or more types~$t$ and 
-declare the signatures of a set of functions, called methods, whose 
-types may depend on~$t$. An instance of a type class provides a concrete 
-implementation of the type class for a specific choice of~$t$, providing 
+They provide structure parameterized by one or more types~$t$ and
+declare the signatures of a set of functions, called methods, whose
+types may depend on~$t$. An instance of a type class provides a concrete
+implementation of the type class for a specific choice of~$t$, providing
 definitions for all of its methods.
 
 Unlike parametric polymorphism, where a unique function is used for the
@@ -113,7 +113,7 @@ below.
 \mcenter{code/plus_tc_add.tex}
 
 The type of the method \cI{plus} is
-  $\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
+$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
 where both the type parameter \cI{T} and the instance argument
 \cI{Add T} are implicit. The typechecking of the term
 \cI{plus 3 4} gives:
@@ -142,7 +142,7 @@ Similarly, we may define an instance for booleans:
 
 The same symbol \cI{plus} can then be applied to values of type \cI{nat} or
 \cI{R}. Therefore, extending the notation system, we are now allowed to write $1
-+ 2$ and $\pig + e$ knowing that the elaborator automatically selects the
+  + 2$ and $\pig + e$ knowing that the elaborator automatically selects the
 appropriate instance, \cI{addNat} or \cI{addR}.
 
 A key feature of type classes is the ability to define \emph{conditional}
@@ -152,7 +152,7 @@ is the instance for the product type.
 \input{code/plus_tc_add_prod.tex}
 
 The type of the instance \cI{addProd} states that it implements \cI{Add (T1 *
-T2)} provided that instances of \cI{Add T1} and \cI{Add T2} are available. In
+  T2)} provided that instances of \cI{Add T1} and \cI{Add T2} are available. In
 this way, addition on pairs is derived from addition on their components, that
 is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\dots
 
@@ -200,22 +200,29 @@ Used to enrich the information about an object. In mathComp
 
 \section{The \elpi language}
 
-The syntax and semantics of \elpi is taken from~\cite{hdr} which is strongly
-inspired by~\cite[Sec. 4.3]{debray1988}.
- 
+\elpi~\cite{dunchev15} is an acronym of Embeddable Lambda-Prolog Interpreter, as
+its name indicates, it is a dialect of \lprolog~\cite{miller1991-pf,miller2012}
+featuring higher-order logic programming and integrating a system of goal
+suspension called CHR (for Constraint Handling Rules~\cite{chr,chr-elpi}). The
+Embaddable word stands for the fact that \elpi is aimed to be used as an
+extension language. Its main application is the \rocqelpi extension which allows
+to bridge the communication between \elpi, the meta-language~\Ho, and the \rocq
+proof assistant, the object language~\Fo. In this section we provide a brief
+introduction of the \elpi language, whereas in \cref{sec:coq-elpi}, we give the
+main ideas behind the \rocqelpi plugin.
 
 \subsection{Abstract syntax}
 
 $$
-\begin{array}{rlr}
-  \PRED & ::= p, q, \ldots, f, g, \ldots & \mathrm{functor} \\
-  \CALLABLE & ::= \PRED \mid  \VAR \mid \CALLABLE\ \TERM & \mathrm{callable} \\
-  \HEAD & ::= \PRED \mid  \HEAD\ \TERM & \mathrm{head} \\
-  \VAR & ::= \mathrm{X}, \mathrm{Y} \ldots & \mathrm{variable} \\
-  \ATOM& ::= \CALLABLE \mid \cut \mid \piImplCmd[\expI]{\DATA}{\RULE}{\ATOM} & \mathrm{atom} \\
-  \TERM & ::= \PRED \mid \DATA \mid \VAR \mid \TERM\ \TERM &\mathrm{term} \\
-  \RULE & ::= \HEAD\ \cdash\ \ATOM^* & \mathrm{rule} 
-\end{array}
+  \begin{array}{rlr}
+    \PRED     & ::= p, q, \ldots, f, g, \ldots                                      & \mathrm{functor}  \\
+    \CALLABLE & ::= \PRED \mid  \VAR \mid \CALLABLE\ \TERM                          & \mathrm{callable} \\
+    \HEAD     & ::= \PRED \mid  \HEAD\ \TERM                                        & \mathrm{head}     \\
+    \VAR      & ::= \mathrm{X}, \mathrm{Y} \ldots                                   & \mathrm{variable} \\
+    \ATOM     & ::= \CALLABLE \mid \cut \mid \piImplCmd[\expI]{\DATA}{\RULE}{\ATOM} & \mathrm{atom}     \\
+    \TERM     & ::= \PRED \mid \DATA \mid \VAR \mid \TERM\ \TERM                    & \mathrm{term}     \\
+    \RULE     & ::= \HEAD\ \cdash\ \ATOM^*                                          & \mathrm{rule}
+  \end{array}
 $$
 
 
@@ -223,7 +230,7 @@ $$
 
 The semantics we choose here is a bit different from~\cite{hdr}, in order to
 make it closer to the run inductive chosen in~\cref{stack-sem} to represent
-the semantics of a sub-langauge of \elpi. The main difference
+the semantics of a sub-language of \elpi. The main difference
 is that the run function instead of taking a goal and a list of alternatives,
 it immediately take a list of alternatives. If the list is empty it stands for
 a failure. If the list is non empty, then we are in the scenario in~\cite{hdr}.
@@ -345,7 +352,7 @@ in particular how alternatives are stored and how they are pruned by cut.
 \textit{Notational conventions}
 In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
 and $\bot$ for \cI{true} and \cI{false}. The constructors of the option type are written
-$\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}. 
+$\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}.
 Following the Mathematical Components library, on which we depend,
 we use \cI{x.1} and \cI{x.2} to denote the first and second projection
 applied to the pair \cI{x}. List concatenation is the infix \cI{++},
@@ -379,8 +386,8 @@ HOAS: \cite{pfenning1988}
 \subsection{Rule names and insertion}
 
 \begin{elpicode}
-:name XXXX
-:before YYY
+  :name XXXX
+  :before YYY
 \end{elpicode}
 
 \subsection{Higer-order unification}
@@ -414,6 +421,20 @@ CHR Pfenning: \cite{pfenning1993}
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: a logical framework for \rocq}
+\label{sec:coq-elpi}
+
+particularly well suited for manipulating syntax trees with
+binders (see \cite{miller1991-pf,miller2012,dunchev15,tassi2019-1}). It is used
+as an extension language for the Rocq Prover (formerly the Coq proof assistant)
+and has become an important piece of infrastructure: several projects and
+libraries depend on
+Elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
+Examples include the Hierarchy-Builder library-structuring tool~\cite{hb}, which
+supports the Mathematical Components ecosystem~\cite{assia2022} and
+mechanizations such as the Odd Order and Four Color theorems
+\cite{gonthier2013,gonthier2023}, and
+Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
+framework with industrial applications at BlueRock systems.
 
 % \subsection{Object language (\Fo{}) and Meta programming (\Ho{})}
 Distinction between object and meta-language
@@ -428,10 +449,10 @@ Coq terms, called \eI{tm}, that includes (among others) the following
 constructors:
 
 \begin{elpicode}
-type lam  tm -> (tm -> tm) -> tm.     % lambda abstraction
-type app  list tm -> tm.              % n-ary application
-type all  tm -> (tm -> tm) -> tm.     % forall quantifier
-type con  string -> tm.               % constants
+  type lam  tm -> (tm -> tm) -> tm.     % lambda abstraction
+  type app  list tm -> tm.              % n-ary application
+  type all  tm -> (tm -> tm) -> tm.     % forall quantifier
+  type con  string -> tm.               % constants
 \end{elpicode}
 
 \subsection{Unification in \Fo{} and \Ho{}}
