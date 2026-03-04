@@ -26,6 +26,8 @@ Function vs Propositions
 As explained in~\cite{elaboration}, raw text is the mean bridging the communication
 between the and the theorem prover. This 
 
+What is a hole: missing information
+
 \begin{figure}
   \includegraphics[width=1\textwidth]{elaboration.pdf}
   \caption{Elaboration skeme}
@@ -81,7 +83,8 @@ in 1989~\cite{wadler1989-tc} and were soon implemented in
 other languages, such as \rocq~\cite{sozeau2008-tc} also extended their
 type system to allow this kind of overloading.
 
-\paragraph{Type classes} 
+\paragraph{The \cI{Eqb} type class}
+
 Type classes provide a principled form of ad-hoc polymorphism, enabling
 a single symbol to be associated with multiple type-specific implementations
 while preserving static type safety.
@@ -91,59 +94,87 @@ types may depend on~$t$. An instance of a type class provides a concrete
 implementation of the type class for a specific choice of~$t$, providing 
 definitions for all of its methods.
 
-Unlike parametric polymorphism, where a function is implemented uniformly for
+Unlike parametric polymorphism, where a function is implemented uniformly for\marginpar{database classes $\to$ instances}
 all types, type classes rely on instance resolution. When compiling a call to a
 type class method, the compiler finds the right implementation by selecting the
-instance of the type class associated with the given type.
+instance of the type class associated with the given type.\marginpar{elaborator instead of compiler}
 
-As a simple example, we choose the \emph{Eqb} type class, parametrized by a
-type \emph{'a} and containing the method \emph{eqb} allowing to test if two
-objects of type \emph{'a} are equal. Using the \rocq syntax the \emph{Eqb}
-class can be defined as follows:
+As an example, consider the type class \cI{Eqb}, parameterized by a
+type \cI{T} and equipped with a method \cI{eqb} to test equality between
+two elements of type \cI{T}. In \rocq, the definition of \cI{Eqb} is given
+below.
 
-% TODO: extract from file
-{
-  \centering
-  \cI{Class Eqb T := {eqb : T -> T -> bool}.}  \par
-}
+\mcenter{code/eqb.tex}
 
+The type of the method \cI{eqb} is
+  $\forall \cI{T},\ \cI{Eqb T} \to \cI{T} \to \cI{T} \to \cI{bool}$,
+where both the type parameter \cI{T} and the instance argument
+\cI{Eqb T} are implicit. The typechecking of the term
+\cI{eqb 3 4} gives:
 
+\begin{coqcode}
+  @eqb nat ?Eqb 3 4 : bool
+  where ?Eqb : [ |- Eqb nat]
+\end{coqcode}
 
-In \cref{fig:eqb-tc}, we give two
-implementations of \texttt{Eqb} in the \haskell and \rocq languages. The
-similarity between the two pieces of code is striking showing how much they are
-an accepted standard in the functional langauges.
+The term has type \cI{bool}, but the instance for \cI{Eqb nat} cannot be
+inferred, leaving a metavariable~\cI{?Eqb}. To resolve this, we define an
+instance for natural numbers:
 
-But in \rocq we can go
-further. Type classes can be used not only for function overloading, but also
-for theorem overloading. In coq a class can in fact not also carry function
-specifications, but also the porperties that these functions should satisfy. For
-example, we could have a method, say \emph{eqP} certifying that for
-each implementation of \emph{eqb} there is a proof that the two objects are
-structurally equivalent. This would also mean that each implementation of
-\emph{Eqb} should implement \emph{eqP}.
+\mleft{code/eqnat.tex}
 
-This last implementation with eqb and eqP is the one used by
-ssreflect~\cite{ssreflect} through~\cite{hb}
+The declaration \cI{eqNat} has type \cI{Eqb nat} and provides an
+implementation of the method \cI{eqb}. Registering this instance extends
+the instance database for \cI{Eqb} with an entry for the type \cI{nat}.
+Afterwards, the term \cI{eqb 3 4} can be elaborated successfully, with
+\cI{?Eqb} instantiated to \cI{eqNat}.
 
-Type classes are deppely used in libraries such as stdpp, iris, ...
+Similarly, we may define an instance for booleans:
 
-Cite Haskell~\cite{wadler1996-hs}, in caml it does not exists: \texttt{+.} vs
-\texttt{+}
+\mleft{code/eqbool.tex}
+
+The same symbol \cI{eqb} can then be applied to values of type
+\cI{nat} or \cI{bool}. The elaborator automatically selects the
+appropriate instance, \cI{eqNat} or \cI{eqBool}, according to the type.
+
+A key feature of type classes is the ability to define \emph{conditional}
+instances, whose availability depends on other instances. A standard
+example is the instance for product types.
+
+\input{code/eqprod.tex}
+
+The type of the instance \cI{eqProd} states that it implements
+\cI{Eqb (T1 * T2)} provided that instances of \cI{Eqb T1} and
+\cI{Eqb T2} are available. In this way, equality on pairs is derived
+from equality on their components.
+
+\paragraph{Theorem overloading}
+
+The type class \cI{Eqb} can be defined in a similar style in
+\haskell, up to minor syntactic differences. In a proof assistant such as
+\rocq, however, type classes support not only function overloading but also
+\emph{theorem overloading}.
+
+For instance, one may enrich \cI{Eqb} with a correctness specification:
+
+\mcenter{code/eqb1.tex}
+
+An instance of this refined class must now provide both an implementation
+of the function \cI{eqb} and a proof of its correctness. Following the
+\emph{SSReflect} convention, the lemma \cI{eqbP} expresses that
+\cI{eqb ~$t_1 t_2$~} evaluates to \cI{true} if and only if $t_1$ and $t_2$
+are equal with respect to propositional equality of type~\cI{T}.
+
+\paragraph{Backtracking search}
+
+Instance search allow backtracking, in haskell default beahvior no overlapping
+instances, in coq they can.
 
 IRIS:~\cite{iris-junk}
-
-% \begin{figx
-
 
 
 \paragraph{Canonical structures}: \cite{cs}
 Used to enrich the information about an object. In mathComp
-
-
-% \begin{minted}{coq}
-% AA
-% \end{minted}
 
 
 \paragraph{Typeclasses vs Canonical structures}
