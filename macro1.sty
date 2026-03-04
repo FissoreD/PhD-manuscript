@@ -16,3 +16,19 @@
     \mvspace
   }
 }
+
+\newcommand{\paragraphTwo}[2][subsubsection]{
+  \paragraph*{#2}
+  \addcontentsline{toc}{#1}{\texorpdfstring{$\quad$}{}#2}
+}
+
+\newcommand{\subsectionTwo}[2][subsection]{
+  \subsection*{#2}
+  \addcontentsline{toc}{#1}{\texorpdfstring{$\quad$}{}#2}
+}
+
+\newcommand{\subsubsectionTwo}[2][subsubsection]{
+  \subsubsection*{#2}
+  \addcontentsline{toc}{#1}{\texorpdfstring{$\quad$}{}#2}
+}
+

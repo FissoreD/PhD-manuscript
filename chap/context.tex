@@ -37,19 +37,17 @@ What is a hole: missing information
 In \cref{fig:elaboration} (taken from~\cite{elaboration}), we have a skematical
 representation of the elaboration process. \cite{elaboration}
 
-\paragraph{Notation}
+\paragraphTwo{Notation}
 
-\paragraph{Typechecking} The rich type theory of the Coq system confers to type
+\paragraphTwo{Typechecking} The rich type theory of the Coq system confers to type
 inference the power of computing values and proofs. 
 
-\paragraph{Coercions} \cite{barthe95}: Used in general to forget information
+\paragraphTwo{Coercions} \cite{barthe95}: Used in general to forget information
 about an object
 
+\paragraphTwo{Ad-hoc polymorphism}
 
-
-\subsection{Ad-hoc polymorphism}
-
-\paragraph{A bit of history}
+\marginpar{Collegare con Elaboration}
 
 Polymorphism is a fundamental feature of functional programming languages. In
 his lecture notes, Strachey~\cite{polymorphism} distinguishes between two main
@@ -66,39 +64,43 @@ programming. However, it is not suitable for modeling mathematical
 function overloading. In mathematics, the symbol $+$ has a consistent,
 intuitive meaning, and no ambiguity arises in expressions such as $1 + 2$
 or $\pig + e$. In the first expression, $+$ denotes addition over integers;
-in the second, it denotes addition over real (or rational) numbers. The same
+in the second, it denotes addition over real numbers. The same
 symbol is consistently used for operations that share common algebraic
 properties.
 
-In contrast, the simply typed lambda calculus does not allow a single symbol to
-have multiple type-dependent interpretations. This limitation appears in
+In contrast, parametric polymorphism does not allow to
+have multiple different type-dependent interpretations. This limitation appears in
 languages such as \ocaml, where integer and floating-point additions
 are represented by distinct operators, $+$ and $+.$, respectively. Thus, one
-writes $1 + 2$ for integers and $\pig +\!.\ e$ for floating-point numbers. In
+writes $1 + 2$ for integers and $\pig +\!.\ e$
+\footnote{In \ocaml, $\pig$ is \mintinline{ocaml}{Float.pi} and $e$ is \mintinline{ocaml}{Float.exp 1.0}}
+for floating-point numbers.
+In
 general, a different symbol must be introduced for each type implementing a
 given mathematical operation.
 
-To address the need for a shared notation for operations that sharing common
+To address the need for a shared notation for operations and
 properties across types, Wadler and Blott introduced the notion of type classes
 in 1989~\cite{wadler1989-tc} and were soon implemented in
 \haskell~\cite{wadler1996-hs} as a pervasive feature of the langauge. Then
 other languages, such as \rocq~\cite{sozeau2008-tc} also extended their
 type system to allow this kind of overloading.
 
-\paragraph{The \cI{Add} type class}
+\subsection{Ad-hoc polymorphism: Type classes}
 
+\paragraphTwo{Function overloading}
 Type classes provide a principled form of ad-hoc polymorphism, enabling
 a single symbol to be associated with multiple type-specific implementations
 while preserving static type safety.
 They provide structure parameterized by one or more types~$t$ and 
-declare the signatures of a set of functions, called \emph{methods}, whose 
+declare the signatures of a set of functions, called methods, whose 
 types may depend on~$t$. An instance of a type class provides a concrete 
 implementation of the type class for a specific choice of~$t$, providing 
 definitions for all of its methods.
 
 Unlike parametric polymorphism, where a unique function is used for the
 execution of a call, type classes rely on instance resolution. Typeclasses and
-instances inhabit a database mappind classes to their instances. When compiling
+instances inhabit a database mapping classes to their instances. When compiling
 a call to a type class method, the elaborator finds the right implementation by
 selecting the instance of the type class associated with the given type in the
 given database.
@@ -154,14 +156,14 @@ T2)} provided that instances of \cI{Add T1} and \cI{Add T2} are available. In
 this way, addition on pairs is derived from addition on their components, that
 is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\dots
 
-\paragraph{Theorem overloading}
+% \paragraphTwo{Theory overloading}
 
 The type class \cI{Add} can be defined in a similar style in
 \haskell, up to minor syntactic differences. In a proof assistant such as
 \rocq, however, type classes support not only function overloading but also
 \emph{theorem overloading}.
 
-For instance, one may enrich \cI{Add} with a associativity specification:
+For instance, one may enrich \cI{Add} with the associativity specification:
 
 \mcenter{code/plus_tc_add1.tex}
 
@@ -171,34 +173,35 @@ function \cI{plus} and a proof that \cI{plus} is associative. Then, if
 definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
 addition is associative over natural and real numbers and pairs.
 This feature of type classes has been adopted in several major \rocq libraries.
-Among them we can site, among others, \tlc, \stdpp, \iris.
+Among them we can site, among others, \tlc, \stdpp, \iris~\cite{iris-junk}.
 
-\paragraph{Backtracking search}
+\paragraphTwo{Class hierarchy}
+
+Magma + Semigroup
+
+\paragraphTwo{Search strategy}
 
 Instance search allow backtracking, in haskell default beahvior no overlapping
 instances, in coq they can.
 
-IRIS:~\cite{iris-junk}
-
 Instance priority
 
-\paragraph{Type-class options in \rocq}
+\subsection{Ad-hoc polymorphism: Canonical structures}
 
-\paragraph{External Hints for type classes in \rocq}
-
-\paragraph{Canonical structures}: \cite{cs}
+\cite{cs}
 Used to enrich the information about an object. In mathComp
 
 
-\paragraph{Typeclasses vs Canonical structures}
+\subsubsectionTwo{Typeclasses vs Canonical structures}
 
 ``Find me a structure that works'' $\to$ typeclasses\\
 ``This type already carries its structure'' $\to$ canonical structures
 
+
 \section{The \elpi language}
 
 The syntax and semantics of \elpi is taken from~\cite{hdr} which is strongly
-inspired by~\cite[Sec. 4.3]{debray1988}. We need the interpreter because \dots
+inspired by~\cite[Sec. 4.3]{debray1988}.
  
 
 \subsection{Abstract syntax}
@@ -376,9 +379,9 @@ HOAS: \cite{pfenning1988}
 \subsection{Higer-order unification}
 
 
-\paragraph{Occur check}
+\paragraphTwo{Occur check}
 
-\paragraph{Unification in the pattern-fragment (\llambda)}
+\paragraphTwo{Unification in the pattern-fragment (\llambda)}
 
 Miller: \cite{miller1991-pf}
 
