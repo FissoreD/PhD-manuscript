@@ -221,6 +221,13 @@ $$
 
 \subsection{Operational semantics}
 
+The semantics we choose here is a bit different from~\cite{hdr}, in order to
+make it closer to the run inductive chosen in~\cref{stack-sem} to represent
+the semantics of a sub-langauge of \elpi. The main difference
+is that the run function instead of taking a goal and a list of alternatives,
+it immediately take a list of alternatives. If the list is empty it stands for
+a failure. If the list is non empty, then we are in the scenario in~\cite{hdr}.
+
 \begin{figure}[h]
   \centering
   \includegraphics{img/det_check/dynamic.pdf}
