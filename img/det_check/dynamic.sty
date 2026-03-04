@@ -77,8 +77,8 @@
 \newcommand{\ruleCallM}{
   \begin{prooftree}
     % CALL
-    \AxiomC{$\backchain(\prog, \subst, c, gs, as) = \ConsHdNP{\alts[']}\ConsTlNP{as'}$}
-    \AxiomC{\runCmdQR{\alts[']}{(as'\ \atsign\ as)}}
+    \AxiomC{$\backchain(\prog, \subst, c, gs, as) = as'$}
+    \AxiomC{\runCmdQR{(as'\ \atsign\ as)}}
     \RightLabelM{\ruleCall}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{c}}{\_}}\ConsTlNP{gs}}{as}{\subst}}
   \end{prooftree}
@@ -95,9 +95,9 @@
 \newcommand{\ruleCallMFH}{
   \begin{prooftree}
     % CALL
-    \AxiomC{$\backchain(\prog, \subst, c, gs, \EmptyList) = \EmptyList$}
+    \AxiomC{\phantom{A}}
     \RightLabelM{\ruleCallFH}
-    \UnaryInfC{\runCmdF{\ConsHdNP{\goalCmd{\prog}{\callCmd{c}}{\_}}\ConsTlNP{gs}}{\EmptyList}{\subst}}
+    \UnaryInfC{$\run\ \EmptyList \arr \bot$}
   \end{prooftree}
 }
 
