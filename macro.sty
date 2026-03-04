@@ -173,7 +173,7 @@
 
 \newcommand{\infer}{\text{check input}\xspace}
 % \newcommand{\syntaxfont}{\ffmfamily}
-\newcommand{\syntaxfont}{}
+\newcommand{\syntaxfont}[1]{\texttt{#1}}
 \newcommand{\githubUrl}{\url{https://github.com/FissoreD/ho-unif-for-free}}
 
 \newcommand*{\fullref}[1]{\cref{#1} (\textsc{\nameref{#1}})}
@@ -188,6 +188,7 @@
 \newcommand{\PRED}[1][]{\ensuremath{\mathbb{P}#1}\xspace}
 \newcommand{\DATA}[1][]{\ensuremath{\mathbb{K}#1}\xspace}
 \newcommand{\CALLABLE}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
+\newcommand{\LTERM}[1][]{\ensuremath{\mathbb{L}#1}\xspace}
 \def\CALL{\CALLABLE}
 \newcommand{\VAR}[1][]{\ensuremath{\mathbb{V}#1}\xspace}
 \newcommand{\TERM}[1][]{\ensuremath{\mathbb{T\!m}#1}}
@@ -205,15 +206,15 @@
 \newcommand{\CTX}{\ensuremath{\mathbb{\Gamma}}\xspace}
 
 \newcommand{\cdash}{\texttt{:-}} % colon-dash
-\newcommand{\cut}{\text{\syntaxfont cut}\xspace}
+\newcommand{\cut}{\text{\syntaxfont {cut}}\xspace}
 
-\newcommand{\implCmd}[2]{\ensuremath{#1\ #2}}
+\newcommand{\implCmd}[2]{\ensuremath{#1 \Rightarrow #2}}
 \newcommand{\piCmd}[3][]{\ensuremath{\pi\ #2\expandafter\ifx\expandafter\relax
-      \detokenize{#1}\relax\else{ : #1}\fi\ #3}}
+      \detokenize{#1}\relax\else{ : #1}\fi.\ #3}}
 \newcommand{\piImplCmd}[4][]{\piCmd{#2}{\implCmd{#3}{#4}}}
 
 \let\pig\pi
-\renewcommand{\pi}{\text{\syntaxfont pi}\xspace}
+\renewcommand{\pi}{\text{\syntaxfont {pi}}\xspace}
 \newcommand{\subst}[1][]{\ensuremath{\sigma#1}\xspace}
 \newcommand{\prog}[1][]{\ensuremath{\mathcal{P}#1}\xspace}
 

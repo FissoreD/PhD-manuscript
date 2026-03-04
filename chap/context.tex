@@ -200,31 +200,95 @@ Used to enrich the information about an object. In mathComp
 
 \section{The \elpi language}
 
-\elpi~\cite{dunchev15} is an acronym of Embeddable Lambda-Prolog Interpreter, as
-its name indicates, it is a dialect of \lprolog~\cite{miller1991-pf,miller2012}
-featuring higher-order logic programming and integrating a system of goal
-suspension called CHR (for Constraint Handling Rules~\cite{chr,chr-elpi}). The
-Embaddable word stands for the fact that \elpi is aimed to be used as an
-extension language. Its main application is the \rocqelpi extension which allows
-to bridge the communication between \elpi, the meta-language~\Ho, and the \rocq
-proof assistant, the object language~\Fo. In this section we provide a brief
-introduction of the \elpi language, whereas in \cref{sec:coq-elpi}, we give the
-main ideas behind the \rocqelpi plugin.
+\elpi~\cite{dunchev15} stands for \emph{Embeddable Lambda-Prolog Interpreter}.
+It is a dialect of \lprolog~\cite{miller1991-pf,miller2012} that supports
+higher-order logic programming and integrates a goal suspension mechanism
+based on CHR (Constraint Handling Rules~\cite{chr,chr-elpi}).
+
+The term ``embeddable'' highlights that \elpi\ is designed to be used as an
+extension language. Its primary application in our setting is the
+\rocqelpi\ plugin, which enables communication between \elpi\ as the
+meta-language~\Ho\ and the \rocq\ proof assistant as the object
+language~\Fo.
+
+A comprehensive presentation of the \elpi\ language and its applications
+can be found in Tassi's ``habilitation à diriger la recherche''~\cite{hdr}.
+Here, we provide only a brief introduction to the aspects of \elpi\ that are
+relevant for this document. The main ideas underlying the \rocqelpi\ plugin
+are discussed separately in \cref{sec:coq-elpi}.
 
 \subsection{Abstract syntax}
 
-$$
-  \begin{array}{rlr}
-    \PRED     & ::= p, q, \ldots, f, g, \ldots                                      & \mathrm{functor}  \\
-    \CALLABLE & ::= \PRED \mid  \VAR \mid \CALLABLE\ \TERM                          & \mathrm{callable} \\
-    \HEAD     & ::= \PRED \mid  \HEAD\ \TERM                                        & \mathrm{head}     \\
-    \VAR      & ::= \mathrm{X}, \mathrm{Y} \ldots                                   & \mathrm{variable} \\
-    \ATOM     & ::= \CALLABLE \mid \cut \mid \piImplCmd[\expI]{\DATA}{\RULE}{\ATOM} & \mathrm{atom}     \\
-    \TERM     & ::= \PRED \mid \DATA \mid \VAR \mid \TERM\ \TERM                    & \mathrm{term}     \\
-    \RULE     & ::= \HEAD\ \cdash\ \ATOM^*                                          & \mathrm{rule}
-  \end{array}
-$$
+\begin{figure}
+  \begin{subfigure}{\textwidth}
+    $$
+      \begin{array}{rlr}
+        \DATA  & ::= f, g, \ldots                                                          & \qquad \mathrm{datum}         \\
+        \PRED  & ::= p, q, \ldots                                                          & \qquad \mathrm{predicate}     \\
+        \VAR   & ::= X, Y \ldots, x, y, \dots                                              & \qquad \mathrm{variable}      \\
+        \LTERM & ::= \lambda \VAR. \LTERM \mid \TERM                                       & \qquad \lambda\mathrm{-terms} \\
+        \TERM  & ::= \PRED \mid \VAR \mid \DATA \mid \TERM\ \LTERM                         & \qquad \mathrm{term}          \\
+        \ATOM  & ::= \cut \mid \TERM \mid \piCmd{\PRED}{\ATOM} \mid \implCmd{\RULE}{\ATOM} \mid  & \qquad \mathrm{atom}          \\
+        \RULE  & ::= \TERM\ \cdash\ \ATOM^*                                                & \qquad \mathrm{rule}
+      \end{array}
+    $$
+    \caption{Syntax of \elpi program}
+    \label{fig:elpi-syntax}
+  \end{subfigure}
 
+  % \begin{subfigure}{\textwidth}
+  %   $$
+  %     \begin{array}{rlrrlr}
+  %       \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{sign.\ start}  & \qquad
+  %       \F      & ::= \detI \mid \relI                                          & \mathrm{~~determinacy}          \\
+  %       \SIGN_o & ::= \F\ \mid \SIGN_i \toO \SIGN_o \mid \STAR \toO \SIGN_o     & \mathrm{sign.\ stop}   &
+  %       \STAR   & ::= \star                                                     & \mathrm{all\ data}              \\
+  %       \TYPE   & ::= \SIGN_i                                                   & \mathrm{signature}
+  %     \end{array}
+  %   $$
+  %   \caption{Syntax of \elpi signatures for predicates}
+  %   \label{fig:syntaxsign}
+  % \end{subfigure}
+\end{figure}
+
+\paragraphTwo{Syntax of \elpi's programs}
+In \cref{fig:elpi-syntax}, we give the syntax of a \elpi's programs.
+
+\paragraphTwo{Syntax of \elpi's types}
+
+The abstract syntax of signatures is given in~\cref{fig:syntaxsign}.
+Predicate signatures \TYPE\ start with input arguments from the $\SIGN_i$ non-terminal,
+continue with output arguments from the $\SIGN_o$ non-terminal and end
+with a determinacy marker \F: \detI for functions and \relI for relations (respectively \eI{func}
+and \eI{pred} in the concrete syntax). % used in the introduction). 
+% \begin{figure}[b]
+% \begin{framed}
+%   \begin{minipage}{0.45\textwidth}
+% \end{minipage}
+% \end{framed}
+%   \vspace{-1em}
+%   \caption{Abstract syntax of predicate signatures}
+%   \label{fig:syntaxsign}
+% \end{figure}
+We collapse
+all data types into a single type \STAR\ and
+we disallow to store predicates into data, i.e., one cannot form a list of
+predicates.
+Note that the grammar of \TYPE\ forces all input arguments to come first.
+We  reserve $d$ for instances of type \STAR, $\rho$ and $\tau$ for signatures and $\func$ for instances of \F.
+For example the signature
+\eI{func map (func A -> B), list A -> list B}
+corresponds to
+$(\star \toI \star \toO \detI) \toI \star \toI \star \toO \detI$.
+
+We denote booleans $\BOOL = \{ \top, \bot\}$;
+contexts \CTX being partial
+maps from symbols to signatures.
+We use $\EmptyList$ for the empty list and $x :: xs$ for prepending the element $x$
+to a list $xs$.
+We reserve
+$\Gamma$ for
+contexts.
 
 \subsection{Operational semantics}
 
@@ -263,8 +327,14 @@ a failure. If the list is non empty, then we are in the scenario in~\cite{hdr}.
   $$
 \end{definition}
 
-\subsection{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
+\paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
 \label{sec:cut-op}
+
+\begin{figure}[t]
+  \input{code/prog.tex}
+  \caption{Running example of a \elpi program}
+  \label{fig:progx}
+\end{figure}
 
 There are quite a few variants of the cut operator.
 The one we are interested in, i.e. the one used in \elpi, is known as \emph{hard cut}
@@ -363,7 +433,7 @@ if \cI{o} is $\mnone$.
 % \marginpar{spiegare notation for list}
 % $\epsilon$ is the empty substitution.
 
-\subsection{Higher-order programming}
+\paragraphTwo{Higher-order programming}
 
 Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
 
