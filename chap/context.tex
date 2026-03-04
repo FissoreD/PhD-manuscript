@@ -37,6 +37,8 @@ What is a hole: missing information
 In \cref{fig:elaboration} (taken from~\cite{elaboration}), we have a skematical
 representation of the elaboration process. \cite{elaboration}
 
+\paragraph{Notation}
+
 \paragraph{Typechecking} The rich type theory of the Coq system confers to type
 inference the power of computing values and proofs. 
 
@@ -59,7 +61,7 @@ when applied to any list of seven elements. In other words, the compiler
 reuses the same implementation of \emph{length} for every call, regardless of
 the instantiation of \mlI{'a}.
 
-Parametric polymorphism is widely used and highly practical in functional
+Parametric polymorphism is widely used in functional
 programming. However, it is not suitable for modeling mathematical
 function overloading. In mathematics, the symbol $+$ has a consistent,
 intuitive meaning, and no ambiguity arises in expressions such as $1 + 2$
@@ -70,7 +72,7 @@ properties.
 
 In contrast, the simply typed lambda calculus does not allow a single symbol to
 have multiple type-dependent interpretations. This limitation appears in
-practical languages such as \ocaml, where integer and floating-point additions
+languages such as \ocaml, where integer and floating-point additions
 are represented by distinct operators, $+$ and $+.$, respectively. Thus, one
 writes $1 + 2$ for integers and $\pig +\!.\ e$ for floating-point numbers. In
 general, a different symbol must be introduced for each type implementing a
@@ -94,76 +96,82 @@ types may depend on~$t$. An instance of a type class provides a concrete
 implementation of the type class for a specific choice of~$t$, providing 
 definitions for all of its methods.
 
-Unlike parametric polymorphism, where a function is implemented uniformly for\marginpar{database classes $\to$ instances}
-all types, type classes rely on instance resolution. When compiling a call to a
-type class method, the compiler finds the right implementation by selecting the
-instance of the type class associated with the given type.\marginpar{elaborator instead of compiler}
+Unlike parametric polymorphism, where a unique function is used for the
+execution of a call, type classes rely on instance resolution. Typeclasses and
+instances inhabit a database mappind classes to their instances. When compiling
+a call to a type class method, the elaborator finds the right implementation by
+selecting the instance of the type class associated with the given type in the
+given database.
 
-As an example, consider the type class \cI{Eqb}, parameterized by a
-type \cI{T} and equipped with a method \cI{eqb} to test equality between
-two elements of type \cI{T}. In \rocq, the definition of \cI{Eqb} is given
+As an example, consider the type class \cI{Add}, parameterized by a
+type \cI{T} and equipped with a method \cI{plus} to perform addition between
+two elements of type \cI{T}. In \rocq, the definition of \cI{Add} is given
 below.
 
-\mcenter{code/eqb.tex}
+\mcenter{code/plus_tc_add.tex}
 
-The type of the method \cI{eqb} is
-  $\forall \cI{T},\ \cI{Eqb T} \to \cI{T} \to \cI{T} \to \cI{bool}$,
+The type of the method \cI{plus} is
+  $\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
 where both the type parameter \cI{T} and the instance argument
-\cI{Eqb T} are implicit. The typechecking of the term
-\cI{eqb 3 4} gives:
+\cI{Add T} are implicit. The typechecking of the term
+\cI{plus 3 4} gives:
 
 \begin{coqcode}
-  @eqb nat ?Eqb 3 4 : bool
-  where ?Eqb : [ |- Eqb nat]
+  @plus nat ?Add 3 4 : bool
+  where ?Add : [ |- Add nat]
 \end{coqcode}
 
-The term has type \cI{bool}, but the instance for \cI{Eqb nat} cannot be
-inferred, leaving a metavariable~\cI{?Eqb}. To resolve this, we define an
-instance for natural numbers:
+The term has type \cI{nat}, but the instance for \cI{Add nat} cannot be
+inferred, leaving a metavariable~\cI{?Add}, this is beacuse in the type-class
+database, there is no instance associated to \cI{Add}. To resolve this, we
+define the instance for natural numbers:
 
-\mleft{code/eqnat.tex}
+\mleft{code/plus_tc_anat.tex}
 
-The declaration \cI{eqNat} has type \cI{Eqb nat} and provides an
-implementation of the method \cI{eqb}. Registering this instance extends
-the instance database for \cI{Eqb} with an entry for the type \cI{nat}.
-Afterwards, the term \cI{eqb 3 4} can be elaborated successfully, with
-\cI{?Eqb} instantiated to \cI{eqNat}.
+The declaration \cI{addNat} has type \cI{Add nat} and provides an
+implementation of the method \cI{plus}. Registering this instance extends
+the instance database for \cI{Add} with an entry for the type \cI{nat}.
+Afterwards, the term \cI{plus 3 4} can be elaborated successfully, with
+\cI{?Add} instantiated to \cI{addNat}.
 
 Similarly, we may define an instance for booleans:
 
-\mleft{code/eqbool.tex}
+\mleft{code/plus_tc_ar.tex}
 
-The same symbol \cI{eqb} can then be applied to values of type
-\cI{nat} or \cI{bool}. The elaborator automatically selects the
-appropriate instance, \cI{eqNat} or \cI{eqBool}, according to the type.
+The same symbol \cI{plus} can then be applied to values of type \cI{nat} or
+\cI{R}. Therefore, extending the notation system, we are now allowed to write $1
++ 2$ and $\pig + e$ knowing that the elaborator automatically selects the
+appropriate instance, \cI{addNat} or \cI{addR}.
 
 A key feature of type classes is the ability to define \emph{conditional}
-instances, whose availability depends on other instances. A standard
-example is the instance for product types.
+instances, whose availability depends on other instances. An example
+is the instance for the product type.
 
-\input{code/eqprod.tex}
+\input{code/plus_tc_add_prod.tex}
 
-The type of the instance \cI{eqProd} states that it implements
-\cI{Eqb (T1 * T2)} provided that instances of \cI{Eqb T1} and
-\cI{Eqb T2} are available. In this way, equality on pairs is derived
-from equality on their components.
+The type of the instance \cI{addProd} states that it implements \cI{Add (T1 *
+T2)} provided that instances of \cI{Add T1} and \cI{Add T2} are available. In
+this way, addition on pairs is derived from addition on their components, that
+is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\dots
 
 \paragraph{Theorem overloading}
 
-The type class \cI{Eqb} can be defined in a similar style in
+The type class \cI{Add} can be defined in a similar style in
 \haskell, up to minor syntactic differences. In a proof assistant such as
 \rocq, however, type classes support not only function overloading but also
 \emph{theorem overloading}.
 
-For instance, one may enrich \cI{Eqb} with a correctness specification:
+For instance, one may enrich \cI{Add} with a associativity specification:
 
-\mcenter{code/eqb1.tex}
+\mcenter{code/plus_tc_add1.tex}
 
-An instance of this refined class must now provide both an implementation
-of the function \cI{eqb} and a proof of its correctness. Following the
-\emph{SSReflect} convention, the lemma \cI{eqbP} expresses that
-\cI{eqb ~$t_1 t_2$~} evaluates to \cI{true} if and only if $t_1$ and $t_2$
-are equal with respect to propositional equality of type~\cI{T}.
+An instance of this refined class must now provide both an implementation of the
+function \cI{plus} and a proof that \cI{plus} is associative. Then, if
+\cI{addNat}, \cI{addR} and \cI{addProd} are implemented according the new
+definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
+addition is associative over natural and real numbers and pairs.
+This feature of type classes has been adopted in several major \rocq libraries.
+Among them we can site, among others, \tlc, \stdpp, \iris.
 
 \paragraph{Backtracking search}
 
