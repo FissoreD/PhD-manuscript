@@ -189,8 +189,10 @@
 \newcommand{\DATA}[1][]{\ensuremath{\mathbb{K}#1}\xspace}
 \newcommand{\CALLABLE}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
 \newcommand{\LTERM}[1][]{\ensuremath{\mathbb{L}#1}\xspace}
+\newcommand{\CONSTRAINT}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
 \def\CALL{\CALLABLE}
 \newcommand{\VAR}[1][]{\ensuremath{\mathbb{V}#1}\xspace}
+\newcommand{\UVAR}[1][]{\ensuremath{\mathbb{U}#1}\xspace}
 \newcommand{\TERM}[1][]{\ensuremath{\mathbb{T\!m}#1}}
 \newcommand{\HEAD}[1][]{\ensuremath{\mathbb{H}#1}\xspace}
 \newcommand{\STAR}{\ensuremath{{\medstar\hspace{-4.5pt}\rule[.6pt]{.4pt}{3.3pt}}\hspace{5pt}}\xspace}
@@ -206,8 +208,11 @@
 \newcommand{\CTX}{\ensuremath{\mathbb{\Gamma}}\xspace}
 
 \newcommand{\cdash}{\texttt{:-}} % colon-dash
-\newcommand{\cut}{\text{\syntaxfont {cut}}\xspace}
+\newcommand{\cut}{\text{\syntaxfont{Cut}}\xspace}
 
+\newcommand{\cst}{\text{\syntaxfont{Cst}}\xspace}
+
+\newcommand{\cstCmd}[2]{\ensuremath{\cst\ #1\ #2}}
 \newcommand{\implCmd}[2]{\ensuremath{#1 \Rightarrow #2}}
 \newcommand{\piCmd}[3][]{\ensuremath{\pi\ #2\expandafter\ifx\expandafter\relax
       \detokenize{#1}\relax\else{ : #1}\fi.\ #3}}

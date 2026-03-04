@@ -220,22 +220,23 @@ are discussed separately in \cref{sec:coq-elpi}.
 \subsection{Abstract syntax}
 
 \begin{figure}
-  \begin{subfigure}{\textwidth}
-    $$
-      \begin{array}{rlr}
-        \DATA  & ::= f, g, \ldots                                                          & \qquad \mathrm{datum}         \\
-        \PRED  & ::= p, q, \ldots                                                          & \qquad \mathrm{predicate}     \\
-        \VAR   & ::= X, Y \ldots, x, y, \dots                                              & \qquad \mathrm{variable}      \\
-        \LTERM & ::= \lambda \VAR. \LTERM \mid \TERM                                       & \qquad \lambda\mathrm{-terms} \\
-        \TERM  & ::= \PRED \mid \VAR \mid \DATA \mid \TERM\ \LTERM                         & \qquad \mathrm{term}          \\
-        \ATOM  & ::= \cut \mid \TERM \mid \piCmd{\PRED}{\ATOM} \mid \implCmd{\RULE}{\ATOM} \mid  & \qquad \mathrm{atom}          \\
-        \RULE  & ::= \TERM\ \cdash\ \ATOM^*                                                & \qquad \mathrm{rule}
-      \end{array}
-    $$
-    \caption{Syntax of \elpi program}
-    \label{fig:elpi-syntax}
-  \end{subfigure}
-
+  % \begin{subfigure}{\textwidth}
+  $$
+    \begin{array}{rlr}
+      \DATA       & ::= f, g, \ldots                                                                                           & \qquad \mathrm{datum}                 \\
+      \PRED       & ::= p, q, \ldots                                                                                           & \qquad \mathrm{predicate}             \\
+      \UVAR       & ::= X, Y, \ldots                                                                                           & \qquad \mathrm{unification\ variable} \\
+      \VAR        & ::= x, y, \ldots                                                                                           & \qquad \mathrm{nominal\ variable}     \\
+      \TERM       & ::= \DATA \mid \PRED \mid \UVAR \mid \VAR \mid \TERM\ \LTERM                                               & \qquad \mathrm{term}                  \\
+      \LTERM      & ::= \lambda \VAR. \LTERM \mid \TERM                                                                        & \qquad \lambda\mathrm{-terms}         \\
+      \ATOM       & ::= \cut \mid \cstCmd{\ATOM}{\vecL{\UVAR}} \mid \TERM \mid \piCmd{\VAR}{\ATOM} \mid \implCmd{\RULE}{\ATOM} & \qquad \mathrm{atom}                  \\
+      \RULE       & ::= \TERM\ \cdash\ \ATOM^*                                                                                 & \qquad \mathrm{rule}                  \\
+      \CONSTRAINT & ::= \vecL{\TERM}\ \backslash \vecL{\TERM} \shortmid \TERM \Leftrightarrow \vecL{\TERM}                     & \qquad \mathrm{constraint\ rule}
+    \end{array}
+  $$
+  \caption{Syntax of \elpi program}
+  \label{fig:elpi-syntax}
+  % \end{subfigure}
   % \begin{subfigure}{\textwidth}
   %   $$
   %     \begin{array}{rlrrlr}
@@ -251,10 +252,43 @@ are discussed separately in \cref{sec:coq-elpi}.
   % \end{subfigure}
 \end{figure}
 
-\paragraphTwo{Syntax of \elpi's programs}
-In \cref{fig:elpi-syntax}, we give the syntax of a \elpi's programs.
+\paragraphTwo{Syntax of \elpi's Programs}
+
+\Cref{fig:elpi-syntax} presents the abstract syntax of \elpi\ programs. Our
+presentation slightly differs from~\cite[Sec.~2.5.1]{hdr} in order to remain
+consistent with the notation adopted in \cref{chap:det-elpi,chap:mechanization}.
+The discrepancies are underlined.
+
+The basic syntactic categories are \underline{data}~\DATA, predicates~\PRED,
+unification variables~\UVAR, and \underline{nominal variables}~\VAR. Nominal
+variables represent binders introduced by $\lambda$-abstractions or by
+$\pi$-quantification.
+
+A term~\TERM\ is either one of these basic constructs or an application. More
+precisely, terms are formed by the \underline{binary} application of a term to a
+$\lambda$-term~\LTERM. Lambda terms introduce abstractions; in the concrete
+\elpi\ syntax, an abstraction is written as \eI{x\ t}.
+
+An atom~\ATOM\ represents an executable unit. It can be:
+the cut operator (\eI{!} in the concrete syntax), a constraint
+declaration~\cst\ (\eI{declare_constraint}), a term, a $\pi$-quantification
+introducing a fresh nominal variable within an atom, or the dynamic
+insertion of a rule~\RULE\ into an atom.
+
+A rule~\RULE\ consists of a head and a (possibly empty) body, which is a
+list of atoms. The atoms in the body are called the premises of the rule.
+
+From \cite{hdr}, ``In the syntax for constraint rules~\CONSTRAINT we find first
+a list of terms representing patterns to match, then a list of terms to match
+and remove, then a guard and finally a list of new goals.''
 
 \paragraphTwo{Syntax of \elpi's types}
+
+\elpi is a (almost) strongly typed programming language. It means that each
+program should pass the typechecking phase, where, when possible, unkown symbols
+are assigned to the needed type. The type of atoms is noted \eI{prop} or,
+equivalently, following the~\cite{miller2012} convention \eI{o}. This is
+beacause a 
 
 The abstract syntax of signatures is given in~\cref{fig:syntaxsign}.
 Predicate signatures \TYPE\ start with input arguments from the $\SIGN_i$ non-terminal,
@@ -434,6 +468,8 @@ if \cI{o} is $\mnone$.
 % $\epsilon$ is the empty substitution.
 
 \paragraphTwo{Higher-order programming}
+
+\paragraphTwo{Dynamic programming}
 
 Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
 
