@@ -216,7 +216,7 @@ provide a brief introduction to the aspects of \elpi\ that are relevant for this
 document. Some definitions are slightly different in order to remain consistent
 with the notation adopted in \cref{chap:det-elpi,chap:mechanization}. The
 discrepancies are underlined.
-\subsection{Abstract syntax}
+\subsection{Abstract syntax of the \lprolog part of \elpi (no \chr)}
 
 \begin{figure}
   \centering
@@ -261,9 +261,14 @@ described in \cref{sec:chr}.
 \paragraphTwo{Syntax of \elpi\ types}
 
 In \elpi, users can define the algebraic data types required by their
-development as well as the signatures of predicates. A new algebraic
-data type is declared with the \kind\ keyword, while constructors of that
-type are introduced using the \type\ keyword.
+development as well as the signatures of predicates. A new algebraic data type
+is declared with the \kind\ keyword, while constructors of that type are
+introduced using the \type\ keyword. A type is ether a definition is either a
+type declaration, a variable, or the application of a type to another in the
+case of parametric types. The arrow symbol is used to type function space and in
+\elpi it take \underline{an optional mode information}. The mode tells the
+runtime which unification algorithm to use when unifying the arguments of two
+terms. By default, no mode information is compiled to \texttt{output}.
 
 For example, the following declarations define Church naturals and
 polymorphic lists.
@@ -305,7 +310,14 @@ interpreted, the type checker verifies that it is well typed. Any type
 inconsistency is reported as an error, which typically helps identify
 and correct implementation bugs early.
 
-\subsection{Operational semantics}
+\subsection{Operational semantics of the \lprolog part of \elpi (no \chr)}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics{img/det_check/dynamic.pdf}
+  \caption{Elpi semantics}
+  \label{fig:elpi-semantics}
+\end{figure}
 
 A substitution $\subst$ of type $\Sigma$ is a partial mapping from unification
 variables \VAR to terms \TERM{}. We write $\subst\ t$ the  application of the
@@ -320,17 +332,15 @@ structure:
 {
   \mvspace
   \centering
-  \txtI{~$\PROG$~ := {index : list ~$\RULE$~; nvar : list ~$\VAR$~; sig : ~\env~}}\par
+  \txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\VAR$~; sig: ~\env~}}\par
   \mvspace
 }
 
-pair $(\mathbb{N}, \mathcal{I})$ where $\mathbb{N}$ is a set of names and
-$\mathcal{I}$ an index mapping predicate names to an \emph{ordered list} of
-rules. We write $x \# \prog$ to find a name fresh in $\mathbb{N}$. We write
-$\prog~\pred$ for the rules of predicate \pred in $\mathcal{I}$ and we write $x
-+ \prog$ to add the name $x$ to $\mathbb{N}$ and we write $h + \prog$ to prepend
-the extra rules $h$  to $\mathcal{I}$ (hence $h$ has the highest priority in the
-new program).
+It contains an ordered list of rules~\txtI{index} representing the database, a
+set of nominal variables~\txtI{nvar} and a signature environment~\txtI{sig}. We
+write $x \# \prog$ to find a name fresh in $\prog.\txtI{nvar}$ and $x + \prog$
+to add the name $x$ to $\prog.\txtI{nvar}$. We write $h + \prog$ to prepend the
+extra rules $h$ to $\prog.\txtI{index}$.
 
 
 % A constraint store $\kappa$ of type $K = \vecL{\PROG \times \APP \times \vecL{\VAR}}$
@@ -342,37 +352,29 @@ new program).
 % morally part of the program, but since they never change we omit them.
 
 
-A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$
-is a triple made of a program, an atom and a list of
-so called \emph{cut-to} alternatives.
-An alternative $a$ of type $\alt$ is a triple of type $\Sigma \times \vecL{\g}$
-made of a constraint store, a substitution and a list of goals.
-
+A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$ is a triple made
+of a program, an atom and a list of so called \emph{cut-to} alternatives. An
+alternative $a$ of type $\alt$ is a \underline{couple} of type $\Sigma \times
+\vecL{\g}$ made of a substitution and a list of goals.
 
 In~\cref{fig:elpi-semantics} we give the derication rules for the \elpi
-interpreter based on the function:
-
+interpreter based on the \underline{function}:
+%
 $$\runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \bot$$
 
 The semantics is strongly inspired from~\cite[Sec.~4.3]{debray1988}, it is a
 semantics base on stack of alternatives~\alt. The interpreter evaluates them in
 order and, either the first alternative produce a success, in this case, we
-return a substitution ($\sigma$) and the new list of alternatives to interprete, or
+return a substitution and the new list of alternatives to interprete, or
 it fails ($\bot$).
 
-The semantics we choose here is a bit different from~\cite{hdr}, in order to
-make it closer to the run inductive chosen in~\cref{stack-sem} to represent
-the semantics of a sub-language of \elpi. The main difference
-is that the run function instead of taking a goal and a list of alternatives,
-it immediately take a list of alternatives. If the list is empty it stands for
-a failure. If the list is non empty, then we are in the scenario in~\cite{hdr}.
+In \cref{fig:elpi-semantics}, a success is represented by rule \runE[\top]: the
+first alternative contains an empty list of goals, it returns the substitution
+recived in entry and the tail alternatives. By \runE[\bot], if the alternative
+list is empty, the interpreter returns a failure.
 
-\begin{figure}[h]
-  \centering
-  \includegraphics{img/det_check/dynamic.pdf}
-  \caption{Elpi semantics}
-  \label{fig:elpi-semantics}
-\end{figure}
+The remaining cases of the \runE function treat a non-empty list of
+alternatives (a :: as), where the first goals ia s non-empty list.
 
 
 % \paragraph{Backchaining}

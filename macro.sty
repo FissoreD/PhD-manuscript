@@ -100,7 +100,10 @@
 \newcommand{\failed}{\codenames{failed}}
 \newcommand{\incomplete}{\codenames{incomplete}}
 
-\newcommand{\runE}{\codenames{runE}}
+% \newcommand{\runE}[1][]{\ensuremath{\codenames{runE}_#1}}
+\newcommand{\runE}[1][]{\ensuremath{\codenames{runE}\ifx\expandafter\relax
+      \detokenize{#1}\relax\else{_{#1}}\fi}}
+
 \newcommand{\run}{\codenames{runT}}
 \newcommand{\nur}{\codenames{runS}}
 

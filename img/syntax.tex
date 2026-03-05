@@ -2,12 +2,12 @@
 
 \usepackage{../macro,multirow}
 
-\begin{document}
+\begin{document}%
 \[
   \begin{array}{c}
     \begin{array}{r}
       \multirow{1}{*}{\rotatebox[origin=c]{90}{Program\hspace{-.5cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\null\\\null\\\end{array} \right. \\
-      \multirow{1}{*}{\rotatebox[origin=c]{90}{Types\hspace{-.22cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\end{array}\right.
+      \multirow{1}{*}{\rotatebox[origin=c]{90}{Types\hspace{-.22cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\end{array}\right.
     \end{array}
     \begin{array}{rlr}
       \DATA        & ::= f, g, \ldots                                                          & \qquad \mathrm{datum}                 \\
@@ -24,7 +24,8 @@
       \TYPEARR     & ::= \type \mid \TYPEARR \to \TYPEARR                                      & \mathrm{type\ arity}                  \\
       \CONSTRUCTOR & ::= \type\ \DATA\ \TYPE \mid \type\ \PRED\ \TYPE                          & \mathrm{constructor\ declaration}     \\
       \TYPEBASE    & ::= \DATA \mid \NVAR \mid \TYPEBASE\ \TYPE                                & \mathrm{type}                         \\
-      \TYPE        & ::= \TYPEARR \to \TYPEARR \mid \TYPEBASE                                  & \lambda\mathrm{-type}                 \\
+      \TYPE        & ::= \TYPEARR \arrmode{?m} \TYPEARR \mid \TYPEBASE                          & \lambda\mathrm{-type}                 \\
+      m            & ::= \texttt{input} \mid \texttt{output}                                   & \mathrm{mode}                         \\
     \end{array}
   \end{array}
 \]
