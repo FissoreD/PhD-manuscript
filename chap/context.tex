@@ -338,19 +338,9 @@ structure:
 
 It contains an ordered list of rules~\txtI{index} representing the database, a
 set of nominal variables~\txtI{nvar} and a signature environment~\txtI{sig}. We
-write $x \# \prog$ to find a name fresh in $\prog.\txtI{nvar}$ and $x + \prog$
-to add the name $x$ to $\prog.\txtI{nvar}$. We write $h + \prog$ to prepend the
-extra rules $h$ to $\prog.\txtI{index}$.
-
-
-% A constraint store $\kappa$ of type $K = \vecL{\PROG \times \APP \times \vecL{\VAR}}$
-% is a multiset of triples $(\prog,c,t)$
-% where $\prog$ is a program, where $c$ stands for a constraint (an applicative term in $\APP$) and $t$
-% of type $\vecL{\VAR}$ is the trigger. The empty store is written $\EmptySubst$;
-% we use $k - (\prog,c,t)$ to remove a constraint from the store.
-% The rules acting on the constraint store $\mathcal{R = \vecL{\mathbb{C}}}$ are
-% morally part of the program, but since they never change we omit them.
-
+write $x \# \prog$ to find a name fresh in $\prog.\txtI{nvar}$ and $x +_\forall \prog$
+to add the name $x$ to $\prog.\txtI{nvar}$. We write $h +_\Rightarrow \prog$ to prepend the
+extra rule $h$ to $\prog.\txtI{index}$.
 
 A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$ is a triple made
 of a program, an atom and a list of so called \emph{cut-to} alternatives. An
@@ -373,8 +363,23 @@ first alternative contains an empty list of goals, it returns the substitution
 recived in entry and the tail alternatives. By \runE[\bot], if the alternative
 list is empty, the interpreter returns a failure.
 
-The remaining cases of the \runE function treat a non-empty list of
-alternatives (a :: as), where the first goals ia s non-empty list.
+The remaining recursive cases of \runE, i.e. \runE[!], \run[@], \runE[\forall],
+\runE[\Rightarrow], treat a non-empty list of alternatives with the form
+$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the first goal list is non
+empty. Each of the remaining rules works on the shape of $q$ which is an \ATOM,
+and it exists $4$ kind of atoms, from \cref{fig:elpi-syntax}.
+
+If $q$ is a \cut, then, by \runE[!], the alternatives $a$ are discarded in
+favour of the cut-to alternatives stored in the $q$. The list of goals $g$ is
+left as the head of the recursive call to run. If $q$ is a \pi-quantification of
+a variable $x$, then the interpreter finds a fresh nominal variables $y$ not
+used in \prog and replaces all free occurrences of $x$ in $t$ by $y$ before
+performing a recursive call to \runE. If $q$ is the dynamic insertion of a rule
+$h$, then a recursive call to \runE is performed with the atom $t$ seing the
+program extended with the local rule $h$.
+
+If $h$ is a predicate call, then the goal represent a new query that should be
+backchained in the \prog.\marginpar{This rule also account for backtracking}
 
 
 % \paragraph{Backchaining}

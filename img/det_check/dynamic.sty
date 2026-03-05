@@ -167,17 +167,17 @@
 \newcommand{\ruleImplM}{
   \begin{prooftree}
     % IMPL
-    \AxiomC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{h + \prog}{\centerCmd{\implCmd{h}{t}}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
+    \AxiomC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{h +_\Rightarrow \prog}{\centerCmd{\implCmd{h}{t}}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
     \RightLabelM{\ruleImpl}
-    \UnaryInfC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{h + \prog}{\prog}}{\implCmd{h}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
+    \UnaryInfC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{$h +_\Rightarrow \prog$}{\prog}}{\implCmd{h}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
   \end{prooftree}
 }
 
 \newcommand{\rulePiM}{
   \begin{prooftree}
     % PI
-    \AxiomC{\ensuremath{y \# \prog \quad \runCmdR{\ConsHdNP{\goalCmd{y + \prog}{\centerCmd{\piCmd{x}{t}}{$t[x/y]$}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
+    \AxiomC{\ensuremath{y \# \prog \quad \runCmdR{\ConsHdNP{\goalCmd{y +_\forall \prog}{\centerCmd{\piCmd{x}{t}}{$t[x/y]$}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
     \RightLabelM{\rulePi}
-    \UnaryInfC{\ensuremath{\quad\qquad\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{ + \prog}{\prog}}{\piCmd{x}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
+    \UnaryInfC{\ensuremath{\quad\qquad\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{$y +_\forall \prog$}{\prog}}{\piCmd{x}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
   \end{prooftree}
 }

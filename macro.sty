@@ -102,7 +102,7 @@
 
 % \newcommand{\runE}[1][]{\ensuremath{\codenames{runE}_#1}}
 \newcommand{\runE}[1][]{\ensuremath{\codenames{runE}\ifx\expandafter\relax
-      \detokenize{#1}\relax\else{_{#1}}\fi}}
+      \detokenize{#1}\relax\else{_{#1}}\fi}\xspace}
 
 \newcommand{\run}{\codenames{runT}}
 \newcommand{\nur}{\codenames{runS}}
