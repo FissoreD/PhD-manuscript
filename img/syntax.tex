@@ -6,24 +6,25 @@
 \[
   \begin{array}{c}
     \begin{array}{r}
-      \multirow{1}{*}{\rotatebox[origin=c]{90}{Program\hspace{-.5cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\null\\\null\\\null\\\end{array} \right. \\
+      \multirow{1}{*}{\rotatebox[origin=c]{90}{Program\hspace{-.5cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\null\\\null\\\end{array} \right. \\
       \multirow{1}{*}{\rotatebox[origin=c]{90}{Types\hspace{-.22cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\end{array}\right.
     \end{array}
     \begin{array}{rlr}
-      \DATA        & ::= f, g, \ldots                                                                                           & \qquad \mathrm{datum}                 \\
-      \PRED        & ::= p, q, \ldots                                                                                           & \qquad \mathrm{predicate}             \\
-      \UVAR        & ::= X, Y, \ldots                                                                                           & \qquad \mathrm{unification\ variable} \\
-      \VAR         & ::= x, y, \ldots                                                                                           & \qquad \mathrm{nominal\ variable}     \\
-      \TERM        & ::= \DATA \mid \PRED \mid \UVAR \mid \VAR \mid \TERM\ \LTERM                                               & \qquad \mathrm{term}                  \\
-      \LTERM       & ::= \lambda \VAR. \LTERM \mid \TERM                                                                        & \qquad \lambda\mathrm{-term}          \\
-      \ATOM        & ::= \cut \mid \cstCmd{\ATOM}{\vecL{\UVAR}} \mid \TERM \mid \piCmd{\VAR}{\ATOM} \mid \implCmd{\RULE}{\ATOM} & \qquad \mathrm{atom}                  \\
-      \RULE        & ::= \TERM\ \cdash\ \ATOM^*                                                                                 & \qquad \mathrm{rule}                  \\
-      \CONSTRAINT  & ::= \vecL{\TERM}\ \backslash \vecL{\TERM} \shortmid \TERM \Leftrightarrow \vecL{\TERM}                     & \qquad \mathrm{constraint\ rule}      \\
-      \KIND        & ::= \kind\ \DATA\ \TYPEARR                                                                                 & \mathrm{type\ declaration}            \\
-      \TYPEARR     & ::= \type \mid \TYPEARR \to \TYPEARR                                                                       & \mathrm{type\ arity}                  \\
-      \CONSTRUCTOR & ::= \type\ \DATA\ \TYPE \mid \type\ \PRED\ \TYPE                                                           & \mathrm{constructor\ declaration}     \\
-      \TYPEBASE    & ::= \DATA \mid \VAR \mid \TYPEBASE\ \TYPE                                                                  & \mathrm{type}                         \\
-      \TYPE        & ::= \TYPEARR \to \TYPEARR \mid \TYPEBASE                                                                   & \lambda\mathrm{-type}                 \\
+      \DATA        & ::= f, g, \ldots                                                          & \qquad \mathrm{datum}                 \\
+      \PRED        & ::= p, q, \ldots                                                          & \qquad \mathrm{predicate}             \\
+      \UVAR        & ::= X, Y, \ldots                                                          & \qquad \mathrm{unification\ variable} \\
+      \NVAR        & ::= x, y, \ldots                                                          & \qquad \mathrm{nominal\ variable}     \\
+      \TERM        & ::= \DATA \mid \PRED \mid \UVAR \mid \NVAR \mid \TERM\ \LTERM             & \qquad \mathrm{term}                  \\
+      \LTERM       & ::= \lambda \NVAR. \LTERM \mid \TERM                                      & \qquad \lambda\mathrm{-term}          \\
+      % \ATOM        & ::= \cut \mid \cstCmd{\ATOM}{\vecL{\UVAR}} \mid \TERM \mid \piCmd{\NVAR}{\ATOM} \mid \implCmd{\RULE}{\ATOM} & \qquad \mathrm{atom}                  \\
+      \ATOM        & ::= \cut \mid \TERM \mid \piCmd{\NVAR}{\ATOM} \mid \implCmd{\RULE}{\ATOM} & \qquad \mathrm{atom}                  \\
+      \RULE        & ::= \TERM\ \cdash\ \ATOM^*                                                & \qquad \mathrm{rule}                  \\
+      % \CONSTRAINT  & ::= \vecL{\TERM}\ \backslash \vecL{\TERM} \shortmid \TERM \Leftrightarrow \vecL{\TERM}                     & \qquad \mathrm{constraint\ rule}      \\
+      \KIND        & ::= \kind\ \DATA\ \TYPEARR                                                & \mathrm{type\ declaration}            \\
+      \TYPEARR     & ::= \type \mid \TYPEARR \to \TYPEARR                                      & \mathrm{type\ arity}                  \\
+      \CONSTRUCTOR & ::= \type\ \DATA\ \TYPE \mid \type\ \PRED\ \TYPE                          & \mathrm{constructor\ declaration}     \\
+      \TYPEBASE    & ::= \DATA \mid \NVAR \mid \TYPEBASE\ \TYPE                                & \mathrm{type}                         \\
+      \TYPE        & ::= \TYPEARR \to \TYPEARR \mid \TYPEBASE                                  & \lambda\mathrm{-type}                 \\
     \end{array}
   \end{array}
 \]

@@ -206,112 +206,159 @@ higher-order logic programming and integrates a goal suspension mechanism
 based on CHR (Constraint Handling Rules~\cite{chr,chr-elpi}).
 
 The term ``embeddable'' highlights that \elpi\ is designed to be used as an
-extension language. Its primary application in our setting is the
-\rocqelpi\ plugin, which enables communication between \elpi\ as the
-meta-language~\Ho\ and the \rocq\ proof assistant as the object
-language~\Fo.
+extension language. Its main application is the \rocqelpi plugin~(see
+\cref{sec:coq-elpi}), which enables communication between \elpi\ as the
+meta-language~\Ho\ and the \rocq\ proof assistant as the object language~\Fo.
 
-A comprehensive presentation of the \elpi\ language and its applications
-can be found in Tassi's ``habilitation à diriger la recherche''~\cite{hdr}.
-Here, we provide only a brief introduction to the aspects of \elpi\ that are
-relevant for this document. The main ideas underlying the \rocqelpi\ plugin
-are discussed separately in \cref{sec:coq-elpi}.
-
+A comprehensive presentation of the \elpi\ language and its applications can be
+found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}. Here, we
+provide a brief introduction to the aspects of \elpi\ that are relevant for this
+document. Some definitions are slightly different in order to remain consistent
+with the notation adopted in \cref{chap:det-elpi,chap:mechanization}. The
+discrepancies are underlined.
 \subsection{Abstract syntax}
 
 \begin{figure}
-  % \begin{subfigure}{\textwidth}
+  \centering
   \includegraphics{img/syntax.pdf}
-  \caption{Abstract syntax of \elpi program}
+  \caption{Abstract syntax of \elpi\ programs}
   \label{fig:elpi-syntax}
-
-  %   $$
-  %     \begin{array}{rlrrlr}
-  %       \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{sign.\ start}  & \qquad
-  %       \F      & ::= \detI \mid \relI                                          & \mathrm{~~determinacy}          \\
-  %       \SIGN_o & ::= \F\ \mid \SIGN_i \toO \SIGN_o \mid \STAR \toO \SIGN_o     & \mathrm{sign.\ stop}   &
-  %       \STAR   & ::= \star                                                     & \mathrm{all\ data}              \\
-  %       \TYPE   & ::= \SIGN_i                                                   & \mathrm{signature}
-  %     \end{array}
-  %   $$
-  % \caption{Abstract syntax of \elpi types and constructors}
-  % \label{fig:syntaxsign}
-  % \end{subfigure}
 \end{figure}
 
-\paragraphTwo{Syntax of \elpi's Programs}
+\paragraphTwo{Syntax of \elpi\ programs}
 
-\Cref{fig:elpi-syntax} presents the abstract syntax of \elpi\ programs. Our
-presentation slightly differs from~\cite[Sec.~2.5.1]{hdr} in order to remain
-consistent with the notation adopted in \cref{chap:det-elpi,chap:mechanization}.
-The discrepancies are underlined.
+\Cref{fig:elpi-syntax} presents the abstract syntax of \elpi\ programs.
 
-The basic syntactic categories are \underline{data}~\DATA, predicates~\PRED,
-unification variables~\UVAR, and \underline{nominal variables}~\VAR. Nominal
-variables represent binders introduced by $\lambda$-abstractions or by
-$\pi$-quantification.
+The basic syntactic categories are \underline{data}~\DATA,
+predicates~\PRED, unification variables~\UVAR, and
+\underline{nominal variables}~\NVAR. Nominal variables represent binders
+introduced either by $\lambda$-abstractions or by $\pi$-quantification.
 
 A term~\TERM\ is either one of these basic constructs or an application. More
-precisely, terms are formed by the \underline{binary} application of a term to a
+precisely, terms are built by the \underline{binary} application of a term to a
 $\lambda$-term~\LTERM. Lambda terms introduce abstractions; in the concrete
-\elpi\ syntax, an abstraction is written as \eI{x\ t}.
+\elpi\ syntax an abstraction is written \eI{x\ t}. Function application follows
+a curried style: unlike \prolog, \elpi does not use parentheses between the
+functor and its arguments.
 
 An atom~\ATOM\ represents an executable unit. It can be:
-the cut operator (\eI{!} in the concrete syntax), a constraint
-declaration~\cst\ (\eI{declare_constraint}), a term, a $\pi$-quantification
-introducing a fresh nominal variable within an atom, or the dynamic
-insertion of a rule~\RULE\ into an atom.
+\begin{enumerate}
+\item the cut operator (\eI{!} in the concrete syntax),
+\item a predicate call,
+\item a $\pi$-quantification, written \eI{pi x\ t} in the concrete syntax,
+      which introduces a fresh nominal variable \eI{x} visible in \eI{t}, or
+\item the dynamic insertion of a rule~\RULE, written \eI{r => t}, which
+      makes the rule \eI{r} locally available while solving \eI{t}.
+\end{enumerate}
 
 A rule~\RULE\ consists of a head and a (possibly empty) body, which is a
 list of atoms. The atoms in the body are called the premises of the rule.
 
-From \cite{hdr}, ``In the syntax for constraint rules~\CONSTRAINT we find first
-a list of terms representing patterns to match, then a list of terms to match
-and remove, then a guard and finally a list of new goals.''
+For simplicity, we \underline{omit constraints} from the syntax, since they
+do not play an immediate role in the presentation. They are briefly
+described in \cref{sec:chr}.
 
-\paragraphTwo{Syntax of \elpi's types}
+\paragraphTwo{Syntax of \elpi\ types}
 
-In \elpi, the user is allowed to define the algebraic types he needs in his
-development and the signature of the predicates he is implementing in its code.
-A new algebraic data-type is declared with the \kind keyword and a new
-constructor of a declared type is declared via the \type keyword.
+In \elpi, users can define the algebraic data types required by their
+development as well as the signatures of predicates. A new algebraic
+data type is declared with the \kind\ keyword, while constructors of that
+type are introduced using the \type\ keyword.
 
-As an example, we can declare the Church naturals and the list type in the following way:
+For example, the following declarations define Church naturals and
+polymorphic lists.
 
 \mvspace
 \begin{minipage}{0.45\textwidth}
-\input{code/elpi_nat.tex}  
+\input{code/elpi_nat.tex}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
 \input{code/elpi_list.tex}
 \end{minipage}
 \mvspace
 
-\eI{nat} is either zero~\eI{z} or the successor~\eI{s} of another \eI{nat}, and
-a \eI{list} is either empty~\eI{nil} or the concatenation of a head to an other
-list. List is polymorphic and forces that type of the head to have the same type
-of the elements in the tail.
+The type \eI{nat} contains the constant \eI{z} representing zero and the
+constructor \eI{s} representing the successor of another natural number.
+A \eI{list} is either empty \eI{nil} or the
+constructor \eI{cons} that combines a head element with a tail list.
+Lists are polymorphic: the type of the head element must coincide with
+the type of the elements stored in the tail.
 
-A predicate is a symbol whose type ends in the \eI{prop} type, the type \eI{o}
-is an equivalet notation following the convention in~\cite{miller2012}. In
-\elpi, we use a special syntax for declaring prediates which also allows to
-declare the modes of the argument of the predicate.
+A predicate is a symbol whose type ends in \eI{prop}. The type \eI{o}
+is an equivalent notation following the convention of~\cite{miller2012}.
+\elpi\ provides a dedicated syntax for declaring predicates, which also
+allows the programmer to specify the modes of their arguments.
 
-The syntax: \eI{pred p i:t1, o:t2.} where \eI{~\PYG{k+kt}{t1}~} and
-\eI{~\PYG{k+kt}{t2}~} are types, is equivalent to the syntax \eI{type p t1 -> t2
--> prop} but also declare the mode of the arguments of \eI{p} which are
-respectively an input~(\eI{i:}) and an output~(\eI{o:}). Modes are used at
-runtime to decide the unification algorithm to use when unifying the head of a
-rule with the current goal.
+The declaration
+\eI{pred p i:t1, o:t2.} where \eI{t1} and \eI{t2} are types,
+is equivalent to the declaration
+\eI{type p t1 -> t2 -> prop}. In addition, it specifies that the first
+argument of \eI{p} is an input (\eI{i:}) and the second is an output
+(\eI{o:}). These modes are used at runtime to determine which
+unification strategy should be applied when matching the head of a rule
+with the current goal.
 
-\paragraphTwo{Program typechecking}
+\paragraphTwo{Program type checking}
 
-\elpi is a (almost) strongly type language, i.e. when a program is interpreted,
-the typechecker verifies the its type soundness. That is, any type inconsistency
-is thrown as an error, allowing in most of the cases to correct an
-implementation bug.
+\elpi\ is an (almost) strongly typed language. When a program is
+interpreted, the type checker verifies that it is well typed. Any type
+inconsistency is reported as an error, which typically helps identify
+and correct implementation bugs early.
 
 \subsection{Operational semantics}
+
+A substitution $\subst$ of type $\Sigma$ is a partial mapping from unification
+variables \VAR to terms \TERM{}. We write $\subst\ t$ the  application of the
+substitution to $t$. The empty substitution is written $\EmptySubst$.
+
+A typing environment \env is a mapping from predicates~\PRED to their signature.
+% is so that $\dom\ \EmptySubst = \EmptyList$.
+
+A program $\prog$ of type $\PROG$ is a \underline{record} and has the following
+structure:
+
+{
+  \mvspace
+  \centering
+  \txtI{~$\PROG$~ := {index : list ~$\RULE$~; nvar : list ~$\VAR$~; sig : ~\env~}}\par
+  \mvspace
+}
+
+pair $(\mathbb{N}, \mathcal{I})$ where $\mathbb{N}$ is a set of names and
+$\mathcal{I}$ an index mapping predicate names to an \emph{ordered list} of
+rules. We write $x \# \prog$ to find a name fresh in $\mathbb{N}$. We write
+$\prog~\pred$ for the rules of predicate \pred in $\mathcal{I}$ and we write $x
++ \prog$ to add the name $x$ to $\mathbb{N}$ and we write $h + \prog$ to prepend
+the extra rules $h$  to $\mathcal{I}$ (hence $h$ has the highest priority in the
+new program).
+
+
+% A constraint store $\kappa$ of type $K = \vecL{\PROG \times \APP \times \vecL{\VAR}}$
+% is a multiset of triples $(\prog,c,t)$
+% where $\prog$ is a program, where $c$ stands for a constraint (an applicative term in $\APP$) and $t$
+% of type $\vecL{\VAR}$ is the trigger. The empty store is written $\EmptySubst$;
+% we use $k - (\prog,c,t)$ to remove a constraint from the store.
+% The rules acting on the constraint store $\mathcal{R = \vecL{\mathbb{C}}}$ are
+% morally part of the program, but since they never change we omit them.
+
+
+A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$
+is a triple made of a program, an atom and a list of
+so called \emph{cut-to} alternatives.
+An alternative $a$ of type $\alt$ is a triple of type $\Sigma \times \vecL{\g}$
+made of a constraint store, a substitution and a list of goals.
+
+
+In~\cref{fig:elpi-semantics} we give the derication rules for the \elpi
+interpreter based on the function:
+
+$$\runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \bot$$
+
+The semantics is strongly inspired from~\cite[Sec.~4.3]{debray1988}, it is a
+semantics base on stack of alternatives~\alt. The interpreter evaluates them in
+order and, either the first alternative produce a success, in this case, we
+return a substitution ($\sigma$) and the new list of alternatives to interprete, or
+it fails ($\bot$).
 
 The semantics we choose here is a bit different from~\cite{hdr}, in order to
 make it closer to the run inductive chosen in~\cref{stack-sem} to represent
@@ -324,6 +371,7 @@ a failure. If the list is non empty, then we are in the scenario in~\cite{hdr}.
   \centering
   \includegraphics{img/det_check/dynamic.pdf}
   \caption{Elpi semantics}
+  \label{fig:elpi-semantics}
 \end{figure}
 
 
@@ -434,7 +482,7 @@ in particular how alternatives are stored and how they are pruned by cut.
 % semantics are based on different syntaxes, the first syntax (called tree)
 % exploits a tree-like structure and is ideal both to have a graphical view of its
 % evolution while the tree is being interpreted and to prove lemmas over it. The
-% second syntax, called elpi, is the \elpi's syntax and has the advantage of
+% second syntax, called elpi, is the \elpi syntax and has the advantage of
 % reducing the computational cost of cutting and backtracking alternatives by
 % using shared pointers. We aim to prove the equivalence of the two semantics
 % together with some interesting lemmas of the cut behavior.
@@ -505,7 +553,7 @@ Andrews:~\cite{andrews2003}
 Vink: \cite{vink1989}
 
 \subsection{\chr: goal suspension}
-
+\label{sec:chr}
 \cite{chr,chr15}
 
 CHR elpi: \cite[section 4.3]{chr-elpi}

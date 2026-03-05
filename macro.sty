@@ -100,6 +100,7 @@
 \newcommand{\failed}{\codenames{failed}}
 \newcommand{\incomplete}{\codenames{incomplete}}
 
+\newcommand{\runE}{\codenames{runE}}
 \newcommand{\run}{\codenames{runT}}
 \newcommand{\nur}{\codenames{runS}}
 
@@ -191,8 +192,9 @@
 \newcommand{\LTERM}[1][]{\ensuremath{\mathbb{L}#1}\xspace}
 \newcommand{\CONSTRAINT}[1][]{\ensuremath{\mathbb{C}#1}\xspace}
 \def\CALL{\CALLABLE}
-\newcommand{\VAR}[1][]{\ensuremath{\mathbb{V}#1}\xspace}
+\newcommand{\NVAR}[1][]{\ensuremath{\mathbb{N}#1}\xspace}
 \newcommand{\UVAR}[1][]{\ensuremath{\mathbb{U}#1}\xspace}
+\newcommand{\VAR}[1][]{\UVAR[#1]}
 \newcommand{\TERM}[1][]{\ensuremath{\mathbb{T\!m}#1}}
 \newcommand{\HEAD}[1][]{\ensuremath{\mathbb{H}#1}\xspace}
 \newcommand{\STAR}{\ensuremath{{\medstar\hspace{-4.5pt}\rule[.6pt]{.4pt}{3.3pt}}\hspace{5pt}}\xspace}
@@ -241,8 +243,9 @@
 \newcommand{\EmptySubst}{\ensuremath{\varepsilon}}
 \def\mutExclAll{\text{\auxfont mut\_excl}\xspace}
 
-\newcommand{\toI}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont i}}}{\rightarrowtriangle}}
-\newcommand{\toO}{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont o}}}{\rightarrowtriangle}}
+\newcommand{\arrmode}[1]{\stackrel{\!\!\raisebox{-0.3em}{\tiny\text{\procfont #1}}}{\rightarrowtriangle}}
+\newcommand{\toI}{\arrmode{i}}
+\newcommand{\toO}{\arrmode{o}}
 
 \newcommand{\maximize}{\text{\auxfont weak}\xspace}
 \newcommand{\minimize}{\text{\auxfont strong}\xspace}
@@ -289,10 +292,10 @@
 \newcommand{\isdetp}{\text{\auxfont checked}\ensuremath{_\text{\procfont p}}\xspace}
 
 \newcommand{\buildRunArg}[3]{\ConsHd{(#1,\ #2)}\ConsTl{#3}}
-\newcommand{\runCmd}[5]{\ensuremath{\run\ \buildRunArg{#3}{#1}{#2} \arr (#5, #4)}}
-\newcommand{\runCmdR}[3]{\ensuremath{\run\ \buildRunArg{#3}{#1}{#2} \arr r}}
+\newcommand{\runCmd}[5]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr (#5, #4)}}
+\newcommand{\runCmdR}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr r}}
 \newcommand{\backchain}{\ensuremath{\mathcal{B}}\xspace}
-\newcommand{\runCmdF}[3]{\ensuremath{\run\ \buildRunArg{#3}{#1}{#2} \arr \bot}}
+\newcommand{\runCmdF}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr \bot}}
 \newcommand{\Cons}[1]{\ensuremath{#1::}}
 \newcommand{\ConsHd}[1]{\ensuremath{(#1::}\xspace}
 \newcommand{\ConsTl}[1]{\ensuremath{#1)}\xspace}
@@ -300,7 +303,7 @@
 \newcommand{\ConsTlNP}[1]{\ensuremath{#1}\xspace}
 \newcommand{\goalCmd}[3]{\ensuremath{(#1,\ #2, #3)}\xspace}
 \newcommand{\clauseCmd}[3]{\ensuremath{#1 \cdash #3}}
-\newcommand{\runCmdQR}[1]{\ensuremath{\run\ #1 \arr r}}
+\newcommand{\runCmdQR}[1]{\ensuremath{\runE\ #1 \arr r}}
 \newcommand{\lamCmd}[2]{\ensuremath{\lambda#1. #2}}
 \newcommand{\callCmd}[1]{\ensuremath{#1\xspace}}
 \newcommand{\alts}[1][]{\ensuremath{a#1}\xspace}

@@ -15,6 +15,7 @@
 \newcommand{\eI}[1]{\minline{elpi}{#1}}
 \newcommand{\cI}[1]{\minline{coq}{#1}}
 \newcommand{\mlI}[1]{\minline{ocaml}{#1}}
+\newcommand{\txtI}[1]{\minline{text}{#1}}
 
 \newcommand{\mintopt}{fontsize=\small,autogobble,escapeinside=~~,mathescape=true,frame=leftline,framerule=0pt,framesep=1em}
 
@@ -33,6 +34,21 @@
 }{%
   \end{mminted}%
 }
+
+\newenvironment{txtcode}{%
+  \VerbatimEnvironment
+  \begin{mminted}{text}%
+    }{%
+  \end{mminted}%
+}
+
+\newenvironment{mlcode}{%
+  \VerbatimEnvironment
+  \begin{mminted}{ocaml}%
+    }{%
+  \end{mminted}%
+}
+
 
 \newenvironment{elpicode}{%
   \VerbatimEnvironment
