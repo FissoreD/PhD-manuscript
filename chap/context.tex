@@ -310,24 +310,25 @@ interpreted, the type checker verifies that it is well typed. Any type
 inconsistency is reported as an error, which typically helps identify
 and correct implementation bugs early.
 
-\subsection{Operational semantics of the \lprolog part of \elpi (no \chr)}
+\subsection{Operational semantics of the \lprolog\ fragment of \elpi\ (without
+\chr)}
 
 \begin{figure}[t]
   \centering
   \includegraphics{img/det_check/dynamic.pdf}
-  \caption{Elpi semantics}
+  \caption{Operational semantics of \elpi}
   \label{fig:elpi-semantics}
 \end{figure}
 
-A substitution $\subst$ of type $\Sigma$ is a partial mapping from unification
-variables \VAR to terms \TERM{}. We write $\subst\ t$ the  application of the
-substitution to $t$. The empty substitution is written $\EmptySubst$.
+A substitution $\subst$ of type $\Sigma$ is a partial mapping from
+unification variables \UVAR\ to terms \TERM. The application of a
+substitution to a term $t$ is written $\subst\ t$. The empty substitution
+is denoted by $\EmptySubst$.
 
-A typing environment \env is a mapping from predicates~\PRED to their signature.
-% is so that $\dom\ \EmptySubst = \EmptyList$.
+A typing environment $\env$ maps predicates~\PRED\ to their signatures.
 
-A program $\prog$ of type $\PROG$ is a \underline{record} and has the following
-structure:
+A program $\prog$ of type $\PROG$ is represented as a \underline{record}
+with the following structure:
 
 {
   \mvspace
@@ -336,51 +337,64 @@ structure:
   \mvspace
 }
 
-It contains an ordered list of rules~\txtI{index} representing the database, a
-set of nominal variables~\txtI{nvar} and a signature environment~\txtI{sig}. We
-write $x \# \prog$ to find a name fresh in $\prog.\txtI{nvar}$ and $x +_\forall \prog$
-to add the name $x$ to $\prog.\txtI{nvar}$. We write $h +_\Rightarrow \prog$ to prepend the
-extra rule $h$ to $\prog.\txtI{index}$.
+The field \txtI{index} is an ordered list of rules representing the rule
+database. The field \txtI{nvar} stores the set of nominal variables that
+have already been introduced, and \txtI{sig} is the signature
+environment.
 
-A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$ is a triple made
-of a program, an atom and a list of so called \emph{cut-to} alternatives. An
-alternative $a$ of type $\alt$ is a \underline{couple} of type $\Sigma \times
-\vecL{\g}$ made of a substitution and a list of goals.
+We write $x \# \prog$ to denote a nominal variable fresh with respect to
+$\prog.\txtI{nvar}$, and $x +_\forall \prog$ for the program obtained by
+adding $x$ to $\prog.\txtI{nvar}$. Similarly, $h +_\Rightarrow \prog$
+denotes the program obtained by prepending the rule $h$ to
+$\prog.\txtI{index}$.
 
-In~\cref{fig:elpi-semantics} we give the derication rules for the \elpi
-interpreter based on the \underline{function}:
-%
-$$\runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \bot$$
+A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$ is a
+triple consisting of a program, an atom, and a list of
+\emph{cut-to alternatives}. An alternative $a$ of type $\alt$ is a pair
+of type $\Sigma \times \vecL{\g}$ composed of a substitution and a list
+of goals.
 
-The semantics is strongly inspired from~\cite[Sec.~4.3]{debray1988}, it is a
-semantics base on stack of alternatives~\alt. The interpreter evaluates them in
-order and, either the first alternative produce a success, in this case, we
-return a substitution and the new list of alternatives to interprete, or
-it fails ($\bot$).
+\Cref{fig:elpi-semantics} presents the derivation rules of the \elpi\
+interpreter, defined in terms of the function
+\[
+\runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \bot .
+\]
 
-In \cref{fig:elpi-semantics}, a success is represented by rule \runE[\top]: the
-first alternative contains an empty list of goals, it returns the substitution
-recived in entry and the tail alternatives. By \runE[\bot], if the alternative
-list is empty, the interpreter returns a failure.
+This semantics is strongly inspired by
+\cite[Sec.~4.3]{debray1988} and \cite{hdr}. Execution is modeled as the evaluation of a
+stack of alternatives~$\alt$. The interpreter processes alternatives in
+order. Evaluating the first alternative either produces a success -- yielding
+a substitution together with a new list of alternatives -- or fails
+(returning $\bot$).
 
-The remaining recursive cases of \runE, i.e. \runE[!], \run[@], \runE[\forall],
-\runE[\Rightarrow], treat a non-empty list of alternatives with the form
-$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the first goal list is non
-empty. Each of the remaining rules works on the shape of $q$ which is an \ATOM,
-and it exists $4$ kind of atoms, from \cref{fig:elpi-syntax}.
+In \cref{fig:elpi-semantics}, success is captured by rule \runE[\top]:
+if the first alternative contains an empty list of goals, the interpreter
+returns the associated substitution together with the remaining
+alternatives. Conversely, rule \runE[\bot] states that evaluation fails
+when the list of alternatives is empty.
 
-If $q$ is a \cut, then, by \runE[!], the alternatives $a$ are discarded in
-favour of the cut-to alternatives stored in the $q$. The list of goals $g$ is
-left as the head of the recursive call to run. If $q$ is a \pi-quantification of
-a variable $x$, then the interpreter finds a fresh nominal variables $y$ not
-used in \prog and replaces all free occurrences of $x$ in $t$ by $y$ before
-performing a recursive call to \runE. If $q$ is the dynamic insertion of a rule
-$h$, then a recursive call to \runE is performed with the atom $t$ seing the
-program extended with the local rule $h$.
+The remaining rules of \runE -- namely \runE[!], \runE[@], \runE[\forall],
+and \runE[\Rightarrow] -- handle the case where the head of the alternative list
+is non-empty. Such alternative list has the form
+$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the current goal is
+the atom $q$. Each rule depends on the syntactic form of $q$, which can
+take one of the four forms of \ATOM listed in \cref{fig:elpi-syntax}.
 
-If $h$ is a predicate call, then the goal represent a new query that should be
-backchained in the \prog.\marginpar{This rule also account for backtracking}
+If $q$ is a \cut, rule \runE[!] discards the current alternatives $a$
+and replaces them with the cut-to alternatives stored in $q$. The
+remaining goals $g$ become the head of the recursive call to \runE.
 
+If $q$ is a $\pi$-quantification $\pi x.\,t$, the interpreter generates a
+fresh nominal variable $y$ not occurring in $\prog$, replaces all free
+occurrences of $x$ in $t$ by $y$, and continues evaluation with the
+resulting new atom.
+
+If $q$ corresponds to the dynamic insertion of a rule $h$, evaluation
+continues with atom $t$ in the program extended with the local rule $h$.
+
+Finally, if $q$ is a predicate call, the interpreter performs
+backchaining against the rules stored in $\prog.\txtI{index}$. \marginpar{This rule
+also accounts for backtracking during the search.}
 
 % \paragraph{Backchaining}
 
