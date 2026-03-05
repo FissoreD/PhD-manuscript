@@ -4,7 +4,7 @@
 
 \newcommand{\ruleFail}{\ruleName{rule:backtrack}{\circlearrowright }}
 \newcommand{\ruleAbort}{\ruleName{rule:abort}{\bot}}
-\newcommand{\ruleCall}{\ruleName{rule:call}{@}}
+\newcommand{\ruleCall}{\ruleName{rule:call}{\backchain}}
 \newcommand{\ruleCallF}{\ruleName{rule:callbacktrack}{\circlearrowright}}
 \newcommand{\ruleCallFH}{\ruleName{rule:callabort}{\bot}}
 \newcommand{\ruleCallB}{\ruleName{rule:call1}{@'}}
@@ -80,7 +80,7 @@
 \newcommand{\ruleCallM}{
   \begin{prooftree}
     % CALL
-    \AxiomC{$\backchain(\prog, t, \subst, \altsV, \gV) = \altsV'$}
+    \AxiomC{$\backchain(\prog, (\subst\ t), \subst, \altsV, \gV) = \altsV'$}
     \AxiomC{\runCmdQR{(\altsV'\ \atsign\ \altsV)}}
     \RightLabelM{\ruleCall}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{t}}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}

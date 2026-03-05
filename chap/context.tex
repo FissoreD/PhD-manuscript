@@ -243,12 +243,12 @@ functor and its arguments.
 
 An atom~\ATOM\ represents an executable unit. It can be:
 \begin{enumerate}
-\item the cut operator (\eI{!} in the concrete syntax),
-\item a predicate call,
-\item a $\pi$-quantification, written \eI{pi x\ t} in the concrete syntax,
-      which introduces a fresh nominal variable \eI{x} visible in \eI{t}, or
-\item the dynamic insertion of a rule~\RULE, written \eI{r => t}, which
-      makes the rule \eI{r} locally available while solving \eI{t}.
+  \item the cut operator (\eI{!} in the concrete syntax),
+  \item a predicate call,
+  \item a $\pi$-quantification, written \eI{pi x\ t} in the concrete syntax,
+        which introduces a fresh nominal variable \eI{x} visible in \eI{t}, or
+  \item the dynamic insertion of a rule~\RULE, written \eI{r => t}, which
+        makes the rule \eI{r} locally available while solving \eI{t}.
 \end{enumerate}
 
 A rule~\RULE\ consists of a head and a (possibly empty) body, which is a
@@ -266,19 +266,20 @@ is declared with the \kind\ keyword, while constructors of that type are
 introduced using the \type\ keyword. A type is ether a definition is either a
 type declaration, a variable, or the application of a type to another in the
 case of parametric types. The arrow symbol is used to type function space and in
-\elpi it take \underline{an optional mode information}. The mode tells the
-runtime which unification algorithm to use when unifying the arguments of two
-terms. By default, no mode information is compiled to \texttt{output}.
+\elpi it take \underline{an optional mode information}. The mode, \Einput or
+\Eoutput, tells the runtime which unification algorithm to use when unifying the
+arguments of two terms, we dealy this discussion in the next paragraph. By
+default, no mode information is compiled to \Eoutput.
 
 For example, the following declarations define Church naturals and
 polymorphic lists.
 
 \mvspace
 \begin{minipage}{0.45\textwidth}
-\input{code/elpi_nat.tex}
+  \input{code/elpi_nat.tex}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
-\input{code/elpi_list.tex}
+  \input{code/elpi_list.tex}
 \end{minipage}
 \mvspace
 
@@ -310,8 +311,7 @@ interpreted, the type checker verifies that it is well typed. Any type
 inconsistency is reported as an error, which typically helps identify
 and correct implementation bugs early.
 
-\subsection{Operational semantics of the \lprolog\ fragment of \elpi\ (without
-\chr)}
+\subsection{Operational semantics of the \lprolog\ fragment of \elpi\ (without \chr)}
 
 \begin{figure}[t]
   \centering
@@ -320,21 +320,29 @@ and correct implementation bugs early.
   \label{fig:elpi-semantics}
 \end{figure}
 
-A substitution $\subst$ of type $\Sigma$ is a partial mapping from
-unification variables \UVAR\ to terms \TERM. The application of a
-substitution to a term $t$ is written $\subst\ t$. The empty substitution
-is denoted by $\EmptySubst$.
+A substitution $\subst$ of type $\Sigma$ is a partial mapping from unification
+variables \UVAR\ to terms \TERM. The application of a substitution to a term $t$
+is written $\subst\ t$. The empty substitution is denoted by $\EmptySubst$. The
+domain~\dom of a substitution $\sigma$ is the set of variables in $\sigma$ that
+are assigned.
 
+\begin{definition}[Substitution extension]
+  $\sigma'$ is an extension of $\sigma$ iff
+  $$\exists \sigma'', \sigma + \sigma'' = \sigma' \land \mathrm{dom}\ \sigma''
+    \cap \mathrm{dom}\ \sigma = \varnothing$$
+\end{definition}
+
+\noindent
 A typing environment $\env$ maps predicates~\PRED\ to their signatures.
 
 A program $\prog$ of type $\PROG$ is represented as a \underline{record}
 with the following structure:
 
 {
-  \mvspace
-  \centering
-  \txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\VAR$~; sig: ~\env~}}\par
-  \mvspace
+\mvspace
+\centering
+\txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\VAR$~; sig: ~\env~}}\par
+\mvspace
 }
 
 The field \txtI{index} is an ordered list of rules representing the rule
@@ -357,7 +365,7 @@ of goals.
 \Cref{fig:elpi-semantics} presents the derivation rules of the \elpi\
 interpreter, defined in terms of the function
 \[
-\runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \mnone .
+  \runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \mnone .
 \]
 
 This semantics is strongly inspired by
@@ -373,7 +381,7 @@ returns the associated substitution together with the remaining
 alternatives. Conversely, rule \runE[\bot] states that evaluation fails
 when the list of alternatives is empty.
 
-The remaining rules of \runE -- namely \runE[!], \runE[@], \runE[\forall],
+The remaining rules of \runE -- namely \runE[!], \runE[\backchain], \runE[\forall],
 and \runE[\Rightarrow] -- handle the case where the head of the alternative list
 is non-empty. Such alternative list has the form
 $\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the current goal is
@@ -392,30 +400,49 @@ resulting new atom.
 If $q$ corresponds to the dynamic insertion of a rule $h$, evaluation
 continues with atom $t$ in the program extended with the local rule $h$.
 
-Finally, if $q$ is a predicate call, the interpreter performs
-backchaining against the rules stored in $\prog.\txtI{index}$. \marginpar{This rule
-also accounts for backtracking during the search.}
+Finally, if $q$ is a predicate call, the interpreter performs backchaining
+against the rules stored in $\prog.\txtI{index}$. Backchaining is the operation
+of retrieving in a database the rules that can be used on the given query, $q$
+in our case. In classic prolog it is performed by filtering the list of rules
+with a head unifying with $q$. In \elpi the unification of $q$ with the rules'
+head is a bit different, since, as anticipated in the previous seciont, the
+modes of the predicate influence of argument are unified. In particular, in
+\elpi, we dispose of two unification procedure, called \unify and \matching.
+Both procedure have the following type: $\TERM \to \TERM \to \sigma \to \sigma +
+\mnone$, they take two terms and a substitution $\sigma$ and either they fail to
+unify/match the two terms returning \mnone or they succed returning an updated
+substitution $\sigma'$ which is an extension of $\sigma$. \unify is the
+higher-order unification restrained into the
+pattern-fragment~\cite{miller1991-pf} and is used on arguments in \Eoutput
+position. The \matching procedure, like \bprolog ``matching clauses''.
+
+\begin{definition}[\unify / \matching]\label{def:matching} Two terms $t$ and
+  $u$ unify in a substitution $\sigma$ if there exists a substitution $\subst'$
+  such that $\subst' \cdot t = \subst' \cdot u$ and $\sigma'$ is an extension of
+  $\sigma$. We say that a term $t$ matches (the pattern) $u$ in a substitution
+  $\sigma$ if there exists a substitution $\subst'$ such that $\subst' \cdot u =
+    \sigma t$ and $\subst'$ is an extension of $\sigma$ assigning at most the free
+  variables occurring in $u$
+\end{definition}
 
 % \paragraph{Backchaining}
 
-\begin{definition}[Backchain, $\backchain : \PROG \times \SIGMA \times \CALLABLE \times \vecL{\GOAL} \times \vecL{\ALT} \to \vecL{\ALT}$]
+The backchain function, noted \backchain is defined as follows:
+
+\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \SIGMA \times \vecL{\alt} \times \vecL{\g} \to \vecL{\ALT}$]
   $$
-    \!\! \backchain(\prog, \subst, c, gs, as) =
+    \backchain(\prog, t, \subst, a, g) =
     \bigg[
-      %\bigg(
       \subst['],
-      %\Big(
-      %\underbrace{
-      \big(\big[(\prog, g, as) \mid g \in\! \vecL{b}\big] \atsign\ gs\big)
-      %}_{\mathrm{premises}} \atsign ~ gs
-      \ \kIF\ \select(c, c_1, \subst) = \subst['] %
-      %\Big)
-      %\bigg)
+      \big(\big[(\prog, q, a) \mid q \in\! b\big] \atsign\ g\big)
+      \ \kIF\ \select(t, h, \subst, \getmode(\prog, t)) = \subst['] %
       ~\bigg\rvert~
-      (\clauseCmd{c_1}{}{\vecL{b}}) \in \prog\
+      (\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}\
       \bigg]
   $$
 \end{definition}
+
+TODO: dire cosa è \getmode and \select
 
 \paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
 \label{sec:cut-op}

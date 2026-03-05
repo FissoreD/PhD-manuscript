@@ -24,8 +24,8 @@
       \TYPEARR     & ::= \type \mid \TYPEARR \to \TYPEARR                                      & \mathrm{type\ arity}                  \\
       \CONSTRUCTOR & ::= \type\ \DATA\ \TYPE \mid \type\ \PRED\ \TYPE                          & \mathrm{constructor\ declaration}     \\
       \TYPEBASE    & ::= \DATA \mid \NVAR \mid \TYPEBASE\ \TYPE                                & \mathrm{type}                         \\
-      \TYPE        & ::= \TYPEARR \arrmode{?m} \TYPEARR \mid \TYPEBASE                          & \lambda\mathrm{-type}                 \\
-      m            & ::= \texttt{input} \mid \texttt{output}                                   & \mathrm{mode}                         \\
+      \TYPE        & ::= \TYPEARR \arrmode{?m} \TYPEARR \mid \TYPEBASE                         & \lambda\mathrm{-type}                 \\
+      m            & ::= \Einput \mid \Eoutput                                                   & \mathrm{mode}                         \\
     \end{array}
   \end{array}
 \]
