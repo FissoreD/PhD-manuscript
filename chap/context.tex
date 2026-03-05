@@ -221,23 +221,10 @@ are discussed separately in \cref{sec:coq-elpi}.
 
 \begin{figure}
   % \begin{subfigure}{\textwidth}
-  $$
-    \begin{array}{rlr}
-      \DATA       & ::= f, g, \ldots                                                                                           & \qquad \mathrm{datum}                 \\
-      \PRED       & ::= p, q, \ldots                                                                                           & \qquad \mathrm{predicate}             \\
-      \UVAR       & ::= X, Y, \ldots                                                                                           & \qquad \mathrm{unification\ variable} \\
-      \VAR        & ::= x, y, \ldots                                                                                           & \qquad \mathrm{nominal\ variable}     \\
-      \TERM       & ::= \DATA \mid \PRED \mid \UVAR \mid \VAR \mid \TERM\ \LTERM                                               & \qquad \mathrm{term}                  \\
-      \LTERM      & ::= \lambda \VAR. \LTERM \mid \TERM                                                                        & \qquad \lambda\mathrm{-terms}         \\
-      \ATOM       & ::= \cut \mid \cstCmd{\ATOM}{\vecL{\UVAR}} \mid \TERM \mid \piCmd{\VAR}{\ATOM} \mid \implCmd{\RULE}{\ATOM} & \qquad \mathrm{atom}                  \\
-      \RULE       & ::= \TERM\ \cdash\ \ATOM^*                                                                                 & \qquad \mathrm{rule}                  \\
-      \CONSTRAINT & ::= \vecL{\TERM}\ \backslash \vecL{\TERM} \shortmid \TERM \Leftrightarrow \vecL{\TERM}                     & \qquad \mathrm{constraint\ rule}
-    \end{array}
-  $$
-  \caption{Syntax of \elpi program}
+  \includegraphics{img/syntax.pdf}
+  \caption{Abstract syntax of \elpi program}
   \label{fig:elpi-syntax}
-  % \end{subfigure}
-  % \begin{subfigure}{\textwidth}
+
   %   $$
   %     \begin{array}{rlrrlr}
   %       \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{sign.\ start}  & \qquad
@@ -247,8 +234,8 @@ are discussed separately in \cref{sec:coq-elpi}.
   %       \TYPE   & ::= \SIGN_i                                                   & \mathrm{signature}
   %     \end{array}
   %   $$
-  %   \caption{Syntax of \elpi signatures for predicates}
-  %   \label{fig:syntaxsign}
+  % \caption{Abstract syntax of \elpi types and constructors}
+  % \label{fig:syntaxsign}
   % \end{subfigure}
 \end{figure}
 
@@ -284,45 +271,45 @@ and remove, then a guard and finally a list of new goals.''
 
 \paragraphTwo{Syntax of \elpi's types}
 
-\elpi is a (almost) strongly typed programming language. It means that each
-program should pass the typechecking phase, where, when possible, unkown symbols
-are assigned to the needed type. The type of atoms is noted \eI{prop} or,
-equivalently, following the~\cite{miller2012} convention \eI{o}. This is
-beacause a 
+In \elpi, the user is allowed to define the algebraic types he needs in his
+development and the signature of the predicates he is implementing in its code.
+A new algebraic data-type is declared with the \kind keyword and a new
+constructor of a declared type is declared via the \type keyword.
 
-The abstract syntax of signatures is given in~\cref{fig:syntaxsign}.
-Predicate signatures \TYPE\ start with input arguments from the $\SIGN_i$ non-terminal,
-continue with output arguments from the $\SIGN_o$ non-terminal and end
-with a determinacy marker \F: \detI for functions and \relI for relations (respectively \eI{func}
-and \eI{pred} in the concrete syntax). % used in the introduction). 
-% \begin{figure}[b]
-% \begin{framed}
-%   \begin{minipage}{0.45\textwidth}
-% \end{minipage}
-% \end{framed}
-%   \vspace{-1em}
-%   \caption{Abstract syntax of predicate signatures}
-%   \label{fig:syntaxsign}
-% \end{figure}
-We collapse
-all data types into a single type \STAR\ and
-we disallow to store predicates into data, i.e., one cannot form a list of
-predicates.
-Note that the grammar of \TYPE\ forces all input arguments to come first.
-We  reserve $d$ for instances of type \STAR, $\rho$ and $\tau$ for signatures and $\func$ for instances of \F.
-For example the signature
-\eI{func map (func A -> B), list A -> list B}
-corresponds to
-$(\star \toI \star \toO \detI) \toI \star \toI \star \toO \detI$.
+As an example, we can declare the Church naturals and the list type in the following way:
 
-We denote booleans $\BOOL = \{ \top, \bot\}$;
-contexts \CTX being partial
-maps from symbols to signatures.
-We use $\EmptyList$ for the empty list and $x :: xs$ for prepending the element $x$
-to a list $xs$.
-We reserve
-$\Gamma$ for
-contexts.
+\mvspace
+\begin{minipage}{0.45\textwidth}
+\input{code/elpi_nat.tex}  
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\input{code/elpi_list.tex}
+\end{minipage}
+\mvspace
+
+\eI{nat} is either zero~\eI{z} or the successor~\eI{s} of another \eI{nat}, and
+a \eI{list} is either empty~\eI{nil} or the concatenation of a head to an other
+list. List is polymorphic and forces that type of the head to have the same type
+of the elements in the tail.
+
+A predicate is a symbol whose type ends in the \eI{prop} type, the type \eI{o}
+is an equivalet notation following the convention in~\cite{miller2012}. In
+\elpi, we use a special syntax for declaring prediates which also allows to
+declare the modes of the argument of the predicate.
+
+The syntax: \eI{pred p i:t1, o:t2.} where \eI{~\PYG{k+kt}{t1}~} and
+\eI{~\PYG{k+kt}{t2}~} are types, is equivalent to the syntax \eI{type p t1 -> t2
+-> prop} but also declare the mode of the arguments of \eI{p} which are
+respectively an input~(\eI{i:}) and an output~(\eI{o:}). Modes are used at
+runtime to decide the unification algorithm to use when unifying the head of a
+rule with the current goal.
+
+\paragraphTwo{Program typechecking}
+
+\elpi is a (almost) strongly type language, i.e. when a program is interpreted,
+the typechecker verifies the its type soundness. That is, any type inconsistency
+is thrown as an error, allowing in most of the cases to correct an
+implementation bug.
 
 \subsection{Operational semantics}
 

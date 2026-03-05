@@ -1,0 +1,16 @@
+%SNIP: elpi_nat
+kind nat type.
+type z nat.
+type s nat -> nat.
+%ENDSNIP: elpi_nat
+
+%SNIP: elpi_list
+kind list' type -> type.
+type nil' list' A.
+type cons' A -> list' A -> list' A.
+%ENDSNIP: elpi_list
+
+
+main :-
+  L = cons' (s n) nil',
+  print L.
