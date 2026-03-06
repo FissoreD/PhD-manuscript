@@ -505,51 +505,6 @@ goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
 
-\paragraphTwo{Higher-order programming}
-
-\paragraphTwo{Dynamic programming}
-
-Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
-
-Teyjus:~\cite{teyjus,miller2012}
-
-Elf: \cite{elf}
-
-Twelf:\cite{twelf}
-
-Lambda prolog: \cite{qi2009}
-
-Mercury: \cite{somogy1996}
-
-WAM: \cite{ait1991-wam}
-
-Prolog semantics: \cite{debray1988}
-
-HOAS: \cite{pfenning1988}
-
-\subsection{Rule names and insertion}
-\label{sec:elpi-rule-names}
-
-\begin{elpicode}
-  :name XXXX
-  :before YYY
-\end{elpicode}
-
-Miller: \cite{miller1991-pf}
-
-Huet: \cite{huet75}
-
-Modes: \cite{zhou2012}
-
-SWI prolog: \cite{swi-prolog-cut}
-
-Andrews:~\cite{andrews2003}
-
-Vink: \cite{vink1989}
-
-\subsection{Main differences with Tassi's hdr}
-\label{sec:elpi-diff-hdr}
-
 \subsection{\chr: goal suspension}
 \label{sec:chr}
 \cite{chr,chr15}
@@ -664,6 +619,57 @@ extracts the value from the option \cI{o} and returns the default \cI{d}
 if \cI{o} is $\mnone$.
 % \marginpar{spiegare notation for list}
 % $\epsilon$ is the empty substitution.
+
+\subsection{Features of the \elpi language}
+
+\paragraphTwo{Higher-order programming}
+
+One of the feature of the \elpi language is the possibility to do higher-order
+programming. 
+
+\paragraphTwo{Dynamic programming}
+
+Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
+
+Teyjus:~\cite{teyjus,miller2012}
+
+Elf: \cite{elf}
+
+Twelf:\cite{twelf}
+
+Lambda prolog: \cite{qi2009}
+
+Mercury: \cite{somogy1996}
+
+WAM: \cite{ait1991-wam}
+
+Prolog semantics: \cite{debray1988}
+
+HOAS: \cite{pfenning1988}
+
+\paragraphTwo{Rule names and insertion}
+\label{sec:elpi-rule-names}
+
+\begin{elpicode}
+  :name XXXX
+  :before YYY
+\end{elpicode}
+
+Miller: \cite{miller1991-pf}
+
+Huet: \cite{huet75}
+
+Modes: \cite{zhou2012}
+
+SWI prolog: \cite{swi-prolog-cut}
+
+Andrews:~\cite{andrews2003}
+
+Vink: \cite{vink1989}
+
+
+\section{Related works}
+\label{sec:ctx-related-words}
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: a logical framework for \rocq}
