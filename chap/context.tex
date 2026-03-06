@@ -421,22 +421,23 @@ pattern fragment~\cite{miller1991-pf} and is used for arguments in
 \Eoutput\ position. The procedure \matching, inspired by \bprolog's
 ``matching clauses'', is used for arguments in \Einput\ position.
 
-\begin{definition}[\unify\ /\ \matching]\label{def:matching}
+\begin{definition}[\unify]\label{def:unify}
 Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
 exists a substitution $\sigma'$ extending $\sigma$ such that
-$\sigma' q = \sigma' u$.
+$\sigma' q = \sigma' u$, and $\sigma'$ is a most general unifier for the two terms.
+\end{definition}
 
+\begin{definition}[\matching]\label{def:matching}
 A query $q$ \emph{matches} a pattern $u$ under a substitution $\sigma$ if there
 exists a substitution $\sigma'$ extending $\sigma$ such that
 $\sigma' u = \sigma q$, where $\sigma'$ assigns at most the free variables
 occurring in $u$.
 \end{definition}
 
-Backchaining is defined by the function
-$\backchain : \PROG \times \TERM \times \Sigma \to
-\vecL{\Sigma \times \vecL{\ATOM}}$:
+Backchaining is defined by the function \backchain:
 
-\begin{definition}[Backchain]
+\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \Sigma \to
+\vecL{\Sigma \times \vecL{\ATOM}}$]
 \[
 \backchain(\prog, q, \sigma) =
 \bigg[
@@ -471,12 +472,9 @@ mode of each argument, which in turn selects the appropriate procedure:
 If all arguments satisfy the unification condition, \select returns the resulting substitution
 $\sigma'$; otherwise it returns $\mnone$.
 
-\begin{definition}[\elpi backchain]
-\[
-\backchainE :
+\begin{definition}[\elpi backchain, $\backchainE :
 \PROG \times \TERM \times \Sigma \times \vecL{\alt} \times \vecL{\g}
-\to \vecL{\alt}
-\]
+\to \vecL{\alt}$]
 
 \[
 \backchainE(\prog, t, \sigma, a, g) =
@@ -497,6 +495,8 @@ The function \backchainE, used by rule \runE[\backchain] in
 goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
+
+
 
 \paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
 \label{sec:cut-op}
