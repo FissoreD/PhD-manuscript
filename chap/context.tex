@@ -514,20 +514,11 @@ goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
 
-\subsection{\chr: goal suspension}
-\label{sec:chr}
-\cite{chr,chr15}
-
-CHR elpi: \cite[section 4.3]{chr-elpi}
-
-CHR Pfenning: \cite{pfenning1993}
-
-
 \subsection{Example of program execution in \elpi}
 \label{sec:elpi-execution-example}
 
 \begin{figure}[t]
-  \input{code/prog.tex}
+  \input{code/prog_non_det.tex}
   \caption{Running example of a \elpi program}
   \label{fig:progx}
 \end{figure}
@@ -628,6 +619,15 @@ extracts the value from the option \cI{o} and returns the default \cI{d}
 if \cI{o} is $\mnone$.
 % \marginpar{spiegare notation for list}
 % $\epsilon$ is the empty substitution.
+
+\subsection{\chr: goal suspension}
+\label{sec:chr}
+\cite{chr,chr15}
+
+CHR elpi: \cite[section 4.3]{chr-elpi}
+
+CHR Pfenning: \cite{pfenning1993}
+
 
 \subsection{Features of the \elpi language}
 \label{sec:elpi-features}
@@ -744,6 +744,7 @@ Equality test~\cite{tassi2023}
 Derive: \cite{tassi2019}
 
 
-\paragraphTwo{Concluding remarks}
+\subsection{Concluding remarks}
 
 Overall, Elpi is good for elaboration
+ 
