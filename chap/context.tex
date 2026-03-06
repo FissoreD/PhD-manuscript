@@ -313,7 +313,6 @@ inconsistency is reported as an error, which typically helps identify
 and correct implementation bugs early.
 
 \subsection{Operational semantics of the \lprolog\ fragment of \elpi\ (without \chr)}
-
 \begin{figure}[t]
   \centering
   \includegraphics{img/det_check/dynamic.pdf}
@@ -321,23 +320,27 @@ and correct implementation bugs early.
   \label{fig:elpi-semantics}
 \end{figure}
 
-A substitution $\subst$ of type $\Sigma$ is a partial mapping from unification
-variables \UVAR\ to terms \TERM. The application of a substitution to a term $t$
-is written $\subst\ t$. The empty substitution is denoted by $\EmptySubst$. The
-domain~\dom of a substitution $\sigma$ is the set of variables in $\sigma$ that
-are assigned.
+A substitution $\sigma$ of type $\Sigma$ is a partial mapping from
+unification variables \UVAR\ to terms \TERM. The application of a substitution
+to a term $t$ is written $\sigma\ t$. The empty substitution is denoted by
+$\EmptySubst$. The domain $\dom\ \sigma$ of a substitution $\sigma$ is the set
+of variables that are assigned in $\sigma$.
 
 \begin{definition}[Substitution extension]
-  $\sigma'$ is an extension of $\sigma$ iff
-  $$\exists \sigma'', \sigma + \sigma'' = \sigma' \land \mathrm{dom}\ \sigma''
-    \cap \mathrm{dom}\ \sigma = \varnothing$$
+  A substitution $\sigma'$ is an extension of $\sigma$ iff
+  $$
+  \exists \sigma''.\
+  \sigma + \sigma'' = \sigma'
+  \ \land\
+  \dom\ \sigma'' \cap \dom\ \sigma = \varnothing .
+  $$
 \end{definition}
 
 \noindent
-A typing environment $\env$ maps predicates~\PRED\ to their signatures.
+A typing environment $\env$ maps predicates \PRED\ to their signatures.
 
-A program $\prog$ of type $\PROG$ is represented as a record
-with the following structure:
+A program $\prog$ of type $\PROG$ is represented as a record with the
+following structure:
 
 {
 \mvspace
@@ -347,21 +350,20 @@ with the following structure:
 }
 
 The field \txtI{index} is an ordered list of rules representing the rule
-database. The field \txtI{nvar} stores the set of nominal variables that
-have already been introduced, and \txtI{sig} is the signature
-environment.
+database. The field \txtI{nvar} contains the set of nominal variables that have
+already been introduced, and \txtI{sig} is the signature environment.
 
-We write $x \# \prog$ to denote a nominal variable fresh with respect to
-$\prog.\txtI{nvar}$, and $x +_\forall \prog$ for the program obtained by
-adding $x$ to $\prog.\txtI{nvar}$. Similarly, $h +_\Rightarrow \prog$
-denotes the program obtained by prepending the rule $h$ to
-$\prog.\txtI{index}$.
+We write $x \# \prog$ to denote that the nominal variable $x$ is fresh with
+respect to $\prog.\txtI{nvar}$. The notation $x +_\forall \prog$ denotes the
+program obtained by adding $x$ to $\prog.\txtI{nvar}$. Similarly,
+$h +_\Rightarrow \prog$ denotes the program obtained by prepending the rule $h$
+to $\prog.\txtI{index}$.
 
-A goal $g$ of type $\g = \PROG \times \ATOM \times \vecL{\alt}$ is a
-triple consisting of a program, an atom, and a list of
+A goal $g$ of type
+$\g = \PROG \times \ATOM \times \vecL{\alt}$
+is a triple consisting of a program, an atom, and a list of
 \emph{cut-to alternatives}. An alternative $a$ of type $\alt$ is a pair
-of type $\Sigma \times \vecL{\g}$ composed of a substitution and a list
-of goals.
+$\Sigma \times \vecL{\g}$ composed of a substitution and a list of goals.
 
 \Cref{fig:elpi-semantics} presents the derivation rules of the \elpi\
 interpreter, defined in terms of the function
@@ -369,117 +371,132 @@ interpreter, defined in terms of the function
   \runE : \vecL{\alt} \to (\Sigma, \vecL{\alt}) + \mnone .
 \]
 
-This semantics is strongly inspired by
-\cite[Sec.~4.3]{debray1988} and \cite{hdr}. Execution is modeled as the evaluation of a
-stack of alternatives~$\alt$. The interpreter processes alternatives in
-order. Evaluating the first alternative either produces a success -- yielding
-a substitution together with a new list of alternatives -- or fails
-(returning $\bot$).
+This semantics is inspired by
+\cite[Sec.~4.3]{debray1988} and \cite{hdr}. Execution is modeled as the
+evaluation of a stack of alternatives $\alt$. The interpreter processes
+alternatives sequentially. The evaluation of the alternative list either succeeds,
+producing a substitution and a new list of alternatives, or fails, returning
+$\mnone$.
 
-In \cref{fig:elpi-semantics}, success is captured by rule \runE[\top]:
-if the first alternative contains an empty list of goals, the interpreter
-returns the associated substitution together with the remaining
-alternatives. Conversely, rule \runE[\bot] states that evaluation fails
-when the list of alternatives is empty.
+In \cref{fig:elpi-semantics}, rule \runE[\top] captures success: if the first
+alternative contains an empty list of goals, the interpreter returns its
+associated substitution together with the remaining alternatives. Conversely,
+rule \runE[\bot] states that evaluation fails when the list of alternatives is
+empty.
 
-The remaining rules of \runE -- namely \runE[!], \runE[\backchainE], \runE[\forall],
-and \runE[\Rightarrow] -- handle the case where the head of the alternative list
-is non-empty. Such alternative list has the form
-$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the current goal is
-the atom $q$. Each rule depends on the syntactic form of $q$, which can
-take one of the four forms of \ATOM listed in \cref{fig:elpi-syntax}.
+The remaining rules of \runE, namely \runE[!], \runE[\backchainE],
+\runE[\forall], and \runE[\Rightarrow], apply when the first alternative
+contains a non-empty list of goals. Such alternative list has the form
+$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where $q$ is the current goal atom
+(or query). The derivation rule to use depends on the syntactic form of $q$, which
+can be one of the four forms of \ATOM\ listed in \cref{fig:elpi-syntax}.
 
-If $q$ is a \cut, rule \runE[!] discards the current alternatives $a$
-and replaces them with the cut-to alternatives stored in $q$. The
-remaining goals $g$ become the head of the recursive call to \runE.
+If $q$ is a \cut, rule \runE[!] discards the current alternatives $a$ and
+replaces them with the cut-to alternatives stored in $q$. Evaluation then
+continues with the remaining goals $g$.
 
-If $q$ is a $\pi$-quantification $\pi x.\,t$, the interpreter generates a
-fresh nominal variable $y$ not occurring in $\prog$, replaces all free
-occurrences of $x$ in $t$ by $y$, and continues evaluation with the
-resulting new atom.
+If $q$ is a $\pi$-quantification $\pi x.\,t$, the interpreter generates a fresh
+nominal variable $y$ not occurring in $\prog$, replaces all free occurrences of
+$x$ in $t$ with $y$, and continues evaluation with the resulting atom.
 
-If $q$ corresponds to the dynamic insertion of a rule $h$, evaluation
-continues with atom $t$ in the program extended with the local rule $h$.
+If $q$ corresponds to the dynamic insertion of a rule $h$, evaluation continues
+with atom $t$ in the program extended with the local rule $h$.
 
-Finally, if $q$ is a predicate call, the interpreter performs backchaining
-against the rules stored in $\prog.\txtI{index}$. Backchaining is the operation
-of retrieving in a database the rules that can be used on the given query, $q$
-in our case. In classic prolog it is performed by filtering the list of rules
-with a head unifying with $q$. In \elpi the unification of $q$ with the rules'
-head is a bit different, since, as anticipated in the previous seciont, the
-modes of the predicate influence of argument are unified. In particular, in
-\elpi, we dispose of two unification procedure, called \unify and \matching.
-Both procedure have the following type: $\TERM \to \TERM \to \sigma \to \sigma +
-\mnone$, they take two terms and a substitution $\sigma$ and either they fail to
-unify/match the two terms returning \mnone or they succed returning an updated
-substitution $\sigma'$ which is an extension of $\sigma$. \unify is the
-higher-order unification restrained into the
-pattern-fragment~\cite{miller1991-pf} and is used on arguments in \Eoutput
-position. The \matching procedure, like \bprolog ``matching clauses''.
+Finally, if $q$ is a predicate call, the interpreter performs \emph{backchaining} over
+the rules stored in $\prog.\txtI{index}$. Backchaining retrieves the rules that
+can be used on the query $q$. In standard Prolog this is done by selecting
+rules whose head unifies with $q$. In \elpi the process depends on predicate
+modes, which determine if a argument should be ``matched'' or ``unified''.
 
-\begin{definition}[\unify / \matching]\label{def:matching} Two terms $t$ and
-  $u$ unify in a substitution $\sigma$ if there exists a substitution $\subst'$
-  such that $\subst' \cdot t = \subst' \cdot u$ and $\sigma'$ is an extension of
-  $\sigma$. We say that a term $t$ matches (the pattern) $u$ in a substitution
-  $\sigma$ if there exists a substitution $\subst'$ such that $\subst' \cdot u =
-    \sigma t$ and $\subst'$ is an extension of $\sigma$ assigning at most the free
-  variables occurring in $u$
+\elpi provides two procedures, \unify\ and \matching. Both have type
+\[
+\TERM \to \TERM \to \Sigma \to \Sigma + \mnone ,
+\]
+taking two terms and an initial substitution $\sigma$. They either fail
+(returning $\mnone$) or succeed with an updated substitution $\sigma'$ that is
+an extension of $\sigma$.
+
+The procedure \unify\ implements higher-order unification restricted to the
+pattern fragment~\cite{miller1991-pf} and is used for arguments in
+\Eoutput\ position. The procedure \matching, inspired by \bprolog's
+``matching clauses'', is used for arguments in \Einput\ position.
+
+\begin{definition}[\unify\ /\ \matching]\label{def:matching}
+Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
+exists a substitution $\sigma'$ extending $\sigma$ such that
+$\sigma' q = \sigma' u$.
+
+A query $q$ \emph{matches} a pattern $u$ under a substitution $\sigma$ if there
+exists a substitution $\sigma'$ extending $\sigma$ such that
+$\sigma' u = \sigma q$, where $\sigma'$ assigns at most the free variables
+occurring in $u$.
 \end{definition}
 
-% \paragraph{Backchaining}
+Backchaining is defined by the function
+$\backchain : \PROG \times \TERM \times \Sigma \to
+\vecL{\Sigma \times \vecL{\ATOM}}$:
 
-The backchain function, noted~\backchain, is defined as follows:
-
-\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \SIGMA \to \vecL{\sigma \times \vecL{\ATOM}}$]
-  $$\backchain(\prog, q, \subst) =
-      \bigg[(\sigma', b)\ \kIF\ \select(\getmode(\prog.\mathrm{sig}, q), q, h, \subst) = \subst['] \neq \mnone\ \bigg\mid\ %
-      (\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}\bigg]$$
+\begin{definition}[Backchain]
+\[
+\backchain(\prog, q, \sigma) =
+\bigg[
+(\sigma', b)\ \kIF\
+\select(\getmode(\prog.\mathrm{sig}, q), q, h, \sigma) = \sigma' \neq \mnone
+\ \bigg|\ 
+(\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}
+\bigg].
+\]
 \end{definition}
 
-Intuitively, \backchain filters the rules in the program that can be used on the
-current query $q$ and subsitution $\sigma$. For each filtered rule $r$, it
-returns an extension of $\sigma$ which is the result of unifying\footnote{modulo
-modes, i.e. \matching and \unify} $q$ and the head of $r$ unify and the body
-$r$. Concretely \backchain uses two auxiliary functions whose types are given
-below:
-%
+Intuitively, \backchain selects the rules that can be applied to the current
+query $q$ under substitution $\sigma$. For each usable rule it returns the
+updated substitution obtained by matching/unifying the rule head with $q$,
+together with the rule body.
+
+The definition relies on two auxiliary functions:
 \begin{align}
   \getmode &: \env \to \TERM \to \TYPE + \mnone \\
-  \select  &: (\TYPE + \mnone) \to \TERM \to \TERM \to \SIGMA \to \SIGMA + \mnone
+  \select  &: (\TYPE + \mnone) \to \TERM \to \TERM \to
+              \Sigma \to \Sigma + \mnone .
 \end{align}
 
-\getmode takes an signature environment and a term $t$ and returns the signature
-of the functor $f$ of $t$. It returns that signature if $f$ is a predicate and
-it signature is mapped in $e$. \select aims to test if the the query $q$ unifies
-with the current rule head $h$ under the signature $s$ and an initial
-substitution $\sigma$. The signature $s$ is used to grab the modes of $f$ and
-choose which unification strategy to use between \matching (\Einput mode) and
-\unify (\Eoutput mode). \select returns an updated substitution $\sigma'$ if all
-the argument match/unify. In all other cases, \select returns \mnone.
+The function \getmode retrieves the signature of the predicate occurring in a
+term. It returns the signature if the predicate is present in the environment,
+and $\mnone$ otherwise.
 
-The \backchain function is used as an auxiliary, by \backchainE, which creates
-the new state of alternatives that the \elpi interpreter should use in order to
-evaluate the program.
+The function \select tests whether the query $q$ matches/unifies the head $h$ of a rule
+under an initial substitution $\sigma$. The predicate signature determines the
+mode of each argument, which in turn selects the appropriate procedure:
+\matching\ for \Einput\ arguments and \unify\ for \Eoutput\ arguments.
+If all arguments satisfy the unification condition, \select returns the resulting substitution
+$\sigma'$; otherwise it returns $\mnone$.
 
-\begin{definition}[\elpi backchain, $\backchainE : \PROG \times \TERM \times \SIGMA \times \vecL{\alt} \times \vecL{\g} \to \vecL{\ALT}$]
-  $$
-    \backchainE(\prog, t, \subst, a, g) =
-    \bigg[
-      \subst['],
-      \big(\big[(\prog, q, a) \mid q \in\! b\big] \atsign\ g\big)
-      \ \bigg\rvert~
-      (\sigma', b) \in \backchain(\prog, t, \subst)
-      \bigg]
-  $$
+\begin{definition}[\elpi backchain]
+\[
+\backchainE :
+\PROG \times \TERM \times \Sigma \times \vecL{\alt} \times \vecL{\g}
+\to \vecL{\alt}
+\]
+
+\[
+\backchainE(\prog, t, \sigma, a, g) =
+\big[
+\sigma',
+(
+  [(\prog, q, a) \mid q \in b] \atsign g
+)
+\ \big|\ 
+(\sigma', b) \in \backchain(\prog, t, \sigma)
+\big].
+\]
 \end{definition}
 
-The \elpi backchain function, used by rule \runE[\backchain] in
-\cref{fig:elpi-semantics}, creates a new list of alternatives. These
-alternatives are built upon the result of \backchain, i.e. the premises of the
-filtered rules have the alternatives $a$ as cut-to alternatives and the
-continuation of goal $g$ as tail. The substitution of each new alternative is
-taken from the result of \backchain.
-
+The function \backchainE, used by rule \runE[\backchain] in
+\cref{fig:elpi-semantics}, builds a new list of alternatives from the result of
+\backchain. For each filtered rule, the atoms in the rule body become new
+goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
+substitution associated with each alternative is the one returned by
+\backchain.
 
 \paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
 \label{sec:cut-op}
