@@ -88,7 +88,7 @@ type system to allow this kind of overloading.
 
 \subsection{Ad-hoc polymorphism: Type classes}
 
-\paragraphTwo{Function overloading}
+\paragraphTwo{Symbol overloading}
 Type classes provide a principled form of ad-hoc polymorphism, enabling
 a single symbol to be associated with multiple type-specific implementations
 while preserving static type safety.
@@ -215,7 +215,8 @@ found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}. Here, we
 provide a brief introduction to the aspects of \elpi\ that are relevant for this
 document. Some definitions are slightly different in order to remain consistent
 with the notation adopted in \cref{chap:det-elpi,chap:mechanization}. The
-discrepancies are underlined.
+discrepancies will be pointed in \cref{sec:elpi-diff-hdr}.
+
 \subsection{Abstract syntax of the \lprolog part of \elpi (no \chr)}
 
 \begin{figure}
@@ -229,13 +230,13 @@ discrepancies are underlined.
 
 \Cref{fig:elpi-syntax} presents the abstract syntax of \elpi\ programs.
 
-The basic syntactic categories are \underline{data}~\DATA,
+The basic syntactic categories are data~\DATA,
 predicates~\PRED, unification variables~\UVAR, and
-\underline{nominal variables}~\NVAR. Nominal variables represent binders
+nominal variables~\NVAR. Nominal variables represent binders
 introduced either by $\lambda$-abstractions or by $\pi$-quantification.
 
 A term~\TERM\ is either one of these basic constructs or an application. More
-precisely, terms are built by the \underline{binary} application of a term to a
+precisely, terms are built by the binary application of a term to a
 $\lambda$-term~\LTERM. Lambda terms introduce abstractions; in the concrete
 \elpi\ syntax an abstraction is written \eI{x\ t}. Function application follows
 a curried style: unlike \prolog, \elpi does not use parentheses between the
@@ -254,7 +255,7 @@ An atom~\ATOM\ represents an executable unit. It can be:
 A rule~\RULE\ consists of a head and a (possibly empty) body, which is a
 list of atoms. The atoms in the body are called the premises of the rule.
 
-For simplicity, we \underline{omit constraints} from the syntax, since they
+For simplicity, we omit constraints from the syntax, since they
 do not play an immediate role in the presentation. They are briefly
 described in \cref{sec:chr}.
 
@@ -266,7 +267,7 @@ is declared with the \kind\ keyword, while constructors of that type are
 introduced using the \type\ keyword. A type is ether a definition is either a
 type declaration, a variable, or the application of a type to another in the
 case of parametric types. The arrow symbol is used to type function space and in
-\elpi it take \underline{an optional mode information}. The mode, \Einput or
+\elpi it take an optional mode information. The mode, \Einput or
 \Eoutput, tells the runtime which unification algorithm to use when unifying the
 arguments of two terms, we dealy this discussion in the next paragraph. By
 default, no mode information is compiled to \Eoutput.
@@ -298,7 +299,7 @@ allows the programmer to specify the modes of their arguments.
 The declaration
 \eI{pred p i:t1, o:t2.} where \eI{t1} and \eI{t2} are types,
 is equivalent to the declaration
-\eI{type p t1 -> t2 -> prop}. In addition, it specifies that the first
+\eI{type p t1 -> t2 -> prop} but it also specifies that the first
 argument of \eI{p} is an input (\eI{i:}) and the second is an output
 (\eI{o:}). These modes are used at runtime to determine which
 unification strategy should be applied when matching the head of a rule
@@ -335,7 +336,7 @@ are assigned.
 \noindent
 A typing environment $\env$ maps predicates~\PRED\ to their signatures.
 
-A program $\prog$ of type $\PROG$ is represented as a \underline{record}
+A program $\prog$ of type $\PROG$ is represented as a record
 with the following structure:
 
 {
@@ -381,7 +382,7 @@ returns the associated substitution together with the remaining
 alternatives. Conversely, rule \runE[\bot] states that evaluation fails
 when the list of alternatives is empty.
 
-The remaining rules of \runE -- namely \runE[!], \runE[\backchain], \runE[\forall],
+The remaining rules of \runE -- namely \runE[!], \runE[\backchainE], \runE[\forall],
 and \runE[\Rightarrow] -- handle the case where the head of the alternative list
 is non-empty. Such alternative list has the form
 $\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where the current goal is
@@ -427,22 +428,58 @@ position. The \matching procedure, like \bprolog ``matching clauses''.
 
 % \paragraph{Backchaining}
 
-The backchain function, noted \backchain is defined as follows:
+The backchain function, noted~\backchain, is defined as follows:
 
-\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \SIGMA \times \vecL{\alt} \times \vecL{\g} \to \vecL{\ALT}$]
+\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \SIGMA \to \vecL{\sigma \times \vecL{\ATOM}}$]
+  $$\backchain(\prog, q, \subst) =
+      \bigg[(\sigma', b)\ \kIF\ \select(\getmode(\prog.\mathrm{sig}, q), q, h, \subst) = \subst['] \neq \mnone\ \bigg\mid\ %
+      (\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}\bigg]$$
+\end{definition}
+
+Intuitively, \backchain filters the rules in the program that can be used on the
+current query $q$ and subsitution $\sigma$. For each filtered rule $r$, it
+returns an extension of $\sigma$ which is the result of unifying\footnote{modulo
+modes, i.e. \matching and \unify} $q$ and the head of $r$ unify and the body
+$r$. Concretely \backchain uses two auxiliary functions whose types are given
+below:
+%
+\begin{align}
+  \getmode &: \env \to \TERM \to \TYPE + \mnone \\
+  \select  &: (\TYPE + \mnone) \to \TERM \to \TERM \to \SIGMA \to \SIGMA + \mnone
+\end{align}
+
+\getmode takes an signature environment and a term $t$ and returns the signature
+of the functor $f$ of $t$. It returns that signature if $f$ is a predicate and
+it signature is mapped in $e$. \select aims to test if the the query $q$ unifies
+with the current rule head $h$ under the signature $s$ and an initial
+substitution $\sigma$. The signature $s$ is used to grab the modes of $f$ and
+choose which unification strategy to use between \matching (\Einput mode) and
+\unify (\Eoutput mode). \select returns an updated substitution $\sigma'$ if all
+the argument match/unify. In all other cases, \select returns \mnone.
+
+The \backchain function is used as an auxiliary, by \backchainE, which creates
+the new state of alternatives that the \elpi interpreter should use in order to
+evaluate the program.
+
+\begin{definition}[\elpi backchain, $\backchainE : \PROG \times \TERM \times \SIGMA \times \vecL{\alt} \times \vecL{\g} \to \vecL{\ALT}$]
   $$
-    \backchain(\prog, t, \subst, a, g) =
+    \backchainE(\prog, t, \subst, a, g) =
     \bigg[
       \subst['],
       \big(\big[(\prog, q, a) \mid q \in\! b\big] \atsign\ g\big)
-      \ \kIF\ \select(t, h, \subst, \getmode(\prog, t)) = \subst['] %
-      ~\bigg\rvert~
-      (\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}\
+      \ \bigg\rvert~
+      (\sigma', b) \in \backchain(\prog, t, \subst)
       \bigg]
   $$
 \end{definition}
 
-TODO: dire cosa è \getmode and \select
+The \elpi backchain function, used by rule \runE[\backchain] in
+\cref{fig:elpi-semantics}, creates a new list of alternatives. These
+alternatives are built upon the result of \backchain, i.e. the premises of the
+filtered rules have the alternatives $a$ as cut-to alternatives and the
+continuation of goal $g$ as tail. The substitution of each new alternative is
+taken from the result of \backchain.
+
 
 \paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
 \label{sec:cut-op}
@@ -579,12 +616,12 @@ HOAS: \cite{pfenning1988}
   :before YYY
 \end{elpicode}
 
-\subsection{Higer-order unification}
+% \subsection{Higer-order unification}
 
 
-\paragraphTwo{Occur check}
+% \paragraphTwo{Occur check}
 
-\paragraphTwo{Unification in the pattern-fragment (\llambda)}
+% \paragraphTwo{Unification in the pattern-fragment (\llambda)}
 
 Miller: \cite{miller1991-pf}
 
@@ -607,6 +644,9 @@ Vink: \cite{vink1989}
 CHR elpi: \cite[section 4.3]{chr-elpi}
 
 CHR Pfenning: \cite{pfenning1993}
+
+\subsection{Main differences with Tassi's hdr}
+\label{sec:elpi-diff-hdr}
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: a logical framework for \rocq}

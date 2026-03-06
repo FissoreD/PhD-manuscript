@@ -300,7 +300,14 @@
 \newcommand{\buildRunArg}[3]{\ConsHd{(#1,\ #2)}\ConsTl{#3}}
 \newcommand{\runCmd}[5]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr (#5, #4)}}
 \newcommand{\runCmdR}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr r}}
-\newcommand{\backchain}{\ensuremath{\mathcal{B}}\xspace}
+
+\newcommand{\backchain}[1][]{
+  \ensuremath{\mathcal{B}\ifx\expandafter\relax
+      \detokenize{#1}\relax\else{_{#1}}\fi}\xspace}
+
+\newcommand{\backchainE}{\backchain[E]}
+\newcommand{\backchainT}{\backchain[T]}
+
 \newcommand{\runCmdF}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr \bot}}
 \newcommand{\Cons}[1]{\ensuremath{#1::}}
 \newcommand{\ConsHd}[1]{\ensuremath{(#1::}\xspace}
@@ -323,4 +330,4 @@
 \newcommand{\kTHEN}{\Keyword{then}}
 \newcommand{\kELSE}{\Keyword{else}}
 \newcommand{\kAS}{\Keyword{as}}
-\newcommand{\select}{\ensuremath{\mathcal{S}}\xspace}
+\newcommand{\select}{\ensuremath{\mathcal{U}}\xspace}

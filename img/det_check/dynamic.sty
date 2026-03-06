@@ -23,7 +23,7 @@
 \newcommand{\ruleStopM}{
   \begin{prooftree}
     % STOP
-    \AxiomC{\phantom{\ensuremath{\backchain}}}
+    \AxiomC{\phantom{\ensuremath{\backchainE}}}
     \RightLabelM{\ruleStop}
     \UnaryInfC{\runCmd{\EmptyList}{\altsV}{\subst}{\altsV}{\subst}}
   \end{prooftree}
@@ -80,7 +80,7 @@
 \newcommand{\ruleCallM}{
   \begin{prooftree}
     % CALL
-    \AxiomC{$\backchain(\prog, (\subst\ t), \subst, \altsV, \gV) = \altsV'$}
+    \AxiomC{$\backchainE(\prog, (\subst\ t), \subst, \altsV, \gV) = \altsV'$}
     \AxiomC{\runCmdQR{(\altsV'\ \atsign\ \altsV)}}
     \RightLabelM{\ruleCall}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{t}}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}
@@ -89,7 +89,7 @@
 \newcommand{\ruleCallMF}{
   \begin{prooftree}
     % CALL
-    \AxiomC{$\backchain(\prog, \subst, c, \gV, (a::as)) = \EmptyList$}
+    \AxiomC{$\backchainE(\prog, \subst, c, \gV, (a::as)) = \EmptyList$}
     \AxiomC{\runCmdQR{a}{as}}
     \RightLabelM{\ruleCallF}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{c}}{\_}}\ConsTlNP{\gV}}{(a :: as)}{\subst}}
@@ -117,7 +117,7 @@
 %   \begin{prooftree}
 %     % CALLB
 %     \AxiomC{$(\subst h)\ \vecL{t} =_\beta \pred\ \vecL{u}$}
-%     \AxiomC{$\backchain(\prog, \pred\ \vecL{u}, \subst, \altsV) = \ConsHdNP{g}\ConsTlNP{new\_alt}$}
+%     \AxiomC{$\backchainE(\prog, \pred\ \vecL{u}, \subst, \altsV) = \ConsHdNP{g}\ConsTlNP{new\_alt}$}
 %     \AxiomC{\runCmdR{(g\ \atsign\ \gV)}{(new\_alt\ \atsign\ \altsV)}{\subst}}
 %     \RightLabelM{\ruleCallB}
 %     \TrinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{(h\ \vecL{t})}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}
