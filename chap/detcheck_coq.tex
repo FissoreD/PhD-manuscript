@@ -453,7 +453,7 @@ the next alternative and continues from there, if one exists.
 \caption{Execution in the tree semantics.
 %\footnotemark}
 % \footnotetext{
-  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:cut-op}.
+  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}.
   $R_1,R_2$, and $R_3$ are reset points and correspond respectively to the
   lists of atoms $[\eI{f Y Z, !}]$, $[\eI{!}]$, and $[\eI{f Y Z}]$.
   }
@@ -470,7 +470,7 @@ The set of variables is assumed to contain all variables occurring in the
 tree. It is passed to backchain so that rules can be refreshed correctly.
 % This guarantees that any call
 % to \emph{backchain} returns a list of atoms whose variables are disjoint from
-% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:cut-op}}
+% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:elpi-execution-example}}
 
 The \steptag indicates which kind of step was
 performed.  \cI{Failure} and \cI{Success} are returned for trees that satisfy,
@@ -493,7 +493,7 @@ each leaf corresponds to a list of atoms $e \in l$. If $e$ is empty, the leaf
 is \okC; otherwise, it is a right-skewed tree of \andC nodes.
 
 \Cref{tree-ex} depicts the tree corresponding to the running example
-(\cref{sec:cut-op}) as it undergoes calls to \step and \na.
+(\cref{sec:elpi-execution-example}) as it undergoes calls to \step and \na.
 % , we provide a graphical representation a call to \step on the query
 %\marginpar{sottolineare le sostituzioni}
 We run query \eI{q 0 R} against the program $P$ in \cref{fig:progx}. Let $c_0$, $c_1$, and $c_2$
@@ -503,7 +503,7 @@ $r_2$ in $P$.
 % We need the initial \mnone subtree so that we can attach a substitution to $c_1$. 
 Note that $c_1$ (resp. $c_2$) is associated with
 substitution $\sigma_1$ (resp. $\sigma_2$), whose values are the same as in
-\cref{sec:cut-op}. Reset points are defines as follows: %are marked with the $R$ symbol:
+\cref{sec:elpi-execution-example}. Reset points are defines as follows: %are marked with the $R$ symbol:
 $R_1 \coloneq [\eI{f Y Z, !}]$, $R_2 \coloneq [\eI{!}]$, and
 $R_3 \coloneq \eI{f Y Z}$. Intuitively, they record the lists of atoms used to
 generate the corresponding subtree. Other examples of \step performing a
@@ -541,7 +541,7 @@ the evaluation of a cut keeps the path leading to the cut node unchanged, in
 the sense that substitution $\sigma_4$ is preserved, while the path under
 substitution $\sigma_5$ (which also succeeds) is replaced by \koC. This
 amounts to discarding the third rule of predicate \eI{r}.
-% (see \cref{sec:cut-op}).
+% (see \cref{sec:elpi-execution-example}).
 
 \subsection{The \na procedure}\label{sec:next_alt}
 \label{sec:na}
@@ -963,7 +963,7 @@ arrows in the images represent the cut-to pointers.
 We have not drawn arrows coming out of call atoms since the interpreter
 ignores the cut-alternatives in this case. 
 The evolution
-of the stack in \cref{ex-elpi} mirrors the example in \cref{sec:cut-op}:
+of the stack in \cref{ex-elpi} mirrors the example in \cref{sec:elpi-execution-example}:
 we evaluate the first goal of the first alternative. 
 During backchaining,
 we add a pointer to the remaining alternatives to each new cut operator.

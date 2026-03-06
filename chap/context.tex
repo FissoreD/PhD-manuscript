@@ -213,11 +213,18 @@ meta-language~\Ho\ and the \rocq\ proof assistant as the object language~\Fo.
 A comprehensive presentation of the \elpi\ language and its applications can be
 found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}. Here, we
 provide a brief introduction to the aspects of \elpi\ that are relevant for this
-document. Some definitions are slightly different in order to remain consistent
-with the notation adopted in \cref{chap:det-elpi,chap:mechanization}. The
-discrepancies will be pointed in \cref{sec:elpi-diff-hdr}.
+document. In \cref{sec:elpi-syntax,sec:elpi-semantics}, we describe the \elpi
+syntax and semantics. Our presentation slightly differs from~\cite{hdr}, since
+we want to remain consistent with the presentation adopted in
+\cref{chap:det-elpi,chap:mechanization}. The discrepancies will be pointed in
+\cref{sec:elpi-diff-hdr}. The syntax and semantics we propose exclude the \chr
+part of \elpi, we talk about it in \cref{sec:chr}. In
+\cref{sec:elpi-execution-example}, we give an example of the execution of an
+\elpi program, this example will be reused in \cref{chap:mechanization} for the
+meachanization of the equivalence proof with the tree-base semantics.
 
-\subsection{Abstract syntax of the \lprolog part of \elpi (no \chr)}
+\subsection{Abstract syntax of \elpi (without \chr)}
+\label{sec:elpi-syntax}
 
 \begin{figure}
   \centering
@@ -312,7 +319,9 @@ interpreted, the type checker verifies that it is well typed. Any type
 inconsistency is reported as an error, which typically helps identify
 and correct implementation bugs early.
 
-\subsection{Operational semantics of the \lprolog\ fragment of \elpi\ (without \chr)}
+\subsection{Operational semantics of \elpi\ (without \chr)}
+\label{sec:elpi-semantics}
+
 \begin{figure}[t]
   \centering
   \includegraphics{img/det_check/dynamic.pdf}
@@ -496,10 +505,62 @@ goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
 
+\paragraphTwo{Higher-order programming}
+
+\paragraphTwo{Dynamic programming}
+
+Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
+
+Teyjus:~\cite{teyjus,miller2012}
+
+Elf: \cite{elf}
+
+Twelf:\cite{twelf}
+
+Lambda prolog: \cite{qi2009}
+
+Mercury: \cite{somogy1996}
+
+WAM: \cite{ait1991-wam}
+
+Prolog semantics: \cite{debray1988}
+
+HOAS: \cite{pfenning1988}
+
+\subsection{Rule names and insertion}
+\label{sec:elpi-rule-names}
+
+\begin{elpicode}
+  :name XXXX
+  :before YYY
+\end{elpicode}
+
+Miller: \cite{miller1991-pf}
+
+Huet: \cite{huet75}
+
+Modes: \cite{zhou2012}
+
+SWI prolog: \cite{swi-prolog-cut}
+
+Andrews:~\cite{andrews2003}
+
+Vink: \cite{vink1989}
+
+\subsection{Main differences with Tassi's hdr}
+\label{sec:elpi-diff-hdr}
+
+\subsection{\chr: goal suspension}
+\label{sec:chr}
+\cite{chr,chr15}
+
+CHR elpi: \cite[section 4.3]{chr-elpi}
+
+CHR Pfenning: \cite{pfenning1993}
 
 
-\paragraphTwo{Controlling backtracking: the \texorpdfstring{$!$}{cut} operator by example}
-\label{sec:cut-op}
+\subsection{Example of program execution in \elpi}
+\label{sec:elpi-execution-example}
 
 \begin{figure}[t]
   \input{code/prog.tex}
@@ -603,67 +664,6 @@ extracts the value from the option \cI{o} and returns the default \cI{d}
 if \cI{o} is $\mnone$.
 % \marginpar{spiegare notation for list}
 % $\epsilon$ is the empty substitution.
-
-\paragraphTwo{Higher-order programming}
-
-\paragraphTwo{Dynamic programming}
-
-Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
-
-Teyjus:~\cite{teyjus,miller2012}
-
-Elf: \cite{elf}
-
-Twelf:\cite{twelf}
-
-Lambda prolog: \cite{qi2009}
-
-Mercury: \cite{somogy1996}
-
-WAM: \cite{ait1991-wam}
-
-Prolog semantics: \cite{debray1988}
-
-HOAS: \cite{pfenning1988}
-
-\subsection{Rule names and insertion}
-
-\begin{elpicode}
-  :name XXXX
-  :before YYY
-\end{elpicode}
-
-% \subsection{Higer-order unification}
-
-
-% \paragraphTwo{Occur check}
-
-% \paragraphTwo{Unification in the pattern-fragment (\llambda)}
-
-Miller: \cite{miller1991-pf}
-
-
-Huet: \cite{huet75}
-
-Modes: \cite{zhou2012}
-
-
-SWI prolog: \cite{swi-prolog-cut}
-
-Andrews:~\cite{andrews2003}
-
-Vink: \cite{vink1989}
-
-\subsection{\chr: goal suspension}
-\label{sec:chr}
-\cite{chr,chr15}
-
-CHR elpi: \cite[section 4.3]{chr-elpi}
-
-CHR Pfenning: \cite{pfenning1993}
-
-\subsection{Main differences with Tassi's hdr}
-\label{sec:elpi-diff-hdr}
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: a logical framework for \rocq}
