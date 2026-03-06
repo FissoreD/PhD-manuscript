@@ -210,18 +210,27 @@ extension language. Its main application is the \rocqelpi plugin~(see
 \cref{sec:coq-elpi}), which enables communication between \elpi\ as the
 meta-language~\Ho\ and the \rocq\ proof assistant as the object language~\Fo.
 
-A comprehensive presentation of the \elpi\ language and its applications can be
-found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}. Here, we
-provide a brief introduction to the aspects of \elpi\ that are relevant for this
-document. In \cref{sec:elpi-syntax,sec:elpi-semantics}, we describe the \elpi
-syntax and semantics. Our presentation slightly differs from~\cite{hdr}, since
-we want to remain consistent with the presentation adopted in
-\cref{chap:det-elpi,chap:mechanization}. The discrepancies will be pointed in
-\cref{sec:elpi-diff-hdr}. The syntax and semantics we propose exclude the \chr
-part of \elpi, we talk about it in \cref{sec:chr}. In
-\cref{sec:elpi-execution-example}, we give an example of the execution of an
-\elpi program, this example will be reused in \cref{chap:mechanization} for the
-meachanization of the equivalence proof with the tree-base semantics.
+A comprehensive presentation of the \elpi\ language and its applications can
+be found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}.
+Here we briefly introduce the aspects of \elpi\ that are relevant to this
+document.
+
+Sections~\cref{sec:elpi-syntax,sec:elpi-semantics} describe the syntax and
+operational semantics of \elpi. Our presentation slightly differs
+from~\cite{hdr}, as it follows the conventions adopted later in
+\cref{chap:det-elpi,chap:mechanization}. In particular, the syntax and
+semantics presented here exclude the \chr\ component of \elpi; we discuss it
+informally in \cref{sec:chr}.
+
+In \cref{sec:elpi-execution-example}, we present a detailed example of the
+execution of an \elpi\ program. This example will be reused in
+\cref{chap:mechanization} when mechanizing the proof of equivalence with the
+tree-based semantics.
+
+Section~\cref{sec:elpi-features} outlines several key features of the
+\elpi\ language. Finally, \cref{sec:ctx-elpi-related-words} reviews related
+work and compares our presentation of \elpi\ with existing works in
+the literature.
 
 \subsection{Abstract syntax of \elpi (without \chr)}
 \label{sec:elpi-syntax}
@@ -621,6 +630,7 @@ if \cI{o} is $\mnone$.
 % $\epsilon$ is the empty substitution.
 
 \subsection{Features of the \elpi language}
+\label{sec:elpi-features}
 
 \paragraphTwo{Higher-order programming}
 
@@ -668,8 +678,8 @@ Andrews:~\cite{andrews2003}
 Vink: \cite{vink1989}
 
 
-\section{Related works}
-\label{sec:ctx-related-words}
+\subsection{Related works}
+\label{sec:ctx-elpi-related-words}
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: a logical framework for \rocq}
@@ -734,6 +744,6 @@ Equality test~\cite{tassi2023}
 Derive: \cite{tassi2019}
 
 
-\subsection{Concluding remarks}
+\paragraphTwo{Concluding remarks}
 
 Overall, Elpi is good for elaboration
