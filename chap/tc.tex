@@ -36,8 +36,6 @@ In our setting, the meta-language used to implement the meta-solver is
 \elpi. Consequently, the main task is to implement the class and instance
 compiler, which incrementally builds the database on which the \elpi program
 operates. 
-% This database contains the representation of classes and instances
-% required to resolve type-class queries.
 
 The type-class solver itself typically follows a \prolog-like resolution
 strategy: instances are tried according to their priority, and backtracking
@@ -45,61 +43,67 @@ may reconsider previous choices when a branch fails. In \elpi, this behavior
 comes for free, since the resolution mechanism of the type-class solver
 strongly imitates the standard execution model of the \elpi runtime.
 
-The following sections describe the evolution of two implementations of a
-type-class compiler written in \elpi.
+In the following sections
+(\cref{sec:class-encoding,sec:instance-encoding,sec:goal-encoding}), we
+present the compiler by separating its three main components: the class
+compiler, the instance compiler, and the goal compiler.
 
-In the first approach~(\cref{sec:compiler-one-pred}), all type-class problems
-are handled by a single predicate called \eI{tc}.
-This predicate takes as input a goal representing a type-class constraint and
-returns an instance that satisfies the corresponding unification problem.
+In \cref{sec:rule-indexing}, we describe our work on an alternative rule
+indexing mechanism for the \elpi runtime, designed to speed up clause
+retrieval during resolution.
 
-In the second approach~(\cref{sec:compiler-one-pred-pred-class}), the
-compilation is specialized so that each class is associated with its own
-predicate. Each predicate has $n + 1$ arguments: the first $n$ arguments
-correspond to the parameters of the class, while the final argument represents
-the instance that solves the original type-class constraint.
+Finally, in \cref{sec:tc-discussion}, we discuss practical aspects of using
+the type-class solver. In particular, we explore how users can control and
+customize the solver to better fit their needs. We also demonstrate the
+application of our solver to existing libraries, such as \tlc, \stdpp, and
+\iris.
 
-To illustrate the output of both compilers, we use the running example of the
-type class \cI{Add} and its instances introduced in
-\cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
-its instances is reproduced in \cref{fig:add-class-full}.
+\section{Class encoding}
+\label{sec:class-encoding}
+
+A type-class goal is a \rocq type\footnote{Or term, in \rocq terms and types are
+confused} $T$ whose head is a type-class $C$. The resolution of such a goal
+consists in finding an \rocq instance whose type is an instantiation of $T$. The
+goal $T$ has in general $n$ arrows, one per the declared arguments of $C$.
+
+Ideally a type-class goal should be translated in a query with an
+extra-argument. This extra-argument shold carry the \rocq instance for the
+initial goal.
+
+In the \elpi compiler, we create a new predicate for each new class. This
+predicate carries the name of the class and has $n+1$ arguments. The $n$ first
+arguments represent the parameters of the class itself. The last extra argument
+is a term carrying the concreate instance term representing the solution of the
+query.
+
+As an example, we take back the \cI{Add} type-class
+introduced in \cref{sec:ad-hoc-poly}. For convenience, the full definition of
+the class and its instances is reproduced in \cref{fig:add-class-full}.
 
 \begin{figure}
-  \input{code/plus_all.tex}
+  \input{code/plus_tc_add_inst.tex}
   \caption{Add class and instances}
   \label{fig:add-class-full}
 \end{figure}
 
-\section{First approach: the \cI{tc} predicate}
-\label{sec:compiler-one-pred}
+% \cI{Add} carries a parameter \cI{T} of type \cI{Type}. Ideally a \rocq goal
+% \cI{Add T}, where $T$ is a term, should corresponds to an \elpi query with the
+% following shape \eI{tc-Add {{T}} Sol} where \eI{Sol} is a unification variable
+% that is instantiated by backchain the query into the database. It means that
+% the compiler
 
-The first version of the type-class solver was based on the following predicate:
+% Concretely, in the \elpi
+% settings, we need to create a new predicate to be asssociated to the \cI{Add}
+% class. This predicate should carry on argument
 
-\begin{center}
-  \eI{pred tc i:term, o:term}
-\end{center}
+When declaring \cI{Add}, the \elpi class compiler is triggered and receives
+as input the \rocq symbol \cI{global (indt «Add»)}. Thanks to the 
 
-This predicate is shared for each type-class instance, therefore there is no
-need to implement the class compiler, i.e. the class objervers triggers a no-op.
-
-What is more interesting is to focus on the instance compiler. In order to
-compile an instance, we need to grab the type of the instace.
-
-
-
-\section{Second approach: one predicate per class}
-\label{sec:compiler-one-pred-pred-class}
-\cite{fissore2023}
-
-
-\subsection{Class encoding}
+\section{Instance encoding}
+\label{sec:instance-encoding}
 
 register hook
-
-\subsection{Instance encoding}
-
-register hook
-\paragraphTwo{From term to clause}
+\subsection{From term to clause}
 
 In a first version we could be naif and have: tc-class TERM,
 but this is not good for X reasons:
@@ -110,15 +114,19 @@ but this is not good for X reasons:
   \item We cannot benefit from determinacy checker
 \end{itemize}
 
-\paragraphTwo{Conditional instances: encoding premises}
+\subsection{Conditional instances: encoding premises}
 
-\paragraphTwo{Rule priorities}
+\subsection{Rule priorities}
 
-\subsection{Goal encoding}
+\section{Goal encoding}
+\label{sec:goal-encoding}
 
-\subsection{Rule indexing}
+Devo compilare il contesto
+
+\section{Rule indexing}
 
 \subsection{Discrimination trees}
+\label{sec:rule-indexing}
 
 \newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
 
@@ -134,12 +142,14 @@ Discrimination trees: opt for lists and tree depths.
 
 
 \section{Discussion}
+\label{sec:tc-discussion}
 
 \subsection{User defined rules}
 Hint extern etc
 
 \subsection{Accessing the database}
 
+\cite{fissore2023}
 
 \subsection{Experimental results}
 

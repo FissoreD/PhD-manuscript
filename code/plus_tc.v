@@ -1,5 +1,6 @@
 From mathcomp Require Import all_ssreflect.
 Require Import Reals.
+From elpi Require Import elpi.
 
 Notation "¬" := (negb).
 
@@ -38,13 +39,12 @@ Module S2.
 End S2.
 
 Module S3.
+(*SNIP: plus_tc_add_inst *)
 (*SNIP: plus_tc_add *)
 Class Add T := {plus: T -> T -> T}.
 (*ENDSNIP: plus_tc_add *)
+Check plus 3 4. (*HIDE*)
 
-Check plus 3 4.
-
-(*SNIP: plus_tc_add_inst *)
 (*SNIP: plus_tc_anat *)
 Instance addNat : Add nat := {plus := Nat.add}.
 (*ENDSNIP: plus_tc_anat *)
@@ -59,6 +59,16 @@ Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
 (*ENDSNIP: plus_tc_add_inst *)
 
 Check plus 3 3.
+
+Elpi Command A.
+Elpi Query  lp:{{
+  coq.say {{:gref Add}}
+}}.
+
+Elpi Query  lp:{{
+  coq.env.typeof {{Add}} X.
+}}.
+
 End S3.
 
 Module S4.
