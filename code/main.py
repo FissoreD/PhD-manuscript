@@ -8,6 +8,7 @@ def remove_quote(l):
 
 def clean_line(escape):
     def f(l):
+        if "HIDE" in l: return ""
         l = l.replace("¬", "~$\lnot$~")
         l = l.replace("forall", "~$\\forall$~")
         l = l.replace("<->", "~$\\leftrightarrow$~")

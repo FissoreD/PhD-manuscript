@@ -1,25 +1,105 @@
-\chapter{Architecture of a type-class solver in \rocqelpi}
+\chapter{Architecture of a Type-Class Solver in \rocqelpi}
 
-Typeclasses are an elegant way to implement ad-hoc
-polymorphism~\cite{wadler1989}, so that, the same symbol can be reused in
-different context while keeping the same mathematical porperties. From an
-implementation point of view, typeclasses are 
+Type classes provide an elegant mechanism for implementing ad-hoc
+polymorphism~\cite{wadler1989}. They allow the same symbol to be reused in
+different contexts while preserving the same mathematical properties. From a
+Prolog-like perspective, a type-class problem corresponds to resolving a query
+to a predicate that associates its input with an instance solving the
+type-class constraint. In \rocq, instances act as rules stored in a database,
+which are used to backchain and resolve type-class queries.
 
-% \section{Why typeclass resolution in \elpi?}
+To address type-class unification problems, we extended \rocq with an API called
+\cI{Class_tactics.register_solver}. This API allows developers to register
+custom type-class solvers within the \rocq elaborator. In this way, type-class
+resolution can be delegated to a meta-language: the custom solver computes a
+solution (if it exists) to the type-class constraint and returns it to the
+\rocq elaborator. We refer to such a custom solver as a \emph{meta-solver}.
+
+% When the elaborator encounters a type-class constraint during the elaboration
+% of a \rocq term, it may delegate its resolution to a registered meta-solver.
+% The meta-solver receives the type-class goal together with the context in
+% which it appears and must return an updated environment (called an
+% \cI{evar_map} in \rocq terminology).
+
+To support this mechanism, we also introduced another API,
+\cI{Classes.register_observer}. This API provides a systematic way to notify
+the meta-language whenever a new class or instance is declared in \rocq. The
+meta-language can then translate these declarations into its own
+representation and store them in its knowledge base.
+
+Concretely, a meta-language integration must provide two components:
+(1) a compiler that translates \rocq class and instance declarations into the
+meta-language representation, and (2) a type-class solver that animates the
+search by interacting with the resulting database.
+
+In our setting, the meta-language used to implement the meta-solver is
+\elpi. Consequently, the main task is to implement the class and instance
+compiler, which incrementally builds the database on which the \elpi program
+operates. 
+% This database contains the representation of classes and instances
+% required to resolve type-class queries.
+
+The type-class solver itself typically follows a \prolog-like resolution
+strategy: instances are tried according to their priority, and backtracking
+may reconsider previous choices when a branch fails. In \elpi, this behavior
+comes for free, since the resolution mechanism of the type-class solver
+strongly imitates the standard execution model of the \elpi runtime.
+
+The following sections describe the evolution of two implementations of a
+type-class compiler written in \elpi.
+
+In the first approach~(\cref{sec:compiler-one-pred}), all type-class problems
+are handled by a single predicate called \eI{tc}.
+This predicate takes as input a goal representing a type-class constraint and
+returns an instance that satisfies the corresponding unification problem.
+
+In the second approach~(\cref{sec:compiler-one-pred-pred-class}), the
+compilation is specialized so that each class is associated with its own
+predicate. Each predicate has $n + 1$ arguments: the first $n$ arguments
+correspond to the parameters of the class, while the final argument represents
+the instance that solves the original type-class constraint.
+
+To illustrate the output of both compilers, we use the running example of the
+type class \cI{Add} and its instances introduced in
+\cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
+its instances is reproduced in \cref{fig:add-class-full}.
+
+\begin{figure}
+  \input{code/plus_all.tex}
+  \caption{Add class and instances}
+  \label{fig:add-class-full}
+\end{figure}
+
+\section{First approach: the \cI{tc} predicate}
+\label{sec:compiler-one-pred}
+
+The first version of the type-class solver was based on the following predicate:
+
+\begin{center}
+  \eI{pred tc i:term, o:term}
+\end{center}
+
+This predicate is shared for each type-class instance, therefore there is no
+need to implement the class compiler, i.e. the class objervers triggers a no-op.
+
+What is more interesting is to focus on the instance compiler. In order to
+compile an instance, we need to grab the type of the instace.
+
+
+
+\section{Second approach: one predicate per class}
+\label{sec:compiler-one-pred-pred-class}
 \cite{fissore2023}
 
-Rule base automation!
 
-% \section{From \rocq goals to \elpi proofs}
-
-\section{Class encoding}
+\subsection{Class encoding}
 
 register hook
 
-\section{Instance encoding}
+\subsection{Instance encoding}
 
 register hook
-\subsection{From term to clause}
+\paragraphTwo{From term to clause}
 
 In a first version we could be naif and have: tc-class TERM,
 but this is not good for X reasons:
@@ -30,13 +110,13 @@ but this is not good for X reasons:
   \item We cannot benefit from determinacy checker
 \end{itemize}
 
-\subsection{Conditional instances: encoding premises}
+\paragraphTwo{Conditional instances: encoding premises}
 
-\subsection{Rule priorities}
+\paragraphTwo{Rule priorities}
 
-\section{Goal encoding}
+\subsection{Goal encoding}
 
-\section{Rule indexing}
+\subsection{Rule indexing}
 
 \subsection{Discrimination trees}
 

@@ -4,11 +4,11 @@ Require Import Reals.
 Notation "¬" := (negb).
 
 Module S1.
+(*SNIP: plus_all *)
 (*SNIP: plus_tc_magma *)
 Class Magma T := {op: T -> T -> T}.
 (*ENDSNIP: plus_tc_magma *)
-
-Check op 3 4.
+Check op 3 4. (* HIDE *)
 
 (*SNIP: plus_tc *)
 (*SNIP: plus_tc_mnat *)
@@ -23,6 +23,7 @@ Instance mProp T1 T2 : Magma T1 -> Magma T2 -> Magma (T1 * T2) :=
   {op '(x1,y1) '(x2, y2) := (op x1 x2, op y1 y2)}.
 (*ENDSNIP: plus_tc_prod *)
 (*ENDSNIP: plus_tc *)
+(*ENDSNIP: plus_all *)
 
 Check op 3 3.
 
@@ -68,3 +69,16 @@ Class Add T := { plus: T -> T -> T;
 (*ENDSNIP: plus_tc_add1 *)
 
 End S4.
+
+Module groups.
+  Class Magma (T : Type) := { op : T -> T -> T }.
+
+  Instance addNat : Magma nat := { op:= Nat.add }.
+  Instance addR : Magma R := { op:= Rplus }.
+
+  Instance addProd T1 T2 : Magma T1 -> Magma T2 -> Magma (T1 * T2) :=
+    {op '(x1,y1) '(x2, y2) := (op x1 x2, op y1 y2)}.
+
+  Class Semigroup T `{Magma T} := { assoc a b c : op a (op b c) = op (op a b) c }.
+
+End groups.
