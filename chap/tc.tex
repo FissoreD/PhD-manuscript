@@ -61,66 +61,66 @@ application of our solver to existing libraries, such as \tlc, \stdpp, and
 \section{Class encoding}
 \label{sec:class-encoding}
 
-A type-class goal is a \rocq type\footnote{Or term, in \rocq terms and types are
-confused} $T$ whose head is a type-class $C$. The resolution of such a goal
-consists in finding a \rocq instance whose type is an instantiation of $T$. The
-goal $T$ has in general $n$ arrows, one per the declared arguments of $C$.
+A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
+terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
+goal amounts to finding a \rocq instance whose type is an instantiation of
+$T$. In general, $T$ contains $n$ arrows, corresponding to the $n$ declared
+parameters of the class $C$.
 
-Ideally a type-class goal should be translated in a query with $n+1$ arguments.
-The $n$ first arguments represent the parameters of the class itself. The last
-extra argument is a term carrying the concreate instance term representing the
-solution of the query.
+Conceptually, a type-class goal can be translated into a query with $n+1$
+arguments. The first $n$ arguments correspond to the parameters of the class,
+while the final argument is a term representing the concrete instance that
+solves the query.
 
-As an example, we take back the \cI{Add} type-class
-introduced in \cref{sec:ad-hoc-poly}. For convenience, the full definition of
-the class and its instances is reproduced in \cref{fig:add-class-full}.
-
+As an example, consider the \cI{Add} type-class introduced in
+\cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
+its instances is reproduced in \cref{fig:add-class-full}.
+%
 \begin{figure}
   \input{code/plus_tc_add_inst.tex}
   \caption{Add class and instances}
   \label{fig:add-class-full}
 \end{figure}
 
-% \cI{Add} carries a parameter \cI{T} of type \cI{Type}. Ideally a \rocq goal
-% \cI{Add T}, where $T$ is a term, should corresponds to an \elpi query with the
-% following shape \eI{tc-Add {{T}} Sol} where \eI{Sol} is a unification variable
-% that is instantiated by backchain the query into the database. It means that
-% the compiler
+When the class \cI{Add} is declared, the \elpi class compiler is triggered and
+receives the \rocq symbol \eI{indt «Add»} as input. From this symbol we can
+retrieve the type of the class and determine the number of its parameters. In
+this example, the HOAS representation of the type of \cI{Add} in \elpi is
+%
+\begin{center}
+\eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ «Add.u0»)}
+\end{center}
 
-% Concretely, in the \elpi
-% settings, we need to create a new predicate to be asssociated to the \cI{Add}
-% class. This predicate should carry on argument
+\noindent which indicates that the class has a single parameter.
 
-When declaring \cI{Add}, the \elpi class compiler is triggered and receives as
-input the \rocq symbol \eI{indt «Add»}. From symbol we can retrieve its type,
-and deduce the number of the class argument. In the example, the HOAS
-representation of the type of \cI{Add} in \elpi is 
-\begin{center}\eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ
-«Add.u0»)}\end{center} 
-\noindent telling that the class has one argument.
+From this information we generate the predicate associated with the class:
 
-We can therefore build the predicate of the class which is:
+\begin{center}
+\eI{pred tc-Add o:term, o:term.}
+\end{center}
 
-\begin{center} \eI{pred tc-Add o:term, o:term.} \end{center}
+By default, the arguments of the predicate are considered outputs. As
+anticipated in the last paragraph of \cref{sec:ad-hoc-poly}, however, \rocq
+allows users to specify modes for the parameters of a class. These modes guide
+unification when matching instances against goals and help orient the search
+performed by the \prolog-like interpreter.
 
-By default, in the signature of a predicate, the modes of the argument are
-considered as \elpi outputs. As anticipated in the last paragraph of
-\cref{sec:ad-hoc-poly}, \rocq allows the user to establish the modes of the
-class he is declaring, in order to have better control on the unification when
-unifying the instance with the goal. We think that modes are an essential
-ingriedient to better orient the the a prolog-like interpreter, and therefore we
-should provide the use a way to transmit the expected modes of the class to the
-elpi interpreter in order to add mode information to the predicate being
-created. However, we face three main problems. At first, the modes of a class,
-in \rocq are declared after the declaration of the class, while the predicate
-declaration is compiled just after the declaration of the class. Secondly, we
-have no bijection between the semantics of the \elpi modes and the \rocq modes:
-While the \cI{-} mode has the same semantics of the output mode of \elpi,
-neither of the two modes \cI{!} and \cI{+} corresponds to the \elpi input mode.
-Finally, a \rocq class may be attached to several modes, which is not mossible
-in \elpi: a predicate has only one mode.
+The modes are specified using the attribute \cI{~\#~[mode="..."]} attached to
+the class declaration. The \elpi compiler can retrieve this attribute and use
+it to determine the modes of the corresponding predicate.
 
-In order to solve the first problem, the  
+This translation is not straightforward, however, because the mode systems of
+\rocq and \elpi do not coincide. The \rocq mode \cI{-} corresponds to the
+output mode of \elpi, but neither \cI{+} nor \cI{!} directly matches the
+\elpi input mode. Moreover, a \rocq class may be associated with multiple
+mode declarations, whereas an \elpi predicate admits only a single mode
+specification.
+
+The first issue, is addressed in the following way: \cI{+} and \cI{!} are mapped
+to the \elpi input mode. The input mode is a viable alternative to the two
+modes. The \cI{+} mode impose a very strong condition on the term, which should
+be ground. In the \stdpp library
+
 
 
 \section{Instance encoding}
