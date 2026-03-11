@@ -54,7 +54,7 @@ retrieval during resolution.
 
 Finally, in \cref{sec:tc-discussion}, we discuss practical aspects of using
 the type-class solver. In particular, we explore how users can control and
-customize the solver to better fit their needs. We also demonstrate the
+customize the solver to better fit their needs. We also show the
 application of our solver to existing libraries, such as \tlc, \stdpp, and
 \iris.
 
@@ -63,18 +63,13 @@ application of our solver to existing libraries, such as \tlc, \stdpp, and
 
 A type-class goal is a \rocq type\footnote{Or term, in \rocq terms and types are
 confused} $T$ whose head is a type-class $C$. The resolution of such a goal
-consists in finding an \rocq instance whose type is an instantiation of $T$. The
+consists in finding a \rocq instance whose type is an instantiation of $T$. The
 goal $T$ has in general $n$ arrows, one per the declared arguments of $C$.
 
-Ideally a type-class goal should be translated in a query with an
-extra-argument. This extra-argument shold carry the \rocq instance for the
-initial goal.
-
-In the \elpi compiler, we create a new predicate for each new class. This
-predicate carries the name of the class and has $n+1$ arguments. The $n$ first
-arguments represent the parameters of the class itself. The last extra argument
-is a term carrying the concreate instance term representing the solution of the
-query.
+Ideally a type-class goal should be translated in a query with $n+1$ arguments.
+The $n$ first arguments represent the parameters of the class itself. The last
+extra argument is a term carrying the concreate instance term representing the
+solution of the query.
 
 As an example, we take back the \cI{Add} type-class
 introduced in \cref{sec:ad-hoc-poly}. For convenience, the full definition of
@@ -96,8 +91,37 @@ the class and its instances is reproduced in \cref{fig:add-class-full}.
 % settings, we need to create a new predicate to be asssociated to the \cI{Add}
 % class. This predicate should carry on argument
 
-When declaring \cI{Add}, the \elpi class compiler is triggered and receives
-as input the \rocq symbol \cI{global (indt «Add»)}. Thanks to the 
+When declaring \cI{Add}, the \elpi class compiler is triggered and receives as
+input the \rocq symbol \eI{indt «Add»}. From symbol we can retrieve its type,
+and deduce the number of the class argument. In the example, the HOAS
+representation of the type of \cI{Add} in \elpi is 
+\begin{center}\eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ
+«Add.u0»)}\end{center} 
+\noindent telling that the class has one argument.
+
+We can therefore build the predicate of the class which is:
+
+\begin{center} \eI{pred tc-Add o:term, o:term.} \end{center}
+
+By default, in the signature of a predicate, the modes of the argument are
+considered as \elpi outputs. As anticipated in the last paragraph of
+\cref{sec:ad-hoc-poly}, \rocq allows the user to establish the modes of the
+class he is declaring, in order to have better control on the unification when
+unifying the instance with the goal. We think that modes are an essential
+ingriedient to better orient the the a prolog-like interpreter, and therefore we
+should provide the use a way to transmit the expected modes of the class to the
+elpi interpreter in order to add mode information to the predicate being
+created. However, we face three main problems. At first, the modes of a class,
+in \rocq are declared after the declaration of the class, while the predicate
+declaration is compiled just after the declaration of the class. Secondly, we
+have no bijection between the semantics of the \elpi modes and the \rocq modes:
+While the \cI{-} mode has the same semantics of the output mode of \elpi,
+neither of the two modes \cI{!} and \cI{+} corresponds to the \elpi input mode.
+Finally, a \rocq class may be attached to several modes, which is not mossible
+in \elpi: a predicate has only one mode.
+
+In order to solve the first problem, the  
+
 
 \section{Instance encoding}
 \label{sec:instance-encoding}
@@ -145,6 +169,7 @@ Discrimination trees: opt for lists and tree depths.
 \label{sec:tc-discussion}
 
 \subsection{User defined rules}
+
 Hint extern etc
 
 \subsection{Accessing the database}
@@ -158,3 +183,7 @@ Hint extern etc
 \paragraph{$\eta\beta$-unification}
 \paragraph{$\delta$-unification, coercions and canonical structures}
 
+TODO: ci sono dei comandi che iterano il database di classi e istanze per
+aggiungerle tutte in un botto
+
+TODO: Quali sono i comandi che settano, unsettano la search?
