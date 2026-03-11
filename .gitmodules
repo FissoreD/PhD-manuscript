@@ -9,3 +9,6 @@
 	path = ho-for-free/HO-unif-for-free
 	url = https://github.com/FissoreD/HO-unif-for-free
 	branch = phd
+[submodule "coq-elpi-tc"]
+	path = coq-elpi-tc
+	url = git@github.com:FissoreD/coq-elpi-tc
