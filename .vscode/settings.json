@@ -20,6 +20,10 @@
     "**/.latexminted_config": true,
     "**/elpi.py": true,
     "**/_minted": true,
+    "**/*.vo": true,
+    "**/*.vok": true,
+    "**/*.vos": true,
+    "**/*.glob": true,
     // "code/*.tex": true,
     "**/__pycache__": true
   },
