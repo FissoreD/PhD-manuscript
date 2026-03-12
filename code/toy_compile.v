@@ -28,23 +28,31 @@ is-class? A :- get-class? A _.
 func gref->pred-name gref -> string.
 gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
 
-pred compile-ty
-  i:term,         % I  : the premise of an instance whose applicative head is a class
-  i:bool,         % B  : tells if the premise P is in positive or negative position
-  i:term,         % It : the type of I that has not yet been explored
-  i:list term,    % Ag : the arguments of I that will be part of the proof
-  i:list prop,     % Pr : the premises of the rule
-  o:prop.      % C  : the final clause corresponding to the compilation of I
-compile-ty ProofHd IsPositive (prod N Ty Bo) ProofTlR PremR Clause :- !,
-  if (IsPositive = tt) (Clause = (pi x\ C x)) (Clause = (@pi-decl N Ty x\ C x)),
-  pi p\ sigma NewPrem PremR'\
+% pred compile-ty
+%   i:bool,         % B  : tells if I is in positive
+%   i:term,         % I  : the instance being compiler
+%   i:term,         % It : the type of I that has not yet been explored
+%   i:list term,    % Ag : the arguments of I that will be part of the proof
+%   i:list prop,    % Pr : the premises of the R
+%   o:prop.         % R  : the final rule corresponding to the compilation of I
+
+%SNIP: toy_compiler
+pred comp bool, term, term, list term, list prop -> prop.
+comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,
+  pi p\ sigma M P' R'\
+  if (B = tt) (R p = R') (R p = (decl p N Ty => R')),
   if (is-class? Ty)
-    (compile-ty p {neg IsPositive} Ty [] [] NewPrem, PremR' = [NewPrem | PremR])
-    (PremR' = PremR),
-  compile-ty ProofHd IsPositive (Bo p) [p|ProofTlR] PremR' (C p).
-compile-ty ProofHd IsPositive Goal ProofTlR PremR Clause :-
-    coq.mk-app ProofHd {std.rev ProofTlR} Proof,
-    make-clause Goal Proof {std.rev PremR} IsPositive Clause.
+    (comp {neg B} p Ty [] [] M, P' = [M | P])
+    (P' = P),
+  comp B I (Bo p) [p|Ag] P' R'.
+comp B I G Ag P R :-
+  coq.mk-app I {std.rev Ag} Proof,
+  make-clause B G Proof {std.rev P} R.
+
+pred compile gref -> prop.
+compile G R :- coq.env.typeof G Ty, 
+  comp tt (global G) Ty [] [] R.
+%ENDSNIP: toy_compiler
 
 :index (1)
 func make-clause.aux bool, prop, list prop -> prop.
@@ -52,20 +60,19 @@ make-clause.aux tt Head Body (Head :- Body).
 make-clause.aux ff Head [] Head :- !.
 make-clause.aux ff Head Body (Body => Head).
 
-func make-clause term, term, list prop, bool -> prop.
-make-clause Goal Sol RuleBody IsPositive Rule :-
-  coq.safe-dest-app Goal Class Args,
-  get-class? Class ClassGR,
-  gref->pred-name ClassGR ClassStr,
-  std.append Args [Sol] ArgsSol, 
-  coq.elpi.predicate ClassStr ArgsSol RuleHead,
-  make-clause.aux IsPositive RuleHead RuleBody Rule.
+func class->str term -> string.
+class->str C S :- get-class? C G, gref->pred-name G S.
 
-pred compile gref ->.
-compile G :-
-  coq.env.typeof G Ty,
-  compile-ty (global G) tt Ty [] [] R,
-  coq.elpi.accumulate _ "tc.db" (clause _ _ R).
+func make-clause bool, term, term, list prop -> prop.
+make-clause Pos Goal Proof Prems Rule :-
+  coq.safe-dest-app Goal Class Args,
+  class->str Class ClassStr,
+  std.append Args [Proof] ArgsProof, 
+  coq.elpi.predicate ClassStr ArgsProof Head,
+  make-clause.aux Pos Head Prems Rule.
+
+pred compile-acc gref ->.
+compile-acc G :- coq.elpi.accumulate _ "tc.db" (clause _ _ {compile G}).
 }}.
 
 Class Add T := {plus: T -> T -> T}.
@@ -78,21 +85,13 @@ Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
   {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
 
 Elpi Query lp:{{
-  compile {{:gref addNat}},
-  compile {{:gref addProd}}.
+  compile-acc {{:gref addNat}},
+  compile-acc {{:gref addProd}}.
 }}.
 
 Elpi Print C "elpi/xx".
 
-Elpi Query lp:{{
-  C = {{:gref addNat}},
-  coq.env.typeof C Ty,
-  compile-ty (global C) tt Ty [] [] R.
-}}.
+Elpi Query lp:{{ compile {{:gref addNat}} R }}.
 
 Elpi Trace Browser.
-Elpi Query lp:{{
-  C = {{:gref addProd}},
-  coq.env.typeof C Ty,
-  compile-ty (global C) tt Ty [] [] R.
-}}.
+Elpi Query lp:{{ compile {{:gref addProd}} R }}.
