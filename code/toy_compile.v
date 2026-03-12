@@ -25,57 +25,41 @@ get-class? T ClassGR :-
 func is-class? term ->.
 is-class? A :- get-class? A _.
 
-
 func gref->pred-name gref -> string.
 gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
 
 pred compile-ty
-  term,         % I  : the premise of an instance whose applicative head is a class
-  bool,         % B  : tells if the premise P is in positive or negative position
-  term,         % It : the type of I that has not yet been explored
-  list term,    % Ag : the arguments of I that will be part of the proof
-  list prop     % Pr : the premises of the rule
-  -> prop.      % C  : the final clause corresponding to the compilation of I
+  i:term,         % I  : the premise of an instance whose applicative head is a class
+  i:bool,         % B  : tells if the premise P is in positive or negative position
+  i:term,         % It : the type of I that has not yet been explored
+  i:list term,    % Ag : the arguments of I that will be part of the proof
+  i:list prop,     % Pr : the premises of the rule
+  o:prop.      % C  : the final clause corresponding to the compilation of I
 compile-ty ProofHd IsPositive (prod N Ty Bo) ProofTlR PremR Clause :- !,
-  if (IsPositive = tt) 
-    (Clause = (pi x\ C x)) 
-    (Clause = (pi x\ decl x N Ty => C x)),
-  pi p\ sigma NewPrem\
+  if (IsPositive = tt) (Clause = (pi x\ C x)) (Clause = (@pi-decl N Ty x\ C x)),
+  pi p\ sigma NewPrem PremR'\
   if (is-class? Ty)
-    (compile-ty p {neg IsPositive} Ty [] [] NewPrem, !,
-     compile-ty ProofHd IsPositive (Bo p) [p|ProofTlR] [NewPrem | PremR] (C p))
-    (compile-ty ProofHd IsPositive (Bo p) [p|ProofTlR] PremR (C p)).
+    (compile-ty p {neg IsPositive} Ty [] [] NewPrem, PremR' = [NewPrem | PremR])
+    (PremR' = PremR),
+  compile-ty ProofHd IsPositive (Bo p) [p|ProofTlR] PremR' (C p).
 compile-ty ProofHd IsPositive Goal ProofTlR PremR Clause :-
     coq.mk-app ProofHd {std.rev ProofTlR} Proof,
-    compile-conclusion IsPositive Goal Proof {std.rev PremR} Clause.
-
-func compile-conclusion 
-  bool,             % tt if the term is in positive position
-  term,             % the goal (invariant: it is a constant or a application)
-  term,             % the proof
-  list prop         % the premises
-  -> prop.             % the compiled clause for the instance
-
-compile-conclusion tt Goal Proof Premises Clause :-
-  make-tc Goal Proof Premises tt Clause.
-compile-conclusion ff Goal Proof Premises Clause :-
-  make-tc Goal Proof Premises ff Clause1, 
-  Clause = (Clause1).
+    make-clause Goal Proof {std.rev PremR} IsPositive Clause.
 
 :index (1)
-func make-tc.aux bool, prop, list prop -> prop.
-make-tc.aux tt Head Body (Head :- Body).
-make-tc.aux ff Head [] Head :- !.
-make-tc.aux ff Head Body (Body => Head).
+func make-clause.aux bool, prop, list prop -> prop.
+make-clause.aux tt Head Body (Head :- Body).
+make-clause.aux ff Head [] Head :- !.
+make-clause.aux ff Head Body (Body => Head).
 
-func make-tc term, term, list prop, bool -> prop.
-make-tc Goal Sol RuleBody IsPositive Rule :-
+func make-clause term, term, list prop, bool -> prop.
+make-clause Goal Sol RuleBody IsPositive Rule :-
   coq.safe-dest-app Goal Class Args,
   get-class? Class ClassGR,
   gref->pred-name ClassGR ClassStr,
   std.append Args [Sol] ArgsSol, 
   coq.elpi.predicate ClassStr ArgsSol RuleHead,
-  make-tc.aux IsPositive RuleHead RuleBody Rule.
+  make-clause.aux IsPositive RuleHead RuleBody Rule.
 
 pred compile gref ->.
 compile G :-
@@ -94,7 +78,8 @@ Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
   {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
 
 Elpi Query lp:{{
-  compile {{:gref addNat}}.
+  compile {{:gref addNat}},
+  compile {{:gref addProd}}.
 }}.
 
 Elpi Print C "elpi/xx".
