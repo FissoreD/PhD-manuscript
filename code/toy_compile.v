@@ -22,21 +22,29 @@ get-class? T ClassGR :-
   coq.safe-dest-app T HD _,
   not (var HD), is-class-t? HD ClassGR.
 
+func class->str term -> string.
+class->str C S :- get-class? C G, gref->pred-name G S.
+
 func is-class? term ->.
 is-class? A :- get-class? A _.
 
 func gref->pred-name gref -> string.
 gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
 
-% pred compile-ty
-%   i:bool,         % B  : tells if I is in positive
-%   i:term,         % I  : the instance being compiler
-%   i:term,         % It : the type of I that has not yet been explored
-%   i:list term,    % Ag : the arguments of I that will be part of the proof
-%   i:list prop,    % Pr : the premises of the R
-%   o:prop.         % R  : the final rule corresponding to the compilation of I
+func make-rule-head term, term -> prop.
+make-rule-head Goal Proof Head :-
+  coq.safe-dest-app Goal Class Args,
+  class->str Class ClassStr,
+  std.append Args [Proof] ArgsProof, 
+  coq.elpi.predicate ClassStr ArgsProof Head.
+
+shorten std.{rev}.
 
 /*SNIP: toy_compiler*/
+pred build-rule bool, prop, list prop -> prop.
+build-rule tt Head Prems (Head :- Prems).
+build-rule ff Head Prems (Prems => Head).
+
 %         Pol   Inst  Ty    Args       Prems        Res
 pred comp bool, term, term, list term, list prop -> prop.
 comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,          % r1
@@ -47,30 +55,15 @@ comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,          % r1
     (P' = P),
   comp B I (Bo p) [p|Ag] P' R'.
 comp B I G Ag P R :-                                    % r2
-  coq.mk-app I {std.rev Ag} Proof,
-  make-clause B G Proof {std.rev P} R.
+  coq.mk-app I {rev Ag} Proof,
+  make-rule-head G Proof Head,
+  build-rule B Head {rev P} R.
 
 pred compile gref -> prop.
 compile G R :- coq.env.typeof G Ty, 
   comp tt (global G) Ty [] [] R.
 /*ENDSNIP: toy_compiler*/
 
-:index (1)
-func make-clause.aux bool, prop, list prop -> prop.
-make-clause.aux tt Head Body (Head :- Body).
-make-clause.aux ff Head [] Head :- !.
-make-clause.aux ff Head Body (Body => Head).
-
-func class->str term -> string.
-class->str C S :- get-class? C G, gref->pred-name G S.
-
-func make-clause bool, term, term, list prop -> prop.
-make-clause Pos Goal Proof Prems Rule :-
-  coq.safe-dest-app Goal Class Args,
-  class->str Class ClassStr,
-  std.append Args [Proof] ArgsProof, 
-  coq.elpi.predicate ClassStr ArgsProof Head,
-  make-clause.aux Pos Head Prems Rule.
 
 pred compile-acc gref ->.
 compile-acc G :- coq.elpi.accumulate _ "tc.db" (clause _ _ {compile G}).

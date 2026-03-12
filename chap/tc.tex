@@ -152,15 +152,26 @@ then proceeds by invoking the auxiliary predicate \eI{comp}.
 
 The predicate \eI{comp} performs the core of the compilation process. It takes
 five inputs: the polarity of the term being compiled; a term representing the
-instance; a term representing the type of the instance; the list of arguments of
-the instance; and the premises that will form the body of the resulting rule.
-From these inputs, \eI{comp} produces the rule corresponding to the compiled
-instance.
+instance; a term representing the type of the instance which is structurally
+traversed during the recursion; and two accumulators representig respectively
+the list of arguments of the instance and the premises that will form the body
+of the resulting rule. From these inputs, \eI{comp} produces the rule
+corresponding to the compiled instance.
 
-We have two cases to analyse depening on the type of the instance. Either
+We have two cases to analyse depening on the type of the instance. In particular
+rule \eI{~\PYG{c}{r1}~} deals with the recursive cases, that is, it aims to
+traverse the quantification on the type of the instance. \eI{~\PYG{c}{r2}~} is
+instead the base case which builds the \elpi rule with the information
+accumulated by the recursive calls.
+
+HERE
+
+The base case of \eI{comp} is reached if the type is not a quantification. It
+calls \eI{coq.mk-app} in order to build the proof term, which has the instance
+\eI{I} as head and \eI{Ag} as arguments. Then it builds 
 
 
- The information passed to \elpi is the global reference of the newly
+The information passed to \elpi is the global reference of the newly
 declared instance. For example, consider the reference \eI{const «addNat»}. The
 expected \elpi rule generated for this instance is:
 %
