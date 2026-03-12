@@ -58,7 +58,7 @@ customize the solver to better fit their needs. We also show the
 application of our solver to existing libraries, such as \tlc, \stdpp, and
 \iris.
 
-\section{Class encoding}
+\section{Class compilation}
 \label{sec:class-encoding}
 
 A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
@@ -132,10 +132,48 @@ To adress the second point, we ignore the modes of a class if they are more then
 one. We discuss more in detail our choices and compare them with the \rocq
 solver behavior in \cref{sec:tc-mode-and-determinacy}.
 
-\section{Instance encoding}
+\section{Instance compilation}
 \label{sec:instance-encoding}
 
+Similarly to class compilation, instance compilation in \rocq is triggered
+immediately after an instance declaration. The information passed to \elpi
+is the global reference of the newly declared instance. For example, consider
+the reference \eI{const «addNat»}. The expected \elpi rule generated for this
+instance is:
+%
+\begin{center}
+\cI{tc-Add {{nat}} {{addNat}}.}
+\end{center}
+
+This rule states that \cI{addNat} is the proof of the class \cI{Add}
+applied to the type \cI{nat}.
+
+Compilation becomes more interesting for more complex instances, in
+particular conditional instances. These are translated into \elpi rules
+containing unification variables and premises. As an example, consider the
+instance \cI{addProd}, which is translated into the following \elpi rule:
+
+\begin{elpicode}
+tc-Add {{lp:T1 * lp:T2}} {{addProd lp:T1 lp:T2 lp:P1 lp:P2}} :-
+  tc-Add T1 P1, tc-Add T2 P2.
+\end{elpicode}
+
+This rule states that \cI{addProd}, applied to \cI{T1}, \cI{T2}, \cI{P1}, and
+\cI{P2}, is a proof of the class \cI{Add} for the product type \eI{{{lp:T1 *
+lp:T2}}}. This holds provided that \cI{P1} and \cI{P2} are proofs of the class
+\cI{Add} applied to the types \eI{T1} and \eI{T2}, respectively.
+
+In order to compile the two \elpi rules, we pass throug the following elpi
+predicate:
+
+
+
+
+TODO: compilation of instances ad-hoc
+
 register hook
+
+
 \subsection{From term to clause}
 
 In a first version we could be naif and have: tc-class TERM,
@@ -225,6 +263,8 @@ behavior, in \elpi we can use the \cut, which, in \rocq is not an option.
 
 Note: Cancel is an example of a class where the two modes is needed, elpi can't
 implement it
+
+Guardare: Typeclasses Strict Resolution
 
 \subsection{Unification problems}
 

@@ -74,8 +74,10 @@ Check plus 3 3.
 Elpi Command A.
 Elpi Query  lp:{{
   coq.say {{:gref Add}},
-  coq.env.typeof {{:gref addNat}} T.
+  coq.env.typeof {{:gref addNat}} T,
+  X = {{addNat}}.
 }}.
+Elpi Print TC.Solver "elpi/xx".
 
 End S3.
 

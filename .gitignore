@@ -23,3 +23,8 @@ _minted
 ho-for-free/log
 dummy
 _opam
+
+*.glob
+*.vo
+*.vok
+*.vos
