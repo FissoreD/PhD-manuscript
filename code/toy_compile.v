@@ -36,23 +36,24 @@ gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
 %   i:list prop,    % Pr : the premises of the R
 %   o:prop.         % R  : the final rule corresponding to the compilation of I
 
-%SNIP: toy_compiler
+/*SNIP: toy_compiler*/
+%         Pol   Inst  Ty    Args       Prems        Res
 pred comp bool, term, term, list term, list prop -> prop.
-comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,
+comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,          % r1
   pi p\ sigma M P' R'\
   if (B = tt) (R p = R') (R p = (decl p N Ty => R')),
   if (is-class? Ty)
     (comp {neg B} p Ty [] [] M, P' = [M | P])
     (P' = P),
   comp B I (Bo p) [p|Ag] P' R'.
-comp B I G Ag P R :-
+comp B I G Ag P R :-                                    % r2
   coq.mk-app I {std.rev Ag} Proof,
   make-clause B G Proof {std.rev P} R.
 
 pred compile gref -> prop.
 compile G R :- coq.env.typeof G Ty, 
   comp tt (global G) Ty [] [] R.
-%ENDSNIP: toy_compiler
+/*ENDSNIP: toy_compiler*/
 
 :index (1)
 func make-clause.aux bool, prop, list prop -> prop.

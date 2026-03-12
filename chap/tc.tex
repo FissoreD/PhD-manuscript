@@ -135,11 +135,34 @@ solver behavior in \cref{sec:tc-mode-and-determinacy}.
 \section{Instance compilation}
 \label{sec:instance-encoding}
 
-Similarly to class compilation, instance compilation in \rocq is triggered
-immediately after an instance declaration. The information passed to \elpi
-is the global reference of the newly declared instance. For example, consider
-the reference \eI{const «addNat»}. The expected \elpi rule generated for this
-instance is:
+\begin{figure}
+  \input{code/toy_compiler.tex}
+  \caption{Simple \elpi compiler}
+  \label{fig:simple-elpi-compiler}
+\end{figure}
+
+In \rocq, instance compilation is triggered immediately after an instance
+declaration. \Cref{fig:simple-elpi-compiler} presents a minimal instance
+compiler written in \elpi.
+
+The entry point of the compiler is the predicate \eI{compile}, which takes as
+input the global reference \eI{G} of the instance. Using the \eI{coq.env.typeof}
+API, the compiler retrieves the type \eI{Ty} of \eI{G}. Compilation
+then proceeds by invoking the auxiliary predicate \eI{comp}.
+
+The predicate \eI{comp} performs the core of the compilation process. It takes
+five inputs: the polarity of the term being compiled; a term representing the
+instance; a term representing the type of the instance; the list of arguments of
+the instance; and the premises that will form the body of the resulting rule.
+From these inputs, \eI{comp} produces the rule corresponding to the compiled
+instance.
+
+We have two cases to analyse depening on the type of the instance. Either
+
+
+ The information passed to \elpi is the global reference of the newly
+declared instance. For example, consider the reference \eI{const «addNat»}. The
+expected \elpi rule generated for this instance is:
 %
 \begin{center}
 \cI{tc-Add {{nat}} {{addNat}}.}
@@ -165,7 +188,6 @@ lp:T2}}}. This holds provided that \cI{P1} and \cI{P2} are proofs of the class
 
 In order to compile the two \elpi rules, we pass throug the following elpi
 predicate:
-
 
 
 

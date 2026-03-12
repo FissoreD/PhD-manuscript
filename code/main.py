@@ -26,6 +26,7 @@ codes = {
     "v": ["(*", "*)", "coq", "cI", "v"],
     "hs": ["--", "", "hs", "hsI", "hs"],
     "elpi": ["%", "", "elpi", "eI", "elpi"],
+    "elpi1": ["/*", "*/", "elpi", "eI", "elpi"],
 }
 
 def extension(fname): return fname.split(".")[-1]
@@ -38,5 +39,5 @@ if __name__ == '__main__':
     extract_code.snip(info[0], info[1], f"{info[2]}code",info[3],out,info[4],clean_line(False)).read_file(fname)
     # following line is drastic scenario for elpi quotations
     if extension(fname) == "v":
-        info = codes["elpi"]
+        info = codes["elpi1"]
         extract_code.snip(info[0], info[1], f"{info[2]}code",info[3],out,info[4],clean_line(True)).read_file(fname)
