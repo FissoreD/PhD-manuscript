@@ -1,6 +1,17 @@
-From mathcomp Require Import all_ssreflect.
 Require Import Reals.
 From elpi Require Import elpi.
+From elpi.apps Require Import tc.
+
+Elpi Accumulate TC.Compiler lp:{{
+  :after "0"
+  tc.add-class-gr _ ClassGR SMR :-
+    std.assert! (coq.TC.class? ClassGR) "Only gref of type classes can be added as new predicates",
+    tc.get-elpi-mode ClassGR SMR EM _,
+    if (std.forall EM (m\ sigma a s\ m = pr a s, a = out)) (true) (
+      std.fold EM "" (m\s\r\ sigma a s'\ m = pr a s', if (a = in) (calc (s ^ " 10") r) (calc (s ^ " _") r)) Indexing),
+    tc.gref->pred-name ClassGR PredName,
+    coq.say "Adding" PredName EM, fail, !.
+}}.
 
 Notation "¬" := (negb).
 
@@ -62,14 +73,31 @@ Check plus 3 3.
 
 Elpi Command A.
 Elpi Query  lp:{{
-  coq.say {{:gref Add}}
-}}.
-
-Elpi Query  lp:{{
-  coq.env.typeof {{Add}} X.
+  coq.say {{:gref Add}},
+  coq.env.typeof {{:gref addNat}} T.
 }}.
 
 End S3.
+
+Module S3x.
+  Inductive typeit (X:Type) : Prop := c : X -> typeit X.
+  #[mode="+"] Class Add T := {plus: T -> T -> T}.
+
+  Instance dummy T : Add T. Admitted.
+
+  Elpi Accumulate TC.Solver lp:{{
+    tc.print-goal.
+  }}.
+
+  Goal exists X, typeit (Add X).
+  Proof.
+    eexists; constructor.
+    apply _.
+    Unshelve.
+    apply nat.
+  Qed.
+End S3x.
+
 
 Module S4.
 

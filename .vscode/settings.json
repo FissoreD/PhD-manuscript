@@ -54,5 +54,9 @@
       "name": "base",
       "tools": [ "pdflatex" ]
     },
-  ]
+  ],
+  "ocaml.sandbox": {
+    "kind": "opam",
+    "switch": "${workspaceFolder:PhD-manuscript}/coq-elpi-tc"
+  }
 }
