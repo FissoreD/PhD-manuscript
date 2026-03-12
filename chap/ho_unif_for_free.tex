@@ -324,7 +324,7 @@ terms in \Ho{}.
 % define the equational theory and
 % substitution (unification-variable assignment).
 
-\paragraph{Term equality: \Eo and \Ee}
+\paragraphTwo{Term equality: \Eo and \Ee}
 For both languages, we extend the equational theory
 over ground terms to the full language by adding reflexivity for
 unification variables, i.e. a unification variable is equal to itself
@@ -368,7 +368,7 @@ For brevity, we omit the code of \eI{beta}:
 it is sufficient to know that <<\eI{beta F L R}>> computes in \eI{R} the
 weak-head normal form of <<\eI{o-app [F|L]}>>.
 
-\paragraph{Substitution: $\rho s$ and $\sigma t$}
+\paragraphTwo{Substitution: $\rho s$ and $\sigma t$}
 
 We write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
 the term $t$ to the variable $X$.
@@ -388,7 +388,7 @@ the substitution for \Fo{} and \Ho{} identical.
 We defer to \cref{sec:grounwork} a more precise description
 pointing out their differences.
 
-\paragraph{Term unification: \Uo vs. \Ue}
+\paragraphTwo{Term unification: \Uo vs. \Ue}
 
 % Although we provide an implementation of the meta-language unification \Ue
 % in the supplementary material (that we used for testing purposes) we only
@@ -1000,7 +1000,7 @@ can update the substitution, which may then enable another link to progress.
 
 \input{ho-for-free/img/progress.tex}
 
-\paragraph{Progress}
+\paragraphTwo{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
 Sections \ref{sec:eta} and \ref{sec:beta} add rules to \eI{progress1}
@@ -1008,7 +1008,7 @@ and explain why the do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
 
-\paragraph{Scope check}\label{sec:sc}
+\paragraphTwo{Scope check}\label{sec:sc}
 The predicate \eI{scope-check} 
 replaces each
 link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
@@ -1024,7 +1024,7 @@ is pruned of a name that occurs (rigidly) in $t$:
 links represent suspended unification problems
 \emph{that may succeed}.
 
-\paragraph{Occur check}\label{sec:oc}
+\paragraphTwo{Occur check}\label{sec:oc}
 Since compilation moves problematic terms out of the sight of \Ue{},
 that procedure can only perform a partial occur check. For example, the
 unification problem $X \Ue f~Y$ cannot generate a cyclic substitution alone,
@@ -1253,7 +1253,7 @@ grants this property.
 % section~\ref{sec:problem-statement}. The reason is that the algorithm folds
 % over a term, updating a substitution while it traverses it.\noteE[inline]{explain better}
 
-\paragraph{Decompilation}
+\paragraphTwo{Decompilation}
 No change
 to \eI{commit-link}
 since no link is added.
@@ -1261,7 +1261,7 @@ since no link is added.
 %\maybebeta terms, no modification to the \eI{commit-link}
 %is needed.
 
-\paragraph{Progress}
+\paragraphTwo{Progress}
 No change to \eI{progress} since no link is added.
 % Similarly to decompilation, since no link is produced,
 % no modification to the \eI{progress} predicate is needed.
@@ -1635,7 +1635,7 @@ since it does not break
 % compilation time. The code below illustrate how this relation is used to for
 % term compilation.
 
-\paragraph{Compilation}
+\paragraphTwo{Compilation}
 The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}.
 
 \input{ho-for-free/img/comp_eta.tex}
@@ -1673,7 +1673,7 @@ variable \eI{A}. This variable sees all the names free in
 \end{proof}
 
 
-\paragraph{Decompilation}
+\paragraphTwo{Decompilation}
 The decompilation of a \linketa is performed by unifying
 the \lhs with the \rhs. Note that this unification never fails, since the \lhs is a
 flexible term not appearing in any other \linketa
@@ -1684,7 +1684,8 @@ flexible term not appearing in any other \linketa
 \linketa{}s are meant to delay the unification of ``problematic'' terms until
 we know for sure if their head lambdas can be $\eta$-contracted.
 
-\newcommand{\progressetaleft}{\emph{$\eta$-progress-\lhs}\xspace}
+\newcommand{\progressetaleft}{\emph{\texorpdfstring{$\eta$}{eta}-progress-\lhs}\xspace}
+
 \begin{definition}[\progressetaleft]\label{def:progressetaleft}
 A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
 $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
@@ -1881,7 +1882,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   for \Eo in the domain $\wellb_{\beta\eta}$.
 \end{corollary}
 
-\paragraph{Example of \progressetaleft}
+\paragraphTwo{Example of \progressetaleft}
 
 The example at the beginning of \cref{sec:eta}, once
 $\sigma = \{~ A \mapsto f ~\}$, triggers \progressetaleft since the link
@@ -2078,7 +2079,7 @@ $t'$ (under the context $\Gamma$).
 % $X_1$ and $X_2$ are unified with different terms.
 % \todo{what are these X1 and X2?}
 
-\paragraph{Example of \mapdeduplication}
+\paragraphTwo{Example of \mapdeduplication}
 If we take back the example given at the beginning of this section,
 \mapdeduplication produces the following result:
 
@@ -2307,7 +2308,7 @@ This construction enforces \fullref{inv:beta-rhs}.
 \end{proof}
 
 
-\paragraph{Decompilation}
+\paragraphTwo{Decompilation}
 All \linkbeta should be solved before decompilation.
 If any \linkbeta remains in \linkStore, decompilation fails.
 

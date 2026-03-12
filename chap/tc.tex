@@ -109,19 +109,28 @@ The modes are specified using the attribute \cI{~\#~[mode="..."]} attached to
 the class declaration. The \elpi compiler can retrieve this attribute and use
 it to determine the modes of the corresponding predicate.
 
-This translation is not straightforward, however, because the mode systems of
-\rocq and \elpi do not coincide. The \rocq mode \cI{-} corresponds to the
-output mode of \elpi, but neither \cI{+} nor \cI{!} directly matches the
-\elpi input mode. Moreover, a \rocq class may be associated with multiple
-mode declarations, whereas an \elpi predicate admits only a single mode
+Our typeclass solver is not intended to replicate the \rocq solver. Instead,
+it aims to exploit, whenever possible, the features of the \elpi language.
+
+A first discrepancy arises from the mode systems, since the modes of \rocq
+and \elpi do not coincide. The \rocq mode \cI{-} corresponds to the \elpi
+output mode, but neither \cI{+} nor \cI{!} has a direct counterpart among the
+\elpi input modes. In addition, a \rocq class may have multiple mode
+declarations, whereas an \elpi predicate admits only a single mode
 specification.
 
-The first issue, is addressed in the following way: \cI{+} and \cI{!} are mapped
-to the \elpi input mode. The input mode is a viable alternative to the two
-modes. The \cI{+} mode impose a very strong condition on the term, which should
-be ground. In the \stdpp library
+To adress the first point, both \cI{+} and \cI{!} are mapped to the
+\elpi input mode. For example, if the first argument of the class
+\cI{Add} is assigned the mode \cI{!}, we generate the following
+\elpi signature:
 
+\begin{center}
+\eI{pred tc-Add i:term, o:term.}
+\end{center}
 
+To adress the second point, we ignore the modes of a class if they are more then
+one. We discuss more in detail our choices and compare them with the \rocq
+solver behavior in \cref{sec:tc-mode-and-determinacy}.
 
 \section{Instance encoding}
 \label{sec:instance-encoding}
@@ -172,18 +181,53 @@ Discrimination trees: opt for lists and tree depths.
 
 Hint extern etc
 
+TODO: ci sono dei comandi che iterano il database di classi e istanze per
+aggiungerle tutte in un botto
+
+TODO: Quali sono i comandi che settano, unsettano la search?
+
 \subsection{Accessing the database}
 
 \cite{fissore2023}
 
 \subsection{Experimental results}
 
+\subsection{Modes and determinacy}
+\label{sec:tc-mode-and-determinacy}
+
+
+In \rocq, the modes \cI{+} and \cI{!} impose conditions on the shape of the
+argument: \cI{+} requires a ground term, while \cI{!} requires a term with a
+rigid applicative head. If the condition is satisfied, the search proceeds.
+In contrast, \elpi modes do not check the syntactic shape of the argument.
+Instead, they modify the unification strategy by using the \matching
+procedure.
+
+This leads to different operational behavior between the \rocq solver
+and the \elpi-based solver. Consider the following example:
+
+\begin{enumerate}
+\item Assume the instance \cI{Instance dummy T : Add T. Admitted.}
+\item Suppose the first argument of \cI{Add} has mode \cI{+} (or \cI{!}).
+\item Consider the goal \cI{Add ?X}, where \cI{?X} is a metavariable.
+\end{enumerate}
+
+With the \rocq mode system, this goal has no solution because \cI{?X} is a
+flexible term and therefore does not satisfy the mode constraint. In
+contrast, under the \elpi mode interpretation the instance \cI{dummy} is
+considered a valid solution.
+
+In the \elpi philosophy, the instance \eI{dummy} is considered as a catchall: it
+can be used on any goal for \eI{Add}. Moreover, we are creating an ambiguity in
+the program, since the goal \eI{Add nat} has two solution, namely the instances
+\cI{addNat} and \cI{dummy} due to bracktracking. In order to control this
+behavior, in \elpi we can use the \cut, which, in \rocq is not an option.
+
+Note: Cancel is an example of a class where the two modes is needed, elpi can't
+implement it
+
 \subsection{Unification problems}
 
-\paragraph{$\eta\beta$-unification}
-\paragraph{$\delta$-unification, coercions and canonical structures}
+\paragraphTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
+\paragraphTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
 
-TODO: ci sono dei comandi che iterano il database di classi e istanze per
-aggiungerle tutte in un botto
-
-TODO: Quali sono i comandi che settano, unsettano la search?
