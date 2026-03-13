@@ -3,6 +3,7 @@ Require Import Reals.
 
 Elpi Db tc.db lp:{{
   pred tc-Add term -> term.
+  pred tc-Provable term -> term.
 }}.
 
 Elpi Command C.
@@ -48,12 +49,12 @@ build-rule ff Head Prems (Prems => Head).
 %         Pol   Inst  Ty    Args       Prems        Res
 pred comp bool, term, term, list term, list prop -> prop.
 comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,          % r1
-  pi p\ sigma M P' R'\
-  if (B = tt) (R p = R') (R p = (decl p N Ty => R')),
+  pi p\ sigma M P'\
+  if (B = tt) (R = R') (R p = (decl p N Ty => R' p)),
   if (is-class? Ty)
     (comp {neg B} p Ty [] [] M, P' = [M | P])
     (P' = P),
-  comp B I (Bo p) [p|Ag] P' R'.
+  comp B I (Bo p) [p|Ag] P' (R' p).
 comp B I G Ag P R :-                                    % r2
   coq.mk-app I {rev Ag} Proof,
   make-rule-head G Proof Head,
@@ -83,9 +84,52 @@ Elpi Query lp:{{
   compile-acc {{:gref addProd}}.
 }}.
 
-Elpi Print C "elpi/xx".
+(* Elpi Print C "elpi/xx". *)
 
 Elpi Query lp:{{ compile {{:gref addNat}} R }}.
 
-Elpi Trace Browser.
 Elpi Query lp:{{ compile {{:gref addProd}} R }}.
+
+Elpi Trace Browser.
+Elpi Query  lp:{{
+  tc-Add {{(nat * (nat * nat))%type}} X,
+  std.assert! (X = {{addProd nat (nat * nat) addNat (addProd nat nat addNat addNat)}}) "ERR".
+}}.
+
+Module Logic.
+  Inductive formula :=
+  | Top | Bot | Atom : nat -> formula
+  | Impl : formula -> formula -> formula
+  | And : formula -> formula -> formula.
+
+  Class Provable (T : formula).
+
+  Instance PTop : Provable Top. Qed.
+  Instance PAnd F1 F2 : Provable F1 -> Provable F2 -> Provable (And F1 F2). Qed.
+  Instance PImpl F1 F2 : (Provable F1 -> Provable F2) -> Provable (Impl F1 F2). Qed.
+
+  Elpi Query lp:{{
+    compile-acc {{:gref PTop}},
+    compile-acc {{:gref PImpl}},
+    compile-acc {{:gref PAnd}}.
+  }}.
+
+  (* Elpi Print C "elpi/xx". *)
+
+  Check _ : Provable (Impl (Atom 3) (And Top (Atom 3))).
+
+
+  (* THIS FAILS DUE TO ABSENCE OF LINKS *)
+  Fail Elpi Query lp:{{
+    X = {{Impl (Atom 3) (And Top (Atom 3))}},
+    tc-Provable X S.
+  }}.
+
+  Elpi Query  lp:{{
+    coq.env.typeof {{:gref PImpl}} T.
+  }}.
+
+
+  Elpi Query lp:{{ compile {{:gref PImpl}} R }}.
+
+End Logic.
