@@ -32,14 +32,14 @@ is-class? A :- get-class? A _.
 func gref->pred-name gref -> string.
 gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
 
-func make-rule-head term, term -> prop.
-make-rule-head Goal Proof Head :-
-  coq.safe-dest-app Goal Class Args,
-  class->str Class ClassStr,
-  std.append Args [Proof] ArgsProof, 
-  coq.elpi.predicate ClassStr ArgsProof Head.
+func make-rule-head term, list term -> prop.
+make-rule-head C Ag Head :-
+  class->str C CS,
+  coq.elpi.predicate CS Ag Head.
 
-shorten std.{rev}.
+shorten std.{rev,append}.
+shorten coq.{mk-app}.
+shorten coq.{safe-dest-app}.
 
 /*SNIP: toy_compiler*/
 pred build-rule bool, prop, list prop -> prop.
@@ -48,16 +48,16 @@ build-rule ff Head Prems (Prems => Head).
 
 %         Pol   Inst  Ty    Args       Prems        Res
 pred comp bool, term, term, list term, list prop -> prop.
-comp B I (prod N Ty Bo) Ag P (pi x\ R x) :- !,          % r1
-  pi p\ sigma M P'\
-  if (B = tt) (R = R') (R p = (decl p N Ty => R' p)),
-  if (is-class? Ty)
-    (comp {neg B} p Ty [] [] M, P' = [M | P])
-    (P' = P),
-  comp B I (Bo p) [p|Ag] P' (R' p).
-comp B I G Ag P R :-                                    % r2
-  coq.mk-app I {rev Ag} Proof,
-  make-rule-head G Proof Head,
+comp B I (prod _ Ty Bo) Ag P (pi y\ R y) :- is-class? Ty, !,  % r1
+  pi x\
+    comp {neg B} x Ty [] [] (M x),
+    comp B I (Bo x) [x|Ag] [M x | P] (R x).
+comp B I (prod _ _ Bo) Ag P (pi x\ R x) :- !,                 % r2
+  pi x\ comp B I (Bo x) [x|Ag] P (R x).
+comp B I Ty Ag P R :-                                         % r3
+  safe-dest-app Ty C CAg,
+  mk-app I {rev Ag} Proof,
+  make-rule-head C {append CAg [Proof]} Head,
   build-rule B Head {rev P} R.
 
 pred compile gref -> prop.
