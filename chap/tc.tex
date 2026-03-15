@@ -58,6 +58,128 @@ customize the solver to better fit their needs. We also show the
 application of our solver to existing libraries, such as \tlc, \stdpp, and
 \iris.
 
+\section{Simple instance compiler}
+
+TODO: This is not only instance for instance compilation, it can be used
+for any recursive search of proof in \elpi.
+
+A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
+terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
+goal amounts to finding a \rocq instance whose type is an instantiation of
+$T$.
+
+Conceptually, a simple type-class goal can be translated into a query with $2$
+arguments. The first being the type of the instance and the second being the
+concrete instance that solves the query.
+
+The predicate using for the search is \eI{pred tc term -> term}.
+
+As an example, consider the \cI{Add} type-class introduced in
+\cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
+its instances is reproduced in \cref{fig:add-class-full}.
+%
+\begin{figure}
+  \input{code/plus_tc_add_inst.tex}
+  \caption{Add class and instances}
+  \label{fig:add-class-full}
+\end{figure}
+\begin{figure}
+  \input{code/toy_compiler_tc.tex}
+  \caption{Simple \elpi compiler}
+  \label{fig:simple-elpi-compiler-tc}
+\end{figure}
+
+After the declaration of an instance an observer triggers the instance compiler,
+shown in \cref{fig:simple-elpi-compiler-tc}. The compiler is similar to the
+example show in \cite[Sec 4.5]{hdr}.
+
+The entry point of the compiler is the predicate \eI{compile}, which takes as
+input the global reference \eI{G} of the instance. Using the
+\eI{coq.env.typeof} API, the compiler retrieves the type \eI{Ty} of \eI{G}.
+Compilation then proceeds by invoking the auxiliary predicate \eI{comp}.
+
+The predicate \eI{comp} performs the core of the compilation. It takes four
+arguments: a term representing the
+instance; the type of the instance, which is structurally consumed during
+recursion; and two accumulators representing the list of instance arguments
+and the list of premises that will form the body of the resulting rule. From
+these inputs, \eI{comp} produces the \elpi rule corresponding to the compiled
+instance.
+
+The compilation proceeds by analyzing the structure of the instance type.
+There are three relevant cases. Rules \eI{~\PYG{c}{r$\to$}~} and
+\eI{~\PYG{c}{r$\forall$}~} handle quantifications, while rule
+\eI{~\PYG{c}{rB}~} is the base case that constructs the final \elpi rule
+from the information accumulated during the recursive traversal.
+
+The base case of \eI{comp} is reached when the current type \eI{Ty} is not a
+quantification. The compiler then constructs the final rule by building
+its head and premises.
+
+The head is simply the \eI{tc} predicate applied to the type of the instance
+\eI{T} as input and \eI{Proof} being the instance of type \eI{T}.
+\eI{Proof} is obtained by applying the instance \eI{I} to its arguments \eI{rev
+Ag}. The list \eI{Ag} is stored in reverse order during traversal, so it is
+reversed before constructing the application.
+
+The premises of the clause are stored in the accumulator \eI{P}. As with the
+instance arguments, they are reversed before constructing the final rule.
+
+As an example, the compilation of \cI{addNat} returns the rule:
+
+\begin{center}
+  \eI{tc {{Add nat}} {{addNat}}}.
+\end{center}
+
+When the current type \eI{Ty} is a quantification, we need do postulate a fresh
+nominal variable which will represent the abstraction inside the recursive call.
+We consider two cases depending on if \eI{Ty} is a dependet-quantification.
+
+If this condition holds, we are compiling a conditional instance and rule
+\eI{~\PYG{c}{r$\to$}~} is used. The rule introduces the fresh nominal
+variable \eI{x} representing the conditional instance with type \eI{Ty}. The
+local instance represents the new premise \eI{tc T x}, which is prepended to the
+list of premises \eI{P} in the recursive call. We also prepend the variable
+\eI{x} to the list of arguments \eI{Ag}.
+
+Rule \eI{~\PYG{c}{r$\forall$}~} handles the case of dependet quantification, and
+corresponds, in this first approximation of the compiler, to the quantification
+variables in the instance type. In this situation, the compiler simply consumes
+the abstraction, leaving the list of premises \eI{P} unchanged and adding
+the variable \eI{x} to the list of instance arguments.
+
+Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return an
+object of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive
+call to \eI{comp}. Since \eI{R} has type \eI{term -> prop} and abstracts the
+local variable \eI{x}, the compiler introduces a fresh variable \eI{y} to
+quantify over the corresponding argument. This step ensures that the resulting
+rule is closed (ground), which is required by the \elpi language.
+
+As an example we can take the instance \eI{addProd} which as the type: 
+
+$$\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}}, \underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\forall$}~}} \to
+\underbrace{\cI{Add}\ (x * y)}_{rB}$$
+
+The resulting \elpi rule for the compilation of this instance is:
+
+\begin{elpicode}
+  pi x y\ tc {{Add (lp:x * lp:y)}} {{addNat lp:x lp:y lp:Px lp:Py}} :-
+    tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
+\end{elpicode}
+
+This rules is giving a proof for the addition of products provided that its two
+premises have a solution.
+
+We can build a tactic allowing to solve type-classes goals:
+
+
+TODO: what are the problem of this implementation: it is not possible to control
+the search through modes, it does not allows indexing, and other static checks
+comping from the $\lambda$ prolog domain such as determinacy checking.
+
+Moreover, this compiler is not considering instances with deep conditional
+hypotheses. For example, take the following inductive 
+
 \section{Class compilation}
 \label{sec:class-encoding}
 
@@ -71,16 +193,6 @@ Conceptually, a type-class goal can be translated into a query with $n+1$
 arguments. The first $n$ arguments correspond to the parameters of the class,
 while the final argument is a term representing the concrete instance that
 solves the query.
-
-As an example, consider the \cI{Add} type-class introduced in
-\cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
-its instances is reproduced in \cref{fig:add-class-full}.
-%
-\begin{figure}
-  \input{code/plus_tc_add_inst.tex}
-  \caption{Add class and instances}
-  \label{fig:add-class-full}
-\end{figure}
 
 When the class \cI{Add} is declared, the \elpi class compiler is triggered and
 receives the \rocq symbol \eI{indt «Add»} as input. From this symbol we can

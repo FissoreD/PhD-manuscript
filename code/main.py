@@ -7,13 +7,21 @@ def remove_quote(l):
     return l
 
 def clean_line(is_elpi_coq):
-    def clean_line(escape):
+    def clean_line(_):
         def f(l):
             if is_elpi_coq:
                 l = l.replace("neg","~$\lnot$~")
             if "HIDE" in l: return ""
             l = l.replace("¬", "~$\lnot$~")
-            l = l.replace("forall", "~$\\forall$~")
+            ll = l.split("%")
+            if (len(ll) > 1):
+                ll[0] = ll[0].replace("forall", "~$\\forall$~")
+                ll[0] = ll[0].replace("to", "~$\\to$~")
+                ll[1] = ll[1].replace("forall", "$\\forall$")
+                ll[1] = ll[1].replace("to", "$\\to$")
+                l = "%".join(ll)
+            else:
+                l = ll[0].replace("forall", "~$\\forall$~")
             l = l.replace("<->", "~$\\leftrightarrow$~")
             l = remove_quote(l)
             for i in range(10):

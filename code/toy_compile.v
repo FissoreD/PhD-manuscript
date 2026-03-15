@@ -72,11 +72,11 @@ Module FO_tc.
     /*SNIP: toy_compiler_tc*/
     %         Inst  Ty    Args       Prems        Res
     pred comp term, term, list term, list prop -> prop.
-    comp I {{lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,  % rto
+    comp I {{lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,   % rto
       pi x\ comp I Bo [x|Ag] [tc T x | P] (R x).
-    comp I {{forall x, lp:(Bo x)}} Ag P (pi x\ R x) :- !,              % rforall
+    comp I {{forall x, lp:(Bo x)}} Ag P (pi x\ R x) :- !,  % rforall
       pi x\ comp I (Bo x) [x|Ag] P (R x).
-    comp I T Ag P (tc T Proof :- [true | Body]) :- % rB
+    comp I T Ag P (tc T Proof :- [true | Body]) :-    % rB
       mk-app I {rev Ag} Proof,
       std.rev P Body.
 
@@ -124,11 +124,11 @@ Module FO_Add.
     /*SNIP: toy_compiler_add*/
     %         Inst  Ty    Args       Prems        Res
     pred comp term, term, list term, list prop -> prop.
-    comp I {{Add lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,  % rto
+    comp I {{ Add lp:T -> lp:Bo }} Ag P (pi y\ R y) :- !,  % rto
       pi x\ comp I Bo [x|Ag] [tc-Add T x | P] (R x).
-    comp I {{forall x, lp:(Bo x)}} Ag P (pi x\ R x) :- !,              % rforall
+    comp I {{ forall x, lp:(Bo x) }} Ag P (pi x\ R x) :- !,              % rforall
       pi x\ comp I (Bo x) [x|Ag] P (R x).
-    comp I {{Add lp:T}} Ag P (tc-Add T Proof :- [true | Body]) :- % rB
+    comp I {{ Add lp:T }} Ag P (tc-Add T Proof :- [true | Body]) :- % rB
       mk-app I {rev Ag} Proof,
       std.rev P Body.
 
