@@ -60,8 +60,8 @@ application of our solver to existing libraries, such as \tlc, \stdpp, and
 
 \section{Simple instance compiler}
 
-TODO: This is not only instance for instance compilation, it can be used
-for any recursive search of proof in \elpi.
+TODO: This is not only instance for any term compilation in \elpi to perform
+any search using the \elpi solver
 
 A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
 terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
@@ -96,7 +96,9 @@ example show in \cite[Sec 4.5]{hdr}.
 The entry point of the compiler is the predicate \eI{compile}, which takes as
 input the global reference \eI{G} of the instance. Using the
 \eI{coq.env.typeof} API, the compiler retrieves the type \eI{Ty} of \eI{G}.
-Compilation then proceeds by invoking the auxiliary predicate \eI{comp}.
+Compilation then proceeds by invoking the auxiliary predicate \eI{comp} to produce
+the rule \eI{R} and \eI{coq.elpi.accumulate} is in charge of adding the clause \eI{R}
+inside the database, in this case, called \eI{tc.db}.
 
 The predicate \eI{comp} performs the core of the compilation. It takes four
 arguments: a term representing the
@@ -157,7 +159,7 @@ rule is closed (ground), which is required by the \elpi language.
 
 As an example we can take the instance \eI{addProd} which as the type: 
 
-$$\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}}, \underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\forall$}~}} \to
+$$\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}}, \underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\to$}~}} \to
 \underbrace{\cI{Add}\ (x * y)}_{rB}$$
 
 The resulting \elpi rule for the compilation of this instance is:
@@ -170,8 +172,19 @@ The resulting \elpi rule for the compilation of this instance is:
 This rules is giving a proof for the addition of products provided that its two
 premises have a solution.
 
-We can build a tactic allowing to solve type-classes goals:
+The simple type class compiler is entirly implemented in
+\cref{fig:simple-elpi-compiler}. In order to also solve type-classes goals,
+we need to build an \elpi tactic containing the following rule:
 
+\begin{center}  
+\input{code/toy_compiler_tc_solver.tex}
+\end{center}
+
+From a \rocq goals \eI{G}, we get the type \eI{Ty} of \eI{G}, we backchain
+\eI{tc Ty P} to get the proof \eI{P} for \eI{Ty} and finally we refine \eI{P}
+to \eI{G} to get the list of new goals \eI{S} and return them to \rocq.
+
+The full code, with a working example can be found in 
 
 TODO: what are the problem of this implementation: it is not possible to control
 the search through modes, it does not allows indexing, and other static checks

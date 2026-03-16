@@ -26,8 +26,6 @@ Module Logic.
 End Logic.
 
 Elpi Db tc.db lp:{{
-  pred tc term -> term.
-  
   pred tc-Add term -> term.
   pred tc-Provable term -> term.
 
@@ -59,58 +57,6 @@ Elpi Db tc.db lp:{{
     class->str C CS,
     coq.elpi.predicate CS Ag Head.
 }}.
-
-Module FO_tc.
-  Import Add.
-  Elpi Command C.
-  Elpi Accumulate Db tc.db.
-  Elpi Accumulate lp:{{
-    shorten std.{rev,append}.
-    shorten coq.{mk-app}.
-    shorten coq.{safe-dest-app}.
-
-    /*SNIP: toy_compiler_tc*/
-    %         Inst  Ty    Args       Prems        Res
-    pred comp term, term, list term, list prop -> prop.
-    comp I {{lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,   % rto
-      pi x\ comp I Bo [x|Ag] [tc T x | P] (R x).
-    comp I {{forall x, lp:(Bo x)}} Ag P (pi x\ R x) :- !,  % rforall
-      pi x\ comp I (Bo x) [x|Ag] P (R x).
-    comp I T Ag P (tc T Proof :- [true | Body]) :-    % rB
-      mk-app I {rev Ag} Proof,
-      std.rev P Body.
-
-    pred compile gref -> prop.
-    compile G R :- coq.env.typeof G Ty, 
-      comp (global G) Ty [] [] R.
-    /*ENDSNIP: toy_compiler_tc*/
-
-
-    pred compile-acc gref ->.
-    compile-acc G :- 
-      compile G R, coq.say R, coq.elpi.accumulate _ "tc.db" (clause _ _ R).
-  }}.
-
-  Elpi Tactic Solver.
-  Elpi Accumulate Db tc.db.
-  Elpi Accumulate lp:{{
-    solve (goal _ _ Ty _ _ as G) S :-
-      coq.say Ty,
-      tc Ty P, refine P G S.
-  }}.
-
-  Module TestAdd.
-    Import Add.
-    Elpi Query C lp:{{
-      compile-acc {{:gref addNat}},
-      compile-acc {{:gref addProd}}.
-    }}.
-
-    Goal Add (nat * (nat * nat)).
-    Proof. elpi Solver. Qed.
-  End TestAdd.
-End FO_tc.
-
 
 Module FO_Add.
   Import Add.
