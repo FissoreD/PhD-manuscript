@@ -22,6 +22,7 @@ Elpi Accumulate lp:{{
   comp I T Ag P (tc T Proof :- [true | Body]) :-   % rB
     mk-app I {rev Ag} Proof,
     rev P Body.
+
   pred compile gref ->.
   compile G :- coq.env.typeof G Ty,
     comp (global G) Ty [] [] R,

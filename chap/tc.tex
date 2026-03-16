@@ -35,7 +35,7 @@ search by interacting with the resulting database.
 In our setting, the meta-language used to implement the meta-solver is
 \elpi. Consequently, the main task is to implement the class and instance
 compiler, which incrementally builds the database on which the \elpi program
-operates. 
+operates.
 
 The type-class solver itself typically follows a \prolog-like resolution
 strategy: instances are tried according to their priority, and backtracking
@@ -64,7 +64,7 @@ TODO: This is not only instance for any term compilation in \elpi to perform
 any search using the \elpi solver
 
 A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
-terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
+  terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
 goal amounts to finding a \rocq instance whose type is an instantiation of
 $T$.
 
@@ -121,7 +121,7 @@ its head and premises.
 The head is simply the \eI{tc} predicate applied to the type of the instance
 \eI{T} as input and \eI{Proof} being the instance of type \eI{T}.
 \eI{Proof} is obtained by applying the instance \eI{I} to its arguments \eI{rev
-Ag}. The list \eI{Ag} is stored in reverse order during traversal, so it is
+  Ag}. The list \eI{Ag} is stored in reverse order during traversal, so it is
 reversed before constructing the application.
 
 The premises of the clause are stored in the accumulator \eI{P}. As with the
@@ -157,16 +157,16 @@ local variable \eI{x}, the compiler introduces a fresh variable \eI{y} to
 quantify over the corresponding argument. This step ensures that the resulting
 rule is closed (ground), which is required by the \elpi language.
 
-As an example we can take the instance \eI{addProd} which as the type: 
+As an example we can take the instance \eI{addProd} which as the type:
 
 $$\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}}, \underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\to$}~}} \to
-\underbrace{\cI{Add}\ (x * y)}_{rB}$$
+  \underbrace{\cI{Add}\ (x * y)}_{rB}$$
 
 The resulting \elpi rule for the compilation of this instance is:
 
 \begin{elpicode}
   pi x y\ tc {{Add (lp:x * lp:y)}} {{addNat lp:x lp:y lp:Px lp:Py}} :-
-    tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
+  tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
 \end{elpicode}
 
 This rules is giving a proof for the addition of products provided that its two
@@ -176,28 +176,50 @@ The simple type class compiler is entirly implemented in
 \cref{fig:simple-elpi-compiler}. In order to also solve type-classes goals,
 we need to build an \elpi tactic containing the following rule:
 
-\begin{center}  
-\input{code/toy_compiler_tc_solver.tex}
+\begin{center}
+  \input{code/toy_compiler_tc_solver.tex}
 \end{center}
 
 From a \rocq goals \eI{G}, we get the type \eI{Ty} of \eI{G}, we backchain
 \eI{tc Ty P} to get the proof \eI{P} for \eI{Ty} and finally we refine \eI{P}
 to \eI{G} to get the list of new goals \eI{S} and return them to \rocq.
 
-The full code, with a working example can be found in 
+The full code, with a working example can be found in
+\cref{app:full-simpl-compiler}.
 
-TODO: what are the problem of this implementation: it is not possible to control
-the search through modes, it does not allows indexing, and other static checks
-comping from the $\lambda$ prolog domain such as determinacy checking.
+The implementation we have discribed in this section aims to give the reader a
+flavour of the expressive power of the \elpi language, in about $8$ lines of
+code we can write the heart of the compiler and almost the same number of lines
+are needed to declare the full \elpi command. The solver is only $1$ line of
+code. However, the solver we have presented has some weaknesses.
 
-Moreover, this compiler is not considering instances with deep conditional
-hypotheses. For example, take the following inductive 
+\begin{itemize}
+  \item Rule $r\forall$ does not consider the fact that the quantified variable
+        $x$ can be itselef a premise of the class, in complex instances, $x$ can
+        have a class as type, therefore it should be considered as a premises of
+        the final rule.
+  \item The compiler does not take into account the possibility of having
+        instances haveing the following shape $(c_1 \to c_2) \to c_3$ where the
+        instance implements the class $c_3$ and the premises talks about a class
+        $c_2$ having in its context a local instance of $c_1$. Said in other
+        words, we need to be able to compile deep hereditary harrop-forumlas,
+        and therefore we also need to consider the polarity of the instance
+        being compiled.
+  \item The \eI{solve} rule in the solver, should take into account the context
+        in which the goal is being solved. From \cref{sec:elpi-tactics}, the
+        first projection of a eI{goal} in \rocqelpi is the context which may
+        contain local instances that should be compiled and used during the
+        goal resolution. 
+  \item The \eI{tc} predicate does not allow to consider the arguments of the as
+        \elpi arguments. Consequently, the modes declared on a class are lost in
+        the \elpi solver.
+\end{itemize}
 
 \section{Class compilation}
 \label{sec:class-encoding}
 
 A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
-terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
+  terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
 goal amounts to finding a \rocq instance whose type is an instantiation of
 $T$. In general, $T$ contains $n$ arrows, corresponding to the $n$ declared
 parameters of the class $C$.
@@ -213,7 +235,7 @@ retrieve the type of the class and determine the number of its parameters. In
 this example, the HOAS representation of the type of \cI{Add} in \elpi is
 %
 \begin{center}
-\eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ «Add.u0»)}
+  \eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ «Add.u0»)}
 \end{center}
 
 \noindent which indicates that the class has a single parameter.
@@ -221,7 +243,7 @@ this example, the HOAS representation of the type of \cI{Add} in \elpi is
 From this information we generate the predicate associated with the class:
 
 \begin{center}
-\eI{pred tc-Add o:term, o:term.}
+  \eI{pred tc-Add o:term, o:term.}
 \end{center}
 
 By default, the arguments of the predicate are considered outputs. As
@@ -250,7 +272,7 @@ To adress the first point, both \cI{+} and \cI{!} are mapped to the
 \elpi signature:
 
 \begin{center}
-\eI{pred tc-Add i:term, o:term.}
+  \eI{pred tc-Add i:term, o:term.}
 \end{center}
 
 To adress the second point, we ignore the modes of a class if they are more then
@@ -345,7 +367,7 @@ declared instance. For example, consider the reference \eI{const «addNat»}. Th
 expected \elpi rule generated for this instance is:
 %
 \begin{center}
-\cI{tc-Add {{nat}} {{addNat}}.}
+  \cI{tc-Add {{nat}} {{addNat}}.}
 \end{center}
 
 This rule states that \cI{addNat} is the proof of the class \cI{Add}
@@ -357,13 +379,13 @@ containing unification variables and premises. As an example, consider the
 instance \cI{addProd}, which is translated into the following \elpi rule:
 
 \begin{elpicode}
-tc-Add {{lp:T1 * lp:T2}} {{addProd lp:T1 lp:T2 lp:P1 lp:P2}} :-
+  tc-Add {{lp:T1 * lp:T2}} {{addProd lp:T1 lp:T2 lp:P1 lp:P2}} :-
   tc-Add T1 P1, tc-Add T2 P2.
 \end{elpicode}
 
 This rule states that \cI{addProd}, applied to \cI{T1}, \cI{T2}, \cI{P1}, and
 \cI{P2}, is a proof of the class \cI{Add} for the product type \eI{{{lp:T1 *
-lp:T2}}}. This holds provided that \cI{P1} and \cI{P2} are proofs of the class
+          lp:T2}}}. This holds provided that \cI{P1} and \cI{P2} are proofs of the class
 \cI{Add} applied to the types \eI{T1} and \eI{T2}, respectively.
 
 In order to compile the two \elpi rules, we pass throug the following elpi
@@ -437,9 +459,9 @@ This leads to different operational behavior between the \rocq solver
 and the \elpi-based solver. Consider the following example:
 
 \begin{enumerate}
-\item Assume the instance \cI{Instance dummy T : Add T. Admitted.}
-\item Suppose the first argument of \cI{Add} has mode \cI{+} (or \cI{!}).
-\item Consider the goal \cI{Add ?X}, where \cI{?X} is a metavariable.
+  \item Assume the instance \cI{Instance dummy T : Add T. Admitted.}
+  \item Suppose the first argument of \cI{Add} has mode \cI{+} (or \cI{!}).
+  \item Consider the goal \cI{Add ?X}, where \cI{?X} is a metavariable.
 \end{enumerate}
 
 With the \rocq mode system, this goal has no solution because \cI{?X} is a
