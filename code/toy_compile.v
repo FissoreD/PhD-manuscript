@@ -59,6 +59,7 @@ Elpi Db compiler lp:{{
   pred compile gref ->.
   compile G :- coq.env.typeof G Ty,
     comp tt (global G) Ty [] [] R,
+    coq.say R, /*HIDE*/
     coq.elpi.accumulate _ "tc.db" (clause _ _ R).
   /*ENDSNIP: toy_compiler*/
 
@@ -147,29 +148,92 @@ End Add.
 
 
 Module Logic.
-  Inductive formula :=
-  | Top | Bot | Atom : nat -> formula
-  | Impl : formula -> formula -> formula
-  | And : formula -> formula -> formula.
+  Notation Fact := nat.
 
-  Class Provable (T : formula).
+  (*SNIP: HORN *)
+  Inductive horn :=
+    | Atom : Fact -> horn
+    | Top : horn
+    | Impl : Fact -> horn -> horn
+    | And : horn -> horn -> horn.
 
-  Instance PTop : Provable Top. Qed.
-  Instance PAnd F1 F2 : Provable F1 -> Provable F2 -> Provable (And F1 F2). Qed.
-  Instance PImpl F1 F2 : (Provable F1 -> Provable F2) -> Provable (Impl F1 F2). Qed.
+  Inductive derive_atom : Fact -> Prop := .
+  Inductive derivation : horn -> Prop :=
+    | d_top : derivation Top                                                    (*HIDE*)
+    | d_atom A : derive_atom A -> derivation (Atom A)                           (*HIDE*)
+    | d_and A B : derivation A -> derivation B -> derivation (And A B)          (*HIDE*)
+    | d_impl A B : (derive_atom A -> derivation B) -> derivation (Impl A B).    (*HIDE*)
+
+  Class ProvableFact (T : Fact) := { pnat : derive_atom T }.
+  Class Provable (T : horn) := { provable : derivation T }.
+
+  Instance PTop : Provable Top.
+  Proof. repeat constructor. Qed. (*HIDE*)
+  Instance PAtom F1 : ProvableFact F1 -> Provable (Atom F1).
+  Proof. now intros []; repeat constructor. Qed. (*HIDE*)
+  Instance PAnd F1 F2 : Provable F1 -> Provable F2 -> Provable (And F1 F2).
+  Proof. now intros [] []; repeat constructor. Qed. (*HIDE*)
+
+  Instance PImpl F1 F2 : 
+    (ProvableFact F1 -> Provable F2) -> Provable (Impl F1 F2).
+  Proof. now intro H; split; constructor; intro H1; case H; auto; constructor. Qed. (*HIDE*)
+  (*ENDSNIP: HORN *)
 
   Elpi Compiler NewClass Provable +.
-  Elpi Compiler NewInstance PTop.
+  Elpi Compiler NewClass ProvableFact +.
   Elpi Compiler NewInstance PAnd.
   Elpi Compiler NewInstance PImpl.
+  Elpi Compiler NewInstance PTop.
 
   (* This failes due to absence of links *)
-  Goal Provable (Impl (Atom 0) (And Top (Atom 0))).
+  Goal forall e, Provable (Impl e (And (Atom e) (Atom e))).
   Proof. Fail elpi Solver. Abort.
 
   Goal Provable (And Top Top).
   Proof. elpi Solver. Qed.
-
-  Goal Provable (Impl (Atom 0) (Atom 0)).
-  Proof. Elpi Trace Browser.  Fail elpi Solver. Abort.
 End Logic.
+
+Module Logic1.
+  Notation atom := nat.
+
+  (*SNIP: HORN1 *)
+  Inductive horn :=
+    | Fact : atom -> horn
+    | Impl : atom -> horn -> horn.
+
+  Inductive derive_atom : atom -> Prop := .
+  Inductive derive_horn : horn -> Prop :=
+    | d_atom A : derive_atom A -> derive_horn (Fact A)
+    | d_impl A B : (derive_atom A -> derive_horn B) -> derive_horn (Impl A B).
+
+  Class ProvableFact (T : atom) := { pnat : derive_atom T }.
+  Class Provable (T : horn) := { provable : derive_horn T }.
+
+  Instance PAtom F1 : ProvableFact F1 -> Provable (Fact F1).
+  Proof. now intros []; repeat constructor. Qed. (*HIDE*)
+
+  Instance PImpl F1 F2 : 
+    (ProvableFact F1 -> Provable F2) -> Provable (Impl F1 F2).
+  Proof. now intro H; split; constructor; intro H1; case H; auto; constructor. Qed. (*HIDE*)
+  (*ENDSNIP: HORN1 *)
+
+  Elpi Compiler NewClass Provable +.
+  Elpi Compiler NewClass ProvableFact +.
+  Elpi Compiler NewInstance PImpl.
+  Elpi Compiler NewInstance PAtom.
+
+  Set Printing All.
+  Check PImpl.
+
+  Notation f := 0.
+  Fail Elpi Query Solver lp:{{
+    /*SNIP: HORN_Q */
+    tc-Provable {{Impl f (Fact f)}} R.
+    /*ENDSNIP: HORN_Q */
+  }}.
+
+  (* This failes due to absence of links *)
+  Goal forall e, Provable (Impl e (Fact e)).
+  Proof. Fail elpi Solver. Abort.
+
+End Logic1.

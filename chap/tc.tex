@@ -373,21 +373,59 @@ current polarity. With positive polarity, it produces a standard clause
 \eI{Head :- Prems}. With negative polarity, it produces the implication
 \eI{Prems => Head}.
 
+\begin{figure}
+  \input{code/HORN1.tex}
+  \caption{TC example with horn clauses}
+  \label{fig:h-clause}
+\end{figure}
+
 This version of the compiler returns the same result as the compiler in
 \cref{sec:simple-instance-compiler}. An interesing example of deep compilation
-with two switch of polarity, is given by the following example:
+with two switches of polarities, is given by the example in \cref{fig:h-clause}.
+
+In the example we provide an example of encoding of simple horn clauses where we
+define the derivation rules allowing to test if a hown clause is valid.
+We then use classes to allows automatic proof search on horn clauses.
+
+Unsurprisingly, instance \cI{PAtom} is compiled into:
+
+\begin{elpicode}
+  pi F P \
+    tc-Provable {{Fact lp:F}} {{PAtom lp:F lp:P}} :- 
+      tc-ProvableFact F P.
+\end{elpicode}
+
+The rule for the instance \cI{PImpl} is more interesting. Since it contains an
+hypothesis which itself contains an hypothesis. It says that we can prove
+\cI{Impl F1 F2} provided that \cI{F2} is provable in a context extended with
+\cI{F1}.
+
+The type of the instance is the following:
+%
+$$\forall \cI{F1 F2}, \underbrace{(\underbrace{\cI{ProvableFact F1}}_{positive} \to \underbrace{\cI{Provable F2}}_{negative})}_{negative} \to \underbrace{\cI{Provable (Impl F1 F2)}}_{positive}$$
+
+
+The compiled instance is:
+\begin{elpicode}
+  pi F1 F2 P \
+    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:P}} :- 
+      pi P' \ tc-ProvableFact F1 P' => tc-Provable F2 {{lp:P lp:P'}}.
+\end{elpicode}
+
+This final rule is pretty much the rule we want. The positive terms are in
+positive position, and the only negative term is in negative position too. The
+problem we see is the proof for the recursive call to find a proof for \eI{F2}.
+
+% Let's take as an example the query: \input{code/HORN_Q.tex}
+% The \elpi interpreter uses the rule for 
+
+% HERE
 
 
 
-the rules for the instance \eI{addNat} and \eI{addProd} are compiled
+% TODO: compilation of instances ad-hoc
 
-HERE
-
-
-
-TODO: compilation of instances ad-hoc
-
-register hook
+% register hook
 
 
 % \subsection{From term to clause}
