@@ -25,94 +25,37 @@ Module Logic.
   Instance PImpl F1 F2 : (Provable F1 -> Provable F2) -> Provable (Impl F1 F2). Qed.
 End Logic.
 
-Elpi Db tc.db lp:{{
-  pred tc-Add term -> term.
-  pred tc-Provable term -> term.
+Elpi Db tc.db lp:{{ }}.
+
+Elpi Db compiler lp:{{
+  shorten std.{map}.
+
+  typeabbrev mode-type (pair argument_mode string).
 
   pred neg i:bool, o:bool.
   neg tt ff.
   neg ff tt.
 
-  func is-class-t? term -> gref.
-  is-class-t? (global GR) GR :- coq.TC.class? GR.
+  pred get-tm-gref term -> gref.
+  get-tm-gref (prod _ _ T) G :- pi x\ get-tm-gref (T x) G.
+  get-tm-gref (global G) G.
+  get-tm-gref (pglobal G _) G.
+  get-tm-gref (app [T | _]) G :- get-tm-gref T G.
 
-  func get-class? term -> gref.
-  get-class? (prod _ _ A) ClassGR:- !,
-    pi x\ get-class? (A x) ClassGR.
-  get-class? T ClassGR :-
-    coq.safe-dest-app T HD _,
-    not (var HD), is-class-t? HD ClassGR.
+  pred get-class? term -> gref.
+  get-class? T G:- get-tm-gref T G, coq.TC.class? G.
 
-  func class->str term -> string.
+  pred class->str term -> string.
   class->str C S :- get-class? C G, gref->pred-name G S.
 
-  func is-class? term ->.
+  pred is-class? term ->.
   is-class? A :- get-class? A _.
 
-  func gref->pred-name gref -> string.
-  gref->pred-name Gr S :- coq.gref->id Gr GrStr, S is "tc-" ^ GrStr.
+  pred gref->pred-name gref -> string.
+  gref->pred-name Gr S :- S is "tc-" ^ {coq.gref->id Gr}.
 
-  func make-rule-head term, list term -> prop.
-  make-rule-head C Ag Head :-
-    class->str C CS,
-    coq.elpi.predicate CS Ag Head.
-}}.
-
-Module FO_Add.
-  Import Add.
-  Elpi Command C1.
-  Elpi Accumulate Db tc.db.
-  Elpi Accumulate lp:{{
-    shorten std.{rev,append}.
-    shorten coq.{mk-app}.
-    shorten coq.{safe-dest-app}.
-
-    /*SNIP: toy_compiler_add*/
-    %         Inst  Ty    Args       Prems        Res
-    pred comp term, term, list term, list prop -> prop.
-    comp I {{ Add lp:T -> lp:Bo }} Ag P (pi y\ R y) :- !,  % rto
-      pi x\ comp I Bo [x|Ag] [tc-Add T x | P] (R x).
-    comp I {{ forall x, lp:(Bo x) }} Ag P (pi x\ R x) :- !,              % rforall
-      pi x\ comp I (Bo x) [x|Ag] P (R x).
-    comp I {{ Add lp:T }} Ag P (tc-Add T Proof :- [true | Body]) :- % rB
-      mk-app I {rev Ag} Proof,
-      std.rev P Body.
-
-    pred compile gref -> prop.
-    compile G R :- coq.env.typeof G Ty, 
-      comp (global G) Ty [] [] R.
-    /*ENDSNIP: toy_compiler_add*/
-
-
-    pred compile-acc gref ->.
-    compile-acc G :- 
-      compile G R, coq.say R, coq.elpi.accumulate _ "tc.db" (clause _ _ R).
-  }}.
-
-  Elpi Tactic Solver1.
-  Elpi Accumulate Db tc.db.
-  Elpi Accumulate lp:{{
-    solve (goal _ _ {{Add lp:Ty}} _ _ as G) S :-
-      coq.say Ty,
-      tc-Add Ty P, refine P G S.
-  }}.
-
-  Module TestAdd.
-    Import Add.
-    Elpi Query C1 lp:{{
-      compile-acc {{:gref addNat}},
-      compile-acc {{:gref addProd}}.
-    }}.
-
-    Goal Add (nat * (nat * nat)).
-    Proof. elpi Solver1. Qed.
-  End TestAdd.
-End FO_Add.
-
-Module HO.
-  Elpi Command C2.
-  Elpi Accumulate Db tc.db.
-  Elpi Accumulate lp:{{
+  pred make-rule-head term, list term -> prop.
+  make-rule-head C Ag Head :- coq.elpi.predicate {class->str C} Ag Head.
 
   shorten std.{rev,append}.
   shorten coq.{mk-app}.
@@ -137,57 +80,101 @@ Module HO.
     make-rule-head C {append CAg [Proof]} Head,
     build-rule B Head {rev P} R.
 
-  pred compile gref -> prop.
-  compile G R :- coq.env.typeof G Ty, 
-    comp tt (global G) Ty [] [] R.
+  pred compile gref ->.
+  compile G :- coq.env.typeof G Ty,
+    comp tt (global G) Ty [] [] R,
+    coq.elpi.accumulate _ "tc.db" (clause _ _ R).
   /*ENDSNIP: toy_compiler*/
 
+  /*SNIP: toy_compiler_pred*/
+  pred dft-class-mode term -> list mode-type.
+  dft-class-mode (prod _ _ B) [pr out "term" | L] :- !,
+    pi x\ dft-class-mode (B x) L.
+  dft-class-mode _ [pr out "term"].
 
-  pred compile-acc gref ->.
-  compile-acc G :- coq.elpi.accumulate _ "tc.db" (clause _ _ {compile G}).
-  }}.
+  pred str->mode string -> mode-type.
+  str->mode "-" (pr out "term").
+  str->mode "+" (pr in "term").
+  str->mode "!" (pr in "term").
 
-  Module TestAdd.
-    Import Add.
-    Elpi Query lp:{{
-      compile-acc {{:gref Add.addNat}},
-      compile-acc {{:gref Add.addProd}}.
-    }}.
+  pred str->modes gref, string -> list mode-type.
+  str->modes C "" M :- !, dft-class-mode {coq.env.typeof C} M.
+  str->modes _ S  M' :- 
+    map {rex.split " " S} str->mode M,
+    append M [pr out "term"] M'.
 
-    Import Add.
-    Elpi Query lp:{{ compile {{:gref addNat}} R }}.
+  pred add-class-pred gref, string ->.
+  add-class-pred C S :-
+    gref->pred-name C N,
+    str->modes C S M,
+    coq.elpi.add-predicate "tc.db" _ N M.
+  /*ENDSNIP: toy_compiler_pred*/
+}}.
 
-    Elpi Query lp:{{ compile {{:gref addProd}} R }}.
+Elpi Command Compiler.
+Elpi Accumulate Db tc.db.
+Elpi Accumulate Db compiler.
+Elpi Accumulate lp:{{
+  shorten std.{append}.
+  main [str "NewClass", str C | L] :-
+    if (L = [str M]) true (M = ""),
+    coq.locate C GR, 
+    add-class-pred GR M.
+  main [str "NewInstance", str C] :-
+    coq.locate C GR, 
+    compile GR.
+}}.
 
-    Elpi Trace Browser.
-    Elpi Query  lp:{{
-      tc-Add {{(nat * (nat * nat))%type}} X,
-      std.assert! (X = {{addProd nat (nat * nat) addNat (addProd nat nat addNat addNat)}}) "ERR".
-    }}.
-  End TestAdd.
+Elpi Tactic Solver.
+Elpi Accumulate Db tc.db.
+Elpi Accumulate Db compiler.
+Elpi Accumulate lp:{{
+shorten std.{map-filter}.
 
-  Module TestLogic.
-    Import Logic.
+/*SNIP: toy_compiler_solver*/
+pred get-ITy prop -> term, term.
+get-ITy (decl I _ Ty) I Ty.
+get-ITy (def I _ Ty _) I Ty.
 
-    Elpi Query lp:{{
-      compile-acc {{:gref PTop}},
-      compile-acc {{:gref PImpl}},
-      compile-acc {{:gref PAnd}}.
-    }}.
+pred compile-ctx prop -> prop.
+compile-ctx C R :- get-ITy C I Ty, is-class? Ty, comp tt I Ty [] [] R.
 
-    Check _ : Provable (Impl (Atom 3) (And Top (Atom 3))).
+solve (goal C _ Ty _ _ as G) S :-
+  map-filter C compile-ctx H,
+  comp ff P Ty [] H R, R,
+  refine P G S.
+/*ENDSNIP: toy_compiler_solver*/
+}}.
 
-    (* THIS FAILS DUE TO ABSENCE OF LINKS *)
-    Fail Elpi Query lp:{{
-      X = {{Impl (Atom 3) (And Top (Atom 3))}},
-      tc-Provable X S.
-    }}.
 
-    Elpi Query  lp:{{
-      coq.env.typeof {{:gref PImpl}} T.
-    }}.
+Module TestAdd.
+  Import Add.
+  Elpi Compiler NewClass Add +.
+  Elpi Compiler NewInstance addNat.
+  Elpi Compiler NewInstance addR.
+  Elpi Compiler NewInstance addProd.
 
-    Elpi Query lp:{{ compile {{:gref PImpl}} R }}.
-  End TestLogic.
+  Goal Add (nat * (nat * nat)).
+  Proof. elpi Solver. Qed.
 
-End HO.
+  Goal forall x, Add x -> Add (x * nat).
+  Proof. intros x H. elpi Solver. Qed.
+End TestAdd.
+
+Module TestLogic.
+  Import Logic.
+
+  Elpi Compiler NewClass Provable +.
+  Elpi Compiler NewInstance PTop.
+  Elpi Compiler NewInstance PAnd.
+  Elpi Compiler NewInstance PImpl.
+
+  (* This failes due to absence of links *)
+  Goal Provable (Impl (Atom 0) (And Top (Atom 0))).
+  Proof. Elpi Trace Browser. Fail elpi Solver. Abort.
+
+  Goal Provable (And Top Top).
+  Proof. elpi Solver. Qed.
+
+End TestLogic.
+

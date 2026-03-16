@@ -190,43 +190,86 @@ code, while a similar number of lines is required to complete the
 simplified implementation has several limitations.
 
 \begin{itemize}
-  \item Rule $r\forall$ does not consider that the quantified variable $x$
-        may itself be a premise of the class. In complex instances, $x$ may
-        have a class as its type, and should therefore appear as a premise in
-        the generated rule.
-  \item The compiler does not handle instances of the form
-        $(c_1 \to c_2) \to c_3$, where the implementation of $c_3$ requires a
-        proof of $c_2$ in a context extended with a local instance of $c_1$.
-        Supporting such cases requires compiling deep hereditary
-        Harrop formulas and therefore tracking the polarity of the instance
-        being compiled.
+  \item The predicate \eI{tc} does not expose the class arguments as \elpi
+        arguments. Consequently, the modes declared on a class are not preserved
+        in the \elpi solver. The compiler should therefore generate a specialized
+        predicate for each class, with arguments and modes matching those of the
+        class so that rule backchaining can be performed correctly. This problem
+        is addressed in \cref{sec:class-encoding}.
+  \item Rule $r\forall$ does not account for the possibility that the quantified
+        variable $x$ is itself a premise of the class. In complex instances,
+        $x$ may have a class as its type and should therefore appear as a
+        premise in the generated rule. This problem is addressed in
+        \cref{sec:instance-encoding}.
   \item The \eI{solve} rule of the solver ignores the context of the goal. As
         discussed in \cref{sec:elpi-tactics}, the first projection of a
         \eI{goal} in \rocqelpi is its context, which may contain local
-        instances that should be compiled and used during resolution.
-  \item The predicate \eI{tc} does not expose the class arguments as \elpi
-        arguments. As a consequence, the modes declared on a class are not
-        preserved in the \elpi solver.
+        instances that should be compiled and used during resolution. This
+        problem is addressed in \cref{sec:goal-encoding}.
+  \item The compiler does not handle instances of the form
+      $(c_1 \to c_2) \to c_3$, where the implementation of $c_3$ requires a
+      proof of $c_2$ in a context extended with a local instance of $c_1$.
+      Supporting such cases requires compiling deep hereditary Harrop
+      formulas and therefore tracking the polarity of the instance being
+      compiled. This problem is addressed in
+      \cref{sec:instance-encoding}.
 \end{itemize}
 
 \section{Class compilation}
 \label{sec:class-encoding}
 
-A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
-  terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
-goal amounts to finding a \rocq instance whose type is an instantiation of
-$T$. In general, $T$ contains $n$ arrows, corresponding to the $n$ declared
-parameters of the class $C$.
+When a class $c$ is declared in \rocq, the compiler generates a corresponding
+\elpi predicate. If the class has $n$ parameters, the generated predicate has
+$n+1$ arguments: the first $n$ arguments correspond to the parameters of $c$,
+while the final argument represents the instance witnessing the class in the
+current rule.
 
-Conceptually, a type-class goal can be translated into a query with $n+1$
-arguments. The first $n$ arguments correspond to the parameters of the class,
-while the final argument is a term representing the concrete instance that
-solves the query.
+From the perspective of the \elpi solver, two aspects of a class declaration in
+\rocq are particularly relevant: the global reference identifying the class and
+the modes associated with its parameters. In \rocq, users may explicitly
+declare modes using the attribute \cI{~\#~[mode="..."]}. If no mode declaration
+is provided, the parameters of the class are considered outputs by default.
 
-When the class \cI{Add} is declared, the \elpi class compiler is triggered and
-receives the \rocq symbol \eI{indt «Add»} as input. From this symbol we can
-retrieve the type of the class and determine the number of its parameters. In
-this example, the HOAS representation of the type of \cI{Add} in \elpi is
+The compiler responsible for generating the corresponding \elpi predicate is
+shown in \cref{fig:class-compiler}.
+
+\begin{figure}
+  \input{code/toy_compiler_pred.tex}
+  \caption{Class compiler}
+  \label{fig:class-compiler}
+\end{figure}
+
+The entry point of the compiler is the predicate \eI{add-class-pred}, which
+takes two arguments: the global reference \eI{C} of the class and a string
+\eI{S} describing its modes. The string \eI{S} encodes the modes using the
+three \rocq symbols \cI{-, +, !}, separated by spaces. If the user does not
+provide an explicit mode declaration, \eI{S} is the empty string.
+
+Predicates can be created dynamically in \elpi using the API
+\eI{coq.elpi.add-predicate}. This primitive takes four arguments: the database
+in which the predicate will be stored (in our case \eI{tc.db}), the indexing
+strategy, the predicate name \eI{N}, and a list \eI{M} of values of type
+\eI{mode-type}. Each element of \eI{M} specifies the mode and the type of one
+argument of the predicate. The predicate name is constructed from the global
+reference of the class using the predicate \eI{gref->pred-name}. The list of
+modes \eI{M} is obtained by processing the string \eI{S} with the predicate
+\eI{str->modes}.
+
+Two cases must be distinguished depending on whether the string \eI{S} is
+empty. If \eI{S} is empty, the compiler derives the modes from the type of the
+class. It retrieves the type of \eI{C} and creates a pair \eI{pr out "term"} for
+each quantification in that type. In the base case, an additional output
+argument corresponding to the instance is added, again represented by the pair
+\eI{pr out "term"}.
+
+As an example, consider the declaration of the class \cI{Add}
+(cf.~\cref{fig:add-class-full}). When this class is declared, the \elpi class
+compiler is triggered and receives the \rocq symbol \eI{indt «Add»} as input.
+Since no mode attribute is provided, the compiler receives the empty string.
+
+From the symbol \cI{Add} the compiler retrieves its type and determines the
+number of parameters. In this example, the HOAS representation of the type of
+\cI{Add} in \elpi is
 %
 \begin{center}
   \eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ «Add.u0»)}
@@ -234,44 +277,32 @@ this example, the HOAS representation of the type of \cI{Add} in \elpi is
 
 \noindent which indicates that the class has a single parameter.
 
-From this information we generate the predicate associated with the class:
+From this information the compiler generates the predicate associated with the
+class:
 
 \begin{center}
   \eI{pred tc-Add o:term, o:term.}
 \end{center}
 
-By default, the arguments of the predicate are considered outputs. As
-anticipated in the last paragraph of \cref{sec:ad-hoc-poly}, however, \rocq
-allows users to specify modes for the parameters of a class. These modes guide
-unification when matching instances against goals and help orient the search
-performed by the \prolog-like interpreter.
+If \eI{S} is not empty, the user has provided explicit modes for the class. In
+this case, each \rocq mode is translated into the corresponding \elpi mode.
+This translation is performed by the predicate \eI{str->mode}, which maps
+\cI{-} to the \elpi output mode, and both \cI{+} and \cI{!} to the \elpi input
+mode.
 
-The modes are specified using the attribute \cI{~\#~[mode="..."]} attached to
-the class declaration. The \elpi compiler can retrieve this attribute and use
-it to determine the modes of the corresponding predicate.
+It is important to note that the goal of this type-class solver is not to
+faithfully reproduce the behavior of the \rocq solver. Instead, it aims to
+exploit the features of the \elpi language whenever possible.
 
-Our typeclass solver is not intended to replicate the \rocq solver. Instead,
-it aims to exploit, whenever possible, the features of the \elpi language.
+In particular, there is no direct correspondence between \rocq modes and
+\elpi modes. While the \rocq mode \cI{-} corresponds naturally to the \elpi
+output mode, neither \cI{+} nor \cI{!} has a precise counterpart among the
+\elpi input modes. Furthermore, a \rocq class may declare multiple mode
+specifications, whereas an \elpi predicate admits only a single mode
+declaration. We postpone the discussion of this discrepancy to
+\cref{sec:tc-mode-and-determinacy}, after presenting the compilation of
+instances and goals.
 
-A first discrepancy arises from the mode systems, since the modes of \rocq
-and \elpi do not coincide. The \rocq mode \cI{-} corresponds to the \elpi
-output mode, but neither \cI{+} nor \cI{!} has a direct counterpart among the
-\elpi input modes. In addition, a \rocq class may have multiple mode
-declarations, whereas an \elpi predicate admits only a single mode
-specification.
-
-To adress the first point, both \cI{+} and \cI{!} are mapped to the
-\elpi input mode. For example, if the first argument of the class
-\cI{Add} is assigned the mode \cI{!}, we generate the following
-\elpi signature:
-
-\begin{center}
-  \eI{pred tc-Add i:term, o:term.}
-\end{center}
-
-To adress the second point, we ignore the modes of a class if they are more then
-one. We discuss more in detail our choices and compare them with the \rocq
-solver behavior in \cref{sec:tc-mode-and-determinacy}.
 \section{Instance compilation}
 \label{sec:instance-encoding}
 
