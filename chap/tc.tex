@@ -60,19 +60,13 @@ application of our solver to existing libraries, such as \tlc, \stdpp, and
 
 \section{Simple instance compiler}
 
-TODO: This is not only instance for any term compilation in \elpi to perform
-any search using the \elpi solver
+A type-class goal is a \rocq type\footnote{or term, since in \rocq\ types are
+terms.} $T$ whose head symbol is a type-class $C$. Solving such a goal amounts
+to finding a \rocq instance whose type is an instantiation of $T$.
 
-A type-class goal is a \rocq type\footnote{or term since, in \rocq, types are
-  terms.} $T$ whose head symbol is a type-class $C$. Resolving such a
-goal amounts to finding a \rocq instance whose type is an instantiation of
-$T$.
-
-Conceptually, a simple type-class goal can be translated into a query with $2$
-arguments. The first being the type of the instance and the second being the
-concrete instance that solves the query.
-
-The predicate using for the search is \eI{pred tc term -> term}.
+Conceptually, a type-class goal can be translated into a query with two
+arguments: the type to be solved and the concrete instance that provides the
+solution. The predicate used for the search is \eI{pred tc term -> term}.
 
 As an example, consider the \cI{Add} type-class introduced in
 \cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
@@ -89,130 +83,130 @@ its instances is reproduced in \cref{fig:add-class-full}.
   \label{fig:simple-elpi-compiler-tc}
 \end{figure}
 
-After the declaration of an instance an observer triggers the instance compiler,
+After an instance is declared, an observer triggers the instance compiler
 shown in \cref{fig:simple-elpi-compiler-tc}. The compiler is similar to the
-example show in \cite[Sec 4.5]{hdr}.
+example presented in \cite[Sec.~4.5]{hdr}.
 
-The entry point of the compiler is the predicate \eI{compile}, which takes as
-input the global reference \eI{G} of the instance. Using the
+The entry point of the compiler is the predicate \eI{compile}, which takes the
+global reference \eI{G} of the instance as input. Using the
 \eI{coq.env.typeof} API, the compiler retrieves the type \eI{Ty} of \eI{G}.
-Compilation then proceeds by invoking the auxiliary predicate \eI{comp} to produce
-the rule \eI{R} and \eI{coq.elpi.accumulate} is in charge of adding the clause \eI{R}
-inside the database, in this case, called \eI{tc.db}.
+Compilation then proceeds by invoking the auxiliary predicate \eI{comp} to
+produce the rule \eI{R}. Finally, \eI{coq.elpi.accumulate} adds the clause
+\eI{R} to the database, here called \eI{tc.db}.
 
 The predicate \eI{comp} performs the core of the compilation. It takes four
-arguments: a term representing the
-instance; the type of the instance, which is structurally consumed during
-recursion; and two accumulators representing the list of instance arguments
-and the list of premises that will form the body of the resulting rule. From
-these inputs, \eI{comp} produces the \elpi rule corresponding to the compiled
+arguments: the instance term; its type, which is structurally consumed during
+recursion; and two accumulators storing the list of instance arguments and the
+list of premises that will form the body of the resulting rule. From these
+inputs, \eI{comp} produces the \elpi rule corresponding to the compiled
 instance.
 
-The compilation proceeds by analyzing the structure of the instance type.
-There are three relevant cases. Rules \eI{~\PYG{c}{r$\to$}~} and
+Compilation proceeds by analyzing the structure of the instance type. Three
+cases are relevant. Rules \eI{~\PYG{c}{r$\to$}~} and
 \eI{~\PYG{c}{r$\forall$}~} handle quantifications, while rule
-\eI{~\PYG{c}{rB}~} is the base case that constructs the final \elpi rule
-from the information accumulated during the recursive traversal.
+\eI{~\PYG{c}{rB}~} is the base case that constructs the final \elpi rule from
+the information accumulated during the recursion.
 
-The base case of \eI{comp} is reached when the current type \eI{Ty} is not a
-quantification. The compiler then constructs the final rule by building
-its head and premises.
+The base case is reached when the current type \eI{Ty} is not a quantification.
+The compiler then constructs the final rule by assembling its head and body.
 
-The head is simply the \eI{tc} predicate applied to the type of the instance
-\eI{T} as input and \eI{Proof} being the instance of type \eI{T}.
-\eI{Proof} is obtained by applying the instance \eI{I} to its arguments \eI{rev
-  Ag}. The list \eI{Ag} is stored in reverse order during traversal, so it is
-reversed before constructing the application.
+The head is the predicate \eI{tc} applied to the instance type \eI{T} and to a
+proof term \eI{Proof}. The proof is obtained by applying the instance \eI{I} to
+its arguments \eI{rev Ag}. Since the arguments are accumulated in reverse order
+during the traversal, the list \eI{Ag} is reversed before building the
+application.
 
-The premises of the clause are stored in the accumulator \eI{P}. As with the
-instance arguments, they are reversed before constructing the final rule.
+The premises of the clause are stored in the accumulator \eI{P}. As for the
+arguments, the list is reversed before constructing the final rule.
 
-As an example, the compilation of \cI{addNat} returns the rule:
+For example, compiling the instance \cI{addNat} produces the rule
 
 \begin{center}
   \eI{tc {{Add nat}} {{addNat}}}.
 \end{center}
 
-When the current type \eI{Ty} is a quantification, we need do postulate a fresh
-nominal variable which will represent the abstraction inside the recursive call.
-We consider two cases depending on if \eI{Ty} is a dependet-quantification.
+When the current type \eI{Ty} is a quantification, the compiler introduces a
+fresh nominal variable representing the bound variable in the recursive call.
+Two situations must be distinguished depending on the shape of the
+quantification.
 
-If this condition holds, we are compiling a conditional instance and rule
-\eI{~\PYG{c}{r$\to$}~} is used. The rule introduces the fresh nominal
-variable \eI{x} representing the conditional instance with type \eI{Ty}. The
-local instance represents the new premise \eI{tc T x}, which is prepended to the
-list of premises \eI{P} in the recursive call. We also prepend the variable
-\eI{x} to the list of arguments \eI{Ag}.
+If the quantification corresponds to a premise of the instance, rule
+\eI{~\PYG{c}{r$\to$}~} is used. This rule introduces a fresh variable \eI{x}
+representing the conditional instance with type \eI{T}. The premise
+\eI{tc T x} is added to the list of premises \eI{P}, and the variable \eI{x} is
+added to the list of instance arguments \eI{Ag}.
 
-Rule \eI{~\PYG{c}{r$\forall$}~} handles the case of dependet quantification, and
-corresponds, in this first approximation of the compiler, to the quantification
-variables in the instance type. In this situation, the compiler simply consumes
-the abstraction, leaving the list of premises \eI{P} unchanged and adding
-the variable \eI{x} to the list of instance arguments.
+Rule \eI{~\PYG{c}{r$\forall$}~} handles dependent quantification corresponding
+to parameters of the instance, that are supposed not to have a class as type. In
+this case the abstraction is simply consumed: the list of premises \eI{P}
+remains unchanged, while the variable \eI{x} is added to the list of instance
+arguments.
 
-Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return an
-object of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive
-call to \eI{comp}. Since \eI{R} has type \eI{term -> prop} and abstracts the
-local variable \eI{x}, the compiler introduces a fresh variable \eI{y} to
-quantify over the corresponding argument. This step ensures that the resulting
-rule is closed (ground), which is required by the \elpi language.
+Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return a term
+of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive call
+to \eI{comp}. Since \eI{R} has type \eI{term -> prop} and abstracts the local
+variable \eI{x}, the compiler introduces a fresh variable \eI{y} to quantify
+over the corresponding argument. This ensures that the resulting rule is
+closed (ground), as required by the \eI{coq.elpi.accumulate} predicate.
 
-As an example we can take the instance \eI{addProd} which as the type:
+As an example, consider the instance \eI{addProd}, whose type is
 
-$$\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}}, \underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\to$}~}} \to
-  \underbrace{\cI{Add}\ (x * y)}_{rB}$$
+$$
+\forall\ \underbrace{x\ y}_{\eI{~\PYG{c}{r$\forall$}~}},
+\underbrace{\cI{Add}\ x \to \cI{Add}\ y}_{\eI{~\PYG{c}{r$\to$}~}} \to
+\underbrace{\cI{Add}\ (x * y)}_{rB}.
+$$
 
-The resulting \elpi rule for the compilation of this instance is:
+Compiling this instance yields the following \elpi rule:
 
 \begin{elpicode}
-  pi x y\ tc {{Add (lp:x * lp:y)}} {{addNat lp:x lp:y lp:Px lp:Py}} :-
-  tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
+  pi x y\ 
+    tc {{Add (lp:x * lp:y)}} {{addNat lp:x lp:y lp:Px lp:Py}} :-
+      tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
 \end{elpicode}
 
-This rules is giving a proof for the addition of products provided that its two
-premises have a solution.
+This rule provides a proof for \eI{Add (x * y)} provided that the two premises
+\eI{Add x} and \eI{Add y} can be solved.
 
-The simple type class compiler is entirly implemented in
-\cref{fig:simple-elpi-compiler}. In order to also solve type-classes goals,
-we need to build an \elpi tactic containing the following rule:
+To also solve type-class goals, we define an \elpi tactic containing the
+following rule:
 
 \begin{center}
   \input{code/toy_compiler_tc_solver.tex}
 \end{center}
 
-From a \rocq goals \eI{G}, we get the type \eI{Ty} of \eI{G}, we backchain
-\eI{tc Ty P} to get the proof \eI{P} for \eI{Ty} and finally we refine \eI{P}
-to \eI{G} to get the list of new goals \eI{S} and return them to \rocq.
+Given a \rocq goal \eI{G}, the tactic retrieves its type \eI{Ty}, performs a
+backchaining step on \eI{tc Ty P} to obtain a proof \eI{P}, and refines the goal
+\eI{G} with \eI{P}. The refinement produces a list of subgoals \eI{S}, which are
+returned to \rocq.
 
-The full code, with a working example can be found in
+The full code, together with a working example, can be found in
 \cref{app:full-simpl-compiler}.
 
-The implementation we have discribed in this section aims to give the reader a
-flavour of the expressive power of the \elpi language, in about $8$ lines of
-code we can write the heart of the compiler and almost the same number of lines
-are needed to declare the full \elpi command. The solver is only $1$ line of
-code. However, the solver we have presented has some weaknesses.
+The implementation presented in this section illustrates the expressive power
+of the \elpi language. The core of the compiler fits in roughly eight lines of
+code, while a similar number of lines is required to complete the
+\elpi command fot the compiler. The solver itself consists of a single rule. However, this
+simplified implementation has several limitations.
 
 \begin{itemize}
-  \item Rule $r\forall$ does not consider the fact that the quantified variable
-        $x$ can be itselef a premise of the class, in complex instances, $x$ can
-        have a class as type, therefore it should be considered as a premises of
-        the final rule.
-  \item The compiler does not take into account the possibility of having
-        instances haveing the following shape $(c_1 \to c_2) \to c_3$ where the
-        instance implements the class $c_3$ and the premises talks about a class
-        $c_2$ having in its context a local instance of $c_1$. Said in other
-        words, we need to be able to compile deep hereditary harrop-forumlas,
-        and therefore we also need to consider the polarity of the instance
+  \item Rule $r\forall$ does not consider that the quantified variable $x$
+        may itself be a premise of the class. In complex instances, $x$ may
+        have a class as its type, and should therefore appear as a premise in
+        the generated rule.
+  \item The compiler does not handle instances of the form
+        $(c_1 \to c_2) \to c_3$, where the implementation of $c_3$ requires a
+        proof of $c_2$ in a context extended with a local instance of $c_1$.
+        Supporting such cases requires compiling deep hereditary
+        Harrop formulas and therefore tracking the polarity of the instance
         being compiled.
-  \item The \eI{solve} rule in the solver, should take into account the context
-        in which the goal is being solved. From \cref{sec:elpi-tactics}, the
-        first projection of a eI{goal} in \rocqelpi is the context which may
-        contain local instances that should be compiled and used during the
-        goal resolution. 
-  \item The \eI{tc} predicate does not allow to consider the arguments of the as
-        \elpi arguments. Consequently, the modes declared on a class are lost in
-        the \elpi solver.
+  \item The \eI{solve} rule of the solver ignores the context of the goal. As
+        discussed in \cref{sec:elpi-tactics}, the first projection of a
+        \eI{goal} in \rocqelpi is its context, which may contain local
+        instances that should be compiled and used during resolution.
+  \item The predicate \eI{tc} does not expose the class arguments as \elpi
+        arguments. As a consequence, the modes declared on a class are not
+        preserved in the \elpi solver.
 \end{itemize}
 
 \section{Class compilation}

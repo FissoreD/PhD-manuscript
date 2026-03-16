@@ -10,6 +10,10 @@
 \input{metadata.tex}
 \setcounter{tocdepth}{10}
 
+\makeatletter
+\AddToHook{cmd/appendix/before}{\def\cref@chapter@alias{appendix}}
+\makeatother
+
 \begin{document}
 
   \pagenumbering{roman}
