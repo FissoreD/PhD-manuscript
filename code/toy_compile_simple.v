@@ -17,7 +17,7 @@ Elpi Accumulate lp:{{
   pred comp term, term, list term, list prop -> prop.
   comp I {{lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,  % rto
     pi x\ comp I Bo [x|Ag] [tc T x | P] (R x).
-  comp I {{forall x, lp:(Bo x)}} Ag P (pi x\ R x) :- !, % rforall
+  comp I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !, % rforall
     pi x\ comp I (Bo x) [x|Ag] P (R x).
   comp I T Ag P (tc T Proof :- [true | Body]) :-   % rB
     mk-app I {rev Ag} Proof,

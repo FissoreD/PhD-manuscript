@@ -1,30 +1,6 @@
 From elpi Require Import elpi.
 Require Import Reals.
 
-Module Add.
-Class Add T := {plus: T -> T -> T}.
-Check plus 3 4.
-
-Instance addNat : Add nat := {plus := Nat.add}.
-Instance addR : Add R  := {plus := Rplus}.
-
-Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
-  {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
-End Add.
-
-Module Logic.
-  Inductive formula :=
-  | Top | Bot | Atom : nat -> formula
-  | Impl : formula -> formula -> formula
-  | And : formula -> formula -> formula.
-
-  Class Provable (T : formula).
-
-  Instance PTop : Provable Top. Qed.
-  Instance PAnd F1 F2 : Provable F1 -> Provable F2 -> Provable (And F1 F2). Qed.
-  Instance PImpl F1 F2 : (Provable F1 -> Provable F2) -> Provable (Impl F1 F2). Qed.
-End Logic.
-
 Elpi Db tc.db lp:{{ }}.
 
 Elpi Db compiler lp:{{
@@ -68,13 +44,13 @@ Elpi Db compiler lp:{{
 
   %         Pol   Inst  Ty    Args       Prems        Res
   pred comp bool, term, term, list term, list prop -> prop.
-  comp B I (prod _ Ty Bo) Ag P (pi y\ R y) :- is-class? Ty, !,  % r1
+  comp B I {{forall x: lp:Ty, lp:(Bo x)}} Ag P (pi y\ R y) :- is-class? Ty, !, % rto
     pi x\
       comp {neg B} x Ty [] [] (M x),
       comp B I (Bo x) [x|Ag] [M x | P] (R x).
-  comp B I (prod _ _ Bo) Ag P (pi x\ R x) :- !,                 % r2
+  comp B I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !,                      % rforall
     pi x\ comp B I (Bo x) [x|Ag] P (R x).
-  comp B I Ty Ag P R :-                                         % r3
+  comp B I Ty Ag P R :-                                                   % rB
     safe-dest-app Ty C CAg,
     mk-app I {rev Ag} Proof,
     make-rule-head C {append CAg [Proof]} Head,
@@ -147,8 +123,16 @@ solve (goal C _ Ty _ _ as G) S :-
 }}.
 
 
-Module TestAdd.
-  Import Add.
+Module Add.
+  Class Add T := {plus: T -> T -> T}.
+  Check plus 3 4.
+
+  Instance addNat : Add nat := {plus := Nat.add}.
+  Instance addR : Add R  := {plus := Rplus}.
+
+  Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
+    {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
+  
   Elpi Compiler NewClass Add +.
   Elpi Compiler NewInstance addNat.
   Elpi Compiler NewInstance addR.
@@ -159,10 +143,20 @@ Module TestAdd.
 
   Goal forall x, Add x -> Add (x * nat).
   Proof. intros x H. elpi Solver. Qed.
-End TestAdd.
+End Add.
 
-Module TestLogic.
-  Import Logic.
+
+Module Logic.
+  Inductive formula :=
+  | Top | Bot | Atom : nat -> formula
+  | Impl : formula -> formula -> formula
+  | And : formula -> formula -> formula.
+
+  Class Provable (T : formula).
+
+  Instance PTop : Provable Top. Qed.
+  Instance PAnd F1 F2 : Provable F1 -> Provable F2 -> Provable (And F1 F2). Qed.
+  Instance PImpl F1 F2 : (Provable F1 -> Provable F2) -> Provable (Impl F1 F2). Qed.
 
   Elpi Compiler NewClass Provable +.
   Elpi Compiler NewInstance PTop.
@@ -171,10 +165,11 @@ Module TestLogic.
 
   (* This failes due to absence of links *)
   Goal Provable (Impl (Atom 0) (And Top (Atom 0))).
-  Proof. Elpi Trace Browser. Fail elpi Solver. Abort.
+  Proof. Fail elpi Solver. Abort.
 
   Goal Provable (And Top Top).
   Proof. elpi Solver. Qed.
 
-End TestLogic.
-
+  Goal Provable (Impl (Atom 0) (Atom 0)).
+  Proof. Elpi Trace Browser.  Fail elpi Solver. Abort.
+End Logic.
