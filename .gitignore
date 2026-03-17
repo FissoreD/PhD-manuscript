@@ -28,3 +28,8 @@ _opam
 *.vo
 *.vok
 *.vos
+**/*.d
+**/*.conf
+code/perf/Makerocq
+code/perf/*.txt
+code/perf/f.v
