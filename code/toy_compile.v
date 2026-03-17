@@ -147,6 +147,27 @@ Module Add.
 
   Goal forall x, Add x -> Add bool -> Add (x * bool).
   Proof. intros x H. Fail elpi Solver. Abort.
+
+  Fixpoint build_goal n : Type :=
+    match n with
+    | O => nat
+    | S n => (build_goal n * build_goal n)
+    end.
+
+  (* Elpi Accumulate Solver lp:{{
+    :before "default-declare-evar"
+    tc-Add {{lp:A * lp:A}} {{addProd lp:A lp:A lp:P lp:P}} :-
+      tc-Add A P.
+  }}. *)
+
+  Goal Add (build_goal 32).
+  Proof. simpl. Time apply _. Qed.
+
+  Goal Add (build_goal 10).
+  Proof. simpl. Time elpi Solver.
+
+  Compute build_goal 3.
+
 End Add.
 
 
