@@ -37,7 +37,6 @@ Elpi Db compiler lp:{{
   shorten coq.{mk-app}.
   shorten coq.{safe-dest-app}.
 
-  /*SNIP: toy_compiler*/
   pred build-rule bool, prop, list prop -> prop.
   build-rule tt Head Prems (Head :- Prems).
   build-rule ff Head Prems (Prems => Head).
@@ -61,9 +60,7 @@ Elpi Db compiler lp:{{
     comp tt (global G) Ty [] [] R,
     coq.say R, /*HIDE*/
     coq.elpi.accumulate _ "tc.db" (clause _ _ R).
-  /*ENDSNIP: toy_compiler*/
 
-  /*SNIP: toy_compiler_pred*/
   pred dft-class-mode term -> list mode-type.
   dft-class-mode (prod _ _ B) [pr out "term" | L] :- !,
     pi x\ dft-class-mode (B x) L.
@@ -85,7 +82,6 @@ Elpi Db compiler lp:{{
     gref->pred-name C N,
     str->modes C S M,
     coq.elpi.add-predicate "tc.db" _ N M.
-  /*ENDSNIP: toy_compiler_pred*/
 }}.
 
 Elpi Command Compiler.
@@ -108,7 +104,6 @@ Elpi Accumulate Db compiler.
 Elpi Accumulate lp:{{
 shorten std.{map-filter}.
 
-/*SNIP: toy_compiler_solver*/
 pred get-ITy prop -> term, term.
 get-ITy (decl I _ Ty) I Ty.
 get-ITy (def I _ Ty _) I Ty.
@@ -116,11 +111,19 @@ get-ITy (def I _ Ty _) I Ty.
 pred compile-ctx prop -> prop.
 compile-ctx C R :- get-ITy C I Ty, is-class? Ty, comp tt I Ty [] [] R.
 
+pred compile-goal list prop, term -> term.
+compile-goal H {{forall x : lp:Ty, lp:(Bo x)}} {{fun x : lp:Ty => lp:(P x)}} :- is-class? Ty, !,
+  pi x\ comp tt x Ty [] [] (R x), compile-goal [R x|H] (Bo x) (P x).
+compile-goal H {{forall x, lp:(Bo x)}} {{fun x => lp:(P x)}} :- !,
+  pi x\ compile-goal H (Bo x) (P x).
+compile-goal H Ty P :-
+  comp ff P Ty [] H R, R.
+
 solve (goal C _ Ty _ _ as G) S :-
   map-filter C compile-ctx H,
-  comp ff P Ty [] H R, R,
+  compile-goal H Ty P,
+  coq.say P,
   refine P G S.
-/*ENDSNIP: toy_compiler_solver*/
 }}.
 
 
@@ -146,14 +149,13 @@ Module Add.
   Proof. intros x H. elpi Solver. Qed.
 
   Goal forall x, Add x -> Add bool -> Add (x * bool).
-  Proof. intros x H. Fail elpi Solver. Abort.
+  Proof. intros x H. elpi Solver. Qed.
 End Add.
 
 
 Module Logic.
   Notation Fact := nat.
 
-  (*SNIP: HORN *)
   Inductive horn :=
     | Atom : Fact -> horn
     | Top : horn
@@ -180,7 +182,6 @@ Module Logic.
   Instance PImpl F1 F2 : 
     (ProvableFact F1 -> Provable F2) -> Provable (Impl F1 F2).
   Proof. now intro H; split; constructor; intro H1; case H; auto; constructor. Qed. (*HIDE*)
-  (*ENDSNIP: HORN *)
 
   Elpi Compiler NewClass Provable +.
   Elpi Compiler NewClass ProvableFact +.
@@ -199,7 +200,6 @@ End Logic.
 Module Logic1.
   Notation atom := nat.
 
-  (*SNIP: HORN1 *)
   Inductive horn :=
     | Fact : atom -> horn
     | Impl : atom -> horn -> horn.
@@ -218,7 +218,6 @@ Module Logic1.
   Instance PImpl F1 F2 : 
     (ProvableFact F1 -> Provable F2) -> Provable (Impl F1 F2).
   Proof. now intro H; split; constructor; intro H1; case H; auto; constructor. Qed. (*HIDE*)
-  (*ENDSNIP: HORN1 *)
 
   Elpi Compiler NewClass Provable +.
   Elpi Compiler NewClass ProvableFact +.
@@ -230,9 +229,7 @@ Module Logic1.
 
   Notation f := 0.
   Fail Elpi Query Solver lp:{{
-    /*SNIP: HORN_Q */
     tc-Provable {{Impl f (Fact f)}} R.
-    /*ENDSNIP: HORN_Q */
   }}.
 
   (* This failes due to absence of links *)

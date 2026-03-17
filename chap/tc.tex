@@ -309,7 +309,7 @@ instances and goals.
 
 \begin{figure}
   \input{code/toy_compiler.tex}
-  \caption{Simple \elpi compiler}
+  \caption{Instance compiler}
   \label{fig:simple-elpi-compiler}
 \end{figure}
 
@@ -375,7 +375,7 @@ current polarity. With positive polarity, it produces a standard clause
 
 \begin{figure}
   \input{code/HORN1.tex}
-  \caption{TC example with horn clauses}
+  \caption{Example with horn logic}
   \label{fig:h-clause}
 \end{figure}
 
@@ -416,27 +416,72 @@ This final rule is pretty much the rule we want. The positive terms are in
 positive position, and the only negative term is in negative position too. The
 problem we see is the proof for the recursive call to find a proof for \eI{F2}.
 
-% Let's take as an example the query: \input{code/HORN_Q.tex}
-% The \elpi interpreter uses the rule for 
+TODO: we cannot solve any goal with this implementation. We need to use links
+attenzione che creiamo un termine che non tipa quando mettiamo link-eta. $x
+\vdash P =_\lambda Q x$ we are supposing $P$ to be a function, but it is not the
+case. In fact we are building at runtime the term $P = \lambda x. PAtom\ x$ and
+then we $\eta$-contract to obtain a term which is the expected result.
 
-% HERE
-
-
-
-% TODO: compilation of instances ad-hoc
-
-% register hook
-
-
-% \subsection{From term to clause}
-% \subsection{Conditional instances: encoding premises}
+We treat this problem in \cref{chap:ho-for-free}.
 
 \subsection{Rule priorities}
 
-\section{Goal encoding}
+In the declaration of instances, the priority assigned to each rule plays a
+fundamental role in the performance of the resolution phase. In
+\rocq, every newly declared instance is associated with a priority.
+
+To support rule priorities, we extend the instance trigger so that it also
+transmits the priority information to the \elpi compiler. To reproduce a
+similar behavior in \elpi, we exploit its grafting mechanism, which allows
+rules in the database to be named and enables new rules to be inserted
+either before or after existing ones.
+
+In the \elpi compiler, we predeclare a reasonable number of hooks, each
+associated with an integer $n$ representing a grafting position. We account
+for this mechanism by modifying the \eI{compile} rule in
+\cref{fig:simple-elpi-compiler} so that it takes this integer as input.
+When a rule is accumulated into the database, we explicitly specify that it
+must be grafted at position $n$.\marginpar{before, not at}
+
+\subsection{Goal encoding}
 \label{sec:goal-encoding}
 
-Devo compilare il contesto
+\begin{figure}
+  \input{code/toy_compiler_solver.tex}
+  \caption{Goal compiler}
+  \label{fig:goal-compiler}
+\end{figure}
+
+The compilation of the database is now ready. We need to write the tactic to
+solve a type-class goal, we show the implementation of the \eI{solve} predicate
+in \cref{fig:goal-compiler}. The tactic needs to compile the goal so that it is
+a valid \elpi query. A \rocq goal in \elpi contains, among the other
+information, the context \eI{C} in which the goal leaves and a \rocq term
+representing the type \eI{Ty} of the goal that is to be solved.
+
+The first operation we perform is to traverse the context, keep the hypotheses
+being type-classes and compile them using the \eI{comp} procedure from the
+compiler. This operation returns a list of local rules \eI{H} that will be
+loaded in the program for the resolution of the goal. The next step of the goal
+compilation asks to compiler to compile \eI{Ty}. As in herediray harrop formulas,
+a goal is an atom in negative position, therefore, we need to make the
+compilation passing \eI{ff} as polarity. Concretely,
+%
+\begin{center}
+  \eI{comp ff P Ty [] H R} 
+\end{center}
+
+Is in charge of building an atom in negative position (\eI{ff}). Since we are
+compiling a goal, we use the unification variable \eI{P} to represent the proof
+of the query, while the \eI{Ty} variabile represent the goal that is to be
+compiled. The list of instance parameters is empty. The list of premises is
+\eI{H}, that is the context we have compiled. The compilation return an atom
+\eI{R} which has the form \eI{H => Q} and \eI{Q} is a query corresponding to
+a type-class and the last argument is the variable \eI{P}.
+
+The invocation of \eI{R} will instanciate the proof term \eI{P} which will be
+refined to the initial \rocq goal \eI{G}.
+
 
 \section{Rule indexing}
 
