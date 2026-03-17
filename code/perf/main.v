@@ -117,7 +117,7 @@ Elpi Accumulate lp:{{
   solve (goal C _ Ty _ _ as G) S :-
     map-filter C compile-ctx H,
     comp ff P Ty [] H R, R,
-    refine.typecheck P G S.
+    refine.no_check P G S.
 }}.
 
 Class Add T := {plus: T -> T -> T}.
@@ -144,7 +144,7 @@ Fixpoint build_goal n : Type :=
   | S n => (build_goal n * build_goal n)
   end.
 
-Definition size := 12.
+Definition size := 1.
 
 Goal Add (build_goal size).
 Proof. simpl. Time apply _. Qed.
@@ -166,7 +166,7 @@ End share_search.
 Section share_memory.
   Elpi Accumulate Solver lp:{{
     :after "0"
-    tc-Add {{prod lp:A lp:A}} {{let x : Type := lp:A in let p := lp:P in addProd x x p p}} :-
+    tc-Add {{prod lp:A lp:A}} {{let x : Type := lp:A in let p : lp:A * lp:A := lp:P in addProd x x p p}} :-
       tc-Add A P.
   }}.
 

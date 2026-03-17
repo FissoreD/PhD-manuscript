@@ -184,11 +184,11 @@ returned to \rocq.
 The full code, together with a working example, can be found in
 \cref{app:full-simpl-compiler}.
 
-The implementation presented in this section illustrates the expressive power
-of the \elpi language. The core of the compiler fits in roughly eight lines of
-code, while a similar number of lines is required to complete the
-\elpi command fot the compiler. The solver itself consists of a single rule. However, this
-simplified implementation has several limitations.
+The implementation presented in this section illustrates the expressive power of
+the \elpi language: the core of the compiler fits in roughly eight lines of
+code, while a similar number of lines is required to complete the \elpi command
+fot the compiler. The solver itself consists of a single rule. However, this
+simplified implementation has some limitations it is worth to point out.
 
 \begin{itemize}
   \item The predicate \eI{tc} does not expose the class arguments as \elpi
@@ -406,22 +406,47 @@ $$\forall \cI{F1 F2}, \underbrace{(\underbrace{\cI{ProvableFact F1}}_{positive} 
 
 
 The compiled instance is:
+
 \begin{elpicode}
-  pi F1 F2 P \
-    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:P}} :- 
-      pi P' \ tc-ProvableFact F1 P' => tc-Provable F2 {{lp:P lp:P'}}.
+  pi F1 F2 Q \
+    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:Q}} :- 
+      pi p \ tc-ProvableFact F1 p => tc-Provable F2 {{lp:Q lp:p}}.
 \end{elpicode}
 
-This final rule is pretty much the rule we want. However, we cannot solve, even if
-it seems natural, the query \eI{tc-Provable {{Impl e (Atom e)}} R}. The term
-\eI{lp:P lp:P'} is a \rocq application, i.e. the term \eI{app [P, P']} and we are
-losing the higher-order unification of the \elpi system. In order to solve this
-problem we need to build a system of links, see \cref{chap:ho-for-free}
+The shape of this rule matches what we expect in the \elpi database.
+However, it fails to solve the query
+$Q = \eI{tc-Provable {{Impl a (Fact a)}} R}$, for some atom \eI{a}.
 
-TODO: We need to use links $x \vdash P =_\lambda Q x$ we are supposing $P$ to be
-a function, but it is not the case. In fact we are building at runtime the term
-$P = \lambda x. PAtom\ x$ and then we $\eta$-contract to obtain a term which is
-the expected result.
+After unifying the query with the head of the rule, we must solve the
+premise \eI{tc-Provable {{Fact a}} {{lp:Q lp:p}}}. The appropriate rule
+for this subgoal is the one generated for the \cI{PAtom} instance.
+However, unification between the query and the head of that rule fails.
+
+The \elpi HOAS term corresponding to \eI{{{lp:Q lp:p}}} is
+\eI{app[Q, p]}, which cannot be unified with
+\eI{{{PAtom lp:F lp:P}}}, whose HOAS representation is
+\eI{app[{{Patom}}, F, P]}.
+
+This failure arises from a mismatch between \elpi application and
+\rocq application. In \rocq, unification would succeed by instantiating
+\eI{Q} with \cI{fun x => PAtom F P}. However, as discussed in
+\cref{sec:unif-fo-ho}, \elpi does not perform this higher-order
+unification.
+
+The rule should be compiled into
+
+\begin{elpicode}
+  pi F1 F2 Q \
+    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:Q}} :- 
+      link Q Q',
+      pi p \ tc-ProvableFact F1 p => tc-Provable F2 (Q' p).
+\end{elpicode}
+
+\noindent
+where \eI{Q'} is a unification variable linked to \dots To address this issue,\marginpar{TODO}
+we dedicate the full \cref{chap:ho-for-free}
+
+
 \subsection{Rule Priorities}
 
 When declaring instances, the priority assigned to each rule plays a
@@ -475,7 +500,7 @@ variable representing the proof term, \eI{Ty} is the goal to be compiled,
 the list of instance parameters is empty, and \eI{H} provides the
 premises extracted from the context. The result of the compilation is an
 atom \eI{R} of the form \eI{H => Q}, where \eI{Q} is a query corresponding
-to a type class whose final argument is \eI{P}.
+to a type class whose proof argument is \eI{P}.
 
 Evaluating \eI{R} instantiates the proof term \eI{P}, which is then used
 to refine the original \rocq goal.
@@ -495,44 +520,25 @@ This rule matches products whose two components are identical. When
 searching for an instance of the class \cI{Add} applied to a type \eI{A},
 both components of the pair yield the same result, so the search is
 performed only once. Moreover, the resulting proof term shares memory
-between subproofs and their types, improving efficiency.
+between subproofs and their types, improving space and time efficiency.
 
-A (rather handcrafted) example making this implementation extremely useful is
-
-ELPI is a programming language and therefore we can reason \dots
-
-
-\subsection{Commands and tools}
-
-TODO: Quali sono i comandi che settano, unsettano la search?
-
-TODO: ci sono dei comandi che iterano il database di classi e istanze per
-aggiungerle tutte in un botto
-
-\section{Rule indexing}
-
-\subsection{Discrimination trees}
-\label{sec:rule-indexing}
-
-\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
-
-Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
-
-TODO: do some benchmarks
-
-Discrimination trees: opt for lists and tree depths.
-
-\subsection{Some ideas on tabling}
-
-\cite{tabling-dm,tabling-pie}
-
+In the simple rule presented above, we illustrate the expressive power of
+meta-programming in \elpi. Since \elpi is a Turing-complete language, users
+can arbitrarily customize the proof search by defining their own rules.
+In particular, there are no inherent restrictions on these extensions:
+users are free to implement any custom rule that suits their needs. 
 
 \section{Discussion}
 \label{sec:tc-discussion}
 
-\cite{fissore2023}
-
-\subsection{Experimental results}
+From the previous sections, we can see how flexible the \elpi language is and
+how well-fits for \rocq term compilation into \elpi rules. \elpi can be used as
+a way to introduce some kind of proof automation: the \prolog-like search engine
+of its interpreter acts as a good inference system provided that the program in
+which a query is executed is inhabited with the (derivation) rules that are
+needed to solve the query. As anticipated in \cref{sec:ctx-elpi-related-words},
+\elpi allows the user to control the unification strategy, \unify vs \matching
+depending of the mode. The cut operator allow the user to commit a choice\dots
 
 \subsection{Modes and determinacy}
 \label{sec:tc-mode-and-determinacy}
@@ -570,8 +576,50 @@ implement it
 
 Guardare: Typeclasses Strict Resolution
 
+\subsection{Experimental results}
+\cite{fissore2023}
+
+
+\subsection{Rule indexing: discrimination trees}
+\label{sec:rule-indexing}
+
+
+\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
+
+Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
+
+TODO: do some benchmarks
+
+Discrimination trees: opt for lists and tree depths.
+
+
+\cite{tabling-dm,tabling-pie}
+
+
 \subsection{Unification problems}
 
 \paragraphTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
 \paragraphTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
 
+BLI BLI BLA BLAs
+
+Chiudere con: our aim is not to compete or replace the rocq solver, we are
+proposing an alternative which may help the user to perform instance search in a
+highly customizable runtime. Some limitations in our develpment remains, and
+are double face: in \dots
+
+Dire che scrivere il solver in \elpi da beneficio indiretto delle features del
+linguaggio che sono ereditate e gratuite. Una su tutte il backtracking, ma anche
+i modi. Infine abbiamo la determinacy. Un esempio è questo: ... dimostra come
+... ma non l'abbiamo mai testata in una vera libreria...
+
+TODO: Quali sono i comandi che settano, unsettano la search?
+
+TODO: ci sono dei comandi che iterano il database di classi e istanze per
+aggiungerle tutte in un botto
+
+Una roba di cui non si è mai parlato è l'importanza del cut. In questo momento
+non abbiamo alcuna sintassi rocq che permette di scegliere dove e come metter il
+cut in una regola che deve essere compilata. Cambiare il compilatore e prendere
+questa feature in considerazione per avvicinare ulteriormente la risoluzione di
+classi a un sistema di programmazione logica con cut ... 
