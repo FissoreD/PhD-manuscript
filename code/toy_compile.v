@@ -1,7 +1,10 @@
 From elpi Require Import elpi.
 Require Import Reals.
 
-Elpi Db tc.db lp:{{ }}.
+Elpi Db tc.db lp:{{ 
+  pred hook o:int.
+  :name "0" hook 0.
+}}.
 
 Elpi Db compiler lp:{{
   shorten std.{map}.
@@ -148,26 +151,25 @@ Module Add.
   Goal forall x, Add x -> Add bool -> Add (x * bool).
   Proof. intros x H. Fail elpi Solver. Abort.
 
-  Fixpoint build_goal n : Type :=
-    match n with
-    | O => nat
-    | S n => (build_goal n * build_goal n)
-    end.
+  Infix "*" := prod.
 
-  (* Elpi Accumulate Solver lp:{{
-    :before "default-declare-evar"
-    tc-Add {{lp:A * lp:A}} {{addProd lp:A lp:A lp:P lp:P}} :-
+  Section S.
+  Elpi Accumulate Solver lp:{{
+    :after "0"
+    /*SNIP: share_search*/
+    tc-Add {{lp:A * lp:A}} {{addProd lp:A lp:A lp:P lp:P}} :- tc-Add A P.
+    /*ENDSNIP: share_search*/
+  }}.
+
+  Elpi Accumulate Solver lp:{{
+    :after "0"
+    /*SNIP:share_proof*/
+    tc-Add {{lp:A * lp:A}} PROOF :-
+      PROOF = {{let x := lp:A in let p := lp:P in addProd x x p p}},
       tc-Add A P.
-  }}. *)
-
-  Goal Add (build_goal 32).
-  Proof. simpl. Time apply _. Qed.
-
-  Goal Add (build_goal 10).
-  Proof. simpl. Time elpi Solver.
-
-  Compute build_goal 3.
-
+    /*ENDSNIP:share_proof*/
+  }}.
+  End S.
 End Add.
 
 

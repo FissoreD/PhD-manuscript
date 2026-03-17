@@ -422,27 +422,26 @@ TODO: We need to use links $x \vdash P =_\lambda Q x$ we are supposing $P$ to be
 a function, but it is not the case. In fact we are building at runtime the term
 $P = \lambda x. PAtom\ x$ and then we $\eta$-contract to obtain a term which is
 the expected result.
+\subsection{Rule Priorities}
 
-\subsection{Rule priorities}
+When declaring instances, the priority assigned to each rule plays a
+fundamental role in the performance of the resolution phase. In \rocq,
+every instance is associated with a priority at declaration time.
 
-In the declaration of instances, the priority assigned to each rule plays a
-fundamental role in the performance of the resolution phase. In
-\rocq, every newly declared instance is associated with a priority.
+To support rule priorities, we extend the instance trigger so that it
+also propagates priority information to the \elpi compiler. To reproduce
+a similar behavior in \elpi, we exploit its grafting mechanism, which
+allows rules in the database to be named and enables new rules to be
+inserted before or after existing ones.
 
-To support rule priorities, we extend the instance trigger so that it also
-transmits the priority information to the \elpi compiler. To reproduce a
-similar behavior in \elpi, we exploit its grafting mechanism, which allows
-rules in the database to be named and enables new rules to be inserted
-either before or after existing ones.
-
-In the \elpi compiler, we predeclare a reasonable number of hooks, each
-associated with an integer $n$ representing a grafting position. We account
-for this mechanism by modifying the \eI{compile} rule in
+In the \elpi compiler, we predeclare a fixed number of hooks, each
+associated with an integer $n$ representing a grafting position. We
+account for this mechanism by modifying the \eI{compile} rule in
 \cref{fig:simple-elpi-compiler} so that it takes this integer as input.
-When a rule is accumulated into the database, we explicitly specify that it
-must be grafted at position $n$.\marginpar{before, not at}
+When a rule is added to the database, we explicitly specify that it must
+be grafted at position $n$.\marginpar{before, not at}
 
-\subsection{Goal encoding}
+\subsection{Goal Encoding}
 \label{sec:goal-encoding}
 
 \begin{figure}
@@ -451,46 +450,56 @@ must be grafted at position $n$.\marginpar{before, not at}
   \label{fig:goal-compiler}
 \end{figure}
 
-The compilation of the database is now ready. We need to write the tactic to
-solve a type-class goal, we show the implementation of the \eI{solve} predicate
-in \cref{fig:goal-compiler}. The tactic needs to compile the goal so that it is
-a valid \elpi query. A \rocq goal in \elpi contains, among the other
-information, the context \eI{C} in which the goal leaves and a \rocq term
-representing the type \eI{Ty} of the goal that is to be solved.
+With the database compilation in place, we now define the tactic used to
+solve type-class goals. The implementation of the \eI{solve} predicate is
+shown in \cref{fig:goal-compiler}.
 
-The first operation we perform is to traverse the context, keep the hypotheses
-being type-classes and compile them using the \eI{comp} procedure from the
-compiler. This operation returns a list of local rules \eI{H} that will be
-loaded in the program for the resolution of the goal. The next step of the goal
-compilation asks to compiler to compile \eI{Ty}. As in herediray harrop formulas,
-a goal is an atom in negative position, therefore, we need to make the
-compilation passing \eI{ff} as polarity. Concretely,
+A \rocq goal in \elpi contains, among other information, the context
+\eI{C} in which the goal is defined and a term \eI{Ty} representing the
+type to be solved. The first step is to traverse the context, select the
+hypotheses that correspond to type classes, and compile them using the
+\eI{comp} procedure. This produces a list of local rules \eI{H}, which
+are added to the program during resolution.
+
+Next, we compile the goal type \eI{Ty}. As in hereditary Harrop formulas,
+a goal corresponds to an atom in negative position. Therefore, the
+compilation is performed with polarity \eI{ff}. Concretely,
 %
 \begin{center}
-  \eI{comp ff P Ty [] H R} 
+  \eI{comp ff P Ty [] H R}
 \end{center}
 
 \noindent
-is in charge of building an atom in negative position (\eI{ff}). Since we are
-compiling a goal, we use the unification variable \eI{P} to represent the proof
-of the query, while the \eI{Ty} variabile represent the goal that is to be
-compiled. The list of instance parameters is empty. The list of premises is
-\eI{H}, that is the context we have compiled. The compilation return an atom
-\eI{R} which has the form \eI{H => Q} and \eI{Q} is a query corresponding to
-a type-class and the last argument is the variable \eI{P}.
+constructs an atom in negative position. Here, \eI{P} is a unification
+variable representing the proof term, \eI{Ty} is the goal to be compiled,
+the list of instance parameters is empty, and \eI{H} provides the
+premises extracted from the context. The result of the compilation is an
+atom \eI{R} of the form \eI{H => Q}, where \eI{Q} is a query corresponding
+to a type class whose final argument is \eI{P}.
 
-The invocation of \eI{R} will instanciate the proof term \eI{P} which will be
-refined to the initial \rocq goal \eI{G}.
+Evaluating \eI{R} instantiates the proof term \eI{P}, which is then used
+to refine the original \rocq goal.
 
-\subsection{User defined rules}
+\subsection{User-Defined Rules}
 
-A part for the automatic compilation of rules in the \elpi compiler, we have the
-possibility to tweak the database to create dedicated rules in order to have
-faster resolution strategy in specific situations. A typical example is the
-proof example is the 
+In addition to the automatic compilation of rules, users can extend the
+database with custom rules to implement specialized or more efficient
+resolution strategies in specific situations.
 
-Hint extern etc
+Using the \cI{Elpi Accumulate} command, users can define ad hoc rules,
+such as the one shown below:
 
+\input{code/share_proof.tex}
+
+This rule matches products whose two components are identical. When
+searching for an instance of the class \cI{Add} applied to a type \eI{A},
+both components of the pair yield the same result, so the search is
+performed only once. Moreover, the resulting proof term shares memory
+between subproofs and their types, improving efficiency.
+
+A (rather handcrafted) example making this implementation extremely useful is
+
+ELPI is a programming language and therefore we can reason \dots
 
 
 \subsection{Commands and tools}
