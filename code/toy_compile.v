@@ -164,9 +164,9 @@ Module Add.
   Elpi Accumulate Solver lp:{{
     :after "0"
     /*SNIP:share_proof*/
-    tc-Add {{lp:A * lp:A}} PROOF :-
-      PROOF = {{let x := lp:A in let p := lp:P in addProd x x p p}},
-      tc-Add A P.
+    tc-Add {{lp:A * lp:A}} P :-
+      P = {{let x := lp:A in let p := lp:Pa in addProd x x p p}},
+      tc-Add A Pa.
     /*ENDSNIP:share_proof*/
   }}.
   End S.

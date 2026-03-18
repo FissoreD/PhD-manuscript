@@ -627,11 +627,46 @@ between subproofs and their types, improving space and time efficiency.
 In the simple rule presented above, we illustrate the expressive power of
 meta-programming in \elpi. Since \elpi is a Turing-complete language, users
 can arbitrarily customize the proof search by defining their own rules.
-In particular, there are no inherent restrictions on these extensions:
+In particular, there are no restrictions on these extensions:
 users are free to implement any custom rule that suits their needs. 
 
 \section{Experimental results}
+
+We have tested our solver on existing libraries, in particular, we have focused
+our attention on two main libraries \tlc~\cite{tlc} and \stdpp~\cite{stdpp},
+they are two libraries exploiting the type-class inference mechanism as a
+principal feature of their implementation. Studying these libraries allows to
+have concrete example about what are the main need of a \rocq developers using
+type classes. Apart from automation, and in particular in \stdpp, modes play an
+important role in the resolution of type-class goals. 
+
 \cite{fissore2023}
+
+\subsectionTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
+\subsectionTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
+
+BLI BLI BLA BLAs
+
+Chiudere con: our aim is not to compete or replace the rocq solver, we are
+proposing an alternative which may help the user to perform instance search in a
+highly customizable runtime. Some limitations in our develpment remains, and
+are double face: in \dots
+
+Dire che scrivere il solver in \elpi da beneficio indiretto delle features del
+linguaggio che sono ereditate e gratuite. Una su tutte il backtracking, ma anche
+i modi. Infine abbiamo la determinacy. Un esempio è questo: ... dimostra come
+... ma non l'abbiamo mai testata in una vera libreria...
+
+TODO: Quali sono i comandi che settano, unsettano la search?
+
+TODO: ci sono dei comandi che iterano il database di classi e istanze per
+aggiungerle tutte in un botto
+
+Una roba di cui non si è mai parlato è l'importanza del cut. In questo momento
+non abbiamo alcuna sintassi rocq che permette di scegliere dove e come metter il
+cut in una regola che deve essere compilata. Cambiare il compilatore e prendere
+questa feature in considerazione per avvicinare ulteriormente la risoluzione di
+classi a un sistema di programmazione logica con cut ... 
 
 \section{Discussion}
 \label{sec:tc-discussion}
@@ -668,31 +703,3 @@ Discrimination trees: opt for lists and tree depths.
 
 \cite{tabling-dm,tabling-pie}
 
-
-\subsection{Unification problems}
-
-\paragraphTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
-\paragraphTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
-
-BLI BLI BLA BLAs
-
-Chiudere con: our aim is not to compete or replace the rocq solver, we are
-proposing an alternative which may help the user to perform instance search in a
-highly customizable runtime. Some limitations in our develpment remains, and
-are double face: in \dots
-
-Dire che scrivere il solver in \elpi da beneficio indiretto delle features del
-linguaggio che sono ereditate e gratuite. Una su tutte il backtracking, ma anche
-i modi. Infine abbiamo la determinacy. Un esempio è questo: ... dimostra come
-... ma non l'abbiamo mai testata in una vera libreria...
-
-TODO: Quali sono i comandi che settano, unsettano la search?
-
-TODO: ci sono dei comandi che iterano il database di classi e istanze per
-aggiungerle tutte in un botto
-
-Una roba di cui non si è mai parlato è l'importanza del cut. In questo momento
-non abbiamo alcuna sintassi rocq che permette di scegliere dove e come metter il
-cut in una regola che deve essere compilata. Cambiare il compilatore e prendere
-questa feature in considerazione per avvicinare ulteriormente la risoluzione di
-classi a un sistema di programmazione logica con cut ... 
