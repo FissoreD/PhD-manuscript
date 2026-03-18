@@ -291,18 +291,61 @@ This translation is performed by the predicate \eI{str->mode}, which maps
 \cI{-} to the \elpi output mode, and both \cI{+} and \cI{!} to the \elpi input
 mode.
 
-It is important to note that the goal of this type-class solver is not to
-faithfully reproduce the behavior of the \rocq solver. Instead, it aims to
-exploit the features of the \elpi language whenever possible.
+\subsection{\rocq and \elpi mode discrepancies}
+\label{sec:tc-mode-and-determinacy}
 
-In particular, there is no direct correspondence between \rocq modes and
+Our typeclass solver is not intended to replicate the \rocq solver. Instead, it\marginpar{posto giusto senza aver discusso istanze?}
+aims to exploit, whenever possible, the features of the \elpi language. A
+natural claim is that mapping two \rocq mode to only one in \elpi is that the
+\rocq and \elpi type-class solvers will have different runtime behaviors.
+
+We can note that there is no direct correspondence between \rocq modes and
 \elpi modes. While the \rocq mode \cI{-} corresponds naturally to the \elpi
 output mode, neither \cI{+} nor \cI{!} has a precise counterpart among the
-\elpi input modes. Furthermore, a \rocq class may declare multiple mode
+\elpi input mode. Furthermore, a \rocq class may declare multiple mode
 specifications, whereas an \elpi predicate admits only a single mode
-declaration. We postpone the discussion of this discrepancy to
-\cref{sec:tc-mode-and-determinacy}, after presenting the compilation of
-instances and goals.
+declaration.
+
+We recall that the \rocq modes \cI{+} and \cI{!} impose conditions on the shape
+of the argument: \cI{+} requires a ground term, while \cI{!} requires a term
+with a rigid applicative head. During the resolution phase, if a goal does not
+satisfy the mode constraint imposed by the class declaration, a failure
+immediately stops the instance search. In contrast, \elpi modes do not check the
+shape of the argument before backchain the query into the database, it, instead,
+modifies the unification strategy by using the \matching procedure.
+
+In order to see the different mode behavior of the \rocq and \elpi modes, we
+rework the implementation of the \cI{Add} type class.
+%
+\input{code/add_dummy.tex}
+
+Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is a meta-variable (evar in
+\rocq jargon). With the \rocq mode system, this goal has no solution because the
+argument of the class is a non-ground term and therefore does not satisfy the
+mode constraint. In contrast, under the \elpi mode interpretation the instance
+\cI{addDummy} is a valid solution.
+
+In the \elpi philosophy, the instance \cI{addDummy} is considered as a catchall:
+the first argument of the \cI{Add} class is a variable, i.e a pattern that can
+be used a on any goal for \cI{Add}. It means that \cI{addDummy} can be used as a
+solution for $g$.
+
+
+
+The second discrepancy we point out conserning modes in \rocq, is that a type
+class can be associated to several modes. This is the case of the class
+\eI{Cancel} Note: TCDiag in stdpp is an example of a class where the two modes is needed,
+elpi can't implement it
+
+Guardare: Typeclasses Strict Resolution
+
+Modes in \rocq are very dynamic, they can be changed at any point in the code
+by the code and in elpi this is not possible in elpi since \dots
+
+TODO: dire che i modi dichiarati a posteriori cambiano il comportamento della
+search, potremmo avere due file con diversi in cui in uno si setta il modo e
+nell'altro no, allora si hanno due comportamenti diversi.
+
 
 \section{Instance compilation}
 \label{sec:instance-encoding}
@@ -528,6 +571,9 @@ can arbitrarily customize the proof search by defining their own rules.
 In particular, there are no inherent restrictions on these extensions:
 users are free to implement any custom rule that suits their needs. 
 
+\section{Experimental results}
+\cite{fissore2023}
+
 \section{Discussion}
 \label{sec:tc-discussion}
 
@@ -536,48 +582,16 @@ how well-fits for \rocq term compilation into \elpi rules. \elpi can be used as
 a way to introduce some kind of proof automation: the \prolog-like search engine
 of its interpreter acts as a good inference system provided that the program in
 which a query is executed is inhabited with the (derivation) rules that are
-needed to solve the query. As anticipated in \cref{sec:ctx-elpi-related-words},
-\elpi allows the user to control the unification strategy, \unify vs \matching
-depending of the mode. The cut operator allow the user to commit a choice\dots
+needed to solve the query. The type-class engine written in the \rocq system has
+this \prolog-like behavior, but it is important to note that the goal of our
+type-class solver is not to faithfully reproduce the behavior of the \rocq
+solver. Instead, it aims to exploit the features of the \elpi language whenever
+possible. 
 
-\subsection{Modes and determinacy}
-\label{sec:tc-mode-and-determinacy}
+As anticipated in \cref{??}, \elpi allows the user to control the unification
+strategy, \unify vs \matching depending of the mode. The cut operator allow the
+user to commit choice points avoiding unwanted backtracking.
 
-
-In \rocq, the modes \cI{+} and \cI{!} impose conditions on the shape of the
-argument: \cI{+} requires a ground term, while \cI{!} requires a term with a
-rigid applicative head. If the condition is satisfied, the search proceeds.
-In contrast, \elpi modes do not check the syntactic shape of the argument.
-Instead, they modify the unification strategy by using the \matching
-procedure.
-
-This leads to different operational behavior between the \rocq solver
-and the \elpi-based solver. Consider the following example:
-
-\begin{enumerate}
-  \item Assume the instance \cI{Instance dummy T : Add T.}
-  \item Suppose the first argument of \cI{Add} has mode \cI{+} (or \cI{!}).
-  \item Consider the goal \cI{Add ?X}, where \cI{?X} is a metavariable.
-\end{enumerate}
-
-With the \rocq mode system, this goal has no solution because \cI{?X} is a
-flexible term and therefore does not satisfy the mode constraint. In
-contrast, under the \elpi mode interpretation the instance \cI{dummy} is
-considered a valid solution.
-
-In the \elpi philosophy, the instance \eI{dummy} is considered as a catchall: it
-can be used on any goal for \eI{Add}. Moreover, we are creating an ambiguity in
-the program, since the goal \eI{Add nat} has two solution, namely the instances
-\cI{addNat} and \cI{dummy} due to bracktracking. In order to control this
-behavior, in \elpi we can use the \cut, which, in \rocq is not an option.
-
-Note: Cancel is an example of a class where the two modes is needed, elpi can't
-implement it
-
-Guardare: Typeclasses Strict Resolution
-
-\subsection{Experimental results}
-\cite{fissore2023}
 
 
 \subsection{Rule indexing: discrimination trees}
