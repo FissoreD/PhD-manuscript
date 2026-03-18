@@ -431,7 +431,7 @@ This failure arises from a mismatch between \elpi application and
 \rocq application. In \rocq, unification would succeed by instantiating
 \eI{Q} with \cI{fun x => PAtom F P}. However, as discussed in
 \cref{sec:unif-fo-ho}, \elpi does not perform this higher-order
-unification.
+unification on \rocq terms.
 
 The rule should be compiled into
 
@@ -555,7 +555,7 @@ This leads to different operational behavior between the \rocq solver
 and the \elpi-based solver. Consider the following example:
 
 \begin{enumerate}
-  \item Assume the instance \cI{Instance dummy T : Add T. Admitted.}
+  \item Assume the instance \cI{Instance dummy T : Add T.}
   \item Suppose the first argument of \cI{Add} has mode \cI{+} (or \cI{!}).
   \item Consider the goal \cI{Add ?X}, where \cI{?X} is a metavariable.
 \end{enumerate}

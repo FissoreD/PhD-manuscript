@@ -796,7 +796,7 @@ the following property:
   \eI{(uva A L)} is such that \eI{L} has length \eI{N}.
 \end{invariant}
 
-
+\noindent
 \inlinefigure{%
 \input{ho-for-free/img/alloc_mapping.tex}%
 \captionof{figure}{Malloc code}
@@ -2593,7 +2593,7 @@ The main difference is that we cannot implement \hrun since it is
 the runtime of the programming language. In particular the runtime iterates
 \Ue, but \hstep also needs to check links for \progress. Luckily Elpi extends
 $\lambda$Prolog with constraints (suspended goals) and
-Constraint Handling Rules (CHR) to operate on them~\cite{tassi2019-1,chr15}.
+Constraint Handling Rules (CHR) to operate on them~\cite{chr-elpi,chr15}.
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
 suspended on a list of variables that is resumed \emph{as soon as one of these variable
 is assigned}, before any other existing goal is considered. 
@@ -2618,7 +2618,7 @@ operator) eigenvariables in \eI{N}. Sequents are presented to
 CHR with their higher order unification variables replaced by
 ``frozen constants'', that is $A_{xyz}$ becomes <<\eI{uvar ~$f_A$~ [x,y,z]}>>
 for a fresh constant $f_A$. Frozen constants are ``defrost'' when
-they are part of a new goal (see \cite[section 4.3]{tassi2019-1}).
+they are part of a new goal (see \cite[section 4.3]{chr-elpi}).
 
 \begin{elpicode}
   rule (N1 ~$\triangleright$~ G1 ?- link-eta (uvar X LX1) T1)   % match
