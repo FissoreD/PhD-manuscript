@@ -161,9 +161,9 @@ $$
 Compiling this instance yields the following \elpi rule:
 
 \begin{elpicode}
-  pi x y\ 
-    tc {{Add (lp:x * lp:y)}} {{addNat lp:x lp:y lp:Px lp:Py}} :-
-      tc {{Add lp:x}} Px, tc {{Add lp:y}} Py.
+  pi L R PL PR\ 
+    tc {{Add (lp:L * lp:R)}} {{addNat lp:L lp:R lp:PL lp:PR}} :-
+      tc {{Add lp:L}} PL, tc {{Add lp:R}} PR.
 \end{elpicode}
 
 This rule provides a proof for \eI{Add (x * y)} provided that the two premises
@@ -422,53 +422,112 @@ current polarity. With positive polarity, it produces a standard clause
   \label{fig:h-clause}
 \end{figure}
 
-This version of the compiler returns the same result as the compiler in
-\cref{sec:simple-instance-compiler}. An interesing example of deep compilation
-with two switches of polarities, is given by the example in \cref{fig:h-clause}.
-
-In the example we provide an example of encoding of simple horn clauses where we
-define the derivation rules allowing to test if a hown clause is valid.
-We then use classes to allows automatic proof search on horn clauses.
-
-Unsurprisingly, instance \cI{PAtom} is compiled into:
+Given the instance in \cref{fig:add-class-full}, this version of the
+compiler produces the following rules:
 
 \begin{elpicode}
-  pi F P \
-    tc-Provable {{Fact lp:F}} {{PAtom lp:F lp:P}} :- 
-      tc-ProvableFact F P.
+  tc-Add {{nat}} {{addNat}}.
+  tc-Add {{R}} {{addR}}.
+  pi L \ pi R \ pi PL \ pi PR \
+    tc-Add {{lp:L * lp:R}} {{addProd lp:L lp:R lp:PL lp:PR}} :- 
+      tc-Add L PL, tc-Add R PR.
 \end{elpicode}
 
-The rule for the instance \cI{PImpl} is more interesting. Since it contains an
-hypothesis which itself contains an hypothesis. It says that we can prove
-\cI{Impl F1 F2} provided that \cI{F2} is provable in a context extended with
-\cI{F1}.
+\noindent
+These rules are similar to those produced by the compiler in
+\cref{sec:simple-instance-compiler}, except for the specialization of the
+predicate \eI{tc-Add} for the \cI{Add} class.
 
-The type of the instance is the following:
-%
-$$\forall \cI{F1 F2}, \underbrace{(\underbrace{\cI{ProvableFact F1}}_{positive} \to \underbrace{\cI{Provable F2}}_{negative})}_{negative} \to \underbrace{\cI{Provable (Impl F1 F2)}}_{positive}$$
+An interesting example of deep compilation, where polarities play a
+central role (and are incorrectly handled by the compiler in
+\cref{sec:simple-instance-compiler}), is shown in
+\cref{fig:h-clause}. The code illustrates an encoding of a fragment of
+propositional logic using the \rocq{} typeclass mechanism as a proof
+search engine.
 
+We define an inductive type \texttt{horn} representing a restricted
+language of formulas consisting of atomic facts, conjunctions, and
+implications. The constructor \texttt{fact} embeds a \rocq{}
+proposition into the object language, while \texttt{and} and
+\texttt{impl} correspond to conjunction and implication,
+respectively. In the case of \texttt{impl}, the antecedent is
+restricted to a \rocq{} proposition rather than a \texttt{horn}
+formula.
 
-The compiled instance is:
+The function \cI{interp} assigns a semantics to \texttt{horn}
+formulas by translating them into \rocq{} propositions. This
+interpretation is compositional: a fact evaluates to its underlying
+proposition, a conjunction is interpreted as a logical conjunction,
+and an implication as a function type.
+
+Automatic reasoning is expressed via the typeclass
+\texttt{Provable T}, which packages a proof of \texttt{interp T}.
+This allows \rocq{}'s typeclass resolution mechanism to act as a
+proof search procedure.
+
+The inference rules of the logic are encoded as typeclass
+instances. The instance \texttt{Pand} corresponds to conjunction
+introduction: if \texttt{F1} and \texttt{F2} are provable, then
+\texttt{and F1 F2} is also provable.
+
+Similarly, the instance \texttt{Pimpl} captures implication
+introduction. It states that to prove \texttt{impl F1 F2}, it
+suffices to show that \texttt{F2} is provable under the assumption
+\texttt{F1}, represented as \texttt{fact F1}.
+
+The instance \cI{Pand} is compiled into:
 
 \begin{elpicode}
-  pi F1 F2 Q \
-    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:Q}} :- 
-      pi p \ tc-ProvableFact F1 p => tc-Provable F2 {{lp:Q lp:p}}.
+  pi L \ pi R \ pi PL \ pi PR \
+    tc-Provable {{and lp:L lp:R}} {{Pand lp:L lp:R lp:PL lp:PR}} :- 
+      tc-Provable L PL, tc-Provable R PR.
 \end{elpicode}
 
-The shape of this rule matches what we expect in the \elpi database.
-However, it fails to solve the query
-$Q = \eI{tc-Provable {{Impl a (Fact a)}} R}$, for some atom \eI{a}.
+\noindent
+This rule closely mirrors the rule for \cI{addProd}, since both rely on the same
+search principle: constructing a proof requires recursively constructing proofs
+for the subcomponents (the arguments of \cI{and}, respectively \cI{*}).
 
-After unifying the query with the head of the rule, we must solve the
-premise \eI{tc-Provable {{Fact a}} {{lp:Q lp:p}}}. The appropriate rule
-for this subgoal is the one generated for the \cI{PAtom} instance.
-However, unification between the query and the head of that rule fails.
+The rule corresponding to the instance \cI{Pimpl} is more subtle,
+since it involves a higher-order hypothesis. Its type is:
 
-The \elpi HOAS term corresponding to \eI{{{lp:Q lp:p}}} is
-\eI{app[Q, p]}, which cannot be unified with
-\eI{{{PAtom lp:F lp:P}}}, whose HOAS representation is
-\eI{app[{{Patom}}, F, P]}.
+$$
+\forall \cI{F1 F2},
+\underbrace{
+  (\underbrace{\cI{Provable (fact F1)}}_{positive} \to
+   \underbrace{\cI{Provable F2}}_{negative})
+}_{negative}
+\to
+\underbrace{\cI{Provable (impl F1 F2)}}_{positive}
+$$
+
+The compiled rule is:
+
+\begin{elpicode}
+  pi F B Q \
+    tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :- 
+      pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
+\end{elpicode}
+
+The structure of this rule matches the intended semantics: the head
+targets \cI{impl F B}, while the body attempts to construct a proof
+of \cI{B} in a context extended with the assumption \cI{F}.
+
+However, despite appearing correct, this rule is insufficient to
+prove queries such as
+$q = \eI{tc-Provable {{impl a (fact a)}} R}$, for some proposition
+\eI{a}. After applying the rule for \cI{Pimpl}, we must solve the
+sub-query
+$q' = \eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}$ in a context
+extended with the hypothesis
+$h = \eI{tc-Provable {{fact a}} p}$.
+
+Intuitively, the hypothesis $h$ should solve $q'$ by instantiating
+$Q$ with the identity function. However, this unification fails in
+\elpi{}. The reason is that the higher-order abstract syntax (HOAS)
+term corresponding to \eI{{{lp:Q lp:p}}} is \eI{app[Q, p]}, which
+cannot be unified with \eI{p}, whose HOAS representation is simply
+\eI{p}.
 
 This failure arises from a mismatch between \elpi application and
 \rocq application. In \rocq, unification would succeed by instantiating
@@ -476,13 +535,13 @@ This failure arises from a mismatch between \elpi application and
 \cref{sec:unif-fo-ho}, \elpi does not perform this higher-order
 unification on \rocq terms.
 
-The rule should be compiled into
+The rule should be compiled into\marginpar{TODO}
 
 \begin{elpicode}
   pi F1 F2 Q \
-    tc-Provable {{Impl lp:F1 lp:F2}} {{PImpl lp:F1 lp:F2 lp:Q}} :- 
+    tc-Provable {{impl lp:F1 lp:F2}} {{Pimpl lp:F1 lp:F2 lp:Q}} :- 
       link Q Q',
-      pi p \ tc-ProvableFact F1 p => tc-Provable F2 (Q' p).
+      pi p \ tc-Provablefact F1 p => tc-Provable F2 (Q' p).
 \end{elpicode}
 
 \noindent

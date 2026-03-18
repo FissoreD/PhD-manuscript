@@ -224,42 +224,44 @@ Module Logic1.
 
   (*SNIP: HORN1 *)
   Inductive horn :=
-    | Fact : atom -> horn
-    | Impl : atom -> horn -> horn.
+    | fact : Prop -> horn
+    | and : horn -> horn -> horn
+    | impl : Prop -> horn -> horn.
 
-  Inductive derive_atom : atom -> Prop := .
-  Inductive derive_horn : horn -> Prop :=
-    | d_atom A : derive_atom A -> derive_horn (Fact A)
-    | d_impl A B : (derive_atom A -> derive_horn B) -> derive_horn (Impl A B).
+  Fixpoint interp (p: horn) : Prop := 
+    match p with
+    | fact p => p
+    | impl a b => a -> interp b
+    | and a b => interp a /\ interp b
+    end.
 
-  Class ProvableFact (T : atom) := { pnat : derive_atom T }.
-  Class Provable (T : horn) := { provable : derive_horn T }.
+  Class Provable (T : horn) := { proof : interp T }.
 
-  Instance PAtom F1 : ProvableFact F1 -> Provable (Fact F1).
-  Proof. now intros []; repeat constructor. Qed. (*HIDE*)
+  Instance Pand F1 F2 :
+    Provable F1 -> Provable F2 -> Provable (and F1 F2).
+  Proof. now intros [][]; constructor; simpl; auto. Qed. (*HIDE*)
 
-  Instance PImpl F1 F2 : 
-    (ProvableFact F1 -> Provable F2) -> Provable (Impl F1 F2).
-  Proof. now intro H; split; constructor; intro H1; case H; auto; constructor. Qed. (*HIDE*)
+  Instance Pimpl F1 F2 :
+    (Provable (fact F1) -> Provable F2) -> Provable (impl F1 F2).
+  Proof. now intros H; split; simpl; intro H1; case H; auto; split. Qed. (*HIDE*)
   (*ENDSNIP: HORN1 *)
 
   Elpi Compiler NewClass Provable +.
-  Elpi Compiler NewClass ProvableFact +.
-  Elpi Compiler NewInstance PImpl.
-  Elpi Compiler NewInstance PAtom.
+  Elpi Compiler NewInstance Pand.
+  Elpi Compiler NewInstance Pimpl.
 
-  Set Printing All.
-  Check PImpl.
-
-  Notation f := 0.
   Fail Elpi Query Solver lp:{{
     /*SNIP: HORN_Q */
-    tc-Provable {{Impl f (Fact f)}} R.
+    tc-Provable {{impl False (fact False)}} R.
     /*ENDSNIP: HORN_Q */
   }}.
 
   (* This failes due to absence of links *)
-  Goal forall e, Provable (Impl e (Fact e)).
-  Proof. Fail elpi Solver. Abort.
+  Goal forall e, Provable (impl e (fact e)).
+  Proof. intro H. Fail elpi Solver. Abort.
 
+  Section test.
+    Goal forall a, Provable a -> Provable (and a a).
+    Proof. intros a H. elpi Solver. Qed.
+  End test.
 End Logic1.
