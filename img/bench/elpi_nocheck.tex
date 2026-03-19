@@ -1,0 +1,49 @@
+\documentclass[tikz]{standalone}
+
+\usepackage{../../languages}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{fillbetween}
+
+\def\a{elpi_nocheck.csv}
+
+\begin{document}
+\def\cols{Coq, Elpi}
+
+\begin{tikzpicture}
+  \begin{axis}[
+      axis lines=center,
+      x label style={at={(axis description cs:.5,-.1)},anchor=north},
+      y label style={at={(axis description cs:-.1,.5)},rotate=90, anchor=south},
+      xlabel={Problem size (\# of nodes)},
+      ylabel={Time (s)},
+      legend pos=north west,
+      % xmode=log,
+      % log basis x={2},
+      xtick={2048,4096,8192,16384},
+      xticklabels={$2^{11}$, $2^{12}$,$2^{13}$,$2^{14}$},
+      scaled x ticks=false
+      % ymode=log,
+      % xmin=2,
+      % ymin=0.0005,
+      % xmax=16384,
+      % ymax=5.239
+    ]
+
+    % \path[name path=axis] (axis cs:0,0) -- (axis cs:14,0);
+
+    \foreach \col in \cols{
+      \addplot table [x=Height, y=\col, col sep=comma] \a;
+    }
+
+    \addplot[name path=Elpi, opacity=0] table [x=Height, y=Elpi, col sep=comma] {\a};
+    \addplot[name path=Coq, opacity=0] table [x=Height, y=Coq, col sep=comma] {\a};
+
+    \addplot[yellow, opacity=0.6] fill between[of=Coq and Elpi];
+    % \addplot[yellow, opacity=0.4] fill between[of=Elpi and axis];
+
+
+    \legend{\rocq, \elpi}
+  \end{axis}
+\end{tikzpicture}
+\end{document}
