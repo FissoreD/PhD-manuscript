@@ -531,7 +531,7 @@ cannot be unified with \eI{p}, whose HOAS representation is simply
 
 This failure arises from a mismatch between \elpi application and
 \rocq application. In \rocq, unification would succeed by instantiating
-\eI{Q} with \cI{fun x => PAtom F P}. However, as discussed in
+\eI{Q} with \cI{fun x => PAtom F x}. However, as discussed in
 \cref{sec:unif-fo-ho}, \elpi does not perform this higher-order
 unification on \rocq terms.
 
@@ -641,9 +641,41 @@ type classes. Apart from automation, and in particular in \stdpp, modes play an
 important role in the resolution of type-class goals, they allows to identify
 potential bugs in our implementation and some research directions.
 
-After these experemantiation, an undoubtely key factor of the solver is the 
+In this experemantiation, an undoubtely interesting aspect is benchmarking our
+implementation against the rocq sover. In~\cite{fissore2023}, we have a first
+bench that is done.
 
-\cite{fissore2023}
+Ci sono due bench possibili: in ogni caso dobbiamo passare per il backchaining
+che trova una soluzione, dopo di che dobbiamo ritornanre la soluzione a rocq. La
+classica strategia consiste nel fare un refine della soluzione con il goal in
+modo da identificare i sottogoal da spedire a coq. Ora, in elpi abbiamo diversi
+refine che perfmettono di effettuare questa operazione, ma che differiscono a
+secondo in cui il goal viene anche typecheckato o no. In linea generale la prova
+che restituisce il solver non include constraint sui vincoli di universo.
+Quindi, in un goal dove non servono unisversi, possiamo immaginare che la
+soluzione restituita dal checker ha il tipo giusto per il goal ricevuto, si può
+quindi usare il \cI{refine.no_check}. Viceversa, bisogna che i vincoli di
+universo siano imposti e quindi bisogna passare per \cI{refine.typecheck}.
+
+Facciamo un primo bench con elpi in cui si frazionano i tempi di ricerca. I
+tempi includono il refine, la ricerca, qulche overhead. Notiamo che il refine è
+la bestia che ci consuma gran parte del tempo totale. Quindi, dal nostro punto
+di vista, non ha senso ottimizzare ulteriormente il tempo di ricerca, dato che
+non influisce sul tempo di ricerca totale in modo significativo. COnfrontiamo
+il tempo con rocq è ci rendiamo conto che alla fine, anche usando il solver
+più lento (con vincoli di universo) siamo comunque competitivi.
+
+Una soluzione sarebbe quella di comilare le regole usando i vincoli di universo
+come nuove premesse delle regole compilate, ma questo è ingegneria del codice
+che prende tempo e quindi ci affacciamo su un altro problema che \dots
+
+In realtà il nostro solver non uccide quello di rocq, abbiamo la possibilità di
+usare uno o l'altro a seconda di un'opzione che attiva o disattiva x o y.
+
+
+
+After these experemantiation, an undoubtely key factor of the type class solver
+è l'unificazione. 
 
 \subsectionTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
 \subsectionTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
