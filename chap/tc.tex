@@ -640,7 +640,6 @@ have concrete example about what are the main need of a \rocq developers using
 type classes. Apart from automation, and in particular in \stdpp, modes play an
 important role in the resolution of type-class goals, they allows to identify
 potential bugs in our implementation and some research directions.
-
 In this experemantiation, an undoubtely interesting aspect is benchmarking our
 implementation against the \rocq sover. 
 
@@ -657,7 +656,29 @@ implementation against the \rocq sover.
   \end{subfigure}
 \end{figure}
 
+% TODO: spiegare meglio l'iniettività, come è implementata
 In~\cite{fissore2023}, we have a first bench that is done on a concrete example
+taken from the \stdpp library. The tests deals with the \cI{Inj} typeclass, from
+the \eI{base.v} file. We have $13$ instances dealing, for example, with the
+injectivity of the identity (\cI{id}), the \cI{inl} and \cI{inr} which return
+the left and right projection of the sum sype. The interesting instance in our
+benchmark is the injectivity of instance composition, which tells that the
+composition of two functions \cI{f} and \cI{g} is injective if the two functions
+are both injective.
+
+In order to test the time spent by our solver in the instance search, we create
+a ad-hoc benchmark where the goals to be solved are built by the following
+function:
+
+\[
+g_n =
+\begin{cases}
+f & \text{if } n = 0 \\
+g_{n-1} \circ g_{n-1} & \text{if } n > 0
+\end{cases}
+\]
+
+The goal is built as \cI{Inj eq eq ~$g_n$~} for a given $n$. We 
 
 Ci sono due bench possibili: in ogni caso dobbiamo passare per il backchaining
 che trova una soluzione, dopo di che dobbiamo ritornanre la soluzione a rocq. La
