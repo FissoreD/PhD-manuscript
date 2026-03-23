@@ -642,8 +642,22 @@ important role in the resolution of type-class goals, they allows to identify
 potential bugs in our implementation and some research directions.
 
 In this experemantiation, an undoubtely interesting aspect is benchmarking our
-implementation against the rocq sover. In~\cite{fissore2023}, we have a first
-bench that is done.
+implementation against the \rocq sover. 
+
+\begin{figure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{img/bench/elpi_stat_check.pdf}
+    \caption{\elpi time split}
+    \label{fig:bench-1}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{img/bench/elpi_nocheck.pdf}
+    \caption{\elpi with \eI{refine.no_check}}
+    \label{fig:bench-2}
+  \end{subfigure}
+\end{figure}
+
+In~\cite{fissore2023}, we have a first bench that is done on a concrete example
 
 Ci sono due bench possibili: in ogni caso dobbiamo passare per il backchaining
 che trova una soluzione, dopo di che dobbiamo ritornanre la soluzione a rocq. La
@@ -676,6 +690,42 @@ usare uno o l'altro a seconda di un'opzione che attiva o disattiva x o y.
 
 After these experemantiation, an undoubtely key factor of the type class solver
 è l'unificazione. 
+
+Dire che nella compilazione un problema di unificazione è dato dagli universi
+che noi buchiamo, lasciamo all'unificazione il compito di risolverli.
+
+TODO: disattivare il ho-compiler e vedere quanti se ne rompono in più. Devono
+essere regole che parlano di unificazione superiore. Un esempio è quello della
+sezione sopra.
+
+In irisi i problemi diventano molti di più e sono dovuti a coercion e strutture
+canoniche che nell'unificazione non gestimo. Una soluzione sarebbe riconoscere
+quando una possibile coercion viene introdotta e 
+
+Il problema in stdpp dei modi è dovuto all'implementazione delle clasi come
+ElemOf che vuole in input due type slegati. L'essere slegato impedisce di
+deudrre un tipo dall'altro e quindi, se il modo è in unt di elpi, allora ci
+ritroviamo in una situazione in cui il goal è
+
+ElemOf Type -> Type -> Type.
+
+ElemOf A (option ?X), con l'ipotesi Elem A (option A), che in elpi fallisce. Il
+modo per risolvere questo issue consiste nel cambiare il tipo della classe che
+diventerebbe
+
+ElemOF (A : Type) (M : Type -> Type) -> Type e il campo diventa:
+elem\_of A -> (M A) -> Prop.
+
+Con i modi di rocq funziona, me, nel caso in cui ci fossreo due regole ElmOf ?A
+(option bool) \_, ElemOf ?A (option string) quella con priorità maggiore verrebbe
+usata, istanziando ?A. Cosa che va contro la politica input/output di elpi.
+
+Dire di alcune opzioni che si possono usare in rocq. (Forse spostare in
+contesto).
+
+
+
+
 
 \subsectionTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
 \subsectionTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}

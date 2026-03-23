@@ -5,10 +5,10 @@
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{fillbetween}
 
-\def\a{elpi_nocheck.csv}
+\def\a{elpi_stat_check.csv}
 
 \begin{document}
-\def\cols{Coq, Elpi}
+\def\cols{TC, BUILD, REFINE, COQ}
 
 \begin{tikzpicture}
   \begin{axis}[
@@ -33,17 +33,19 @@
     % \path[name path=axis] (axis cs:0,0) -- (axis cs:14,0);
 
     \foreach \col in \cols{
-      \addplot table [x=Height, y=\col, col sep=comma] \a;
+      \addplot table [x=HEIGHT, y=\col, col sep=comma] \a;
     }
 
-    \addplot[name path=Elpi, opacity=0] table [x=Height, y=Elpi, col sep=comma] {\a};
-    \addplot[name path=Coq, opacity=0] table [x=Height, y=Coq, col sep=comma] {\a};
+    \addplot[name path=TC, opacity=0] table [x=HEIGHT, y=TC, col sep=comma] {\a};
+    \addplot[name path=BUILD, opacity=0] table [x=HEIGHT, y=BUILD, col sep=comma] {\a};
+    \addplot[name path=REFINE, opacity=0] table [x=HEIGHT, y=REFINE, col sep=comma] {\a};
+    \addplot[name path=COQ, opacity=0] table [x=HEIGHT, y=COQ, col sep=comma] {\a};
 
     % \addplot[yellow, opacity=0.6] fill between[of=Coq and Elpi];
     % \addplot[yellow, opacity=0.4] fill between[of=Elpi and axis];
 
 
-    \legend{\rocq, \elpi}
+    \legend{TC, Build, Refine, \rocq}
   \end{axis}
 \end{tikzpicture}
 \end{document}

@@ -5,7 +5,7 @@
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{fillbetween}
 
-\def\a{elpi_nocheck.csv}
+\def\a{elpi_check.csv}
 
 \begin{document}
 \def\cols{Coq, Elpi}
@@ -39,7 +39,7 @@
     \addplot[name path=Elpi, opacity=0] table [x=Height, y=Elpi, col sep=comma] {\a};
     \addplot[name path=Coq, opacity=0] table [x=Height, y=Coq, col sep=comma] {\a};
 
-    % \addplot[yellow, opacity=0.6] fill between[of=Coq and Elpi];
+    \addplot[yellow, opacity=0.6] fill between[of=Coq and Elpi];
     % \addplot[yellow, opacity=0.4] fill between[of=Elpi and axis];
 
 
