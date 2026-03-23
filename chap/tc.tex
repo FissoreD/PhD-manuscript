@@ -643,32 +643,32 @@ potential bugs in our implementation and some research directions.
 In this experemantiation, an undoubtely interesting aspect is benchmarking our
 implementation against the \rocq sover. 
 
-\begin{figure}
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=1\textwidth]{img/bench/elpi_stat_check.pdf}
-    \caption{\elpi time split}
-    \label{fig:bench-1}
-  \end{subfigure}
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=1\textwidth]{img/bench/elpi_nocheck.pdf}
-    \caption{\elpi with \eI{refine.no_check}}
-    \label{fig:bench-2}
-  \end{subfigure}
-\end{figure}
-
 % TODO: spiegare meglio l'iniettività, come è implementata
-In~\cite{fissore2023}, we have a first bench that is done on a concrete example
-taken from the \stdpp library. The tests deals with the \cI{Inj} typeclass, from
-the \eI{base.v} file. We have $13$ instances dealing, for example, with the
-injectivity of the identity (\cI{id}), the \cI{inl} and \cI{inr} which return
-the left and right projection of the sum sype. The interesting instance in our
-benchmark is the injectivity of instance composition, which tells that the
-composition of two functions \cI{f} and \cI{g} is injective if the two functions
+We perform a first bench from some classes and instances taken from the \stdpp
+library. The test deals with the \cI{Inj} typeclass defined as follows:
+
+\begin{coqcode}
+  Class Inj {A B} (R : relation A) (S : relation B) (f : A → B) : Prop :=
+    inj x y : S (f x) (f y) → R x y.
+\end{coqcode}
+
+It claims that a function \cI{f} is injective wrt two relations \cI{R} and
+\cI{S}, if \dots
+
+The instances implementing this typeclass are $13$ and treat, for example, the
+injectivity of the identity (\cI{id}), the \cI{inl} and \cI{inr}\footnote{which
+return the left and right projection of the sum sype} with \cI{R} and \cI{S}
+fixed to the \cI{=} relation. The interesting instance in our benchmark is the
+injectivity of function composition, which tells that the composition (noted
+$\circ$) of two functions \cI{f} and \cI{g} is injective if the two functions
 are both injective.
 
-In order to test the time spent by our solver in the instance search, we create
-a ad-hoc benchmark where the goals to be solved are built by the following
-function:
+In our benchmark we profile the time taken by the instance solver in the
+resolution of goals growing in size to check where the resolution time is spent
+during the search and compare the performance of the \elpi solver against \rocq
+solver. The type-class goal is built through the auxiliary function, defined
+below, which build a perfectly balanced tree with the compose function as the
+inner nodes and the function $f$ (assumed injective) as leaves.
 
 \[
 g_n =
@@ -678,7 +678,25 @@ g_{n-1} \circ g_{n-1} & \text{if } n > 0
 \end{cases}
 \]
 
-The goal is built as \cI{Inj eq eq ~$g_n$~} for a given $n$. We 
+\begin{figure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{img/bench/elpi_stat_check.pdf}
+    \caption{Bench with \eI{refine}}
+    \label{fig:bench-1}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{img/bench/elpi_stat_no_check.pdf}
+    \caption{Bench with \eI{refine.no_check}}
+    \label{fig:bench-2}
+  \end{subfigure}
+\end{figure}
+
+We submit the goal \cI{Inj eq eq ~$g_n$~} for a given $n$ to the solver: the
+goal has an exponential size wrt the parameter $n$. In \cref{fig:bench-1} we
+draw the result of the resolution of such a goal for $n$ going from $0$ to $15$.
+The $x$ axis counts for the number of nodes in the tree and uses a logarithm
+scale. The $y$ axis represents the time in seconds.
+The \elpi time is decomposed in $4$ main parts,
 
 Ci sono due bench possibili: in ogni caso dobbiamo passare per il backchaining
 che trova una soluzione, dopo di che dobbiamo ritornanre la soluzione a rocq. La
