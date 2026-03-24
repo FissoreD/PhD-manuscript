@@ -5,7 +5,7 @@
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{fillbetween}
 
-\def\a{elpi_stat_check.csv}
+\def\a{share_no_check.csv}
 
 \begin{document}
 \def\cols{REFINE, COQ}
@@ -44,7 +44,7 @@
     \addplot[cyan, opacity=0.6] fill between [of=OVERHEAD and REFINE];
 
     % SINGLE legend (order matters!)
-    \legend{\elpi, \rocq,,,,, TC Search, Build query, Overhead, Typecheck}
+    \legend{\elpi, \rocq,,,,, TC Search, Build Query, Overhead, Typecheck}
 
   \end{axis}
 \end{tikzpicture}

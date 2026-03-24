@@ -608,6 +608,7 @@ Evaluating \eI{R} instantiates the proof term \eI{P}, which is then used
 to refine the original \rocq goal.
 
 \subsection{User-Defined Rules}
+\label{sec:user-defined-rules}
 
 In addition to the automatic compilation of rules, users can extend the
 database with custom rules to implement specialized or more efficient
@@ -681,13 +682,19 @@ g_{n-1} \circ g_{n-1} & \text{if } n > 0
 \begin{figure}
   \begin{subfigure}{0.45\textwidth}
     \includegraphics[width=1\textwidth]{img/bench/elpi_stat_check.pdf}
-    \caption{Bench with \eI{refine}}
+    \caption{Bench with typechecking}
     \label{fig:bench-1}
   \end{subfigure}
   \begin{subfigure}{0.45\textwidth}
     \includegraphics[width=1\textwidth]{img/bench/elpi_stat_no_check.pdf}
-    \caption{Bench with \eI{refine.no_check}}
+    \caption{Bench without typechecking}
     \label{fig:bench-2}
+  \end{subfigure}
+
+  \begin{subfigure}{0.45\textwidth}
+    \includegraphics[width=1\textwidth]{img/bench/share.pdf}
+    \caption{Bench with memory sharing}
+    \label{fig:bench-3}
   \end{subfigure}
 \end{figure}
 
@@ -695,53 +702,45 @@ We submit the goal \cI{Inj eq eq ~$g_n$~} for a given $n$ to the solver: the
 goal has an exponential size wrt the parameter $n$. In \cref{fig:bench-1} we
 draw the result of the resolution of such a goal for $n$ going from $0$ to $15$.
 The $x$ axis counts for the number of nodes in the tree and uses a logarithm
-scale. The $y$ axis represents the time in seconds.
-The \elpi time is decomposed in $4$ main parts,
+scale. The $y$ axis represents the time in seconds. In the plot we have traced
+the time of resolution taken by \rocq and \elpi. The \elpi time is split in four
+colored areas considering respectively the time of type-class resolution, the
+time of query creation, i.e. the translation of the \rocq term to an \elpi
+query, a time overhead, consisting in the communication of terms between the
+\elpi and the \rocq system and the time of typechecking the solution.
 
-Ci sono due bench possibili: in ogni caso dobbiamo passare per il backchaining
-che trova una soluzione, dopo di che dobbiamo ritornanre la soluzione a rocq. La
-classica strategia consiste nel fare un refine della soluzione con il goal in
-modo da identificare i sottogoal da spedire a coq. Ora, in elpi abbiamo diversi
-refine che perfmettono di effettuare questa operazione, ma che differiscono a
-secondo in cui il goal viene anche typecheckato o no. In linea generale la prova
-che restituisce il solver non include constraint sui vincoli di universo.
-Quindi, in un goal dove non servono unisversi, possiamo immaginare che la
-soluzione restituita dal checker ha il tipo giusto per il goal ricevuto, si può
-quindi usare il \cI{refine.no_check}. Viceversa, bisogna che i vincoli di
-universo siano imposti e quindi bisogna passare per \cI{refine.typecheck}.
+We see that the search for instance in the database takes a considerably
+negligeble amout of time, it is about $0.25$ seconds against a total of about
+$4.9$ seconds in goals with $2^{15}$ nodes. The time consumed for building the
+\elpi query and the overhead taken by the communication between the two
+langauges depends on the size of the terms that are being translated from the
+\rocq to the \elpi representation and vice-versa. It is a cost we need to pay
+indipendently of the tactic we are implementing. The most expencive task we are
+performing, is the typechecking of the solution. It takes about $77\%$ of the
+total time. We can reduce this time in two ways: we can either return the
+solution without typechecking it or we can use ad-hoc rules to reduce the time
+and space of the solution: like in \cref{sec:user-defined-rules}, we can
+linerize the exponential size and time of the search by memory sharing the
+result.
 
-Facciamo un primo bench con elpi in cui si frazionano i tempi di ricerca. I
-tempi includono il refine, la ricerca, qulche overhead. Notiamo che il refine è
-la bestia che ci consuma gran parte del tempo totale. Quindi, dal nostro punto
-di vista, non ha senso ottimizzare ulteriormente il tempo di ricerca, dato che
-non influisce sul tempo di ricerca totale in modo significativo. COnfrontiamo
-il tempo con rocq è ci rendiamo conto che alla fine, anche usando il solver
-più lento (con vincoli di universo) siamo comunque competitivi.
-
-Una soluzione sarebbe quella di comilare le regole usando i vincoli di universo
-come nuove premesse delle regole compilate, ma questo è ingegneria del codice
-che prende tempo e quindi ci affacciamo su un altro problema che \dots
-
-In realtà il nostro solver non uccide quello di rocq, abbiamo la possibilità di
+TODO: il nostro solver non uccide quello di rocq, abbiamo la possibilità di
 usare uno o l'altro a seconda di un'opzione che attiva o disattiva x o y.
 
-
-
-After these experemantiation, an undoubtely key factor of the type class solver
+TODO: After these experemantiation, an undoubtely key factor of the type class solver
 è l'unificazione. 
 
-Dire che nella compilazione un problema di unificazione è dato dagli universi
-che noi buchiamo, lasciamo all'unificazione il compito di risolverli.
+TODO: Dire che nella compilazione un problema di unificazione è dato dagli
+universi che noi buchiamo, lasciamo all'unificazione il compito di risolverli.
 
 TODO: disattivare il ho-compiler e vedere quanti se ne rompono in più. Devono
 essere regole che parlano di unificazione superiore. Un esempio è quello della
 sezione sopra.
 
-In irisi i problemi diventano molti di più e sono dovuti a coercion e strutture
+TODO: In iris i problemi diventano molti di più e sono dovuti a coercion e strutture
 canoniche che nell'unificazione non gestimo. Una soluzione sarebbe riconoscere
 quando una possibile coercion viene introdotta e 
 
-Il problema in stdpp dei modi è dovuto all'implementazione delle clasi come
+TODO: Il problema in stdpp dei modi è dovuto all'implementazione delle clasi come
 ElemOf che vuole in input due type slegati. L'essere slegato impedisce di
 deudrre un tipo dall'altro e quindi, se il modo è in unt di elpi, allora ci
 ritroviamo in una situazione in cui il goal è
@@ -761,10 +760,6 @@ usata, istanziando ?A. Cosa che va contro la politica input/output di elpi.
 
 Dire di alcune opzioni che si possono usare in rocq. (Forse spostare in
 contesto).
-
-
-
-
 
 \subsectionTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
 \subsectionTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}

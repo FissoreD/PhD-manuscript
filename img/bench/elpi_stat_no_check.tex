@@ -8,7 +8,7 @@
 \def\a{elpi_stat_no_check.csv}
 
 \begin{document}
-\def\cols{TC, BUILD, REFINE, OVERHEAD, COQ}
+\def\cols{REFINE, COQ}
 
 \begin{tikzpicture}
   \begin{axis}[
@@ -18,35 +18,34 @@
       xlabel={Problem size (\# of nodes)},
       ylabel={Time (s)},
       legend pos=north west,
-      % xmode=log,
-      % log basis x={2},
       xtick={2048,4096,8192,16384},
       xticklabels={$2^{11}$, $2^{12}$,$2^{13}$,$2^{14}$},
       scaled x ticks=false
-      % ymode=log,
-      % xmin=2,
-      % ymin=0.0005,
-      % xmax=16384,
-      % ymax=5.239
     ]
 
-    % \path[name path=axis] (axis cs:0,0) -- (axis cs:14,0);
+    % Base axis line
+    \path[name path=axis] (axis cs:0,0) -- (axis cs:32770,0);
 
+    % Main plots (these WILL appear automatically in legend)
     \foreach \col in \cols{
-      \addplot table [x=HEIGHT, y=\col, col sep=comma] \a;
+      \addplot table [x=HEIGHT, y=\col, col sep=comma] {\a};
     }
 
+    % Invisible paths for fillbetween
     \addplot[name path=TC, opacity=0] table [x=HEIGHT, y=TC, col sep=comma] {\a};
     \addplot[name path=BUILD, opacity=0] table [x=HEIGHT, y=BUILD, col sep=comma] {\a};
     \addplot[name path=OVERHEAD, opacity=0] table [x=HEIGHT, y=OVERHEAD, col sep=comma] {\a};
     \addplot[name path=REFINE, opacity=0] table [x=HEIGHT, y=REFINE, col sep=comma] {\a};
-    \addplot[name path=COQ, opacity=0] table [x=HEIGHT, y=COQ, col sep=comma] {\a};
 
-    % \addplot[yellow, opacity=0.6] fill between[of=Coq and Elpi];
-    % \addplot[yellow, opacity=0.4] fill between[of=Elpi and axis];
+    % Filled areas (do NOT create legend entries automatically)
+    \addplot[red, opacity=0.6] fill between [of=axis and TC];
+    \addplot[yellow, opacity=0.6] fill between [of=TC and BUILD];
+    \addplot[green, opacity=0.6] fill between [of=OVERHEAD and BUILD];
+    \addplot[cyan, opacity=0.6] fill between [of=OVERHEAD and REFINE];
 
+    % SINGLE legend (order matters!)
+    \legend{\elpi, \rocq,,,,, TC Search, Build Query, Overhead, Typecheck}
 
-    \legend{TC, Build, Refine, Overhead, \rocq}
   \end{axis}
 \end{tikzpicture}
 \end{document}
