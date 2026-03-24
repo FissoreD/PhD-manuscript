@@ -837,7 +837,7 @@ unification fails.
 
 This behavior is expected from the \elpi unification algorithm, but it is
 unsatisfactory in the context of instance resolution, where an equivalent
-problem—expressed differently—would be solvable. For instance, the term
+problem -- expressed differently -- would be solvable. For instance, the term
 \eI{(x\ y\ F y x)} can unify with the constant \cI{map}, but the use of
 \elpi-style $\lambda$-abstraction and application prevents this match.
 
@@ -849,8 +849,8 @@ in~\cref{chap:ho-for-free}.
 The second class of issues concerns $\delta$-unification, which is not handled
 by the \elpi unification mechanism. In \rocq, definitions can be unfolded during
 unification. For example, the function $id$ unifies with \cI{fun x => x} after
-unfolding its definition. In contrast, \elpi—and more generally Prolog-like
-systems—do not support this form of definitional unfolding during unification.
+unfolding its definition. In contrast, \elpi -- and more generally Prolog-like
+systems -- do not support this form of definitional unfolding during unification.
 
 TODO: dire come fare debugging nel caso di delta unificazion per esempio
 
