@@ -802,9 +802,10 @@ by the \rocq solver.
 
 \subsection{Unification problems}
 
-The \elpi solver take the place of the \rocq solver. It is simple to see where
-and when it fails to solve a goal. The interaction between the \elpi and \rocq
-solver is possible thanks to the following commands:
+The \elpi solver can be used as an alternative to the \rocq solver. One of its
+main advantages is that failures are explicit, making it easier to identify
+where and when a goal cannot be solved. The interaction between the \elpi and
+\rocq solvers is enabled by the following commands:
 
 \begin{coqcode}
   Elpi TC Solver Register TC.Solver.
@@ -812,42 +813,44 @@ solver is possible thanks to the following commands:
   Elpi TC Solver Deactivate TC.Solver.
 \end{coqcode}
 
-The first command communicates to the \rocq system the existance of a new
-solver, in our case the solver is called \cI{TC.Solver}. The second command
-tells to \rocq if pointed solver should be activated or deactivated.
+The first command registers a new solver in the \rocq system; in our case, this
+solver is named \cI{TC.Solver}. The other commands control whether this solver
+is active.
 
-When we execute the \elpi solver in some libraries, we can see the solver to
-fail is scenarios where the \rocq solver leads to a success. These failures are
-mainly due to unification issues between the goal and the rules in the database.
-We distinguish to main kind of unification problems.
+When running the \elpi solver on existing libraries, one may observe failures
+in situations where the \rocq solver succeeds. These discrepancies are mainly
+due to differences in unification. We distinguish two main classes of
+unification problems.
 
 TODO: add derivation system with the \rocq unification rules
 
-The first group include unification up to $\eta\beta$-reduction, the second
-group consider unification up to $\delta$-uniifcation.
+The first class concerns unification up to $\eta\beta$-reduction, while the
+second involves unification up to $\delta$-reduction.
 
-Among the $\eta\beta$-unification problem, we have unification like: \cI{fun x y
-=> ?F y x} against \cI{map}\footnote{the map function of lists} where \cI{?F} is
-a unification variable. This unification succeeds in \rocq by assigning the
-\cI{?F} to the term \cI{fun x y => map y x}. In \elpi the unification of the two
-HOAS terms, \eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and \eI{global (const
-«map»)}. This is expected, since the two terms have rigid different head,
-however, this failure is however a bit disappointing during instance resolution,
-since it fails to solve a problem, which, if expressed in the \elpi way is
-solvable. Note that \eI{(x\ y\ F y x)} can be unified with the constant
-\cI{map}, but here we are using the \elpi $\lambda$-abstraction and term
-application. Therefore, an expected solution would be to reusie the unification
-algorithm of the \elpi langauge by identifying $\eta\beta$-unification problems.
-Going into this direction has allows to us publish the
-contribution~\cite{fissore2024}. We explain in a precise way our strategy
+A typical $\eta\beta$-unification example is the term \cI{fun x y => ?F y x}
+unified with \cI{map}\footnote{The standard list map function}, where \cI{?F}
+is a unification variable. In \rocq, this succeeds by instantiating \cI{?F} with
+\cI{fun x y => map y x}. In contrast, \elpi represents these terms as HOAS
+expressions, namely \eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and
+\eI{global (const «map»)}. Since these terms have different rigid heads,
+unification fails.
+
+This behavior is expected from the \elpi unification algorithm, but it is
+unsatisfactory in the context of instance resolution, where an equivalent
+problem—expressed differently—would be solvable. For instance, the term
+\eI{(x\ y\ F y x)} can unify with the constant \cI{map}, but the use of
+\elpi-style $\lambda$-abstraction and application prevents this match.
+
+A possible solution is to reuse the unification algorithm of the \elpi language
+while detecting $\eta\beta$-unification patterns. This approach led to the
+contribution presented in~\cite{fissore2024}, which is described in detail
 in~\cref{chap:ho-for-free}.
 
-On the other hand, $\delta$-unification escape the \elpi unification algorithm.
-In \rocq, when two terms need to be unified, if needed, their definition are
-unfolded and unification is tried again on the new terms. For example, the
-function $id$ and \cI{fun x => x} unify in \rocq, thanks to the $\delta$-rule.
-In \elpi, an more in general in \prolog-like system, the $\delta$-rule does not
-exists. 
+The second class of issues concerns $\delta$-unification, which is not handled
+by the \elpi unification mechanism. In \rocq, definitions can be unfolded during
+unification. For example, the function $id$ unifies with \cI{fun x => x} after
+unfolding its definition. In contrast, \elpi—and more generally Prolog-like
+systems—do not support this form of definitional unfolding during unification.
 
 TODO: dire come fare debugging nel caso di delta unificazion per esempio
 
