@@ -47,13 +47,14 @@ Elpi Db compiler lp:{{
 
   %         Pol   Inst  Ty    Args       Prems        Res
   pred comp bool, term, term, list term, list prop -> prop.
-  comp B I {{forall x: lp:Ty, lp:(Bo x)}} Ag P (pi y\ R y) :- is-class? Ty, !, % rto
+  comp B I {{forall x: lp:Ty, lp:(Bo x)}} Ag P (pi y\ R y) :- % rto
+    is-class? Ty, !, 
     pi x\
       comp {neg B} x Ty [] [] (M x),
       comp B I (Bo x) [x|Ag] [M x | P] (R x).
-  comp B I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !,                      % rforall
+  comp B I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !,     % rforall
     pi x\ comp B I (Bo x) [x|Ag] P (R x).
-  comp B I Ty Ag P R :-                                                   % rB
+  comp B I Ty Ag P R :-                                  % rB
     safe-dest-app Ty C CAg,
     mk-app I {rev Ag} Proof,
     make-rule-head C {append CAg [Proof]} Head,

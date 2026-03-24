@@ -429,8 +429,8 @@ compiler produces the following rules:
   tc-Add {{nat}} {{addNat}}.
   tc-Add {{R}} {{addR}}.
   pi L \ pi R \ pi PL \ pi PR \
-  tc-Add {{lp:L * lp:R}} {{addProd lp:L lp:R lp:PL lp:PR}} :-
-  tc-Add L PL, tc-Add R PR.
+    tc-Add {{lp:L * lp:R}} {{addProd lp:L lp:R lp:PL lp:PR}} :-
+      tc-Add L PL, tc-Add R PR.
 \end{elpicode}
 
 \noindent
