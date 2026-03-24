@@ -48,7 +48,7 @@
 % \RequirePackage{fancyvrb}
 % \RequirePackage{fancybox}
 \RequirePackage{lastpage}
-% \RequirePackage{eso-pic}
+\RequirePackage{eso-pic}
 % \RequirePackage{pgffor}
 % \RequirePackage{multibib}
 \frenchspacing
