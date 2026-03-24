@@ -479,8 +479,8 @@ The instance \cI{Pand} is compiled into:
 
 \begin{elpicode}
   pi L \ pi R \ pi PL \ pi PR \
-  tc-Provable {{and lp:L lp:R}} {{Pand lp:L lp:R lp:PL lp:PR}} :-
-  tc-Provable L PL, tc-Provable R PR.
+    tc-Provable {{and lp:L lp:R}} {{Pand lp:L lp:R lp:PL lp:PR}} :-
+      tc-Provable L PL, tc-Provable R PR.
 \end{elpicode}
 
 \noindent
@@ -505,8 +505,8 @@ The compiled rule is:
 
 \begin{elpicode}
   pi F B Q \
-  tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
-  pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
+    tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
+      pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
 \end{elpicode}
 
 The structure of this rule matches the intended semantics: the head
@@ -849,13 +849,8 @@ in~\cref{chap:ho-for-free}.
 The second class of issues concerns $\delta$-unification, which is not handled
 by the \elpi unification mechanism. In \rocq, definitions can be unfolded during
 unification. For example, the function $id$ unifies with \cI{fun x => x} after
-unfolding its definition. In contrast, \elpi -- and more generally Prolog-like
+unfolding its definition. In contrast, \elpi\ -- and more generally Prolog-like
 systems -- do not support this form of definitional unfolding during unification.
-
-TODO: dire come fare debugging nel caso di delta unificazion per esempio
-
-TODO: After these experemantiation, an undoubtely key factor of the type class solver
-è l'unificazione.
 
 TODO: disattivare il ho-compiler e vedere quanti se ne rompono in più. Devono
 essere regole che parlano di unificazione superiore. Un esempio è quello della
@@ -865,8 +860,28 @@ TODO: In iris i problemi diventano molti di più e sono dovuti a coercion e stru
 canoniche che nell'unificazione non gestimo. Una soluzione sarebbe riconoscere
 quando una possibile coercion viene introdotta e
 
-\subsectionTwo{\texorpdfstring{$\eta\beta$}{eta/beta}-unification}
-\subsectionTwo{Term unfolding: \texorpdfstring{$\delta$}{delta}-unification}
+\subsection{Debugging an trace}
+
+TODO: dire come fare debugging nel caso di delta unificazion per esempio
+
+\section{Discussion}
+\label{sec:tc-discussion}
+
+From the previous sections, we can see how flexible the \elpi language is and
+how well-fits for \rocq term compilation into \elpi rules. \elpi can be used as
+a way to introduce some kind of proof automation: the \prolog-like search engine
+of its interpreter acts as a good inference system provided that the program in
+which a query is executed is inhabited with the (derivation) rules that are
+needed to solve the query. The type-class engine written in the \rocq system has
+this \prolog-like behavior, but it is important to note that the goal of our
+type-class solver is not to faithfully reproduce the behavior of the \rocq
+solver. Instead, it aims to exploit the features of the \elpi language whenever
+possible.
+
+As anticipated in \cref{??}, \elpi allows the user to control the unification
+strategy, \unify vs \matching depending of the mode. The cut operator allow the
+user to commit choice points avoiding unwanted backtracking.
+
 
 BLI BLI BLA BLAs
 
@@ -890,25 +905,6 @@ non abbiamo alcuna sintassi rocq che permette di scegliere dove e come metter il
 cut in una regola che deve essere compilata. Cambiare il compilatore e prendere
 questa feature in considerazione per avvicinare ulteriormente la risoluzione di
 classi a un sistema di programmazione logica con cut ...
-
-\section{Discussion}
-\label{sec:tc-discussion}
-
-From the previous sections, we can see how flexible the \elpi language is and
-how well-fits for \rocq term compilation into \elpi rules. \elpi can be used as
-a way to introduce some kind of proof automation: the \prolog-like search engine
-of its interpreter acts as a good inference system provided that the program in
-which a query is executed is inhabited with the (derivation) rules that are
-needed to solve the query. The type-class engine written in the \rocq system has
-this \prolog-like behavior, but it is important to note that the goal of our
-type-class solver is not to faithfully reproduce the behavior of the \rocq
-solver. Instead, it aims to exploit the features of the \elpi language whenever
-possible.
-
-As anticipated in \cref{??}, \elpi allows the user to control the unification
-strategy, \unify vs \matching depending of the mode. The cut operator allow the
-user to commit choice points avoiding unwanted backtracking.
-
 
 
 \subsection{Rule indexing: discrimination trees}
