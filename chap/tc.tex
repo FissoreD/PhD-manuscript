@@ -514,6 +514,7 @@ targets \cI{impl F B}, while the body attempts to construct a proof
 of \cI{B} in a context extended with the assumption \cI{F}.
 
 \subsection{Rule Priorities}
+\label{sec:rule-prio}
 
 When declaring instances, the priority assigned to each rule plays a
 fundamental role in the performance of the resolution phase. In \rocq,
@@ -574,7 +575,7 @@ to refine the original \rocq goal.
 \subsection{User-Defined Rules}
 \label{sec:user-defined-rules}
 
-In addition to the automatic compilation of rules, users can extend the
+In addition to the automatic compilation of rules, users can extend the\marginpar{Hint Extern?}
 database with custom rules to implement specialized or more efficient
 resolution strategies in specific situations.
 
@@ -892,22 +893,49 @@ type-class solver is not to faithfully reproduce the behavior of the \rocq
 solver. Instead, it aims to exploit the features of the \elpi language whenever
 possible.
 
-As anticipated in \cref{??}, \elpi allows the user to control the unification
-strategy, \unify vs \matching depending of the mode. The cut operator allow the
-user to commit choice points avoiding unwanted backtracking.
+The main feature we inherit from the langauge, which are at the heart of the
+\elpi langauge are (1) rule priorities, (2) databse tweaking, (3) modes to
+control unification between rule heads and query (4) fast \unify/\matching
+unification algorithm, (5) the cut operator to control backtracking.
+
+We have briefly touched the first two points (1,2) in
+\cref{sec:rule-prio,sec:user-defined-rules}. The database is automatically
+inhabited with the declared instances thanks to automatic compilation and
+passing through the grafting mechanism of \elpi allows to explicitly place the
+compiled rule at a particular place in the databse. A part from automatic
+compilation, the user can extend the database with ad-hoc rules which can
+imporve efficiency (\cref{sec:user-defined-rules}) or help unification (end of
+\cref{sec:user-defined-rules}). Extending the database with ad-hoc rules is
+possible in the \rocq system thanks to the \cI{Hint} system, that allows to
+tweak somehow the search engine, for example the \cI{Hint Extern} command allows
+to apply a list of tactics on goal matching a particular pattern. This approach
+shares several aspects with the \cI{Elpi Accumulate} command, however, the power
+of expressivness of \elpi is, in our opinion much higher then the code that one
+can write with \rocq \cI{Hint}s, especially because \elpi has the expressivness
+of a turing complete programming langauge.
 
 
-BLI BLI BLA BLAs
+The third point (3) concerning modes allows to ... Unification is of course
+foundamental since it allows to check if a rule should be used when backchaining
+a query into the databse. We have 
+
+The fourht point (4) ....
+
+The fifth point (5) ... + Determinacy
+
+We have however left on the side the cut operator, which is a key
+feature of the \elpi language. In \rocq, in particular in the domain of
+typeclass resolution, we have no equivalent notion of the \cut operator in
+\elpi.
+
+Discussing with our research and developpers, one issue that is often
+encountered during the class resolution is the overlapping issue: a class is
+supposed to produce at most one solution
 
 Chiudere con: our aim is not to compete or replace the rocq solver, we are
 proposing an alternative which may help the user to perform instance search in a
 highly customizable runtime. Some limitations in our develpment remains, and
 are double face: in \dots
-
-Dire che scrivere il solver in \elpi da beneficio indiretto delle features del
-linguaggio che sono ereditate e gratuite. Una su tutte il backtracking, ma anche
-i modi. Infine abbiamo la determinacy. Un esempio è questo: ... dimostra come
-... ma non l'abbiamo mai testata in una vera libreria...
 
 TODO: Quali sono i comandi che settano, unsettano la search?
 
@@ -919,20 +947,3 @@ non abbiamo alcuna sintassi rocq che permette di scegliere dove e come metter il
 cut in una regola che deve essere compilata. Cambiare il compilatore e prendere
 questa feature in considerazione per avvicinare ulteriormente la risoluzione di
 classi a un sistema di programmazione logica con cut ...
-
-
-\subsection{Rule indexing: discrimination trees}
-\label{sec:rule-indexing}
-
-
-\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
-
-Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
-
-TODO: do some benchmarks
-
-Discrimination trees: opt for lists and tree depths.
-
-
-\cite{tabling-dm,tabling-pie}
-
