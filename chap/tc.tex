@@ -722,48 +722,64 @@ would be done during the search. This approach is similar to the strategy used
 by the \rocq solver.
 
 
-% \subsection{Modes: \elpi vs \rocq in \stdpp}
+\subsection{Modes: \elpi vs \rocq in \stdpp}
+\label{sec:modes-stdpp}
 
-% We already talked about the discrepancies between \elpi and \rocq modes in
-% \cref{sec:tc-mode-and-determinacy}. In this paragraph we want to point out
-% a family of implementation choices in the \stdpp library that makes the modes
-% of the \elpi langauge inadequate. The classes we take as an example are
-% defined below.
+We already talked about the discrepancies between \elpi and \rocq modes in
+\cref{sec:tc-mode-and-determinacy}. In this paragraph we want to point out
+a family of implementation choices in the \stdpp library that makes the modes
+of the \elpi langauge inadequate. The class we take as an example is
+defined below.
 
-% \begin{coqcode}
-% #[mode="!"]     Class Equiv  A     := equiv  : A ~$\to$~ A ~$\to$~ Prop.
-% #[mode="- - !"] Class Lookup K A M := lookup : K ~$\to$~ M ~$\to$~ option A.
-% \end{coqcode}
+\input{code/UNION_CLASS.tex}
 
-% The first class aims to check if an object $e_1$ of type \eI{A} is an element of
-% an object $m_1$ of type \eI{B}, and $m_1$ has the \rocq mode $!$. The second
-% class looks for a key $k$ of type \eI{K} inside a map $m$ of type $m$ and
-% returns and returns the value $v$ of type $A$ associated to $k$ in $m$ if this
-% element is present, otherwise \cI{None}. The mode of the map $m$ is again $!$.
+The class is parametrized by two types \cI{A} and \cI{M} which are respectively
+the type of the key and the type of the collection. The modes of the class tell
+that the parameter \cI{M} should have rigid applicative head, while no
+constraint is imposed on \cI{A}. The class provides the overloadable symbol
+\cI{union_with} which aims to performs the union between two collections using
+the higher-order function $f$ to chose in case of ambiguity. A typical example
+where the function $f$ become interesting are dictionaries: in the case where a
+key belongs to both dictionaries, the higher order function tells which of the
+two keys to keep. The \stdpp library provides an implementation of
+\cI{UnionWith} for the option type.
 
-% Let's now analyze the following goal: 
-% \cI{~\forall~ m1 m2, equiv (lookup i m1) (lookup i m2)}
+\input{code/UNION_INST.tex}
 
-% TODO: Il problema in stdpp dei modi è dovuto all'implementazione delle clasi come
-% ElemOf che vuole in input due type slegati. L'essere slegato impedisce di
-% deudrre un tipo dall'altro e quindi, se il modo è in unt di elpi, allora ci
-% ritroviamo in una situazione in cui il goal è
 
-% ElemOf Type -> Type -> Type.
 
-% ElemOf A (option ?X), con l'ipotesi Elem A (option A), che in elpi fallisce. Il
-% modo per risolvere questo issue consiste nel cambiare il tipo della classe che
-% diventerebbe
+\input{code/UNION_LEMMA.tex}
 
-% ElemOF (A : Type) (M : Type -> Type) -> Type e il campo diventa:
-% elem\_of A -> (M A) -> Prop.
 
-% Con i modi di rocq funziona, me, nel caso in cui ci fossreo due regole ElmOf ?A
-% (option bool) \_, ElemOf ?A (option string) quella con priorità maggiore verrebbe
-% usata, istanziando ?A. Cosa che va contro la politica input/output di elpi.
+The first class aims to check if an object $e_1$ of type \eI{A} is an element of
+an object $m_1$ of type \eI{B}, and $m_1$ has the \rocq mode $!$. The second
+class looks for a key $k$ of type \eI{K} inside a map $m$ of type $m$ and
+returns and returns the value $v$ of type $A$ associated to $k$ in $m$ if this
+element is present, otherwise \cI{None}. The mode of the map $m$ is again $!$.
 
-% Dire di alcune opzioni che si possono usare in rocq. (Forse spostare in
-% contesto).
+Let's now analyze the following goal: 
+\cI{~$\forall$~ m1 m2, equiv (lookup i m1) (lookup i m2)}
+
+TODO: Il problema in stdpp dei modi è dovuto all'implementazione delle clasi come
+ElemOf che vuole in input due type slegati. L'essere slegato impedisce di
+deudrre un tipo dall'altro e quindi, se il modo è in unt di elpi, allora ci
+ritroviamo in una situazione in cui il goal è
+
+ElemOf Type -> Type -> Type.
+
+ElemOf A (option ?X), con l'ipotesi Elem A (option A), che in elpi fallisce. Il
+modo per risolvere questo issue consiste nel cambiare il tipo della classe che
+diventerebbe
+
+ElemOF (A : Type) (M : Type -> Type) -> Type e il campo diventa:
+elem\_of A -> (M A) -> Prop.
+
+Con i modi di rocq funziona, me, nel caso in cui ci fossreo due regole ElmOf ?A
+(option bool) \_, ElemOf ?A (option string) quella con priorità maggiore verrebbe
+usata, istanziando ?A. Cosa che va contro la politica input/output di elpi.
+
+Dire di alcune opzioni che si possono usare in rocq. (Forse spostare in
+contesto).
 
 \subsection{Unification problems}
 
@@ -912,14 +928,17 @@ to apply a list of tactics on goal matching a particular pattern. This approach
 shares several aspects with the \cI{Elpi Accumulate} command, however, the power
 of expressivness of \elpi is, in our opinion much higher then the code that one
 can write with \rocq \cI{Hint}s, especially because \elpi has the expressivness
-of a turing complete programming langauge.
+of a complete programming langauge.
 
 
-The third point (3) concerning modes allows to ... Unification is of course
-foundamental since it allows to check if a rule should be used when backchaining
-a query into the databse. We have 
+The third point (3) concerning modes allows the user to give a semantics
+to the arguments of the class: either it is an input or an output in the \elpi
+sense. In \cref{sec:modes-stdpp}, we have how the the library using the \elpi
+mode should be aligned to the semantics of \elpi to avoid unexpected behavior.
+In fact, using the \elpi mode system, ask the user to implement its instances
+as he would do in an \elpi program.
 
-The fourht point (4) ....
+The fourht point (4) is absolutely an 
 
 The fifth point (5) ... + Determinacy
 
