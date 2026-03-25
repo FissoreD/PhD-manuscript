@@ -75,7 +75,7 @@ its instances is reproduced in \cref{fig:add-class-full}.
 %
 \begin{figure}
   \input{code/plus_tc_add_inst.tex}
-  \caption{Add class and instances}
+  \caption{Add class and its instances}
   \label{fig:add-class-full}
 \end{figure}
 \begin{figure}
@@ -513,42 +513,6 @@ The structure of this rule matches the intended semantics: the head
 targets \cI{impl F B}, while the body attempts to construct a proof
 of \cI{B} in a context extended with the assumption \cI{F}.
 
-However, despite appearing correct, this rule is insufficient to
-prove queries such as
-$q = \eI{tc-Provable {{impl a (fact a)}} R}$, for some proposition
-\eI{a}. After applying the rule for \cI{Pimpl}, we must solve the
-sub-query
-$q' = \eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}$ in a context
-extended with the hypothesis
-$h = \eI{tc-Provable {{fact a}} p}$.
-
-Intuitively, the hypothesis $h$ should solve $q'$ by instantiating
-$Q$ with the identity function. However, this unification fails in
-\elpi{}. The reason is that the higher-order abstract syntax (HOAS)
-term corresponding to \eI{{{lp:Q lp:p}}} is \eI{app[Q, p]}, which
-cannot be unified with \eI{p}, whose HOAS representation is simply
-\eI{p}.
-
-This failure arises from a mismatch between \elpi application and
-\rocq application. In \rocq, unification would succeed by instantiating
-\eI{Q} with \cI{fun x => PAtom F x}. However, as discussed in
-\cref{sec:unif-fo-ho}, \elpi does not perform this higher-order
-unification on \rocq terms.
-
-The rule should be compiled into\marginpar{TODO}
-
-\begin{elpicode}
-  pi F1 F2 Q \
-  tc-Provable {{impl lp:F1 lp:F2}} {{Pimpl lp:F1 lp:F2 lp:Q}} :-
-  link Q Q',
-  pi p \ tc-Provablefact F1 p => tc-Provable F2 (Q' p).
-\end{elpicode}
-
-\noindent
-where \eI{Q'} is a unification variable linked to \dots To address this issue,\marginpar{TODO}
-we dedicate the full \cref{chap:ho-for-free}
-
-
 \subsection{Rule Priorities}
 
 When declaring instances, the priority assigned to each rule plays a
@@ -802,10 +766,10 @@ by the \rocq solver.
 
 \subsection{Unification problems}
 
-The \elpi solver can be used as an alternative to the \rocq solver. One of its
-main advantages is that failures are explicit, making it easier to identify
-where and when a goal cannot be solved. The interaction between the \elpi and
-\rocq solvers is enabled by the following commands:
+The \elpi solver can be used as an alternative -- not a replacement -- to the
+\rocq solver. In a development, one can enable or disable either solver
+depending on the needs. The following commands manage the interaction
+between the \elpi and \rocq solvers:
 
 \begin{coqcode}
   Elpi TC Solver Register TC.Solver.
@@ -813,56 +777,103 @@ where and when a goal cannot be solved. The interaction between the \elpi and
   Elpi TC Solver Deactivate TC.Solver.
 \end{coqcode}
 
-The first command registers a new solver in the \rocq system; in our case, this
-solver is named \cI{TC.Solver}. The other commands control whether this solver
-is active.
+The first command registers a new solver in the \rocq system; in our case,
+this solver is named \cI{TC.Solver}. The other commands control whether
+this solver is active.
 
-When running the \elpi solver on existing libraries, one may observe failures
-in situations where the \rocq solver succeeds. These discrepancies are mainly
-due to differences in unification. We distinguish two main classes of
-unification problems.
+When running the \elpi solver on existing libraries, one may observe
+failures in situations where the \rocq solver succeeds, and vice versa,
+although the latter case is rare. In our setting, we focused on making the
+target library compile with the \elpi solver. Note that in this library,
+all type-class problems are solvable with the \rocq solver.
 
-TODO: add derivation system with the \rocq unification rules
+When a type-class resolution fails in \elpi, the cause can be investigated by
+inspecting the execution traces of both \elpi (using the \elpi trace
+browser~\cite[Sec.~3.5]{hdr}) and \rocq (using the \cI{Set Typeclasses Debug}
+option). Our analysis shows that most discrepancies arise from unification
+issues. We distinguish two main categories encountered in our study: failures
+related to $\eta\beta$-reduction, and failures related to $\delta$-reduction
+(see~\cite{rocq-unif}).
 
-The first class concerns unification up to $\eta\beta$-reduction, while the
-second involves unification up to $\delta$-reduction.
-
-A typical $\eta\beta$-unification example is the term \cI{fun x y => ?F y x}
-unified with \cI{map}\footnote{The standard list map function}, where \cI{?F}
-is a unification variable. In \rocq, this succeeds by instantiating \cI{?F} with
-\cI{fun x y => map y x}. In contrast, \elpi represents these terms as HOAS
-expressions, namely \eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and
+A typical $\eta\beta$-unification example is the term
+\cI{fun x y => ?F y x} unified with \cI{map}\footnote{The standard list map
+function}, where \cI{?F} is a unification variable. In \rocq, this succeeds
+by instantiating \cI{?F} with \cI{fun x y => map y x}. In contrast, \elpi
+represents these terms as HOAS expressions, namely
+\eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and
 \eI{global (const «map»)}. Since these terms have different rigid heads,
 unification fails.
 
 This behavior is expected from the \elpi unification algorithm, but it is
-unsatisfactory in the context of instance resolution, where an equivalent
-problem -- expressed differently -- would be solvable. For instance, the term
-\eI{(x\ y\ F y x)} can unify with the constant \cI{map}, but the use of
-\elpi-style $\lambda$-abstraction and application prevents this match.
+problematic in the context of instance resolution, where equivalent
+problems -- expressed differently -- should be solvable. For example, using
+\elpi-style $\lambda$-abstraction and application, the term
+\eI{(x\ y\ F y x)} unifies with \cI{map}, assigning \eI{F} to
+\eI{x\ y\ map y x}. To address this, we extend the instance compiler to
+detect potential $\eta\beta$-unification issues. Such terms are replaced
+with a fresh unification variable $v$, simplifying unification in \elpi.
+The variable $v$ is then linked back to the original \rocq term, so that
+instantiations in \elpi are reflected in \rocq. This approach led to our
+contribution presented in~\cite{fissore2024}, described in detail in
+\cref{chap:ho-for-free}, which provides an automatic solution to
+$\eta\beta$-unification issues.
 
-A possible solution is to reuse the unification algorithm of the \elpi language
-while detecting $\eta\beta$-unification patterns. This approach led to the
-contribution presented in~\cite{fissore2024}, which is described in detail
-in~\cref{chap:ho-for-free}.
+A concrete example of $\eta\beta$-unification failure in the \elpi solver
+arises from the compiled rule for the instance \cI{Pimpl}, introduced at
+the end of \cref{sec:instance-encoding}. Consider the goal
+\cI{Provable (impl a (fact a))} for some proposition \cI{a}. This goal has
+the solution \cI{Pimp a (fact a) (fun x => x)}. However, the compiled rule
+fails to find this solution due to $\eta\beta$-unification.
 
-The second class of issues concerns $\delta$-unification, which is not handled
-by the \elpi unification mechanism. In \rocq, definitions can be unfolded during
-unification. For example, the function $id$ unifies with \cI{fun x => x} after
-unfolding its definition. In contrast, \elpi\ -- and more generally Prolog-like
-systems -- do not support this form of definitional unfolding during unification.
+After applying the rule for \cI{Pimpl}, the sub-query becomes
+\eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}, in a context extended with the
+hypothesis $h = \eI{tc-Provable {{fact a}} p}$. Solving the sub-query
+requires unifying it with $h$. However, the HOAS term corresponding to
+\eI{{{lp:Q lp:p}}} is \eI{app[Q, p]}, which cannot be unified with \eI{p},
+whose HOAS representation is simply \eI{p}.
 
-TODO: disattivare il ho-compiler e vedere quanti se ne rompono in più. Devono
-essere regole che parlano di unificazione superiore. Un esempio è quello della
-sezione sopra.
+The second class of issues concerns $\delta$-unification, which is not
+handled by the \elpi unification mechanism. In \rocq, definitions can be
+unfolded during unification. For example, the function $id$ unifies with
+\cI{fun x => x} after unfolding its definition. In contrast, \elpi -- and
+more generally \prolog-like systems -- does not support definitional
+unfolding during unification.
 
-TODO: In iris i problemi diventano molti di più e sono dovuti a coercion e strutture
-canoniche che nell'unificazione non gestimo. Una soluzione sarebbe riconoscere
-quando una possibile coercion viene introdotta e
+An example of failure due to missing $\delta$-unification is given by the
+following code:
 
-\subsection{Debugging an trace}
+\begin{coqcode}
+  Class Extens (A: Type) := ...
+  Instance Extens_f1 A1 A2: Extens (~$\forall$~ (x1:A1), A2 x1) := ...
+  Definition map (A B: Type) := A -> option B.
+\end{coqcode}
 
-TODO: dire come fare debugging nel caso di delta unificazion per esempio
+The \rocq solver can solve the goal \cI{Extens (map A B)} using the
+instance \cI{Extens_f1}. However, \elpi fails because \cI{map A B} does not
+syntactically match a term starting with a quantifier.
+
+Providing a general and automatic solution for $\delta$-unification in
+\elpi is non-trivial. In some cases, the absence of $\delta$-unification is
+actually desirable, since unfolding definitions can make unification
+unpredictable and harder to debug. Moreover, it may introduce performance
+issues~\cite{rocq-unif}.
+
+To address $\delta$-unification issues, the user has two options. First,
+one can declare \cI{map} as a notation for \cI{A -> option B}, since
+notations are unfolded by the elaborator, creating no ambiguity in the
+unification algorithm. Alternatively, one can add an
+ad-hoc rule to the solver:
+
+\begin{coqcode}
+  Elpi Accumulate TC.Solver lp:{{
+    tc-Extens {{map lp:A lp:B}} R :-
+      tc-Extens {{lp:A -> option lp:B}} R.
+  }}.
+\end{coqcode}
+
+This rule manually implements unfolding: when the first argument of
+\cI{Extens} is \cI{map}, the solver recursively processes the unfolded
+definition.
 
 \section{Discussion}
 \label{sec:tc-discussion}
