@@ -826,7 +826,10 @@ the solution \cI{Pimp a (fact a) (fun x => x)}. However, the compiled rule
 fails to find this solution due to $\eta\beta$-unification.
 
 After applying the rule for \cI{Pimpl}, the sub-query becomes
-\eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}, in a context extended with the
+
+\begin{center}\eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}\end{center}
+
+\noindent in a context extended with the
 hypothesis $h = \eI{tc-Provable {{fact a}} p}$. Solving the sub-query
 requires unifying it with $h$. However, the HOAS term corresponding to
 \eI{{{lp:Q lp:p}}} is \eI{app[Q, p]}, which cannot be unified with \eI{p},
