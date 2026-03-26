@@ -43,32 +43,29 @@ may reconsider previous choices when a branch fails. In \elpi, this behavior
 comes for free, since the resolution mechanism of the type-class solver
 strongly imitates the standard execution model of the \elpi runtime.
 
-In the following sections we show how \elpi is a good language for compiling
-\rocq terms into \elpi database and how \rocq goals can be translated in \elpi
-queries, so that the search in the \elpi language can be use for proof
-automation. In \cref{sec:simple-instance-compiler} we show a simple instance
-compiler showing how, in few lines of code we can build a type-class solver for
-\rocq. This solver is a good point of start, but it lacks from some important
-aspect of instance compilation. We provide a second implementation in
-\cref{sec:class-encoding,sec:instance-encoding} showing a more powerful compiler
-which is also more indicate for complex instances compilation.
+The remainder of this work is organized as follows. We first demonstrate how
+\rocq terms can be compiled into an \elpi database and how type-class goals can
+be translated into \elpi queries, enabling proof automation through \elpi's
+search mechanism. In \cref{sec:simple-instance-compiler}, we present a minimal
+instance compiler, showing how a basic type-class solver can be implemented with
+few lines of code. While simple, this approach lacks important features required
+for handling complex instances. We therefore introduce a more expressive
+compiler in \cref{sec:class-encoding,sec:instance-encoding}.
 
-In \cref{sec:rule-prio,sec:goal-encoding,sec:user-defined-rules}, we provide a
-brief description about how rule priorities play a role in the database
-construction, how \rocq goals are translated into \elpi queries and how the user
-can write ad-hoc rules into the database to change the behavior of the program
-depending on his needs.
+Next, in \cref{sec:rule-prio,sec:goal-encoding,sec:user-defined-rules}, we
+discuss how rule priorities influence database construction, how \rocq goals are
+encoded as \elpi queries, and how users can extend the database with custom
+rules to tailor the solver's behavior.
 
-We resume in \cref{sec:exp-res} the exprence report of the test we have
-performed, using our solver on concrete libraries such as \stdpp and \tlc. We
-provide some benchmark in \cref{sec:bench} in order to compare \rocq and \elpi
-performance, looking in detail how the \elpi time is taken by different aspects
-of the search. We give in \cref{sec:modes-stdpp} some concrete ideas between the
-differences between \elpi and \rocq modes, and show how they impact the search.
-FInally, in \cref{sec:unif-problems}, we give the list of unification problems
-that raises when using the \elpi unification algorithm to unify \rocq terms.
-We give a brief conclusion in \cref{sec:tc-discussion}.
-
+We then report on our experimental evaluation in \cref{sec:exp-res}, where the
+solver is applied to real-world libraries such as \stdpp and \tlc. Benchmarks
+presented in \cref{sec:bench} compare the performance of \rocq and \elpi,
+analyzing how execution time in \elpi is distributed across different phases of
+the search. In \cref{sec:modes-stdpp}, we examine the differences between \elpi
+and \rocq modes and their impact on resolution. Finally, in
+\cref{sec:unif-problems}, we discuss the unification challenges that arise when
+using \elpi's unification algorithm on \rocq terms. The discussion concludes in
+\cref{sec:tc-discussion}.
 
 \section{Simple instance compiler}
 \label{sec:simple-instance-compiler}
@@ -929,61 +926,57 @@ definition.
 \section{Discussion}
 \label{sec:tc-discussion}
 
-From the previous sections, we can see how flexible the \elpi language is and
-how well-fits for \rocq term compilation into \elpi rules. \elpi can be used as
-a way to introduce some kind of proof automation: the \prolog-like search engine
-of its interpreter acts as a good inference system provided that the program in
-which a query is executed is inhabited with the (derivation) rules that are
-needed to solve the query. The type-class engine written in the \rocq system has
-this \prolog-like behavior, but it is important to note that the goal of our
-type-class solver is not to faithfully reproduce the behavior of the \rocq
-solver. Instead, it aims to exploit the features of the \elpi language whenever
-possible.
+The previous sections highlight the flexibility of the \elpi language and its
+suitability for compiling \rocq terms into \elpi rules. In particular, \elpi
+provides a natural framework for proof automation: its \prolog-like search engine
+acts as an inference mechanism, provided that the program contains the
+derivation rules required to solve a given query. Although the type-class engine
+in \rocq exhibits a similar behavior, our goal is not to faithfully reproduce
+the \rocq solver. Instead, we aim to leverage the distinctive features of \elpi
+whenever possible.
 
-The main feature we inherit from the langauge are all the tools the user has to
-control the \elpi interpreter. At the heart of the \elpi langauge, the search is
-mainly influenced by rule priorities, databse tweaking modes, \unify/\matching
-unification algorithm and the \cut operator. We have discussed about all this
-points in the previous sections, except for the last point.
+A key advantage inherited from \elpi is the control the user have over the search
+process. This control is achieved through several mechanisms, including rule
+priorities, predicate modes, the \unify/\matching unification algorithm, and the
+\cut operator. All these aspects have been discussed in previous sections, with
+the exception of the \cut operator.
 
-We have explicitly left the role of the \cut operator on the side since there is
-no correspondence in the \rocq class solver. The \cut operator, as explained in
-\cref{sec:elpi-semantics}, gives the user the possibility to commit a solution,
-if, for example, the guards of the rule are satisfied. In order to use full
-potential of the \cut operator, we need a syntax in the \rocq language
-coomunicating to \elpi where \cut should be put during the rule compilation.
-Discussing with other reasearch, the \cut operator seems a good point of attack
-to solve a common issue linked to type-classes which is the role of determinacy.
+We have deliberately postponed the discussion of \cut, as it has no direct
+counterpart in the \rocq type-class solver. As explained in
+\cref{sec:elpi-semantics}, the \cut operator allows the user to commit to a
+solution once certain conditions (e.g., rule guards) are satisfied. To fully
+exploit this feature, the \rocq language would require a syntax extension capable of
+indicating where \cut should be introduced during compilation to \elpi rules.
+Discussions with other researchers suggest that \cut may provide an effective
+approach to addressing a well-known issue in type-class resolution: determinacy.
 
-In logic programming, determinacy is the property of a predicate to produce at
-most one solution for any call to it and one of the ingridient of determinacy is
-undoubtly the \cut operator. Determinacy, in type-resolution, would guarantee
-that a class, declared determinstic, behaves deterministically after the
-insertion of any rule into the database. In \rocq there is a flag, called
-\cI{Typeclasses Unique Solutions}, which finds all the solutions of a type
-class. If there is only one solution, it is returned as a proof of the given
-goal, otherwise, an error is thorwn.
+In logic programming, determinacy is the property that a predicate produces at
+most one solution for any given call. The \cut operator is a central mechanism
+for enforcing this property. Transposed to type-class resolution, determinacy
+would ensure that a class declared as deterministic remains so, regardless of
+the rules added to the database.
 
-This approach, as written in the \rocq manual~\cite{rocq_class_command}, is
-expencive since it asks for the full exploration of the search tree to guarantee
-that the class call behaves deterministically.
+In \rocq, the flag \cI{Typeclasses Unique Solutions} enforces a related
+behavior: it computes all possible solutions to a type-class query and returns a
+result only if exactly one solution exists; otherwise, it raises an error.
+However, as noted in the \rocq manual~\cite{rocq_class_command}, this approach is
+computationally expensive, since it requires exploring the entire search tree.
 
-In the logic programming field, however, deterinacy is a property that has been
-studied in several works: \cite{warren1989,king2005,henderson1996}. Determinacy
-can be statically verified on a given program through abstract interpreter.
-Determinacy checking, via abstract interpretation has the advantage of having no
-cost on goal execution, and, since it is not a property linked to type-class
-resolution, but to logic program interpretation, we extend the \elpi language
-via a determinacy checker. This checker lives in the \elpi compiler and
-therefore, any application of \elpi can inherit this checker, therefore the
-type-class solver.
+In contrast, determinacy has been extensively studied in logic programming
+(e.g.,~\cite{warren1989,king2005,henderson1996}) and can be verified statically
+using abstract interpretation. This approach incurs no runtime cost during goal
+execution. Moreover, since determinacy is a general property of logic programs
+rather than being specific to type-class resolution, we extend \elpi with a
+determinacy checker implemented at the compiler level. As a result, all
+applications built on \elpi, including the type-class solver, can benefit from
+this analysis.
 
-We have published a work~\cite{fissore2026} talking about the implementation of
-a determinacy checker in \elpi taking into account the \cut operator and the
-higher-order features of the langauge such as local rule insertion. We discuss
-in detail this work in \cref{chap:det-elpi}. As a final result, we formalize the
-first-order part of the static checker in \elpi in the \rocq system. We explain
-our formalization in \cref{chap:mechanization}.
+We presented this work in~\cite{fissore2026}, where we describe the implementation
+of a determinacy checker for \elpi that accounts for both the \cut operator and
+higher-order features such as local rule insertion. A detailed discussion is
+provided in \cref{chap:det-elpi}. Finally, we formalize the first-order fragment
+of the checker within \elpi in the \rocq system; this formalization is described
+in \cref{chap:mechanization}.
 
 
 
