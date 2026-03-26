@@ -721,28 +721,27 @@ constraints explicitly in the compiled rules. In this way, part of typechecking
 would be done during the search. This approach is similar to the strategy used
 by the \rocq solver.
 
-
 \subsection{Modes: \elpi vs \rocq in \stdpp}
 \label{sec:modes-stdpp}
 
-We already talked about the discrepancies between \elpi and \rocq modes in
-\cref{sec:tc-mode-and-determinacy}. In this paragraph we want to point out
-a family of implementation choices in the \stdpp library that makes the modes
-of the \elpi langauge inadequate. The class we take as an example is
-defined below.
+We previously discussed discrepancies between \elpi and \rocq modes in
+\cref{sec:tc-mode-and-determinacy}. Here, we highlight a family of
+implementation choices in the \stdpp library that make the \elpi mode
+system inadequate. As a running example, consider the following class.
 
 \input{code/UNION_CLASS.tex}
 
-The class is parametrized by two types \cI{A} and \cI{M} which are respectively
-the type of the key and the type of the collection. The modes of the class tell
-that the parameter \cI{M} should have rigid applicative head, while no
-constraint is imposed on \cI{A}. The class provides the overloadable symbol
-\cI{union} which aims to performs the union between two collections using
-the higher-order function $f$ to chose in case of ambiguity. A typical example
-where the function $f$ become interesting are dictionaries: in the case where a
-key belongs to both dictionaries, the higher order function tells which of the
-two keys to keep. We take an instace from \stdpp of an instance of
-\cI{Union} and a lemma using this instance.
+The class is parametrized by two types, \cI{A} and \cI{M}, representing
+respectively the type of keys and the type of collections. The mode
+declaration requires \cI{M} to have a rigid applicative head, while no
+constraint is imposed on \cI{A}. The class provides the overloadable
+symbol \cI{union}, which computes the union of two collections. In case
+of ambiguity, a higher-order function $f$ is used to select between
+conflicting elements. A typical example arises with dictionaries: when a
+key appears in both inputs, $f$ determines which value to retain.
+
+We now consider an instance of \cI{Union} from \stdpp, together with a
+lemma that relies on it.
 
 \mvspace{}
 \noindent
@@ -750,57 +749,51 @@ two keys to keep. We take an instace from \stdpp of an instance of
 \input{code/UNION_LEMMA.tex}
 \mvspace{}
 
-The function \cI{union} in the instance returns \cI{None} if both arguments
-are \cI{None}, \cI{f x y} if the two arguments are \cI{Some x} and \cI{Some y},
-otherwise it returns the argument which is not \cI{None}.
+In this instance, \cI{union} behaves as follows: it returns \cI{None} if
+both arguments are \cI{None}; it returns \cI{f x y} if the arguments are
+\cI{Some x} and \cI{Some y}; otherwise, it returns the non-\cI{None}
+argument.
 
-In the lemma, there is an implicit type-class which should be solved, the goal $g$
-is \cI{Union A (option ?X)} where \cI{?X} is a unifcation variable. The variable
-corresponds to the implicit argument of the \cI{None} constructor. The
-typechecker is not informed about what type to assign, and, since the arguments
-\cI{A} and \cI{M} are not linked, the typechecker leaves hole. The idea is
-that the resolution of the type-class not only infers the instance but also
-assigns the hole.
+In the lemma, an implicit type-class constraint must be resolved. The
+goal is \cI{Union A (option ?X)}, where \cI{?X} is a unification variable
+corresponding to the implicit argument of the \cI{None} constructor. At
+this point, the typechecker lacks sufficient information to instantiate
+\cI{?X}. The expected behavior is that type-class resolution both
+selects an instance and determines the value of \cI{?X}.
 
-The goal $g$ is solved in \rocq by using the instance \cI{ounion}, in \elpi, due
-to modes, the same instance cannot be used. This is because, since the input
-mode is declared on the second argument of the class, it is not possible to
-unify, using the \matching function, the query \eI{tc-Union {{A}} {{option
-lp:X}}} has no solution, since the \elpi input mode, when \matching the query on
-the head of a clause does not assign variables in input position.
+In \rocq, the goal is solved using the instance \cI{ounion}. In \elpi, however,
+the same instance cannot be applied because of mode restrictions. The input mode
+is declared on the second argument of the class, in particular, \matching the
+query \eI{tc-Union {{A}} {{option lp:X}}} against the clause head for
+\cI{ounion} fails, since \elpi does not assign variables in input positions
+during matching.
 
-A poit which is worth to point out is the fact that, if, before the definition
-of the lemma \cI{union_None_r}, the database is inhabited with the instance
+Another subtle point arises when additional instances are present. If,
+before the lemma \cI{union_None_r}, the database is extended with the
+following instance,
 
 \mvspace{}
 \noindent
 \input{code/UNION_INST1.tex}
 \mvspace{}
 
-\noindent it is no more clear, using the \rocq modes, which instance is used to
-solve the goal. Said in other words, both instances can be used on the goal
-\cI{Union A (option ?X)}. Depending on the priority of the two instance \cI{?X}
-is instanted in different ways, the \rocq develepper may ignore what instance
-has been automatically inferred, due to implicits and fall in some typing error
-late in the code.
+\noindent then, under \rocq modes, it becomes unclear which instance is
+selected to solve the goal. Indeed, both instances match the constraint
+\cI{Union A (option ?X)}. Depending on their priorities, \cI{?X} may be
+instantiated differently. As a result, developers may be unaware of which
+instance has been chosen, potentially leading to type errors later in the
+development.
 
-In \elpi, even with the declaration of \cI{oounion}, the goal \cI{tc-Union {{A}}
-{{option lp:A}}}, still has no solution. In order to make some progress in the
-class search, he need to explicitly pass, in the lemma, the type of the argument
-\cI{M} of the \cI{Union} class.
+In contrast, in \elpi, even with the additional instance \cI{oounion},
+type-class resolution still fails to make progress. In particular, the
+query \cI{tc-Union {{A}} {{option lp:X}}} has no solution. To overcome
+this limitation, the type of the argument \cI{M} must be provided
+explicitly in the lemma.
 
 \mvspace{}
 \noindent
 \input{code/UNION_LEMMA1.tex}
 \mvspace{}
-
-% A way to help the typechecker and create a type dependency between the two
-% arguments of the class \cI{Union} is give the following implementation.
-
-% \input{code/UNION_CLASS1.tex}
-
-% This way the instance implementation would become:
-
 
 
 \subsection{Unification problems}
