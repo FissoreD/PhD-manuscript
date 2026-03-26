@@ -584,7 +584,7 @@ to refine the original \rocq goal.
 \subsection{User-Defined Rules}
 \label{sec:user-defined-rules}
 
-In addition to the automatic compilation of rules, users can extend the\marginpar{Hint Extern?}
+In addition to the automatic compilation of rules, users can extend the
 database with custom rules to implement specialized or more efficient
 resolution strategies in specific situations.
 
@@ -604,6 +604,13 @@ meta-programming in \elpi. Since \elpi is a Turing-complete language, users
 can arbitrarily customize the proof search by defining their own rules.
 In particular, there are no restrictions on these extensions:
 users are free to implement any custom rule that suits their needs.
+
+Extending the database with ad-hoc rules is possible in the \rocq system thanks
+to the \cI{Hint} system, that allows to tweak somehow the search engine, for
+example the \cI{Hint Extern} command allows to apply a list of tactics on goal
+matching a particular pattern. This approach, however, asks the user to write
+ad-hoc rules in a language which is not the same of the \rocq solver, and which,
+is some case as not the power of expressivness of \elpi.
 
 \section{Experimental results}
 \label{sec:exp-res}
@@ -987,14 +994,7 @@ in \cref{chap:mechanization}.
 % compiled rule at a particular place in the databse. A part from automatic
 % compilation, the user can extend the database with ad-hoc rules which can
 % imporve efficiency (\cref{sec:user-defined-rules}) or help unification (end of
-% \cref{sec:user-defined-rules}). Extending the database with ad-hoc rules is
-% possible in the \rocq system thanks to the \cI{Hint} system, that allows to
-% tweak somehow the search engine, for example the \cI{Hint Extern} command allows
-% to apply a list of tactics on goal matching a particular pattern. This approach
-% shares several aspects with the \cI{Elpi Accumulate} command, however, the power
-% of expressivness of \elpi is, in our opinion much higher then the code that one
-% can write with \rocq \cI{Hint}s, especially because \elpi has the expressivness
-% of a complete programming langauge.
+% \cref{sec:user-defined-rules}).
 
 
 % The third point (3) concerning modes allows the user to give a semantics to the
