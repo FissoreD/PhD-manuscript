@@ -25,6 +25,8 @@ def clean_line(is_elpi_coq):
             else:
                 l = ll[0].replace("forall", "~$\\forall$~")
             l = l.replace("<->", "~$\\leftrightarrow$~")
+            l = l.replace("->", "~$\\rightarrow$~")
+            l = l.replace("(*DOTS*)", "...")
             l = remove_quote(l)
             for i in range(10):
                 l = l.replace(f"t{i}", f"~$t_{i}$~")
