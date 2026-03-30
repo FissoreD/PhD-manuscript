@@ -2,7 +2,7 @@ From elpi Require Import tc.
 
 Module XX.
 (*SNIP: UNION_CLASS*)
-#[mode="- !"] Class Union (A M : Type) :=
+#[mode="- !"] Class Union A M :=
   union: (A -> A -> option A) -> M -> M -> M.
 (*ENDSNIP: UNION_CLASS*)
 

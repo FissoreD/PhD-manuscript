@@ -1,174 +1,166 @@
-\chapter{\texorpdfstring{$\eta\beta$}{eta beta}-unification support for \Fo and \Ho}
+\chapter{\texorpdfstring{$\eta\beta$}{eta beta}-unification support for meta-programs}
 \label{chap:ho-for-free}
-\label{sec:intro}
 
-We aim to implement a
-form of proof search known as type-class resolution~\cite{wadler1989-tc,sozeau2008-tc}
-for Coq's type system~\cite{Coq-refman}.
-Type-class solvers are unification based proof search procedures
-reminiscent of Prolog, which back-chain lemmas taken
-from a database of ``type-class instances''. Given this
-analogy with Logic Programming we want to leverage the
-Elpi meta programming language~\cite{tassi2018},
-a dialect of $\lambda$Prolog, already used to extend
-Coq in various ways~\cite{tassi2018,tassi2019,tassi2023,fissore2023}.
+In the previous chapter, and in particular in \cref{sec:unif-problems}, we have
+talked about the unification issues that we incounter in the \elpi class solver
+when unifying certain \rocq terms. Unification up to $\delta$ is not possible
+in \elpi, but the $\eta\beta$-conversion rules are part of the \elpi unification
+algorithm. In this chapter we propose a framework allowing to ease the unification
+of the HOAS representation of the object language terms in the meta language.
+We take from our paper~\cite{fissore2024} the sentence which better 
+describe the aim of this chapter: \emph{how to
+reuse the higher-order unification procedure of the meta language in order to
+simulate a higher-order logic program for the object language}.
 
-The use of a meta language facilitates the implementation of a
-proof system in two key ways. The first and most well-know one is that variable binding and
-substitution come for free. %, exploited in all works mentioned above.
-The second one is that these meta languages come equipped with some form
-of unification, a cornerstone of proof construction and proof search.
-% exploited only
-%in the notable case of of Higher Order Logic~\cite{books/sp/NipkowPW02}:
-%the meta language Isabelle is such a good match for HOL that it could used to
-%implement an interactive proof system for the object logic, in addition to
-%it specification.\\
-In this paper we focus on this last aspect of the implementation of
-a Prolog-like proof system, precisely \emph{how to reuse the higher-order
-unification procedure of the meta language in order to simulate a
-higher-order logic program for the object language}.
-
-We take as an example the \cI{Decision} and \cI{Finite} type classes
-from the Stdpp
-library~\cite{iris-junk}.
-The class  \cI{Decision}
-identifies predicates equipped with a decision procedure, while
-\cI{Finite} identifies types whose inhabitants can be enumerated in a (finite) list.
-The following three type-class instances state that:
-1) the type of natural numbers smaller than \cI{n}, called \cI{fin n},
-is finite;
-2) the predicate \cI{nfact n nf}, relating a natural number
-\cI{n} to the number of its prime factors \cI{nf}, is decidable;
-3) the universal closure of a predicate has a decision procedure if
-its domain is finite and if the predicate is decidable.
-
-\begin{coqcode}
-Instance fin_fin: ~$\forall$~n, Finite (fin n).             (* r1 *)
-Instance nfact_dec: ~$\forall$~n nf, Decision (nfact n nf). (* r2 *)
-Instance forall_dec: ~$\forall$~A P, Finite A ~$\to$~            (* r3 *)
-  ~($\forall$~x:A, Decision (P x)) ~$\to$~ Decision (~$\forall$~x:A, P x).
-\end{coqcode}
-
-\noindent Given this database, a type-class solver is expected to
-prove the following statement automatically:
-
-\begin{coqcode}
-  Decision (~$\forall$~x: fin 7, nfact x 3)                   (* g *)
-\end{coqcode}
-
-\noindent
-The proof found by the solver back-chains on rule 3 (the only rule
-about the $\forall$ quantifier), and then solves the premises with
-rules 1 and 2 respectively.
-Note that rule 3 features a second-order parameter \cI{P} that represents
-a function of type \cI{A ~$\to$~ Prop} (a 1-argument predicate over \cI{A}).
-The solver infers a value for \cI{P} by unifying the conclusion
-of rule 3 with the goal, and in particular, it has to solve the unification
-problem \cI{P x = nfact x 3}. This higher-order problem falls in the so-called 
-pattern fragment and admits a unique solution:
-\begin{elpicode}
-P = ~$\lambda$~x.nfact x 3
-\end{elpicode}
-In the rest of this paper, we refer to the pattern fragment as
-\llambda~\cite{miller1991-pf}.
-
-
-\noindent
-Following the standard syntax of $\lambda$Prolog~\cite{miller2012},
-the meta-level binding of a variable \eI{x} in an expression
-\eI{e} is written as <<\eI{x\ e}>>, while square brackets delimit a
-list of terms separated by comma. For example, the term
-<<\cI{~$\forall$~y:t, nfact y 3}>> is encoded as follows:
+The example we have given in \cref{sec:unif-problems} providing a source of
+$\eta\beta$-unification problem is due to the instance \cI{Pimpl}.
 
 \begin{elpicode}
-all (con"t") y\ app [con"nfact", y, con"3"]
+  tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
+    pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
 \end{elpicode}
 
-\noindent
-We now illustrate a naive encoding of the three instances above as higher-order
-logic programming rules: capital letters denote rule
-parameters; \eI{:-} separates the rule's head from the premises, and
-<<\eI{pi w\ p}>> introduces a fresh nominal constant \eI{w}
-for the premise \eI{p}.
+The variable \eI{Q} in \rocq is an object living in the function space, while in
+the HOAS representation of \elpi \eI{Q} is a first-order variable of type
+\eI{term}. As shown in \cref{sec:unif-problems}, the \rocq statement
+\cI{Provable (impl a (fact a))} can be solved by the \rocq type-class solver
+using the instance \cI{Pimpl}. On the contrary, \elpi fails: the rule above
+would be used on the query \eI{tc-Provable {{impl a (fact a)}} S} but the
+sub-query \eI{tc-Provable {{fact a}} {{lp:(Q p)}}} will fails since not
+unifying with the local rule \eI{tc-Provable {{fact a}} p}.
 
-\begin{figure}  
+The root cause of the problems we outlined in this example
+is a subtle mismatch between the equational theories of the meta language
+and the object language, which in turn makes the 
+unification procedures of the meta language weak.
+The equational theory of the meta-language \elpi encompasses
+$\beta\eta$-equivalence and its unification procedure can solve higher-order
+problems in the pattern fragment. Although 
+the equational theory of \rocq is much richer, for efficiency and predictability
+reasons automatic proof search procedures typically employ a unification
+procedure that only captures a $\beta\eta$-equivalence and only operates
+in the pattern fragment. The similarity is striking, but one needs to exercise some caution in order to
+simulate a higher-order logic program in \rocq using the unification of \elpi.
+
+
+% Taken from \stdpp, another example dealing with $\eta\beta$-unification can be
+% obtained from the classes \cI{Decision} and \cI{Finite}, defined below.
+
+% \input{code/finite.tex}
+
+% The class  \cI{Decision}
+% identifies predicates equipped with a decidable procedure, while
+% \cI{Finite} identifies types whose inhabitants can be enumerated in a (finite) list.
+% The following three type-class instances state that:
+% 1) the type of natural numbers smaller than \cI{n}, called \cI{fin n},
+% is finite;
+% 2) the predicate \cI{nfact n nf}, relating a natural number
+% \cI{n} to the number of its prime factors \cI{nf}, is decidable;
+% 3) the universal closure of a predicate has a decision procedure if
+% its domain is finite and if the predicate is decidable.
+
+% \input{code/fin_fin.tex}
+
+% \noindent Given this database, the type-class solver is expected to
+% prove the following statement:
+
+% \begin{coqcode}
+%   Decision (~$\forall$~x: fin 7, nfact x 3)                   (* g *)
+% \end{coqcode}
+
+% \noindent
+% The proof found by the solver uses the instance \cI{all_dec} (the only instance
+% about the $\forall$ quantifier), and then solves the premises with
+% instances \cI{fin_fin} and \cI{nfact_dec} respectively.
+% Note that \cI{all_dec} features a second-order parameter \cI{P} that represents
+% a function of type \cI{A ~$\to$~ Prop} (a 1-argument predicate over \cI{A}).
+% The solver infers a value for \cI{P} by unifying the conclusion
+% of \cI{all_dec} with the goal, and in particular, it has to solve the unification
+% problem \cI{P x = nfact x 3}. This higher-order problem falls in the so-called 
+% pattern fragment and admits the solution: \eI{P = ~$\lambda$~x.nfact x 3}
+
+% The compilation of the three instances using the compiler proposed in
+% \cref{sec:instance-encoding} produces the following rules.
+
+% \begin{figure}  
+% \begin{elpicode}
+% finite   (app [gl "fin", N]) (app [gl "fin_fin", N]).                % (r1)
+% decision (app [gl "nfact", N, NF])  (app [gl "nfact_dec", N, NF]).          % (r2)
+% decision (prod _ A x\ app [P, x]) (app [gl "all_dec", A, P, FA, DP]) :- % (r3) 
+%   finite A FA, pi w\ decision (app [P, w]) DP.
+% \end{elpicode}
+% \caption{Rules in elpi}
+% \label{fig:rules-elpi}
+% \end{figure}
+
+
+% \noindent
+% Unfortunately this encoding of rule \emph{r3} in \ref{fig:rules-elpi} does not work
+% since it uses the predicate \cI{P} as a first order term: for the meta
+% language its type is \eI{tm}. If we try to back-chain the rule
+% \emph{r3} in \ref{fig:rules-elpi} on the encoding of the goal below given here
+
+% \begin{elpicode}
+% decision (all (app [gl"fin", gl"7"]) x\ app [gl"nfact", x, gl"3"]).
+% \end{elpicode}
+
+
+% \noindent
+% we obtain an unsolvable unification problem below:
+% the two lists of terms have different lengths!
+% %The root cause is that
+% %\ref{problem:p} is an higher order in CIC, but becomes
+% %first order in the meta language due to the ``naive'' encoding.
+
+% \begin{elpicode}
+% app [con"nfact", x, con"3"] = app [P, x]
+% \end{elpicode}
+
+% \noindent
+% The problem above has no solution in a first-order language
+% where \eI{P} can only stand for a predicate symbol, while in a higher-order
+% language \eI{P} can stand for any 1-argument predicate.
+
+A more sophisticated encoding of \rocq terms and rules
+that, on a first approximation, would reshape the compiled rule for \cI{Pimpl} in
+as follows:
+
 \begin{elpicode}
-finite   (app [con"fin", N]).                % (r1)
-decision (app [con"nfact", N, NF]).          % (r2)
-decision (all A x\ app [P, x]) :- finite A,  % (r3)
-  pi w\ decision (app [P, w]).
-\end{elpicode}
-\caption{Rules in elpi}
-\label{fig:rules-elpi}
-\end{figure}
-
-
-\noindent
-Unfortunately this encoding of rule \emph{r3} in \ref{fig:rules-elpi} does not work
-since it uses the predicate \cI{P} as a first order term: for the meta
-language its type is \eI{tm}. If we try to back-chain the rule
-\emph{r3} in \ref{fig:rules-elpi} on the encoding of the goal below given here
-
-\begin{elpicode}
-decision (all (app [con"fin", con"7"]) x\ app [con"nfact", x, con"3"]).
+tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :- 
+  link Qm Q, % relating the local variable Qm with Q
+  pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B (Qm p).
 \end{elpicode}
 
+In the rule body, we have added a new higher-order \elpi variable \eI{Qm} which
+has the type \eI{term ~$\to$~ term}. In the recursive call to \eI{tc-Provable}
+we pass as argument the variable \eI{Qm} applied to \eI{p}, allowing the the
+unification problem \eI{Qm p = p} to have a solution, namely, \eI{Qm = x\ x}.
 
-\noindent
-we obtain an unsolvable unification problem below:
-the two lists of terms have different lengths!
-%The root cause is that
-%\ref{problem:p} is an higher order in CIC, but becomes
-%first order in the meta language due to the ``naive'' encoding.
+The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
+to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
+\eI{Q} is assigned to the HOAS term \cI{fun x => x}. With this encoding, the
+query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
-\begin{elpicode}
-app [con"nfact", x, con"3"] = app [P, x]
-\end{elpicode}
+% \noindent
+% Once the head of rule \emph{r3'} unifies with the goal,
+% the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
+% back to the domain \eI{tm} of Coq terms, obtaining the expected solution: 
+% % \ref{solution:intro}:
 
-\noindent
-The problem above has no solution in a first-order language
-where \eI{P} can only stand for a predicate symbol, while in a higher-order
-language \eI{P} can stand for any 1-argument predicate.
+% \begin{elpicode}
+% P = lam A x\ app [con"nfact", x, con"3"]
+% \end{elpicode}
 
-In this paper we study a more sophisticated encoding of Coq terms and rules
-that, on a first approximation, would reshape rule r3 in \ref{fig:rules-elpi} as follows:
+% \noindent
+% This simple example is sufficient to show that the encoding we seek
+% is not trivial: the \elpi compiler should identify all the potential unification
+% problem and replace it with a sequence
+% of unification problems that constitute the execution of a logic program.
 
-\begin{elpicode}
-decision (all A x\ Pm x) :- link Pm P A, finite A,    % (r3')
-  pi x\ decision (app [P, x]).
-\end{elpicode}
-
-\noindent
-Since \eI{Pm} is a higher-order unification variable
-of type \eI{tm -> tm},
-with \eI{x}
-in its scope, the unification problem
-admits one solution:
-
-\begin{elpicode}
-app [con"nfact", x, con"3"] = Pm x
-Pm = x\ app [con"nfact", x, con"3"]
-\end{elpicode}
-
-\noindent
-Once the head of rule \emph{r3'} unifies with the goal,
-the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
-back to the domain \eI{tm} of Coq terms, obtaining the expected solution: 
-% \ref{solution:intro}:
-
-\begin{elpicode}
-P = lam A x\ app [con"nfact", x, con"3"]
-\end{elpicode}
-
-\noindent
-This simple example is sufficient to show that the encoding we seek
-is not trivial and does not only concern the head of rules, but the entire sequence
-of unification problems that constitute the execution of a logic program.
-
-In fact
-the solution for \eI{P} above generates a
-(Coq) $\beta$-redex in the second premise (the predicate
-under the \eI{pi w\ }\hspace{-0.4em}).
+% In fact
+% the solution for \eI{P} above generates a
+% (Coq) $\beta$-redex in the second premise (the predicate
+% under the \eI{pi w\ }\hspace{-0.4em}).
 % We show below the premise before and
 % after the instantiation of \eI{P}:
 % \begin{elpicode}
@@ -176,30 +168,18 @@ under the \eI{pi w\ }\hspace{-0.4em}).
 % decision (app [lam A (a\ app [con"nfact", a, con"3"]), w])
 % \end{elpicode}
 % \noindent
-In turn, this redex prevents rule \emph{r2} in \ref{fig:rules-elpi} from backchaining properly since
-the following unification problem has no solution:
+% In turn, this redex prevents rule \emph{r2} in \ref{fig:rules-elpi} from backchaining properly since
+% the following unification problem has no solution:
 
-\begin{elpicode}
-app [ lam A (a\ app [con"nfact", a, con"3"]) , x] =
-app [ con"nfact"                             , N, NF]
-\end{elpicode}
+% \begin{elpicode}
+% app [ lam A (a\ app [con"nfact", a, con"3"]) , x] =
+% app [ con"nfact"                             , N, NF]
+% \end{elpicode}
 
-\noindent
-The root cause of the problems we outlined in this example
-is a subtle mismatch between the equational theories of the meta language
-and the object language, which in turn makes the 
-unification procedures of the meta language weak.
-The equational theory of the meta-language Elpi encompasses
-$\beta\eta$-equivalence and its unification procedure can solve higher-order
-problems in the pattern fragment. Although 
-the equational theory of Coq is much richer, for efficiency and predictability
-reasons automatic proof search procedures typically employ a unification
-procedure that only captures a $\beta\eta$-equivalence and only operates
-in \llambda. The similarity is striking, but one needs to exercise some caution in order to
-simulate a higher-order logic program in Coq using the unification of Elpi.
+% \noindent
 
 % \paragraph{Contributions}
-In this paper we identify a minimal language \Fo{} in which the problems
+In this chapter we identify a minimal language \Fo{} in which the problems
 sketched in the introduction can be formally described.
 We detail an encoding of a logic program in \Fo{} to a strongly related
 logic program in \Ho, the language of the meta language, and we show that
@@ -214,7 +194,7 @@ simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
 extend it to higher-order logic programs in the pattern fragment
 while \cref{sec:beta} goes beyond the pattern fragment.
 Section \ref{sec:implementation} discusses the implementation in Elpi.\\
-The $\lambda$Prolog code discussed in the paper can be accessed at the
+The $\lambda$Prolog code discussed in this chapter can be accessed at the
 address \githubUrl.
 
 \section{Problem statement and solution} %%%%%%%%%%%%%%%%%%%%%%
@@ -253,7 +233,7 @@ address \githubUrl.
 \newcommand{\notllambda}{\texorpdfstring{\ensuremath{\Diamond\llambda}\xspace}{maybellam}}
 %\newcommand{\notllambda}{\ensuremath{\Diamond\beta}\xspace}
 
-Even if we encountered the problem working on Coq's Calculus of Inductive
+Even if we encountered the problem working on \rocq's Calculus of Inductive
 Constructions, we devise
 a minimal setting to ease its study. In this setting, we have
 a (first order) language \Fo{} with a rich equational

@@ -64,7 +64,7 @@ Instance addR : Add R  := {plus := Rplus}.
 (*ENDSNIP: plus_tc_ar *)
 
 (*SNIP: plus_tc_add_prod *)
-Instance addProd T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
+Instance addProd : forall T1 T2, Add T1 -> Add T2 -> Add (T1 * T2) :=
   {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
 (*ENDSNIP: plus_tc_add_prod *)
 (*ENDSNIP: plus_tc_add_inst *)

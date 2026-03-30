@@ -171,8 +171,8 @@ Compiling this instance yields the following \elpi rule:
 
 \begin{elpicode}
   pi L R PL PR\
-  tc {{Add (lp:L * lp:R)}} {{addNat lp:L lp:R lp:PL lp:PR}} :-
-  tc {{Add lp:L}} PL, tc {{Add lp:R}} PR.
+    tc {{Add (lp:L * lp:R)}} {{addNat lp:L lp:R lp:PL lp:PR}} :-
+      tc {{Add lp:L}} PL, tc {{Add lp:R}} PR.
 \end{elpicode}
 
 This rule provides a proof for \eI{Add (x * y)} provided that the two premises
@@ -632,8 +632,8 @@ As a first benchmark, we consider a set of classes and instances from
 \stdpp. We focus on the \cI{Inj} type class, defined as follows:
 
 \begin{coqcode}
-Class Inj {A B} (f : A → B) : Prop :=
-  inj x y : f x = f y → x = y.
+Class Inj A B (f : A ~$\to$~ B) :=
+  inj x y : f x = f y ~$\to$~ x = y.
 \end{coqcode}
 
 The type class \cI{Inj} expresses that a function is injective. A
@@ -898,9 +898,9 @@ An example of failure due to missing $\delta$-unification is given by the
 following code:
 
 \begin{coqcode}
-  Class Extens (A: Type) := ...
-  Instance Extens_f1 A1 A2: Extens (~$\forall$~ (x1:A1), A2 x1) := ...
-  Definition map (A B: Type) := A -> option B.
+  Class Extens A := ...
+  Instance Extens_f1 A1 A2: Extens (~$\forall$~ x1 : A1, A2 x1) := ...
+  Definition map A B := A -> option B.
 \end{coqcode}
 
 The \rocq solver can solve the goal \cI{Extens (map A B)} using the
