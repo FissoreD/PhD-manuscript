@@ -39,33 +39,15 @@ language, in particular, we report its syntax and semantics, which is essential
 to understand the execution model of \elpi programs. Finally, in
 \cref{sec:coq-elpi}, we provide the main ideas behind the \rocq-elpi plugin.
 
-\section{The \rocq proof assistant}
+\section{Elaboration in the \rocq proof assistant}
 \label{sec:rocq-intro}
 
-
-\cite{coqart}
-
-Theorem provers with HO logic programming languages:~\cite{felty88}
-
-Mathematical components: \cite{assia2022}
-
-Abella: \cite{abella}
-
-SSReflect: \cite{ssreflect}
-
-Isabelle: \cite{isabelle}
-
-\subsection{The basis of the language}
-
-Function vs Propositions
-
-\subsection{Elaboration}
-
-
-As explained in~\cite{elaboration}, raw text is the mean bridging the
-communication between the and the theorem prover. This
-
-What is a hole: missing information
+A typical introduction to the \rocq system would start from the basis of the
+language, from the theory behind its architecture, such as the type theory, the
+$\lambda$-calculs, or the foundmental bricks allowing to implement function and
+postulate theorem. Several paper and books attack this concepts in
+detail~\cite{coqart}. The following url gives several pointer to published
+paper about \rocq: \url{https://rocq-prover.org/papers}.
 
 \begin{figure}
   \includegraphics[width=1\textwidth]{elaboration.pdf}
@@ -73,18 +55,37 @@ What is a hole: missing information
   \label{fig:elaboration}
 \end{figure}
 
-In \cref{fig:elaboration} (taken from~\cite{elaboration}), we have a skematical
-representation of the elaboration process. \cite{elaboration}
+In this paragraph we concentrate on a more technical aspect which allows the
+user to communication with the \rocq system. This task exists in all proof
+assistant and is carried by the so-called \emph{elaborator}. The central
+motivation of its existance is to allow the user to send incomplete (and
+sometime abouigous) text to the proof assistant hoping that the missing
+information (and the ambiguities) will be resolved by the elaborator. 
+\cref{fig:elaboration}, taken from~\cite{elaboration}
 
-\paragraphTwo{Notation}
+Theorem provers with HO logic programming languages:~\cite{felty88}
 
-\paragraphTwo{Typechecking} The rich type theory of the Coq system confers to type
-inference the power of computing values and proofs.
+Mathematical components: \cite{assia2022}
 
-\paragraphTwo{Coercions} \cite{barthe95}: Used in general to forget information
+Abella: \cite{abella}
+
+Isabelle: \cite{isabelle}
+
+As explained in~\cite{elaboration}, raw text is the mean bridging the
+communication between the and the theorem prover. This
+
+What is a hole: missing information
+
+\subsection{Notation}
+
+\subsection{Typechecking} The rich type theory of the Coq system confers to type
+inference the power of computing values and proofs. Type inference, such as
+length [1,2], behind we have 4 implicits
+
+\subsection{Coercions} \cite{barthe95}: Used in general to forget information
 about an object
 
-\paragraphTwo{Ad-hoc polymorphism}
+\subsection{Ad-hoc polymorphism}
 
 \marginpar{Collegare con Elaboration}
 
@@ -125,7 +126,7 @@ in 1989~\cite{wadler1989-tc} and were soon implemented in
 other languages, such as \rocq~\cite{sozeau2008-tc} also extended their
 type system to allow this kind of overloading.
 
-\subsection{Ad-hoc polymorphism: Type classes}
+% \subsection{Ad-hoc polymorphism: Type classes}
 \label{sec:ad-hoc-poly}
 
 \paragraphTwo{Symbol overloading}

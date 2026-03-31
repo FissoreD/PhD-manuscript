@@ -1318,3 +1318,23 @@
   address   = {Mineola, NY},
   isbn      = {9780486430327}
 }
+
+@article{coq-correct-tc,
+  author     = {Sozeau, Matthieu and Forster, Yannick and Lennon-Bertrand, Meven and Nielsen, Jakob and Tabareau, Nicolas and Winterhalter, Th\'{e}o},
+  title      = {Correct and Complete Type Checking and Certified Erasure for Coq, in Coq},
+  year       = {2025},
+  issue_date = {February 2025},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {72},
+  number     = {1},
+  issn       = {0004-5411},
+  url        = {https://doi.org/10.1145/3706056},
+  doi        = {10.1145/3706056},
+  abstract   = {Coqis built around a well-delimited kernel that performs type checking for definitions in a variant of the Calculus of Inductive Constructions (CIC). Although the metatheory of CIC is very stable and reliable, the correctness of its implementation in Coq is less clear. Indeed, implementing an efficient type checker for CIC is a rather complex task, and many parts of the code rely on implicit invariants which can easily be broken by further evolution of the code. Therefore, on average, one critical bug has been found every year in Coq. This article presents the first implementation of a type checker for the kernel of Coq (without the module system, template polymorphism and η-conversion), which is proven sound and complete in Coq with respect to its formal specification. Note that because of G\"{o}del’s second incompleteness theorem, there is no hope to prove completely the soundness of the specification of Coq inside Coq (in particular strong normalization), but it is possible to prove the correctness and completeness of the implementation assuming soundness of the specification, thus moving from a trusted code base (TCB) to a trusted theory base (TTB) paradigm. Our work is based on the MetaCoq project which provides meta-programming facilities to work with terms and declarations at the level of the kernel. We verify a relatively efficient type checker based on the specification of the typing relation of the Polymorphic, Cumulative Calculus of Inductive Constructions (PCUIC) at the basis of Coq. It is worth mentioning that during the verification process, we have found a source of incompleteness in Coq’s official type checker, which has then been fixed in Coq 8.14 thanks to our work. In addition to the kernel implementation, another essential feature of Coq is the so-called extraction mechanism: the production of executable code in functional languages from Coq definitions. We present a verified version of this subtle type and proof erasure step, therefore enabling the verified extraction of a safe type checker for Coq in the future.},
+  journal    = {J. ACM},
+  month      = jan,
+  articleno  = {8},
+  numpages   = {74},
+  keywords   = {Proof assistants, type checker, certification}
+}
