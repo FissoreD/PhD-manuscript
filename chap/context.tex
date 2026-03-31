@@ -377,6 +377,37 @@ For simplicity, we omit constraints from the syntax, since they
 do not play an immediate role in the presentation. They are briefly
 described in \cref{sec:chr}.
 
+The syntax we propose allows writing hereditary Harrop formulas. In this
+abstract syntax, logical connectives such as negation and disjunction can be
+treated as first-class objects and implemented directly as \elpi rules.
+
+\begin{definition}[Atom polarity]
+  Polarity indicates whether a subformula appears in a \emph{positive} or
+  \emph{negative} position within a formula.
+\end{definition}
+
+\noindent
+\begin{minipage}{0.75\textwidth}
+The intuition behind polarity is simple: a formula or atom at the top level
+is in positive position. When crossing an implication ($\Rightarrow$), the
+left-hand side flips its polarity, while the right-hand side keeps the
+polarity of the original formula.
+
+In the example on the right we explicitly annotate the polarity of each
+subformula.
+\end{minipage}
+\begin{minipage}{0.25\textwidth}
+\[
+\underbrace{\underbrace{(\underbrace{x}_{pos} \Rightarrow
+\underbrace{y}_{neg})}_{neg} \Rightarrow
+\underbrace{z}_{pos}}_{pos}
+\]  
+\phantom{aa}
+\end{minipage}
+
+This notion of polarity will be used again in
+\cref{sec:instance-encoding} when discussing the encoding of instances.
+
 \paragraphTwo{Syntax of \elpi\ types}
 
 In \elpi, users can define the algebraic data types required by their
@@ -1002,27 +1033,6 @@ existing one.
 The usefulness of grafting becomes clearer in
 \cref{sec:rule-prio}, where typeclass instances must be inserted at
 specific positions in the database to respect the intended priority.
-
-\subsection{Rule indexing: discrimination trees}
-\label{sec:rule-indexing}
-
-CITARE ANCHE MACCUNE
-
-TODO: dire che è anche una mia contribuzione
-
-
-\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
-
-Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
-
-TODO: do some benchmarks
-
-Discrimination trees: opt for lists and tree depths.
-
-
-\cite{tabling-dm,tabling-pie}
-
-
 
 
 \subsection{Related works}

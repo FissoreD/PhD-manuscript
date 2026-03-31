@@ -306,7 +306,7 @@ is not followed by a cut (see~\cref{sec:basic}).
 
 
 
-\section{Hard Cut and Mutual Exclusion}
+\section{Mutual Exclusion}
 \label{sec:hc}
 
 We focus on how to address the first source of non-determinism. In
@@ -474,6 +474,29 @@ s2 2 R :- pi y\ q 3 6 => q 3 R.
 Both rules for \eI{s2} load a local rule for \eI{q}. All these local
 rules are mutually exclusive with the global rules in the program, but the query 
 \eI{s2 2 R} has two results namely \eI{R = 5} and  \eI{R = 6}. 
+
+
+\subsection{Checking mutual exclusion: discrimination trees}
+
+In order to support mutual exclusion checking in \elpi, we extend its compiler
+so that it
+
+TODO: riflessione 
+
+CITARE ANCHE MACCUNE
+
+TODO: dire che è anche una mia contribuzione
+
+
+\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
+
+Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
+
+Discrimination trees: optimizations for lists and tree depths.
+
+
+\cite{tabling-dm,tabling-pie}
+
 
 
 
