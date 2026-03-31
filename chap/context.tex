@@ -907,7 +907,7 @@ A simple program manipulating higher-order data is the function
 performing a deep copy of a term:
 %
 \begin{elpicode}
-func copy tm -> tm.
+pred copy i:tm, o:tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
 copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
@@ -944,7 +944,7 @@ the application of a $\lambda$-abstraction
 to an argument and uses \eI{copy} to perform the substitution:
 
 \begin{elpicode}
-func whd tm -> tm.
+pred whd i:tm, o:tm.
 whd (app H A) R :- whd H (lam F), !,           % we fire the redex
   pi x\ copy x A => copy (F x) S, whd S R.     %   and we continue
 whd X X.                                       % or we stop
