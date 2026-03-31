@@ -1,9 +1,10 @@
 \chapter{Context: languages and tools}
 
+
 At the very heart of this manuscript there are two important piece of code
 coming from two different fields in computer sceince. On the one hand we have
 the \rocq Proof assistant (formerly known as \coq) and the
-\elpi. 
+\elpi. \marginpar{TODO: legare con lo scopo della tesi}
 
 \rocq~\cite{coqart} is one of the main developped proof assistant, it is based
 of intuitionistic logic and allows to reason mathematically (or formally) of the
@@ -110,8 +111,12 @@ other natural number to \cI{true}, and is marked as a coration from the type
 function from \cI{bool} to \cI{bool}, is elaborated into \cI{not (nat_to_bool
 O)}.
 
-If typechecking and coercions give the elaborator a lot of expressive power,
-
+If typechecking and coercions give the elaborator a lot of expressive power, an
+indoubtely feature of elaboration is the possibility to overload operators, i.e.
+to reause the same symbol at different types while keeping the same mathematical
+properties. Since ad-hoc polymorphism is a key of this manuscript, we describe
+in detail how it works and which are its application in a proof assistant like
+\rocq.
 
 \subsection{Ad-hoc polymorphism}
 
@@ -297,8 +302,6 @@ based on CHR (Constraint Handling Rules~\cite{chr,chr-elpi}).
 TODO: dire hereditary harrop formulas
 
 TODO: dire che ho contribuito anch'io alla formalizzazione
-
-TODO: dire anche il discrimination tree
 
 The term ``embeddable'' highlights that \elpi\ is designed to be used as an
 extension language. Its main application is the \rocqelpi plugin~(see
@@ -531,8 +534,8 @@ an extension of $\sigma$.
 
 The procedure \unify\ implements higher-order unification restricted to the
 pattern fragment~\cite{miller1991-pf} and is used for arguments in
-\Eoutput\ position. The procedure \matching, inspired by \bprolog's
-``matching clauses'', is used for arguments in \Einput\ position.
+\Eoutput\ position. The procedure \matching, inspired by \bprolog's~
+``matching clauses''~\cite{zhou2012}, is used for arguments in \Einput\ position.
 
 \begin{definition}[\unify]\label{def:unify}
 Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
@@ -611,6 +614,8 @@ substitution associated with each alternative is the one returned by
 
 \subsection{Example of program execution in \elpi with \cut}
 \label{sec:elpi-execution-example}
+
+TODO: dare un'introduzione migliore al cut e citare: \cite{swi-prolog-cut}
 
 \begin{figure}[t]
   \input{code/prog_non_det.tex}
@@ -966,18 +971,6 @@ CHR Pfenning: \cite{pfenning1993}
   :name XXXX
   :before YYY
 \end{elpicode}
-
-Miller: \cite{miller1991-pf}
-
-Huet: \cite{huet75}
-
-Modes: \cite{zhou2012}
-
-SWI prolog: \cite{swi-prolog-cut}
-
-Andrews:~\cite{andrews2003}
-
-Vink: \cite{vink1989}
 
 \subsection{Rule indexing: discrimination trees}
 \label{sec:rule-indexing}
