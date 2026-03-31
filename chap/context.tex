@@ -58,32 +58,60 @@ paper about \rocq: \url{https://rocq-prover.org/papers}.
 In this paragraph we concentrate on a more technical aspect which allows the
 user to communication with the \rocq system. This task exists in all proof
 assistant and is carried by the so-called \emph{elaborator}. The central
-motivation of its existance is to allow the user to send incomplete (and
-sometime abouigous) text to the proof assistant hoping that the missing
-information (and the ambiguities) will be resolved by the elaborator. 
-\cref{fig:elaboration}, taken from~\cite{elaboration}
+motivation of its existance is to allow the user to send ambigous and incomplete
+text to the proof assistant hoping that the ambiguities and the missing
+information will be resolved/inferred by the elaborator. In the \rocq jargon,
+the missing piece of information is called \emph{hole}, and are usually noted
+with the underscore symbol.
 
-Theorem provers with HO logic programming languages:~\cite{felty88}
+As a very small example, the text \cI{length [1,0]} contains notations for the
+natural numbers and list. Moreover, $4$ implicit type information are left has
+holes. The full, elaborated term becomes:
+%
+\begin{center}
+  \cI{@length nat (@cons nat (S O) (@cons nat O (@nil nat)))}  
+\end{center}
 
-Mathematical components: \cite{assia2022}
+That is the elaborator allows to write $12$ characters instead of a complete
+term of $62$ characters. This automatic task is saving the developper a lot of
+time of development and therefore having a good elaborator in a proof assistant
+is a precious enhancement.
 
-Abella: \cite{abella}
+\Cref{fig:elaboration}, taken from~\cite{elaboration}, divises the main tasks
+of the elaboration phase which essentially aim to take a raw string, parse it
+to produce a \rocq term, still incomplete and finally elaborate to produce a
+complete term. This complete term can now be sent to the kernel of the proof
+assistant which checks its type correctness. If the checker validates the term,
+then it is a valid inhabitant of its type.
 
-Isabelle: \cite{isabelle}
+The main tasks of the elaborator are notation resolution, type inference,
+coercion resolution and canonical structure and type classes inference.
 
-As explained in~\cite{elaboration}, raw text is the mean bridging the
-communication between the and the theorem prover. This
+The first point is of the elaboration aims to remove ambiguities from the term,
+that is, the declared notations are replaced in abstract syntax tree (AST) with
+the symbol of the logic. This way the new AST is no more ambiguous but it still
+may contain holes. This holes are filled by the elaborator.
 
-What is a hole: missing information
+One of the tools the elaborator has to fill the holes is the type-checker which
+is in charge of inferring the types of a term, when the symbols in the term
+it-self are not overloaded, i.e. the symbol has at most one interpretation.
 
-\subsection{Notation}
+In the example above, in a context where the type of \cI{cons} is
+\cI{~$\forall$~T, T ~$\to$~ list T ~$\to$~ list T} and the type of \cI{nil} is
+\cI{~$\forall$~ T, list T} and the type of \cI{O} is \cI{nat}, the typecheck can
+infer the two holes in the term \cI{@cons _ O (@nil _)} to be the type \cI{nat}.
 
-\subsection{Typechecking} The rich type theory of the Coq system confers to type
-inference the power of computing values and proofs. Type inference, such as
-length [1,2], behind we have 4 implicits
+Another brick of the elaborator is characterized by the system of
+coercions~\cite{barthe95}, which allows to ``cast'' a type $t_1$ into a type
+$t_2$ by introducing some defined function with type $t_1 \to t_2$. For example
+if \cI{nat_to_bool} is a function mapping \cI{0} to \cI{false}, and all the
+other natural number to \cI{true}, and is marked as a coration from the type
+\cI{nat} to the type \cI{bool}, then the term: \cI{not 0}, where \cI{not} is a
+function from \cI{bool} to \cI{bool}, is elaborated into \cI{not (nat_to_bool
+O)}.
 
-\subsection{Coercions} \cite{barthe95}: Used in general to forget information
-about an object
+If typechecking and coercions give the elaborator a lot of expressive power,
+
 
 \subsection{Ad-hoc polymorphism}
 
