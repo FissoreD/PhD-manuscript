@@ -62,7 +62,7 @@ resources can be found at: \url{https://rocq-prover.org/papers}.
 
 In this section, we focus on a more technical aspect that enables communication
 between the user and the \rocq system: the \emph{elaborator}. This component is
-present in all proof assistants. Its purpose is to allow the user to write
+part of all proof assistants. Its purpose is to allow the user to write
 incomplete or ambiguous expressions, leaving the system to infer the missing
 information.
 
@@ -303,7 +303,7 @@ It is a dialect of \lprolog~\cite{miller1991-pf,miller2012} that supports
 higher-order logic programming and integrates a goal suspension mechanism
 based on CHR (Constraint Handling Rules~\cite{chr,chr-elpi}).
 
-TODO: dire hereditary harrop formulas
+TODO: dire hereditary harrop formulas + polarity
 
 TODO: dire che ho contribuito anch'io alla formalizzazione
 
@@ -883,8 +883,6 @@ see \cref{sec:basic}.
 \subsection{Dynamic programs in \elpi}
 \label{sec:dynamic-prog}
 
-TODO: dire da qualche parte che si cambia di polarity
-
 The domain where \elpi really shines is the manipulation of higher-order data
 represented via the so-called $\lambda$-tree syntax~\cite{miller2018}
 also called HOAS~\cite{pfenning1988}.
@@ -971,10 +969,39 @@ CHR Pfenning: \cite{pfenning1993}
 \subsection{Rule names and insertion}
 \label{sec:elpi-rule-names}
 
+In the \elpi database, the rules used during backchaining are stored in
+an ordered data structure, together with their implementation. Each rule
+can optionally be given a name by the user.
+
+These names are useful when adding new rules that should have higher or
+lower priority than existing ones. In this way, the user can control the
+position of rules in the search order.
+
+In \elpi, inserting a rule before or after an existing one is called
+\emph{grafting}.
+
 \begin{elpicode}
-  :name XXXX
-  :before YYY
+  :name "nth-fail"
+  nth _ _ :- error "The list is too short".
 \end{elpicode}
+
+The definition of \eI{nth} above is a catch-all rule, since it applies to
+any query. This rule is named \eI{nth-fail}.
+
+When defining additional rules for \eI{nth}, one can write:
+
+\begin{elpicode}
+  :before "nth-fail"
+  nth 0 [X|_] :- X.
+\end{elpicode}
+
+This declaration places the new rule just before the catch-all rule. A
+similar syntax can be used with \eI{:after} to insert a rule after an
+existing one.
+
+The usefulness of grafting becomes clearer in
+\cref{sec:rule-prio}, where typeclass instances must be inserted at
+specific positions in the database to respect the intended priority.
 
 \subsection{Rule indexing: discrimination trees}
 \label{sec:rule-indexing}
