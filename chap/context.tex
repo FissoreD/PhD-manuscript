@@ -1,9 +1,47 @@
 \chapter{Context: languages and tools}
 
-At the very base of my PhD there are two softwares, the \rocq Proof assistant
-(formerly known as \coq~\cite{coqart}) and the \elpi~\cite{dunchev15}.
+At the very heart of this manuscript there are two important piece of code
+coming from two different fields in computer sceince. On the one hand we have
+the \rocq Proof assistant (formerly known as \coq) and the
+\elpi. 
+
+\rocq~\cite{coqart} is one of the main developped proof assistant, it is based
+of intuitionistic logic and allows to reason mathematically (or formally) of the
+specification of programs. Logical propositions are interpreted as types, and
+proofs are interpreted as programs (or terms) of these types. The type theory on
+which the \rocq system is based allows to rigourusly check the coherence of a
+program and its type, giving therefore a strong guarantee on the correctness of
+the proof. The proof phase in a proof assistant like \rocq is possible via
+a system of tactisc, which allows the user to build the proof term.
+
+On the hater hand, \elpi~\cite{dunchev15} is a language coming from the logic
+programming, and in particular it is a dialect of \lprolog. This language comes
+with a plugin called \rocqelpi allowing to extend the \rocq language with
+commands and tactics~\cite{krebbers2025,maas2024,tassi2023}. \emph{Commands}
+allows in general to extend the \rocq language with new definitions/theorems
+that are crafted (automatically) by the \elpi command. Some libraries exploiting
+intensively this features are, for example, \derive which allows to derive
+equality theorems over inductives, and \hb which allows to define complex
+algebraic structures while deriving some theories over these structures.
+\emph{Tactics} allow to extend the system of tactic of \rocq, they exploit the
+\elpi interpreter, which use the \prolog-like SLD search strategy~\cite[Chap.
+9]{sld}, in order to find proof exploiting a predifiend \elpi databse. The
+\trocq~\cite{enzo2023,enzo2024} library provides an \elpi tactic aiming to
+introduce automatic reasoning via proof transfer.
+
+In the following sections we introduce the key aspects that will be used as the
+foundation of \cref{chap:tc,chap:ho-for-free,chap:det-elpi,chap:mechanization}.
+In particular in \cref{sec:rocq-intro}, we briefly discuss a key aspects of a
+proof assistant like \rocq, that is, the elaborator, whic allows the
+communication between the user and the proof assistant itself. In
+\cref{sec:the-elpi-language}, we point out the core aspects of the \elpi
+language, in particular, we report its syntax and semantics, which is essential
+to understand the execution model of \elpi programs. Finally, in
+\cref{sec:coq-elpi}, we provide the main ideas behind the \rocq-elpi plugin.
 
 \section{The \rocq proof assistant}
+\label{sec:rocq-intro}
+
 
 \cite{coqart}
 
@@ -23,8 +61,9 @@ Function vs Propositions
 
 \subsection{Elaboration}
 
-As explained in~\cite{elaboration}, raw text is the mean bridging the communication
-between the and the theorem prover. This
+
+As explained in~\cite{elaboration}, raw text is the mean bridging the
+communication between the and the theorem prover. This
 
 What is a hole: missing information
 
@@ -219,6 +258,7 @@ Used to enrich the information about an object. In mathComp
 
 
 \section{The \elpi language}
+\label{sec:the-elpi-language}
 
 \elpi~\cite{dunchev15} stands for \emph{Embeddable Lambda-Prolog Interpreter}.
 It is a dialect of \lprolog~\cite{miller1991-pf,miller2012} that supports

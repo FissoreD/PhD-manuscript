@@ -370,14 +370,14 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
   (a) there is a \cut in the body of $r$, or\\
   (b) $r$ is a global rule and
       all rules $r'$ in \prog have an input argument not unifying
-      with the corresponding input in $r$
+      with the corresponding input in $r$\\
   % $r$ is a rule and
     % $\forall r' = (k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$
       % there exists a $d \leq n$ s.t. $t_d$ and $u_d$ do not unify, or}\\
-  % (c) $r$ is a local rule
-  %     introduced via $\pi\ x\ r\ b$, 
-  %     $x$ is an input of $r$ and for all rules $r'$ in the program,
-  %     the corresponding input is not a variable
+  (c) $r$ is a local rule
+      introduced via $\pi\ x\ r\ b$, 
+      $x$ is an input of $r$ and for all rules $r'$ in the program,
+      the corresponding input is not a variable
       %$\exists d \leq n$ s.t.
       % $t_d = x$ and
     % forall rules $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
@@ -441,7 +441,7 @@ The predicates \eI{s} and \eI{s1} below illustrate the role of \pi.
 \begin{elpicode}
 func s int -> int.
 s X R :- pi y\ q y 3 => q X R.
-                           % error: mutxecl violated  ^^^^^
+                         % error: mutxecl violated  ^^^^^
 \end{elpicode}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
