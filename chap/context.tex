@@ -1,6 +1,6 @@
 \chapter{Context: languages and tools}
 
-At the very base of my PhD there are two softwares, the Rocq Proof assistant
+At the very base of my PhD there are two softwares, the \rocq Proof assistant
 (formerly known as \coq~\cite{coqart}) and the \elpi~\cite{dunchev15}.
 
 \section{The \rocq proof assistant}
@@ -700,7 +700,7 @@ $.
 
 % \paragraphTwo{Dynamic programming}
 
-% Elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
+% \elpi~\cite{dunchev15} is a dialect of $\lambda$prolog~\cite{miller1991-pf,miller1988}
 
 % Teyjus:~\cite{teyjus,miller2012}
 
@@ -807,11 +807,11 @@ see \cref{sec:basic}.
 
 TODO: dire da qualche parte che si cambia di polarity
 
-The domain where Elpi really shines is the manipulation of higher-order data
+The domain where \elpi really shines is the manipulation of higher-order data
 represented via the so-called $\lambda$-tree syntax~\cite{miller2018}
 also called HOAS~\cite{pfenning1988}.
 Such data is pervasive in interactive provers based on Type Theory
-such as Rocq. In the paradigmatic example below \eI{tm} is
+such as \rocq. In the paradigmatic example below \eI{tm} is
 the data type for $\lambda$-terms.
 %
 \begin{elpicode}
@@ -823,7 +823,7 @@ type lam (tm -> tm) -> tm.          %  - $\lambda$-abstraction
 In the HOAS encoding of syntax with binders we do not find a node for variables:
 we re-use the notion of bound variable of the programming language to encode the
 one of the syntax tree. At the level of types we see that the \eI{lam}
-node carries an Elpi function over terms. It is by applying this function
+node carries an \elpi function over terms. It is by applying this function
 that one can recover the body of the $\lambda$-abstraction.
 A simple program manipulating higher-order data is the function
 performing a deep copy of a term:
@@ -842,12 +842,12 @@ rule \eI{copy x x} for the rest of the execution of copy. That rule
 explains how to copy the new constant \eI{x}. Intuitively ``\eI{pi x\.. => ..}''
 amounts to a well-bracketed use of Prolog's \texttt{assert/1} and \texttt{retract/1}.
 Finally the code performs a recursive call over \eI{F x}:
-by applying the Elpi function \eI{F} to
+by applying the \elpi function \eI{F} to
 the fresh symbol \eI{x} one obtains the body of the $\lambda$-abstraction
 where the bound variable is replaced
 by the new symbol \eI{x}.
 
-In Elpi, all predicates are \emph{dynamic}, or open, hence
+In \elpi, all predicates are \emph{dynamic}, or open, hence
 the code of \eI{copy} can be
 augmented with rules at runtime. 
 % \todo{remark app, lam and each x are different}
@@ -948,10 +948,10 @@ or in ... the absence of the cut allows parallel computation \dots
 
 particularly well suited for manipulating syntax trees with
 binders (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi}). It is used
-as an extension language for the Rocq Prover (formerly the Coq proof assistant)
+as an extension language for the \rocq Prover (formerly the Coq proof assistant)
 and has become an important piece of infrastructure: several projects and
 libraries depend on
-Elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
+\elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
 Examples include the Hierarchy-Builder library-structuring tool~\cite{hb}, which
 supports the Mathematical Components ecosystem~\cite{assia2022} and
 mechanizations such as the Odd Order and Four Color theorems
@@ -964,9 +964,9 @@ Distinction between object and meta-language
 
 \subsection{HOAS: \texorpdfstring{$\lambda$}{lambda}-terms representation}
 
-In order to implement such a search in Elpi, we shall describe the encoding
+In order to implement such a search in \elpi, we shall describe the encoding
 of Coq terms and then the encoding of instances as rules.
-Elpi comes equipped with
+\elpi comes equipped with
 a Higher-Order Abstract Syntax (HOAS~\cite{pfenning1988}) datatype of
 Coq terms, called \eI{tm}, that includes (among others) the following
 constructors:
@@ -1015,7 +1015,7 @@ TODO: dire com'è fatto un goal in the solve tactic: \eI{goal Ctx V Ty V' Args}
 
 \subsection{Concluding remarks}
 
-Overall, Elpi is good for elaboration
+Overall, \elpi is good for elaboration
  
 \section{Notational conventions}
 In the following section we note $\mathbb{B}$ for the boolean type, and $\top$

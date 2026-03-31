@@ -261,7 +261,7 @@ Inductive tree ~$\coloneq$~
 \end{figure}
 
 An And-Or tree is a stratified, variable-width tree, defined in
-Rocq as in \cref{fig:tree-ty}.
+\rocq as in \cref{fig:tree-ty}.
 It consists of two kinds %\marginpar{corner case: prog2.elpi}
 of layers that alternate: a disjunctive layer is followed by a conjunctive
 layer and vice versa. At the root (a query), the tree records a list of
@@ -347,7 +347,7 @@ Definition prune : ~$\mathbb{B}$~ ~$\to$~ tree ~$\to$~ option tree
 Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
 \end{coqcode}
 
-Since all functions must terminate in Rocq, we define their transitive closure
+Since all functions must terminate in \rocq, we define their transitive closure
 of \step and \na as the inductive relation \run.
 More precisely \run iterates calls to \step on incomplete trees to expand
 \cI{Todo} nodes. When a tree fails it calls \na to find
@@ -1240,7 +1240,7 @@ intuitively keep the state as a big disjunction of conjunctions by
 distributing conjunctions over disjunctions. Moreover, one would need to
 define a notion of valid stack that is equally intricate.
 
-The constructive nature of the logic of Rocq tells us that the proof above
+The constructive nature of the logic of \rocq tells us that the proof above
 provides an effective function translating stacks into trees. However, that
 function also uses an execution trace of the stack-based semantics, from which
 it recovers the missing tree structure.
@@ -1408,7 +1408,7 @@ In a sense, our work is complementary. By combining both works one can show the 
 is equivalent to an optimized stack-based one.
 
 Another relevant work is by King~\cite{king2011},
-but we could not find their Rocq source code. Their semantics
+but we could not find their \rocq source code. Their semantics
 is denotational and cannot easily cover all the
 features that~\cite{fissore2026} covers, but it would have
 been sufficient for this first step.

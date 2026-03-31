@@ -588,7 +588,7 @@ In addition to the automatic compilation of rules, users can extend the
 database with custom rules to implement specialized or more efficient
 resolution strategies in specific situations.
 
-Using the \cI{Elpi Accumulate} command, users can define ad hoc rules,
+Using the \cI{\elpi Accumulate} command, users can define ad hoc rules,
 such as the one shown below:
 
 \input{code/share_proof.tex}
@@ -824,9 +824,9 @@ depending on the needs. The following commands manage the interaction
 between the \elpi and \rocq solvers:
 
 \begin{coqcode}
-  Elpi TC Solver Register TC.Solver.
-  Elpi TC Solver Activate TC.Solver.
-  Elpi TC Solver Deactivate TC.Solver.
+  \elpi TC Solver Register TC.Solver.
+  \elpi TC Solver Activate TC.Solver.
+  \elpi TC Solver Deactivate TC.Solver.
 \end{coqcode}
 
 The first command registers a new solver in the \rocq system; in our case,
@@ -920,7 +920,7 @@ unification algorithm. Alternatively, one can add an
 ad-hoc rule to the solver:
 
 \begin{coqcode}
-  Elpi Accumulate TC.Solver lp:{{
+  \elpi Accumulate TC.Solver lp:{{
     tc-Extens {{map lp:A lp:B}} R :-
       tc-Extens {{lp:A -> option lp:B}} R.
   }}.

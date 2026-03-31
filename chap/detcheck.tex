@@ -3,51 +3,51 @@
 
 \section{Introduction}
 
-% We are interested in the static analysis of Elpi programs, in particular
-% in checking their determinacy. Elpi is a higher-order logic programming
+% We are interested in the static analysis of \elpi programs, in particular
+% in checking their determinacy. \elpi is a higher-order logic programming
 % language, a dialect of $\lambda$Prolog well suited to manipulate
 % incomplete syntax trees with binders (see
 % \cite{miller1991-pf,miller2012} and \cite{dunchev15,chr-elpi}).
-% Elpi finds applications as an extension
-% language for the Rocq Prover (formerly known as the Coq proof assistant)
+% \elpi finds applications as an extension
+% language for the \rocq Prover (formerly known as the Coq proof assistant)
 % where it has been used for program and proof synthesis by~\cite{tassi2018,tassi2019,tassi2023,hb} and more recently
 % as the target language for type-class resolution by~\cite{fissore2023,fissore2024}.
 
-% In Rocq type-class resolution is used for multiple purposes: From automatic
+% In \rocq type-class resolution is used for multiple purposes: From automatic
 % proof search as in~\cite{sozeau2008-tc} to Haskell-style symbol overloading as in~\cite{wadler1996-hs}.
 % For this last application
 % the solution to a query provides the formal meaning of the overloaded symbol
 % and it is of paramount importance that this solution is unique.
 % A static check for this property is of particular
-% interest in the context of the platform of Rocq libraries where code developed
+% interest in the context of the platform of \rocq libraries where code developed
 % by different teams is combined together.
 
-% As of today, Elpi comes equipped with a standard type checker~\cite{1992nadathur} but
+% As of today, \elpi comes equipped with a standard type checker~\cite{1992nadathur} but
 % features no determinacy analysis. The literature provides
 % many works on the subject~(among them \cite{warren1989,somogy1996,king2011}), but none
-% can be applied to Elpi due to its higher-order nature.
+% can be applied to \elpi due to its higher-order nature.
 
 
 
 
-Elpi is a higher-order logic programming language, a dialect of
-\(\lambda\)Prolog, particularly well suited for manipulating
-syntax trees with binders (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi}). It is used as an
-extension language for the Rocq Prover (formerly the Coq proof
-assistant) and has become an important piece of infrastructure: several
-projects and libraries depend on Elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}. Examples include the
-Hierarchy-Builder library-structuring tool~\cite{hb},
-which supports the Mathematical Components ecosystem~\cite{assia2022} and
-mechanizations such as the Odd Order and Four Color theorems
-\cite{gonthier2013,gonthier2023},
-and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis framework with industrial
-applications at BlueRock systems.
+% \elpi is a higher-order logic programming language, a dialect of
+% \(\lambda\)Prolog, particularly well suited for manipulating
+% syntax trees with binders (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi}). It is used as an
+% extension language for the \rocq Prover (formerly the Coq proof
+% assistant) and has become an important piece of infrastructure: several
+% projects and libraries depend on \elpi~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}. Examples include the
+% Hierarchy-Builder library-structuring tool~\cite{hb},
+% which supports the Mathematical Components ecosystem~\cite{assia2022} and
+% mechanizations such as the Odd Order and Four Color theorems
+% \cite{gonthier2013,gonthier2023},
+% and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis framework with industrial
+% applications at BlueRock systems.
 
 
-Over the years Elpi was put in the hands of quite a number of Rocq users
+Over the years \elpi was put in the hands of quite a number of \rocq users
 and the most widely cited barrier to entry has been the paradigm shift to a
 logic programming one.
-Rocq users
+\rocq users
 are comfortable with typed and functional programming but often lack
 experience with backtracking and its control. Uncontrolled
 backtracking can produce slower programs and complicate debugging.
@@ -65,28 +65,23 @@ multiple times or diverge.
 We chose operational determinacy since it matches
 the behavior of functions in mainstream functional languages.
 
-Our determinacy checker covers Elpi's
+Our determinacy checker covers \elpi's
 higher-order features, including higher-order predicates (for
 example map and fold, see \cref{sec:HO-program}) and dynamic predicates that extend themselves at
-runtime (see \cref{sec:dynamic-prog}). %, and meta-programs that manipulate Elpi code.
+runtime (see \cref{sec:dynamic-prog}). %, and meta-programs that manipulate \elpi code.
 
 We apply these signatures to a large portion of publicly available
-Elpi code in the Rocq ecosystem and report our experience. Our
-findings indicate that most Elpi programs are intended to be
+\elpi code in the \rocq ecosystem and report our experience. Our
+findings indicate that most \elpi programs are intended to be
 backtracking-free and require only minimal signatures for the static
 analyzer we implemented to verify determinacy.
 
-%In passing we fix some unwanted backtracking.
-
-% \paragraphTwo{Contributions}
-
-
-\subsectionTwo{Contributions}
+Our contributions are:
 1) we design a language of signatures to assert the determinacy of predicates
 that covers higher-order logic programming constructs such as first-class
 predicates and dynamic predicates; 2) we implement a
 static analyzer for that language; 3) we apply the static analyzer
-to most of the Elpi code available in the Rocq ecosystem.
+to most of the \elpi code available in the \rocq ecosystem.
 
 % Our contribution is a static analyzer that 1)
 % % \begin{itemize}
@@ -98,15 +93,15 @@ to most of the Elpi code available in the Rocq ecosystem.
 %       miscalled higher-order functions rather than aborting.
 % % \end{itemize}
 
-\section{Elpi and determinacy signatures by examples}\label{sec:intro}
+\section{\elpi and determinacy signatures by examples}\label{sec:intro}
 
-As in most logic programming languages, Elpi programs are organized in rules.
+As in most logic programming languages, \elpi programs are organized in rules.
 When rules are not \emph{mutually exclusive}, i.e. multiple rules apply on the same query,
 the runtime continues the computation 
 using the rule with highest priority. Moreover it stores the 
 other rules as a \emph{choice point} and
 can backtrack to that point to continue the computation.
-What makes backtracking tricky to Elpi users is that it is an opt-out feature
+What makes backtracking tricky to \elpi users is that it is an opt-out feature
 of logic programming: it is left to the programmer to tell the
 runtime to commit to one rule and discard the choice point, rather than
 the other way around. If the user forgets to commit to a rule, his program
@@ -122,13 +117,6 @@ mem X [Y|_ ] :- X = Y.    % the head is the X we are looking for, or
 mem X [_|YS] :- mem X YS. % recurse on the tail
 \end{elpicode}
 
-In the code above each line represents a rule. By convention, unification
-variables are capitalized, and following the $\lambda$-calculus tradition
-application is written without parentheses, i.e. $f~x$ rather than $f(x)$.
-Square brackets are used for lists with pipe separating the head from the tail.
-The \eI{:-} symbol separates the head of a rule from its premises. Rules are tried 
-in the order of their declaration by unifying their head with the current query.
-
 The first rule for \eI{mem}
 is the base case: it succeeds if the head of the list is equal to the \eI{X} we are
 looking for. The second one discards the list's head and continues looking for
@@ -138,7 +126,7 @@ in two different ways: either using rule 1 immediately, or using rule 2
 twice to discard the first two items, and then conclude with rule 1. 
 % Even worse, one can also observe a failure when rule 2 is applied three times.\todo{what?}
 
-Elpi users often have a background in functional programming and simply do
+\elpi users often have a background in functional programming and simply do
 expect \eI{mem} to be a \emph{function} testing membership, and not
 a relation. Moreover one needs to look, carefully, at how \eI{mem} 
 is implemented in order to see the peril.
@@ -156,7 +144,7 @@ backtrack to that point in time and continue from there. Even worse, if
 
 It must be said that backtracking can be very useful in some situations and
 that a programmer with experience in logic programming can take advantage of
-that. We want the Elpi casual user to be able to write code without mastering
+that. We want the \elpi casual user to be able to write code without mastering
 all that, and simply declare that they expect \emph{their code} to
 compute functions.
 %
@@ -201,7 +189,7 @@ main L :- code_before L, in 1 L, code_after L. % OK
 Tracking the use of backtracking code statically is a well known technique
 in logic programming called determinacy analysis~\cite{warren1989,somogy1996}.
 What the literature lacks
-is a treatment of Elpi features not available in plain Prolog,
+is a treatment of \elpi features not available in plain \prolog,
 see~\ref{sec:HO-program} and \ref{sec:dynamic-prog}. %and \ref{sec:meta-prog}.
 % We recall them in the following sections.
 
@@ -209,7 +197,7 @@ see~\ref{sec:HO-program} and \ref{sec:dynamic-prog}. %and \ref{sec:meta-prog}.
 % \subsection{Meta programs}
 % \label{sec:meta-prog}
 
-% Elpi code is first class, i.e., it can be inspected and generated in Elpi
+% \elpi code is first class, i.e., it can be inspected and generated in \elpi
 % itself.
 % Here we take as
 % an example the code performing the fusion of two calls to \eI{map}~\cite{wadler1989}.\\
@@ -254,62 +242,54 @@ see~\ref{sec:HO-program} and \ref{sec:dynamic-prog}. %and \ref{sec:meta-prog}.
 % also \eI{F} and \eI{G} must be; from that we have that
 % \eI{comp F G} is a function and so is \eI{map (comp F G)}.
 
-% Almost every Rocq extension makes some use of meta programming: it typically
+% Almost every \rocq extension makes some use of meta programming: it typically
 % concludes by generating a new rule and stores it on disk to make it persist
 % across subsequent invocations of the same program. 
 
 
 
-\section{Elpi's abstract syntax and rule selection}
+% \section{\elpi's abstract syntax and rule selection}
 
-Any static analysis to rule out non-determinism must depend on the
-operational semantics of the language. In particular
-the order in which rules are applied and the order in which rule premises
-are executed directly impact the scope of the cut directive.
+% Any static analysis to rule out non-determinism must depend on the
+% operational semantics of the language. In particular
+% the order in which rules are applied and the order in which rule premises
+% are executed directly impact the scope of the cut directive.
 
-Here we specify the relevant aspects of Elpi.
-Its abstract syntax is given below. %in~\cref{fig:syntaxonly}.
+% Here we specify the relevant aspects of \elpi.
+% Its abstract syntax is given below. %in~\cref{fig:syntaxonly}.
 
-We assume a set \PRED of predicate names,
-a set \DATA of term constructors, and a set \VAR of unification variables.
-We call the union of these three syntactic categories \emph{symbols}.
-In the syntax of atoms \ATOM we find predicate calls (\CALLABLE), the \cut operator (explained in \cref{sec:hc})
-and the \pi\ operator.%
-\footnote{
-In reality, in Elpi, \eI{pi} and \eI{=>} are two separate operators,
-generating a fresh symbol and loading a rule respectively,
-but for simplicity we only consider their combination.}
-The arguments of predicate calls are in the \TERM\ nonterminal, for terms,
-that includes predicate calls along with first order data construction.
-Because of space constraint we omit from the syntax the construction of
-data with binders since it plays no interesting role in
-the static analysis of determinacy.
-We reserve $s$ for symbols ($\PRED \cup \DATA \cup \VAR$), $v$ for variables, 
-$k$ for terms in $\PRED \cup \DATA$, $a$ and $b$ for atoms, $c$ for callables
-and $r$ for rules.
-Given a rule $h\ \cdash\ b_1 \ldots b_n$ we call $h$ the \emph{head},
-$b_1 \ldots b_n$ the \emph{body}
-and each $b_i$ a \emph{body atom}.
-% In the signatures of the static analyzer,
-We use non-terminals to represent the class of objects they identify; for example,
-\TERM identifies (or is the type of) terms. We use \PROG for the type of programs,
-being lists of rules in \RULE, and we reserve $t$ for terms and $\prog$ for programs.
-%
-% \begin{definition}[Rule priority]
-\subsectionTwo{Rule priority} 
- Each rule in a program has a unique identifier called priority; 
-  this priority stems from the order in which the rule should be 
-  applied at runtime.
-There exists a unique total order for rules following their priority.
-When a rule is applied, its body atoms are executed in order.
-
-This selection strategy is called SLD and is the standard one for logic programs.
-In this strategy non-determinism arises when:
-1) at least two rules can be used (successfully) to the \emph{same query} (i.e.,
-lack of mutual exclusion between rules, see~\cref{sec:hc});
-2) the call to a non-deterministic predicate, or the miscall of a deterministic one,
-is not followed by a cut (see~\cref{sec:basic}).
-
+% We assume a set \PRED of predicate names,
+% a set \DATA of term constructors, and a set \VAR of unification variables.
+% We call the union of these three syntactic categories \emph{symbols}.
+% In the syntax of atoms \ATOM we find predicate calls (\CALLABLE), the \cut operator (explained in \cref{sec:hc})
+% and the \pi\ operator.%
+% \footnote{
+% In reality, in \elpi, \eI{pi} and \eI{=>} are two separate operators,
+% generating a fresh symbol and loading a rule respectively,
+% but for simplicity we only consider their combination.}
+% The arguments of predicate calls are in the \TERM\ nonterminal, for terms,
+% that includes predicate calls along with first order data construction.
+% Because of space constraint we omit from the syntax the construction of
+% data with binders since it plays no interesting role in
+% the static analysis of determinacy.
+% We reserve $s$ for symbols ($\PRED \cup \DATA \cup \VAR$), $v$ for variables, 
+% $k$ for terms in $\PRED \cup \DATA$, $a$ and $b$ for atoms, $c$ for callables
+% and $r$ for rules.
+% Given a rule $h\ \cdash\ b_1 \ldots b_n$ we call $h$ the \emph{head},
+% $b_1 \ldots b_n$ the \emph{body}
+% and each $b_i$ a \emph{body atom}.
+% % In the signatures of the static analyzer,
+% We use non-terminals to represent the class of objects they identify; for example,
+% \TERM identifies (or is the type of) terms. We use \PROG for the type of programs,
+% being lists of rules in \RULE, and we reserve $t$ for terms and $\prog$ for programs.
+% %
+% % \begin{definition}[Rule priority]
+% \subsectionTwo{Rule priority} 
+%  Each rule in a program has a unique identifier called priority; 
+%   this priority stems from the order in which the rule should be 
+%   applied at runtime.
+% There exists a unique total order for rules following their priority.
+% When a rule is applied, its body atoms are executed in order.
 
 % To conlude, the algorithm informally:
 % \begin{itemize}
@@ -318,48 +298,59 @@ is not followed by a cut (see~\cref{sec:basic}).
 %   \item checks that the pre conditions of rules entail the post conditions
 % \end{itemize}
 
+This selection strategy of logic programs may create two sources non-determinism:
+1) at least two rules can be used (successfully) to the \emph{same query} (i.e.,
+lack of mutual exclusion between rules, see~\cref{sec:hc});
+2) the call to a non-deterministic predicate, or the miscall of a deterministic one,
+is not followed by a cut (see~\cref{sec:basic}).
+
+
 
 \section{Hard Cut and Mutual Exclusion}
 \label{sec:hc}
 
-We focus on how to address the first source of non-determinism.
+We focus on how to address the first source of non-determinism. In
+\cref{sec:elpi-semantics}, we have already defined the semantics of the \elpi
+language, the same semantics is reused in this section. The interesting aspects
+for this section are the \cut operator and the \matching/\unify procedure
+depending on the modes of a predicate.
 
-In order to precisely describe \cut, we need to introduce the notion of choice
-points, or alternatives.
-The type of an alternative \ALT\ is equal to
-$\SIGMA \times \vecL{\GOAL}$, that is a substitution and a list of goals.
-The type of a goal \GOAL\ is equal to $\PROG \times \ATOM$, that is
-a program and a query (an atom). Since the program can dynamically change due to \pi,
-each (sub)goal must contain the program in which it should be solved.\\
-A substitution $\subst$ is a partial mapping from unification variables
-\VAR to terms \TERM{}. We call this function space \SIGMA\ and we
-write \EmptySubst\ for the empty substitution. We write $\subst \cdot t$ for
-the application of a substitution $\subst$ to a term $t$.
+% In order to precisely describe \cut, we need to introduce the notion of choice
+% points, or alternatives.
+% The type of an alternative \ALT\ is equal to
+% $\SIGMA \times \vecL{\g}$, that is a substitution and a list of goals.
+% The type of a goal \g\ is equal to $\PROG \times \ATOM$, that is
+% a program and a query (an atom). Since the program can dynamically change due to \pi,
+% each (sub)goal must contain the program in which it should be solved.\\
+% A substitution $\subst$ is a partial mapping from unification variables
+% \VAR to terms \TERM{}. We call this function space \SIGMA\ and we
+% write \EmptySubst\ for the empty substitution. We write $\subst \cdot t$ for
+% the application of a substitution $\subst$ to a term $t$.
 
 
-\begin{definition}[Hard cut]
-  \label{def:hard-cut}
-Given a rule for predicate $k$ with
-priority $p$
-and
-body $b_1 \ldots b_i\ \cut \ \ldots$, the effect of
-reaching \cut is that the runtime discards all alternatives
-generated by $b_1 \ldots b_i$ and all rules for $k$ with lower priority than $p$.
-\end{definition}
+% \begin{definition}[Hard cut]
+%   \label{def:hard-cut}
+% Given a rule for predicate $k$ with
+% priority $p$
+% and
+% body $b_1 \ldots b_i\ \cut \ \ldots$, the effect of
+% reaching \cut is that the runtime discards all alternatives
+% generated by $b_1 \ldots b_i$ and all rules for $k$ with lower priority than $p$.
+% \end{definition}
 
-Elpi applies rules by matching the input arguments,
-like B-Prolog's ``matching clauses''~\cite{zhou2012},
-and by unifying the output ones using Miller's algorithm~\cite{miller1991-pf}.
+% \elpi applies rules by matching the input arguments,
+% like B-Prolog's ``matching clauses''~\cite{zhou2012},
+% and by unifying the output ones using Miller's algorithm~\cite{miller1991-pf}.
 
-\begin{definition}[Unification / Matching]\label{def:matching-remove}\marginpar{Detto sopra}
-Two terms $t$ and $u$ unify if there exists a
-substitution $\subst$ such that $\subst \cdot t = \subst \cdot u$. We say that a term $t$
-matches (the pattern) $u$ if there exists a
-substitution $\subst$ such that $\subst \cdot u = t$ and % $\subst \cdot t = t$.
-the domain of $\subst$ is the free variables of $u$
-\end{definition}
+% \begin{definition}[Unification / Matching]\label{def:matching-remove}\marginpar{Detto sopra}
+% Two terms $t$ and $u$ unify if there exists a
+% substitution $\subst$ such that $\subst \cdot t = \subst \cdot u$. We say that a term $t$
+% matches (the pattern) $u$ if there exists a
+% substitution $\subst$ such that $\subst \cdot u = t$ and % $\subst \cdot t = t$.
+% the domain of $\subst$ is the free variables of $u$
+% \end{definition}
 
-Finally, in the next definition we distinguish between global rules,
+In the next definition we distinguish between global rules,
 i.e., rules that are part of the program \prog, and local rules that
 are loaded via the \pi operator. For example, the \eI{copy} predicate
 from \cref{sec:dynamic-prog} has two global rules and one local rule.
@@ -377,24 +368,22 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
   one of the following additional conditions holds:\\
   % (a) $\exists i, b_i = \cut$, or\\
   (a) there is a \cut in the body of $r$, or\\
-  (b) \parbox[t][][t]{.95\textwidth}{$r$ is a gloabl rule and
+  (b) $r$ is a global rule and
       all rules $r'$ in \prog have an input argument not unifying
-      with the corresponding input in $r$, or}\\
+      with the corresponding input in $r$
   % $r$ is a rule and
     % $\forall r' = (k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$
       % there exists a $d \leq n$ s.t. $t_d$ and $u_d$ do not unify, or}\\
-      \label{def:mut-excl-global}
-  (c) \parbox[t][][t]{.95\textwidth}{$r$ is a local rule
-      introduced via $\pi\ x\ r\ b$, 
-      $x$ is an input of $r$ and for all rules $r'$ in the program,
-      the corresponding input is not a variable
+  % (c) $r$ is a local rule
+  %     introduced via $\pi\ x\ r\ b$, 
+  %     $x$ is an input of $r$ and for all rules $r'$ in the program,
+  %     the corresponding input is not a variable
       %$\exists d \leq n$ s.t.
       % $t_d = x$ and
     % forall rules $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
     % $u_d$ is not a variable (not in \VAR).
-    }
 \end{definition}
-
+%
 % These two conditions are sufficient to avoid the creation of choice points
 % due to rules selection.
 % For example the query \eI{q 1 R} has only one solution (\eI{R = 3})
@@ -403,9 +392,9 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
 For example, the rules for predicate \eI{p} below are not mutually exclusive, so choice points may
 remain after a query resolution, hence introducing non-determinism.
 For instance, \eI{p 1 X} has two solutions, namely
-\eI{X = 3} and \eI{X = 2}.\\
+\eI{X = 3} and \eI{X = 2}.
 
-
+\mvspace
 \noindent
 \begin{minipage}{.33\textwidth}
 \begin{elpicode}
@@ -426,15 +415,16 @@ q 2 4.
 \begin{elpicode}
 func r int -> int.
 r X R :- p X R, !. 
-r X R :- q X R.             
+r X R :- q X R.
 \end{elpicode}
 \end{minipage}
+\mvspace
 
 \noindent
 Conversely, \eI{q} satisfies mutual exclusion: no query can trigger both
 rules. Note that, since inputs are matched, a query like \eI{q X Y} has no
-solution in Elpi. Standard Prolog implementation would reject the query as
-not well moded since the input \eI{X} is not ground.
+solution in \elpi. % Standard Prolog implementation would reject the query as
+% not well moded since the input \eI{X} is not ground.
 Both rules for \eI{r} match any input.
 If the first rule succeeds, the \cut\ removes the alternatives
 created by the call to \eI{p} and also 
@@ -446,6 +436,7 @@ Thus, at most one rule can succeed for \eI{q}.
 
 The predicates \eI{s} and \eI{s1} below illustrate the role of \pi.
 
+\mvspace
 \begin{minipage}{.5\textwidth}
 \begin{elpicode}
 func s int -> int.
@@ -460,7 +451,7 @@ s1 X R :- pi y\ q 1 5 => q X R.
 ~ ~
 \end{elpicode}
 \end{minipage}
-\noindent
+\mvspace
 
 The local rule
 \eI{q y 3} is mutually exclusive with the rules for \eI{q} above
@@ -905,7 +896,7 @@ preconditions and all the postconditions of well called body atoms.
 % \subsection{Meta programs}
 % \label{sec:meta-prog}
 
-% Elpi code is first class, i.e., it can be inspected and generated in Elpi
+% \elpi code is first class, i.e., it can be inspected and generated in \elpi
 % itself.
 % Here we take as
 % an example the code performing the fusion of two calls to \eI{map}~\cite{wadler1989}.
@@ -947,7 +938,7 @@ preconditions and all the postconditions of well called body atoms.
 % also \eI{F} and \eI{G} must be; from that we have that
 % \eI{comp F G} is a function and so is \eI{map (comp F G)}.
 
-% Almost every Rocq extension makes some use of meta programming: it typically
+% Almost every \rocq extension makes some use of meta programming: it typically
 % concludes by generating a new rule and stores it on disk to make it persist
 % across subsequent invocations of the same program. 
 % more\\
@@ -963,13 +954,13 @@ preconditions and all the postconditions of well called body atoms.
 \section{Determinism guarantees}
 
 In order to express \emph{operational determinacy}
-we need to use an operational semantics for Elpi.
+we need to use an operational semantics for \elpi.
 That semantics, for its higher-order logic-programming part,
 is essentially the one given by~\cite{qi2009} using a last-in-first-out goal selection.
 However it must be
 complemented with a treatment of choice points to describe
 the behavior of the cut operator following~\cite{vink1989}.
-Moreover Elpi has a peculiar runtime threatment of input arguments, that
+Moreover \elpi has a peculiar runtime threatment of input arguments, that
 are matched rather than unified (see~\cref{def:matching}). 
 
 
@@ -1251,28 +1242,28 @@ $$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
   \label{th:1}
 \end{theorem}
 
-The proof of~\cref{th:1} has been mechanized in the Rocq proof assistant,
+The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant,
 formerly known as Coq, for the first-order part~\cite{formalproof}. The mechanization for
 the higher-order part is ongoing.
 
 \section{Experience report}
 
-The static analyzer we describe was integrated in the \href{https://github.com/LPCIC/elpi}{Elpi language}
+The static analyzer we describe was integrated in the \href{https://github.com/LPCIC/elpi}{\elpi language}
 version 3.0. It
 consists of
 about $200$ lines of OCaml code for the implementation of \mutExclAll and about $800$
 lines of code for the implementation of \checkc, along with all the related
 auxiliary functions.
-We have  ported some Rocq libraries written using Elpi: Rocq-Elpi, Hierarchy Builder,
+We have  ported some \rocq libraries written using \elpi: \rocq-\elpi, Hierarchy Builder,
 Algebra Tactics, Trocq, and BRiCk.
 
 We can divide the porting of these libraries into two categories: libraries in
 which we have traversed all the predicates and carefully changed \epred markers
-to \efunc (Elpi, Rocq-Elpi, and Hierarchy Builder), and libraries that have been ported to just pass the
+to \efunc (\elpi, \rocq-\elpi, and Hierarchy Builder), and libraries that have been ported to just pass the
 static analyzer.
 In particular, the latter class of libraries
 measures the minimal cost for adapting code to the changes we made to
-the Elpi and Rocq-Elpi standard libraries. The typical
+the \elpi and \rocq-\elpi standard libraries. The typical
 example of code requiring a fix is code that loads
 a local rule containing no cut, typically \eI{copy}.
 
@@ -1286,8 +1277,8 @@ We summarize these results in \cref{tab:report}.
     \begin{tabular}{c|c|c|c|c}
       Software          & LOC   & \% \detI & \cut added & \cut needed (bugs) \\
       \hline
-      Elpi              & 1448  & 97\%     & 1          & 1  (100\%)         \\
-      Rocq-Elpi         & 13164 & 79\%     & 91         & 78 (85\%)          \\
+      \elpi              & 1448  & 97\%     & 1          & 1  (100\%)         \\
+      \rocq-\elpi         & 13164 & 79\%     & 91         & 78 (85\%)          \\
       Hierarchy Builder & 5326  & 94\%     & 33         & 30 (90\%)          \\
       \hline
       Algebra Tactics   & 1799  & --       & 1          & 1  (100\%)         \\
@@ -1304,10 +1295,10 @@ We summarize these results in \cref{tab:report}.
   % \vspace{-1em}
   \label{tab:report}
 \end{table}
-In the Elpi standard library, we annotated $272$ predicates out of
+In the \elpi standard library, we annotated $272$ predicates out of
 $281$ as functions, with $37$ occurrences of higher-order arguments, as in
 \texttt{map, filter, fold}, etc. We identified $1$ error, i.e., a missing cut.
-In Rocq-Elpi, we have $928$ functions out of $1181$, with $62$
+In \rocq-\elpi, we have $928$ functions out of $1181$, with $62$
 higher-order predicates. We added $91$ cuts to please the static analyzer,
 $78$ of which were clearly bugs in the code. The remaining $13$ cuts are due to
 \mutExclAll, which is not powerful enough to discriminate among rules.
@@ -1363,7 +1354,7 @@ code, while in the private one they added 11 cuts over 7500 lines.
       \cite{king2011}   & Red Alert & required   & \xmark        & \xmark           & \xmark           \\
       \cite{somogy1996} & Mercury & required   & \xmark        & \cmark$\ddagger$ & \xmark $\dagger$ \\
       \cite{hanus2025}  & Curry & no need    & \xmark        & \cmark           & \cmark           \\
-      Fissore and Tassi & Elpi      & no need    & \cmark        & \cmark           & \cmark
+      Fissore and Tassi & \elpi      & no need    & \cmark        & \cmark           & \cmark
       % Mixtus        & \cmark      & \xmark          & \nicefrac{1}{2} & \xmark  & \xmark \\
     \end{tabular}
     \endgroup
@@ -1385,7 +1376,7 @@ in~\cref{tab:comparison}.
 One key difference between our work and~\cite{warren1989,lopez2005,somogy1996,king2011,hanus2025}
 is that they focus on \textit{closed}
 predicates, that do not evolve during execution, while
-$\lambda$Prolog, hence Elpi, allows rules to be dynamically loaded.
+$\lambda$Prolog, hence \elpi, allows rules to be dynamically loaded.
 %
 For closed predicates, programs can be transformed into
 \textit{super-homogeneous} form by merging all rules into one with
@@ -1396,25 +1387,25 @@ However, this transformation is not feasible in our dynamic setting (\cref{sec:d
 % and in particular the check for mutual exclusion
 % needs a higher degree of sophistication.
 
-Regarding modes, Elpi's matching procedure over input arguments allows us to
+Regarding modes, \elpi's matching procedure over input arguments allows us to
 dispense with explicit mode analysis -- an essential component in
 \cite{warren1989,lopez2005,somogy1996,king2011}.
 
 We differ from Red Alert~\cite{king2011} in that we pick an operational semantics that
 explicitly represents choice points as a list of alternatives, and that
-hence is very close to the actual behavior of Elpi's runtime. They pick a
+hence is very close to the actual behavior of \elpi's runtime. They pick a
 denotational semantics over the super-homogeneous form
 that in turn lets them  formulate
 the static analyzer as an abstract interpreter. It is unclear if a denotational
 semantics can be written without transforming the program in super-homogeneous form.
 
-Some of the higher-order features of the Elpi language are available in
+Some of the higher-order features of the \elpi language are available in
 Mercury~\cite{somogy1996}, although in a more constrained way ($\ddagger$).
 For example
 \eI{once} from \cref{sec:HO-program} is considerably more useful
 if the input relation is allowed to be non-ground, e.g, \eI{once (map get_pdiv [6] L)}.
 % Additionally, Elpi’s strong integration with an interactive theorem prover like
-% Rocq prevents us from relying on ground input terms.
+% \rocq prevents us from relying on ground input terms.
 We allow higher-order predicates to
 be miscalled, while Mercury does not.
 Instead, it requires higher-order functions to be annotated with explicit
@@ -1425,7 +1416,7 @@ to the \texttt{foldr} predicate
 and any call that does not match exactly one of these signatures results in a
 compilation failure ($\dagger$). % For instance, \textit{list.filter\_map\_corresponding} fails
 % if the higher-order function is deterministic rather than semi-deterministic.
-Elpi targets less technically inclined users, more familiar with functional programming languages
+\elpi targets less technically inclined users, more familiar with functional programming languages
 than logic ones, hence we strive for simplicity,
 defining only one determinacy class and immediately classifying wrong calls as
 non-deterministic.
@@ -1452,7 +1443,7 @@ complemented to perform full type checking (in addition to determinacy
 checking) in one pass.
 
 In Curry the \texttt{allValues} builtin
-can be used to turn a relation into a function. Prolog, and also Elpi,
+can be used to turn a relation into a function. Prolog, and also \elpi,
 provide a similar \texttt{findall} builtin, but in addition to that they
 also let one commit to the first result by either using \eI{once},
 or by placing a \cut after the non-deterministic call.
@@ -1473,7 +1464,7 @@ is closely related to this difficulty.
 % \eI{R = copy}, we change our mind and declare \eI{R} as a function.
 % Therefore, the call \eI{R T1 T2} is considered a function.
 
-Our experience report confirms most of the Elpi code out there is made
+Our experience report confirms most of the \elpi code out there is made
 of functional predicates and that the static analyzer accepts the vast
 majority of it requiring no changes. The main improvement we will consider
 is about \emph{mode subtyping} for higher-order arguments.
@@ -1491,10 +1482,10 @@ code that receives and calls them.
 % As we can see, determinacy is an important aspect when working with logic
 % programs. This is demonstrated by the vast number of papers on this domain and,
 % of course, the practical benefit that a user gets from a static checker for
-% determinism. The experience we gained while porting libraries depending on Elpi
+% determinism. The experience we gained while porting libraries depending on \elpi
 % is a good indicator that, in most cases, we are writing functions in our
 % Prolog-like language. Therefore, having a checker guaranteeing that determinacy
-% is preserved is beneficial. Moreover, we noticed that this change in the Elpi
+% is preserved is beneficial. Moreover, we noticed that this change in the \elpi
 % code is easy to port to old libraries; only a few lines of code need to be
 % changed if new rules for functional predicates are added.
 
@@ -1535,7 +1526,7 @@ code that receives and calls them.
 % \paragraphTwo{Mode subtyping}
 
 % We mentioned that we do not perform mode analysis. Instead, we exploit
-% Elpi's \textit{input} mode, which encompasses this problem by performing term
+% \elpi's \textit{input} mode, which encompasses this problem by performing term
 % matching without variable unification. In the definition of \mySub, we perform a
 % strict comparison between two arrows: two arrows are related by \mySub only if
 % they have the same input/output mode. However, it is possible to
