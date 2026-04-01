@@ -1030,15 +1030,13 @@ or in ... the absence of the cut allows parallel computation \dots
 \label{sec:coq-elpi}
 
 The \rocqelpi language is a plugin for \rocq that enables the use of \elpi
-within the \rocq environment. 
-
-In the following sections, we first explain the idea behind encoding \rocq terms
-in \elpi (see \cref{sec:hoas}) using higher-order abstract syntax (HOAS)
-\cite{pfenning1988}. Next, we discuss the discrepancies that arise when
-unifying \rocq terms expressed in \elpi using this HOAS encoding
-(see \cref{sec:unif-fo-ho}). Finally, in \cref{sec:elpi-commands-tactics}, we
-provide a brief description of how commands and tactics are written in
-\rocqelpi and how they integrate with \rocq.
+within the \rocq environment. In the following sections, we first explain the
+idea behind encoding \rocq terms in \elpi (see \cref{sec:hoas}) using
+higher-order abstract syntax (HOAS) \cite{pfenning1988}.
+In~\cref{sec:elpi-main-API}, we provide some important API that are widely used
+in \rocqelpi. Finally, in \cref{sec:elpi-commands-tactics}, we provide a brief
+description of how commands and tactics are written in \rocqelpi and how they
+integrate with \rocq.
 
 \subsection{HOAS: \texorpdfstring{$\lambda$}{lambda}-terms representation}
 \label{sec:hoas}
@@ -1087,7 +1085,7 @@ variable in the term.
   \rocq terms & \elpi HOAS & description\\
   \hline
   \cI{plus 0}             & \eI{app [glob ~<<~plus~>>~, glob ~<<0>>~]} & term application\\
-  \cI{fun x => F a}       & \eI{fun `x` y\ app [G, glob ~<<a>>~]} & $\lambda$-abstraction\\
+  \cI{fun x => ?F a}       & \eI{fun `x` y\ app [G, glob ~<<a>>~]} & $\lambda$-abstraction\\
   \cI{~$\forall$~ x, p x} & \eI{prod `x` z\ app [glob ~<<p>>~, z]} & $\forall$-quantif and binding
 \end{tabular}
 \caption{Examples of \rocq terms encoded in \elpi using HOAS}
@@ -1107,34 +1105,88 @@ while the name of the bound variable in \elpi is not relevant. In the third row,
 the \elpi binder (called \eI{z}) is reused to represent the abstraction
 of the object language when applied to the predicate \eI{p}.
 
-The second row shows a \rocq unification variable \eI{F}. It is
+The second row shows a \rocq unification variable \cI{?F}. It is
 translated into an \elpi unification variable \eI{G}, which internally
-corresponds to \eI{F}. When \eI{G} is instantiated during the execution
+corresponds to \cI{?F}. When \eI{G} is instantiated during the execution
 of the \elpi program, the result is translated back into a \rocq term and
-assigned to \eI{F}.
+assigned to \cI{?F}.
 
-\subsection{Unification in \Fo{} and \Ho{}}
-\label{sec:unif-fo-ho}
+% \subsection{Unification in \Fo{} and \Ho{}}
+% \label{sec:unif-fo-ho}
 
-In order to reason about unification we provide a description of the
-\Fo{} and \Ho languages where unification variables
-are first-class terms, i.e. they have a concrete syntax as
-shown in \cref{code:common-terms}.
-Unification variables
-in \Fo{} (\eI{o-uva} term constructor) have no explicit scope:
-the ``arguments'' of a higher-order variable are given via the \eI{o-app}
-constructor. For example the term <<\cI{P x}>> is represented as
-<<\eI{o-app [o-uva N, x]}>>, where \eI{N} is the memory address
-of \eI{P} and \eI{x} is a bound variable.
-In \Ho{} the representation of <<\cI{P x}>> is instead <<\eI{uva N [x]}>>,
-since unification variables are higher-order and come equipped with an
-explicit scope.
+% In this section we want to give the intuition about the unification of \rocq
+% terms inside the \elpi language due to the translation of . Our goal is to show the main discrepancies that
+% exists between the unification procedures of \rocq and \elpi and when this
+% discrepancies cause unification issues. This point is the central for discussing
+% \cref{chap:ho-for-free}, which is also the subject of our paper
+% \cite{fissore2024}. We dedicate a section 
 
-\subsection{Writing Commands and Tactics in \elpi}
+% The translation of \rocq terms in \elpi is very syntactical and it leads to
+% some 
+
+\subsection{Database and Main API in \rocqelpi}
+\label{sec:elpi-main-API}
+
+Thanks to the HOAS representation of \rocq terms in \elpi, the two
+languages become closer and can share a common representation. This
+makes their interaction easier and allows interleaving computations
+between them. The \rocq language exposes several APIs that can be used
+directly from \elpi.
+%
+\begin{center}
+  \eI{pred coq.unify-eq i:term, i:term, o:diagnostic.}
+\end{center}
+
+The predicate above is widely used in \elpi developments. It takes two
+terms and attempts to unify them. If unification fails, it returns a
+diagnostic explaining the error. Internally, this predicate relies on
+the \rocq unification algorithm. When \elpi{coq.unify-eq} is called, the
+HOAS representation of the terms is translated into \rocq terms before
+performing the unification.
+
+Other predicates allow extending the \rocq system with new definitions,
+modules, modes, and more.
+%
+\begin{center}
+  \eI{pred coq.TC.declare-class i:gref.}
+\end{center}
+
+For example, the predicate above allows declaring a type class from a
+global reference in \rocq directly within \rocqelpi.
+
+An \elpi database can be dynamically modified by adding new predicate
+signatures and rules.
+
+\begin{elpicode}
+kind clause type.
+%           Name     Grafting    Rule
+type clause string ~$\to$~ grafting ~$\to$~ prop ~$\to$~ clause.
+
+%                           DB name  Indexing  PName
+pred coq.elpi.add-predicate i:string, i:string, i:string,
+                                  i:list (pair argument_mode string).
+%                        Scope    DB name   Clause
+pred coq.elpi.accumulate i:scope, i:string, i:clause.
+\end{elpicode}
+
+The \eI{coq.elpi.add-predicate} predicate takes as arguments the name of
+the database where the predicate is inserted, the indexing
+strategy\footnote{We do not discuss indexing in detail, as it is not
+central for this manuscript. It determines the data structure used to
+store rules in order to improve search efficiency.}, the predicate
+name, and its specification (argument modes and types).
+
+The \eI{coq.elpi.accumulate} predicate adds a new clause to a database
+within a given scope. A clause is a specific type with a single
+constructor, which contains the clause name, its grafting with respect
+to the existing database, and the rule itself.
+
+These predicates are particularly useful in the context of
+\cref{sec:class-encoding,sec:instance-encoding}.
+
+\subsection{Writing Commands and Tactics in \rocqelpi}
 \label{sec:elpi-commands-tactics}
 
-% \subsection{Writing Tactics in \elpi}
-% \label{sec:elpi-tactics}
 
 TODO: dire com'è fatto un goal in the solve tactic: \eI{goal Ctx V Ty V' Args}
 
