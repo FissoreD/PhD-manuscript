@@ -5,7 +5,7 @@
 
 % We are interested in the static analysis of \elpi programs, in particular
 % in checking their determinacy. \elpi is a higher-order logic programming
-% language, a dialect of $\lambda$Prolog well suited to manipulate
+% language, a dialect of \lprolog well suited to manipulate
 % incomplete syntax trees with binders (see
 % \cite{miller1991-pf,miller2012} and \cite{dunchev15,chr-elpi}).
 % \elpi finds applications as an extension
@@ -31,7 +31,7 @@
 
 
 % \elpi is a higher-order logic programming language, a dialect of
-% \(\lambda\)Prolog, particularly well suited for manipulating
+% \(\lambda\)\prolog, particularly well suited for manipulating
 % syntax trees with binders (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi}). It is used as an
 % extension language for the \rocq Prover (formerly the Coq proof
 % assistant) and has become an important piece of infrastructure: several
@@ -339,7 +339,7 @@ depending on the modes of a predicate.
 % \end{definition}
 
 % \elpi applies rules by matching the input arguments,
-% like B-Prolog's ``matching clauses''~\cite{zhou2012},
+% like B-\prolog's ``matching clauses''~\cite{zhou2012},
 % and by unifying the output ones using Miller's algorithm~\cite{miller1991-pf}.
 
 % \begin{definition}[Unification / Matching]\label{def:matching-remove}\marginpar{Detto sopra}
@@ -423,7 +423,7 @@ r X R :- q X R.
 \noindent
 Conversely, \eI{q} satisfies mutual exclusion: no query can trigger both
 rules. Note that, since inputs are matched, a query like \eI{q X Y} has no
-solution in \elpi. % Standard Prolog implementation would reject the query as
+solution in \elpi. % Standard \prolog implementation would reject the query as
 % not well moded since the input \eI{X} is not ground.
 Both rules for \eI{r} match any input.
 If the first rule succeeds, the \cut\ removes the alternatives
@@ -485,7 +485,7 @@ chapter and can be skipped on a first reading.
 To support mutual exclusion checking in \elpi, we rely on the
 discrimination tree data structure~\cite{disc-tree}, a standard mechanism for
 indexing rules in logic programming systems. Discrimination trees are widely
-used in Prolog-like systems to improve the efficiency of clause retrieval. Our
+used in \prolog-like systems to improve the efficiency of clause retrieval. Our
 implementation follows, in part, the presentation given in Pfenning's
 notes~\footnote{\url{\pfdt}}.
 
@@ -514,7 +514,7 @@ $\qquad$\includegraphics{disc_tree_src.pdf}\\\phantom{xx}
 \label{fig:disc-tree}
 \end{figure}
 
-In Prolog systems, the indexed objects are the rules of the database, and the
+In \prolog systems, the indexed objects are the rules of the database, and the
 head of each rule serves as its key. In \cref{fig:disc-tree}, the database
 (left) and its corresponding discrimination tree (right) are shown. Leaves are
 annotated with the rules stored in each bucket. The purpose of the tree is to
@@ -1437,7 +1437,7 @@ code, while in the private one they added 11 cuts over 7500 lines.
     \begin{tabular}{l|l|c|c|c|c}
                                   Authors  & System  & Mode analysis & Dynamic & H.O.        & Miscalls         \\
       \hline
-      \cite{warren1989} & SB-Prolog & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{warren1989} & SB-\prolog & required   & \xmark        & \xmark           & \xmark           \\
       \cite{lopez2005} & Ciao & required   & \xmark        & \xmark           & \xmark           \\
       \cite{king2011}   & Red Alert & required   & \xmark        & \xmark           & \xmark           \\
       \cite{somogy1996} & Mercury & required   & \xmark        & \cmark$\ddagger$ & \xmark $\dagger$ \\
@@ -1464,7 +1464,7 @@ in~\cref{tab:comparison}.
 One key difference between our work and~\cite{warren1989,lopez2005,somogy1996,king2011,hanus2025}
 is that they focus on \textit{closed}
 predicates, that do not evolve during execution, while
-$\lambda$Prolog, hence \elpi, allows rules to be dynamically loaded.
+\lprolog, hence \elpi, allows rules to be dynamically loaded.
 %
 For closed predicates, programs can be transformed into
 \textit{super-homogeneous} form by merging all rules into one with
@@ -1531,7 +1531,7 @@ complemented to perform full type checking (in addition to determinacy
 checking) in one pass.
 
 In Curry the \texttt{allValues} builtin
-can be used to turn a relation into a function. Prolog, and also \elpi,
+can be used to turn a relation into a function. \prolog, and also \elpi,
 provide a similar \texttt{findall} builtin, but in addition to that they
 also let one commit to the first result by either using \eI{once},
 or by placing a \cut after the non-deterministic call.
@@ -1572,7 +1572,7 @@ code that receives and calls them.
 % of course, the practical benefit that a user gets from a static checker for
 % determinism. The experience we gained while porting libraries depending on \elpi
 % is a good indicator that, in most cases, we are writing functions in our
-% Prolog-like language. Therefore, having a checker guaranteeing that determinacy
+% \prolog-like language. Therefore, having a checker guaranteeing that determinacy
 % is preserved is beneficial. Moreover, we noticed that this change in the \elpi
 % code is easy to port to old libraries; only a few lines of code need to be
 % changed if new rules for functional predicates are added.
