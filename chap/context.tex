@@ -323,14 +323,16 @@ from~\cite{hdr}, as it follows the conventions adopted later in
 semantics presented here exclude the \chr\ component of \elpi; we discuss it
 informally in \cref{sec:chr}.
 
-In \cref{sec:elpi-execution-example}, we present a detailed example of the
-execution of an \elpi\ program. This example will be reused in
-\cref{chap:mechanization} when mechanizing the proof of equivalence with the
-tree-based semantics.
+In \cref{sec:elpi-execution-example,sec:example-ho-dyn-programs}, we first
+present an example of execution, highlighting the role of the \cut
+operator in the \elpi language. We then discuss two main programming
+styles in \elpi, namely higher-order programming and dynamic
+programming, and explain how they interact with the \elpi semantics.
 
-Section~\cref{sec:elpi-features} outlines several key features of the\marginpar{TODO}
-\elpi\ language. Finally, \cref{sec:ctx-elpi-related-words} reviews related
-work and compares our presentation of \elpi\ with existing works in
+In \cref{sec:chr,sec:elpi-rule-names}, we outline two key features of the
+\elpi language: the constraint handling rules system, and rule naming
+and grafting. Finally, \cref{sec:ctx-elpi-related-words} reviews related
+work and compares our presentation of \elpi with existing approaches in
 the literature.
 
 \subsection{Abstract syntax of \elpi (without \chr)}
@@ -1017,8 +1019,6 @@ specific positions in the database to respect the intended priority.
 
 \subsection{Related works}
 \label{sec:ctx-elpi-related-words}
-
-TODO: dire dello spilling
 
 TODO: differently from pure logic programming language, elpi provide the user
 some features allowing to control the execution of a query. We account among
