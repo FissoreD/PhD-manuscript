@@ -832,88 +832,66 @@ $.
 
 % WAM: \cite{ait1991-wam}
 
-\subsection{Higher-order programs in \elpi}
-\label{sec:HO-program}
+\subsection{Higher-order and dynamic programs in \elpi}
+\label{sec:example-ho-dyn-programs}
 
-A notable higher-order program is the one turning relations into functions.
-\footnote{The syntax \eI{~\PYG{k+kd}{(pred)}~}, equivalent to \eI{~\PYG{k+kd}{(pred ->)}~},
-is for fully applied predicates, i.e. for terms with neither inputs nor outputs}
-% any predicate
-% into a function.
+The main feature, tipical to the \elpi language are the possibility to work with
+higher-order and dynamic programs. We show below some examples of the \elpi
+language working with this two features. These examples will be taken back as a
+starting point when we will explain how we check determinacy in \elpi in these
+two particular case (see~\cref{chap:det-elpi}).
+
+The \eI{map} predicate is maybe the most well-known higher-order predicate in
+\elpi. It implementation is given below.
 %
 \begin{elpicode}
-func once (pred) -> . % a function taking a fully applied predicate
-once P :- P, !.       % the ! commits to the first success
-\end{elpicode}
-
-
-%
-We say that the signature of the \eI{once} predicate marks it as \emph{unconditionally}
-a function: \eI{once} leaves no choice points, no matter what it receives as
-the higher-order argument \eI{P}.
-
-An example of a \emph{conditional} function is
-the predicate to map over a list:
-\begin{elpicode}
-func map (func A -> B), list A -> list B.
+pred map i:(pred i:A, o:B), i:list A, o:list B.
 map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
-%
-We say that the signature of \eI{map} has a \emph{precondition}, namely
-that \eI{F} is a function, and a \emph{postcondition}, namely that
-\eI{map} is a function, i.e., the call \eI{map F L L'} leaves
-no choice points.
-If the precondition is not met the postcondition is not guaranteed to hold and we say
-that \eI{map} is \emph{miscalled}. In this case we weaken its signature to%
-\footnote{We explain in detail this weakining operation in \cref{sec:basic}}:
+
+This is a classic \prolog-like implementation where the higher-order argument of
+the predicate is used to output produce the result of the output. In the base
+case, \eI{map} returns the empty list given the empy list in input. If the input
+list is non empty, it maps its head to the result of using the higher-order
+function \eI{F}, then, the recursive call creates the map of the tail.
+
+Another tipical higher order program used in \elpi is characterized by the
+\eI{once} predicate, given below.
 %
 \begin{elpicode}
-pred map (func A -> B), list A -> list B.
+pred once i:(pred).
+once P :- P, !.
 \end{elpicode}
-%
-Our static analysis tracks miscalled functions and considers them as
-relations for the analysis of the surrounding code. This is important to
-avoid code duplication, i.e., we can just have one copy of
-\eI{map} in our library.
-We give an example of four scenarios involving calls and miscalls to \eI{map}.
 
+The predicate \eI{once} is a wrapper of propositions. It call the proposition
+and discards all of the choice points it can ever produce. For example, the
+query \eI{once (r 0 X)}, where \eI{r} is defined in \cref{fig:progx}, only
+returns the first result which assigns \eI{X} to \eI{0}. In the following
+snippets we give some similar implementations pointing out the difference of the
+\cut operator playing at different levels.
 
-% \noindent
-% \begin{minipage}{.5\textwidth}
-\begin{elpicode}
-% a function                      % a relation
-func incr int -> int.             pred get_pdiv int -> int.
-incr 1 2.                         get_pdiv 6 3. get_pdiv 6 2.
+\mvspace
+\noindent
+\begin{minipage}{0.33\textwidth}
+  \input{code/cut_p1}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+  \input{code/cut_p2}
+\end{minipage}
+\begin{minipage}{0.33\textwidth}
+  \input{code/cut_p3}
+\end{minipage}
+\mvspace
 
-       % four predicates calling map or miscalling map
-func p list int -> list int.      pred q list int -> list int.
-p L R :- map incr L R. ~\PYG{c}{\PYGZpc{} OK}~       q L R :- map get_pdiv L R. % OK
-
-func r list int -> list int.      func r1 list int -> list int.
-r L R :- map get_pdiv L R.        r1 L R :- map get_pdiv L R, !. % OK
-           % ^^^^^^^^ error: non-deterministic atom
-\end{elpicode}
-%\vspace{-1.5em}
-% \end{minipage}
-
-Here \eI{p} is a function because the precondition of \eI{map} is respected
-(\eI{incr} is a function).
-The body of \eI{q} contains a miscall to \eI{map}; as a consequence
-\eI{q} may leave choice points. This is not an error because
-\eI{q} is declared to be a relation. 
-The body of \eI{q} and \eI{r} are identical, but
-\eI{r} should be a function and hence the static analyzer complains.
-The predicate \eI{r1} has the same signature of \eI{r} but it
-compensates the miscall to \eI{map} by discarding choice points via
-a cut. The static analyzer accepts this last declaration. We point out that,
-partial applications, like, \eI{(map incr)}, are accepted in our system,
-see \cref{sec:basic}.
-
-
-
-\subsection{Dynamic programs in \elpi}
-\label{sec:dynamic-prog}
+% the result can be printed by: `elpi -test code/cut.elpi'
+The query \eI{p1 1 X} returns four solutions for \eI{X}, namely \eI{0, 1, 2} and
+\eI{3}, since there are no \cut in the code and all solution that can be found
+by backtracking are returned. The query \eI{p2 1 X} produces only one solution,
+namely \eI{X = 0}, since the first solution of \eI{r 0 X} the choices points for
+\eI{r} and \eI{p2} are discarded. Finally the query \eI{p3 1 X} returns two
+solutions for \eI{X}, namely \eI{0} and \eI{3}. The once predicate discards the
+choices points for \eI{r} but does not discard the second rule for \eI{p3}.
 
 The domain where \elpi really shines is the manipulation of higher-order data
 represented via the so-called $\lambda$-tree syntax~\cite{miller2018}
