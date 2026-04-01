@@ -1047,13 +1047,15 @@ abstract syntax (HOAS)~\cite{pfenning1988}. This syntax is inspired by the
 $\lambda$-calculus, which forms the core of the \rocq system. 
 
 The encoding of \rocq terms is performed using a special \elpi type called
-\eI{term}. The code below shows the main constructors for terms:
+\eI{term}. The snippet depicted in \cref{fig:hoas} shows the main constructors
+for terms.
 
+\begin{figure}  
 \begin{elpicode}
 kind term type.
 
 type sort    sort ~$\to$~ term.                 % Prop, Type@{i}
-type glob  gref ~$\to$~ term.
+type glob    gref ~$\to$~ term.
 
 type app     list term ~$\to$~ term.            % app [hd|args]
 type fun     name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term. 
@@ -1061,6 +1063,10 @@ type prod    name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term.
 
 ...                     % Other constructors omitted
 \end{elpicode}
+\vspace{-1.5em}
+\caption{HOAS of \rocq terms in \elpi}
+\label{fig:hoas}
+\end{figure}
 
 The base constructors are \eI{sort}, which encodes the \eI{Type} and
 \eI{Prop} terms of \rocq, and \eI{glob}. In the \elpi code this last constructor
@@ -1181,14 +1187,110 @@ within a given scope. A clause is a specific type with a single
 constructor, which contains the clause name, its grafting with respect
 to the existing database, and the rule itself.
 
-These predicates are particularly useful in the context of
+These last two predicates are particularly useful in the context of
 \cref{sec:class-encoding,sec:instance-encoding}.
 
 \subsection{Writing Commands and Tactics in \rocqelpi}
 \label{sec:elpi-commands-tactics}
 
+We now describe how to implement commands and tactics in \rocqelpi.
 
-TODO: dire com'è fatto un goal in the solve tactic: \eI{goal Ctx V Ty V' Args}
+As mentioned at the beginning of this chapter, commands are used to extend
+the \rocq language with new definitions and theorems. A command is declared
+with the following syntax:
+%
+\begin{center}
+  \eI{Elpi Command command_name.}
+\end{center}
+
+This declaration introduces a new \elpi command named \eI{command_name}.
+The command can be executed using the pragma:
+%
+\begin{center}
+  \eI{Elpi command_name.}
+\end{center}
+
+This invocation runs the command and calls its entry point, a predicate
+named \eI{main} with signature \eI{pred main i:list argument}. An argument
+can be a string, an integer, a term, or an open term.
+
+A command can be extended by adding new rules as follows:
+%
+\begin{coqcode}
+Elpi Accumulate command_name lp:{{
+  ~\PYG{c}{\PYGZpc{} New rules added here}~
+}}.
+\end{coqcode}
+
+In practice, commands are often built on top of an \elpi database. A
+database can be attached to a command using:
+%
+\begin{center}
+  \eI{Elpi Accumulate Db db_name.}
+\end{center}
+
+Tactics in \elpi aims to solve \rocq goals using the \elpi intepreter. The
+declaration of tactics in \elpi is similar to that of commands. The keyword
+\eI{Command} is replaced by \eI{Tactic}. For example:
+%
+\begin{center}
+  \eI{Elpi Tactic tactic_name.}
+\end{center}
+
+As for commands, a database can be added to a tactic using the same
+\eI{Elpi Accumulate Db} syntax. A tactic can be called via the syntax:
+%
+\begin{center}
+  \eI{elpi command_name.}
+\end{center}
+
+The entry point of a tactic is the
+\eI{msolve} predicate, with the following type:
+%
+\begin{center}
+  \eI{pred msolve i:list sealed-goal, o:list sealed-goal.}
+\end{center}
+
+\begin{figure}
+\begin{elpicode}
+kind goal type.
+kind sealed-goal type.
+type nabla (term ~$\to$~ sealed-goal) ~$\to$~ sealed-goal.
+type seal  goal ~$\to$~ sealed-goal.
+
+typeabbrev goal-ctx (list prop).
+%          Context    RS     Ty      Sol     Arguments
+type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~
+           list argument ~$\to$~ goal.
+\end{elpicode}
+\vspace{-1.5em}
+\caption{Representation of goals and sealed goals in \rocqelpi}
+\label{fig:goals-type}
+\end{figure}
+
+The \eI{msolve} predicate takes as input a list of \rocq sealed goals and
+returns an updated list of sealed goals. The type \eI{sealed-goal}, shown in
+\cref{fig:goals-type}, represents goals that may contain abstractions. These
+abstractions are encoded using the \eI{nabla} constructor.
+
+Under a spine of \eI{nabla} abstractions, the \eI{seal} constructor contains a
+goal. A goal is a tuple with five components: a context $C$, a raw solution
+$S_r$, a type $T_y$, a final solution $S$, and a list of arguments $L$.
+
+The context $C$ maps free variables to their types. The term $S_r$ is a trigger:
+when it is instantiated, it is elaborated against the type $T_y$. The type $T_y$
+is the type of the \rocq goal to be solved. The term $S$ is the final solution,
+which must have type $T_y$. The list $L$ contains arguments that control the
+behavior of the resolution process. In this work, we mainly use two projections
+of goals, namely the context and the goal type.
+
+If the \eI{msolve} predicate is not implemented, the system tries to solve
+each goal using the \eI{solve} predicate. In this case, the \eI{nabla}
+abstractions are already traversed.
+%
+\begin{center}
+  \eI{pred solve i:goal, o:list sealed-goal.}
+\end{center}
 
 \subsection{Concluding remarks}
 
