@@ -1055,28 +1055,63 @@ The encoding of \rocq terms is performed using a special \elpi type called
 kind term type.
 
 type sort    sort ~$\to$~ term.                 % Prop, Type@{i}
-type global  gref ~$\to$~ term.
+type glob  gref ~$\to$~ term.
 
 type app     list term ~$\to$~ term.            % app [hd|args]
 type fun     name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term. 
 type prod    name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term. 
+
+...                     % Other constructors omitted
 \end{elpicode}
 
-The base constructors are \eI{sort}, which encodes \eI{Type} and \eI{Prop} terms
-of \rocq, and \eI{global}, which encodes user-defined symbols such as types,
-inductives, and definitions. These symbols are identified by a \eI{gref}, an
-opaque object containing the unique identifier of the referred entity.
+The base constructors are \eI{sort}, which encodes the \eI{Type} and
+\eI{Prop} terms of \rocq, and \eI{glob}. In the \elpi code this last constructor
+is called \eI{global}, but we use the shorter name \eI{glob} for better
+space management.
+The \eI{glob} constructor represents user-defined symbols such as types,
+inductives, and definitions. These symbols are identified by a \eI{gref},
+which is an opaque object containing the unique identifier of the
+corresponding entity.
 
-Term application in \rocq is represented by the \eI{app} constructor, which
-takes a list of terms. $\lambda$-abstractions and $\forall$-quantifications are
-encoded using the \eI{fun} and \eI{prod} constructors, respectively. Both
-constructors carry the \eI{name} of the binder (used for pretty printing), the
-binder's type, and an \elpi higher-order object of type \eI{term ~$\to$~ term}
-that abstracts the bound variable inside the term.
+Term application in \rocq is represented by the \eI{app} constructor,
+which takes a list of terms. $\lambda$-abstractions and
+$\forall$-quantifications are encoded using the \eI{fun} and \eI{prod}
+constructors, respectively. Each of these constructors carries the
+\eI{name} of the \rocq binder (used only for pretty printing), the type of the
+binder, and an \elpi higher-order object of type
+\eI{term ~$\to$~ term}, which represents the abstraction of the bound
+variable in the term.
 
-TODO: here
+\begin{figure}
+\begin{tabular}{lll}
+  \rocq terms & \elpi HOAS & description\\
+  \hline
+  \cI{plus 0}             & \eI{app [glob ~<<~plus~>>~, glob ~<<0>>~]} & term application\\
+  \cI{fun x => F a}       & \eI{fun `x` y\ app [G, glob ~<<a>>~]} & $\lambda$-abstraction\\
+  \cI{~$\forall$~ x, p x} & \eI{prod `x` z\ app [glob ~<<p>>~, z]} & $\forall$-quantif and binding
+\end{tabular}
+\caption{Examples of \rocq terms encoded in \elpi using HOAS}
+\label{fig:rocq-to-elpi-hoas}
+\end{figure}
 
-NOTATION
+The \rocqelpi backend translates \rocq terms into HOAS \elpi terms and
+conversely when the two systems interact. In
+\cref{fig:rocq-to-elpi-hoas}, we show some examples of this encoding:
+the first column contains \rocq terms, and the second column their HOAS
+representation in \elpi.
+
+The second and third rows illustrate how binders are handled for
+$\lambda$-abstraction and $\forall$-quantification. The original binder
+name from \rocq is stored in the \eI{fun} and \eI{prod} constructors,
+while the name of the bound variable in \elpi is not relevant. In the third row,
+the \elpi binder (called \eI{z}) is reused to represent the abstraction
+of the object language when applied to the predicate \eI{p}.
+
+The second row shows a \rocq unification variable \eI{F}. It is
+translated into an \elpi unification variable \eI{G}, which internally
+corresponds to \eI{F}. When \eI{G} is instantiated during the execution
+of the \elpi program, the result is translated back into a \rocq term and
+assigned to \eI{F}.
 
 \subsection{Unification in \Fo{} and \Ho{}}
 \label{sec:unif-fo-ho}
