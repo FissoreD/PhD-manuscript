@@ -475,29 +475,89 @@ Both rules for \eI{s2} load a local rule for \eI{q}. All these local
 rules are mutually exclusive with the global rules in the program, but the query 
 \eI{s2 2 R} has two results namely \eI{R = 5} and  \eI{R = 6}. 
 
-
+\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
 \subsection{Checking mutual exclusion: discrimination trees}
 
-In order to support mutual exclusion checking in \elpi, we extend its compiler
-so that it
+This subsection briefly describes our implementation of mutual exclusion
+verification in \elpi. It is not required for understanding the rest of the
+chapter and can be skipped on a first reading.
 
-TODO: riflessione 
+To support mutual exclusion checking in \elpi, we rely on the
+discrimination tree data structure~\cite{disc-tree}, a standard mechanism for
+indexing rules in logic programming systems. Discrimination trees are widely
+used in Prolog-like systems to improve the efficiency of clause retrieval. Our
+implementation follows, in part, the presentation given in Pfenning's
+notes~\footnote{\url{\pfdt}}.
 
-CITARE ANCHE MACCUNE
+A discrimination tree is a trie-based structure. Inner nodes are labeled,
+while leaves store buckets of objects. Tries represent dictionaries by sharing
+common prefixes of keys. A \emph{path} is defined as the sequence of labels
+encountered from the root to a leaf.
 
-TODO: dire che è anche una mia contribuzione
+Two basic operations are supported: insertion and retrieval. To insert an
+element $e$ with key $k$, the algorithm traverses the trie symbol by symbol,
+starting from the root. For each symbol, it follows the corresponding edge,
+creating a new node if necessary. Once all symbols have been consumed, the
+element $e$ is stored in the resulting leaf. Retrieval works similarly: the key
+is read symbol by symbol, and the tree is traversed accordingly. If the path
+exists, the elements stored in the corresponding leaf are returned.
 
+\begin{figure}
+\centering
+\begin{subfigure}{0.3\textwidth}
+$\qquad$\includegraphics{disc_tree_src.pdf}\\phantom{xx}
+\end{subfigure}
+\begin{subfigure}{0.65\textwidth}
+\includegraphics{disc_tree.pdf}
+\end{subfigure}
+\caption{Example of a discrimination tree, from~\cite{disc-tree}}
+\label{fig:disc-tree}
+\end{figure}
 
-\newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
+In Prolog systems, the indexed objects are the rules of the database, and the
+head of each rule serves as its key. In \cref{fig:disc-tree}, the database
+(left) and its corresponding discrimination tree (right) are shown. Leaves are
+annotated with the rules stored in each bucket. The purpose of the tree is to
+enable fast clause retrieval.
 
-Discrimination trees: Pfenning notes~\footnote{\url{\pfdt}}
+Variables are represented in an approximate way. In particular, they are encoded
+as generic symbols that match any term. For instance, in
+\cref{fig:disc-tree}, rules 1 and 2 share the same path and are stored in the
+same bucket. Retrieval must also take modes into account. For example, if the
+predicate \eI{g} has one input and one output argument, the query \eI{g X Y}
+returns only rules 7 and 8. If both arguments are outputs, then rules 7, 8, and 9
+are returned.
 
-Discrimination trees: optimizations for lists and tree depths.
+For efficiency, terms are encoded as sequences of integers, where each integer
+represents multiple pieces of information at the bit level. Modes are included
+in this encoding, allowing the system to determine whether a rigid term should
+be matched or unified during retrieval.
 
+Unification in the discrimination tree is only an approximation of the full
+\elpi unification algorithm, which is more expensive. By construction, the set
+of rules returned by the tree is a superset of the rules that actually match the
+query. A second phase applies the full \elpi unification to filter out
+non-applicable rules.
 
-\cite{tabling-dm,tabling-pie}
+We also optimize the encoding of query paths. In practice, query terms are often
+larger than the terms stored in the database, so encoding them entirely is not
+useful. Instead, we use a hit-map to decide which subterms should be encoded and
+at which depth. Furthermore, to avoid complex unification, terms headed by a
+$\lambda$-symbol are treated as variables. For example, \eI{x\ X x} may unify
+with \eI{id} or \eI{(x\ 3)}, but all such terms are encoded as variables in the
+tree.
 
+Discrimination trees are effective for indexing rules in the \elpi database,
+making retrieval faster in many cases. In this work, however, their main role is
+to support mutual exclusion checking.
 
+During compilation, an auxiliary discrimination tree is built. Each rule of a
+deterministic predicate is inserted into this structure. When a new rule is
+added, the tree is queried to retrieve the set of potentially overlapping rules
+$r$. By invariant, $r$ is an ordered (possibly empty) list in which all rules,
+except possibly the last one, contain a \cut. The mutual exclusion check then
+verifies that the new rule is inserted either at the end of the list; otherwise
+it should contain the \cut operator.
 
 
 \section{Static analysis of determinacy signatures}
@@ -977,14 +1037,16 @@ preconditions and all the postconditions of well called body atoms.
 \section{Determinism guarantees}
 
 In order to express \emph{operational determinacy}
-we need to use an operational semantics for \elpi.
-That semantics, for its higher-order logic-programming part,
-is essentially the one given by~\cite{qi2009} using a last-in-first-out goal selection.
-However it must be
-complemented with a treatment of choice points to describe
-the behavior of the cut operator following~\cite{vink1989}.
-Moreover \elpi has a peculiar runtime threatment of input arguments, that
-are matched rather than unified (see~\cref{def:matching}). 
+we need to use an operational semantics for \elpi. The semantics is
+given in \cref{sec:elpi-semantics}.
+
+% That semantics, for its higher-order logic-programming part,
+% is essentially the one given by~\cite{qi2009} using a last-in-first-out goal selection.
+% However it must be
+% complemented with a treatment of choice points to describe
+% the behavior of the cut operator following~\cite{vink1989}.
+% Moreover \elpi has a peculiar runtime threatment of input arguments, that
+% are matched rather than unified (see~\cref{def:matching}). 
 
 
 
@@ -1015,23 +1077,25 @@ are matched rather than unified (see~\cref{def:matching}).
 % \end{elpicode}
 % \end{minipage}
 
-For space constraints we omit the rules defining \run, they can be found
-in the appendix of~\cite{hdr}\marginpar{appendix}. %The entrypoint of a computation is called a
+% For space constraints we omit the rules defining \run, they can be found
+% in the appendix of~\cite{hdr}\marginpar{appendix}. %The entrypoint of a computation is called a
 %goal and corresponds to a query atom $q$ and a program \prog.
 %  that is executed via \runCmd{(\EmptyList,q) :: \EmptyList}{\EmptyList}{\EmptySubst}{\_}{\_}.
 
-\begin{definition}[Operational semantics $(\run{} : \ALT \times \vecL{\ALT} \to \SIGMA \times \vecL{\ALT})$]
-  \label{def:op-sem}
-Run is a partial function from a non-empty list of alternatives to a solution
-consisting in a substitution and a list of yet-to-be-explored alternatives.\\
+% \begin{definition}[Operational semantics $(\run{} : \ALT \times \vecL{\ALT} \to \SIGMA \times \vecL{\ALT})$]
+%   \label{def:op-sem}
+% Run is a partial function from a non-empty list of alternatives to a solution
+% consisting in a substitution and a list of yet-to-be-explored alternatives.\\
+
 The properties of \run{} relevant to the current paper are:
+
 \begin{enumerate}
-\item $\cut$ behaves as per \cref{def:hard-cut}
-\item $\pi\ x\ r\ b$ generates a fresh constant for $x$ available in $r$ and $b$
-\item $\pi\ x\ r\ b$ loads $r$ in the program giving it the highest priority
+\item $\cut$ behaves as per \cref{sec:elpi-execution-example}
+\item $\pi\ x.\ b$ generates a fresh constant for $x$ available in $b$
+\item $r \Rightarrow b$ loads $r$ in the program giving it the highest priority
 \item input arguments are matched against the query as per~\cref{def:matching}
 \end{enumerate}
-\end{definition}
+% \end{definition}
 
 
 
@@ -1165,7 +1229,7 @@ The properties of \run{} relevant to the current paper are:
   We say that a query atom $b$ is
   operationally deterministic in a program \prog iff % for all substitution $s$
   $$
-       \forall \sigma, \runCmd{(\prog,b) :: \EmptyList}{\EmptyList}{\sigma}{a}{\_}{\_} 
+       \forall \sigma, \runCmd{(\prog,b) :: \EmptyList}{\EmptyList}{\sigma}{a}{\_}
         ~\Rightarrow~ a = \EmptyList
   $$
 \end{definition}
@@ -1265,16 +1329,17 @@ $$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
   \label{th:1}
 \end{theorem}
 
-The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant,
-formerly known as Coq, for the first-order part~\cite{formalproof}. The mechanization for
-the higher-order part is ongoing.
+The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant, for
+the first-order part~\cite{fissore2026} and is available at
+\url{https://github.com/FissoreD/elpi-formalization}. The mechanization for the
+higher-order part is ongoing.
 
 \section{Experience report}
 
 The static analyzer we describe was integrated in the \href{https://github.com/LPCIC/elpi}{\elpi language}
 version 3.0. It
 consists of
-about $200$ lines of OCaml code for the implementation of \mutExclAll and about $800$
+about $200$ lines of \ocaml code for the implementation of \mutExclAll and about $800$
 lines of code for the implementation of \checkc, along with all the related
 auxiliary functions.
 We have  ported some \rocq libraries written using \elpi: \rocq-\elpi, Hierarchy Builder,

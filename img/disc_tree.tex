@@ -1,0 +1,31 @@
+\documentclass[crop,tikz]{standalone}%
+\usepackage[linguistics]{forest}
+\usepackage{../mminted}
+
+\begin{document}
+
+\begin{forest}
+[root
+  [\eI{f}
+    [\eI{*}
+      [\eI{*}\\\{1 2\}]
+      [\eI{b}\\\{3\}]
+    ]
+    [\eI{g}
+      [\eI{a}
+        [\eI{*}\\\{4\}]
+        [\eI{b}\\\{5\}]
+      ]
+    ]
+    [\eI{a}
+      [\eI{*}\\\{6\}]
+    ]
+  ]
+  [\eI{g}
+    [\eI{*}\\\{7\ 8\}]
+    [\eI{b}\\\{9\}]
+  ]
+] 
+\end{forest}
+
+\end{document}
