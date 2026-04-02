@@ -1189,6 +1189,27 @@ corresponds to \cI{?F}. When \eI{G} is instantiated during the execution
 of the \elpi program, the result is translated back into a \rocq term and
 assigned to \cI{?F}.
 
+\paragraphTwo{Quotations and Antiquotations}
+
+Writing \rocq{} terms can be tedious, as it requires explicitly constructing
+their full HOAS representation. As shown in
+\cref{tab:rocq-to-elpi-hoas}, the \elpi{} HOAS syntax is significantly more
+verbose than standard \rocq{} syntax. Moreover, \rocq{} often includes implicit
+subterms, whereas \elpi{} does not provide such a mechanism.
+
+To simplify development, \rocqelpi{} offers a system of quotations and
+antiquotations. This mechanism allows embedding \rocq{} syntax within \elpi{}
+code, and conversely \elpi{} syntax within \rocq{} code, in a recursive manner.
+
+An illustrative example, adapted from~\cite{hdr}, is the following:
+%
+$$\underbrace{\eI{print}}_{\elpi}\ \{\{ \underbrace{\cI{1 +}}_{\rocq}\ \eI{lp:}\{\{\underbrace{\eI{app[glob ~<<S>>~, }}_{\elpi}\{\{ \underbrace{\cI{0}}_{\rocq} \}\} \underbrace{\phantom{aa}}_{\elpi} \}\} \underbrace{\phantom{aa}}_{\rocq} \}\}$$
+
+Within an \elpi{} code block, the syntax \cI{{{ ... }}} denotes a
+quotation that allows writing \rocq{} code. Conversely, within \rocq{} code, the
+syntax \eI{lp:{{ ... }}} denotes a quotation for embedding \elpi{} code.
+These constructs can be nested arbitrarily.
+
 % \subsection{Unification in \Fo{} and \Ho{}}
 % \label{sec:unif-fo-ho}
 
