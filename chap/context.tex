@@ -1127,7 +1127,7 @@ for terms.
 kind term type.
 
 type sort    sort ~$\to$~ term.                 % Prop, Type@{i}
-type glob    gref ~$\to$~ term.
+type global  gref ~$\to$~ term.
 
 type app     list term ~$\to$~ term.            % app [hd|args]
 type fun     name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term. 
@@ -1140,14 +1140,16 @@ type prod    name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term.
 \label{fig:hoas}
 \end{figure}
 
-The base constructors are \eI{sort}, which encodes the \eI{Type} and
-\eI{Prop} terms of \rocq, and \eI{glob}. In the \elpi code this last constructor
-is called \eI{global}, but we use the shorter name \eI{glob} for better
-space management.
-The \eI{glob} constructor represents user-defined symbols such as types,
-inductives, and definitions. These symbols are identified by a \eI{gref},
-which is an opaque object containing the unique identifier of the
-corresponding entity.
+The base constructors are \eI{sort}, which encodes the \eI{Type} and \eI{Prop}
+terms of \rocq, and \eI{global}. The \eI{global} constructor represents
+user-defined symbols such as types, inductives, and constants. 
+
+These symbols are identified by a \eI{gref}, which is an opaque object
+containing the unique identifier of the corresponding \rocq symbol. For better
+space management we use a more compact notation: opaque \rocq{} symbols are
+written using guillemets, avoiding the explicit use of the \eI{global}
+constructor. For instance, the \rocq{} constant \cI{nat} is represented in HOAS
+form as \cI{~<<nat>>~}.
 
 Term application in \rocq is represented by the \eI{app} constructor,
 which takes a list of terms. $\lambda$-abstractions and
@@ -1162,9 +1164,9 @@ variable in the term.
 \begin{tabular}{lll}
   \rocq terms & \elpi HOAS & description\\
   \hline
-  \cI{plus 0}             & \eI{app [glob ~<<~plus~>>~, glob ~<<0>>~]} & term application\\
-  \cI{fun x => ?F a}       & \eI{fun `x` y\ app [G, glob ~<<a>>~]} & $\lambda$-abstraction\\
-  \cI{~$\forall$~ x, p x} & \eI{prod `x` z\ app [glob ~<<p>>~, z]} & $\forall$-quantif and binding
+  \cI{plus 0}             & \eI{app [~<<~plus~>>~, ~<<0>>~]} & term application\\
+  \cI{fun x => ?F a}       & \eI{fun `x` y\ app [G, ~<<a>>~]} & $\lambda$-abstraction\\
+  \cI{~$\forall$~ x, p x} & \eI{prod `x` z\ app [~<<p>>~, z]} & $\forall$-quantif and binding
 \end{tabular}
 \caption{Examples of \rocq terms encoded in \elpi using HOAS}
 \label{tab:rocq-to-elpi-hoas}
@@ -1203,7 +1205,7 @@ code, and conversely \elpi{} syntax within \rocq{} code, in a recursive manner.
 
 An illustrative example, adapted from~\cite{hdr}, is the following:
 %
-$$\underbrace{\eI{print}}_{\elpi}\ \{\{ \underbrace{\cI{1 +}}_{\rocq}\ \eI{lp:}\{\{\underbrace{\eI{app[glob ~<<S>>~, }}_{\elpi}\{\{ \underbrace{\cI{0}}_{\rocq} \}\} \underbrace{\phantom{aa}}_{\elpi} \}\} \underbrace{\phantom{aa}}_{\rocq} \}\}$$
+$$\underbrace{\eI{print}}_{\elpi}\ \{\{ \underbrace{\cI{1 +}}_{\rocq}\ \eI{lp:}\{\{\underbrace{\eI{app[~<<S>>~, }}_{\elpi}\{\{ \underbrace{\cI{0}}_{\rocq} \}\} \underbrace{\phantom{aa}}_{\elpi} \}\} \underbrace{\phantom{aa}}_{\rocq} \}\}$$
 
 Within an \elpi{} code block, the syntax \cI{{{ ... }}} denotes a
 quotation that allows writing \rocq{} code. Conversely, within \rocq{} code, the
