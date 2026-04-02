@@ -1348,8 +1348,23 @@ called on the content of the \eI{seal} constructor, meaning that all
   \eI{pred solve i:goal, o:list sealed-goal.}
 \end{center}
 
-TODO: dire che si possono chiamare tattiche in elpi tactic, come ad esempio
-refine che è usata per \dots\marginpar{refine}
+The final point addressed in this section concerns the \eI{refine} predicate.
+
+Given a goal \eI{G} and a proof term \eI{P}, one may wish to typecheck \eI{P}
+against the \eI{G} and obtain the corresponding list of subgoals that must be
+solved recursively. The \rocq tactics performing this task is called
+\eI{refine}.
+
+In \elpi{}, the \eI{refine} predicate exists and has the same behavior: it takes
+a proof term and a goal, it typechecks the proof agains its type and returns a
+list of subgoals on the for of a list of sealed-goals. It is customary for
+\elpi{} tactics to invoke \eI{refine} in order to produce the output list the
+\eI{solve} predicate.
+
+For performance reasons, \elpi{} also provides a variant, \eI{refine.no_check},
+which skips typechecking and directly produces the list of sealed subgoals from
+the given term and goal. This results in faster, although less reliable,
+computation.
 
 \subsection{Concluding remarks}
 
