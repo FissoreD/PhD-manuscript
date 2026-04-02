@@ -702,7 +702,7 @@ We believe that the main difficulty in the semantics presented in the previous
 section lies in the treatment of choice points and their interaction with the
 \cut operator.
 
-Several variants of the cut operator exist in the literature. The variant we
+Several variants of the cut operator exist in the literature. The variant we \marginpar{reformulate}
 consider, used in \elpi, is the so-called \emph{hard cut} (see, for example, the
 documentation of \sprolog~\cite{swi-prolog-cut}). When the \cI{backchain}
 function returns a non-empty list of alternatives, the first alternative is
@@ -1320,6 +1320,9 @@ called on the content of the \eI{seal} constructor, meaning that all
 \begin{center}
   \eI{pred solve i:goal, o:list sealed-goal.}
 \end{center}
+
+TODO: dire che si possono chiamare tattiche in elpi tactic, come ad esempio
+refine che è usata per \dots\marginpar{refine}
 
 \subsection{Concluding remarks}
 
