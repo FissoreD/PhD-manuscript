@@ -1086,7 +1086,7 @@ binder, and an \elpi higher-order object of type
 \eI{term ~$\to$~ term}, which represents the abstraction of the bound
 variable in the term.
 
-\begin{figure}
+\begin{table}
 \begin{tabular}{lll}
   \rocq terms & \elpi HOAS & description\\
   \hline
@@ -1095,12 +1095,12 @@ variable in the term.
   \cI{~$\forall$~ x, p x} & \eI{prod `x` z\ app [glob ~<<p>>~, z]} & $\forall$-quantif and binding
 \end{tabular}
 \caption{Examples of \rocq terms encoded in \elpi using HOAS}
-\label{fig:rocq-to-elpi-hoas}
-\end{figure}
+\label{tab:rocq-to-elpi-hoas}
+\end{table}
 
 The \rocqelpi backend translates \rocq terms into HOAS \elpi terms and
 conversely when the two systems interact. In
-\cref{fig:rocq-to-elpi-hoas}, we show some examples of this encoding:
+\cref{tab:rocq-to-elpi-hoas}, we show some examples of this encoding:
 the first column contains \rocq terms, and the second column their HOAS
 representation in \elpi.
 
@@ -1193,59 +1193,41 @@ These last two predicates are particularly useful in the context of
 \subsection{Writing Commands and Tactics in \rocqelpi}
 \label{sec:elpi-commands-tactics}
 
-We now describe how to implement commands and tactics in \rocqelpi.
+\begin{table}
+  \begin{tabular}{lll}
+    commands                        & tactic                        & description \\
+    \hline
+    \cI{Elpi Command command_name.} & \cI{Elpi Tactic tactic_name.} & declaration \\
+    \cI{Elpi command_name.}         & \cI{elpi tactic_name.}        & invocation \\
+    \eI{main}                       & \eI{msolve} and \eI{solve}    & entry point
+  \end{tabular}
+  \caption{Command and Tactic main commands}
+  \label{tab:comm-tac}
+\end{table}
 
-As mentioned at the beginning of this chapter, commands are used to extend
-the \rocq language with new definitions and theorems. A command is declared
-with the following syntax:
-%
-\begin{center}
-  \eI{Elpi Command command_name.}
-\end{center}
+We now describe how to implement commands and tactics in \rocqelpi. In
+\cref{tab:comm-tac}, we summarize how to define commands and tactics, how to
+invoke them, and what their entry points are. Both commands and tactics are
+typically built on top of an \elpi database, which they can read and, if needed,
+modify. A database is added using the command \cI{Elpi Accumulate Db db_name}.
+The code of commands and tactics can be extended as follows:
 
-This declaration introduces a new \elpi command named \eI{command_name}.
-The command can be executed using the pragma:
-%
-\begin{center}
-  \eI{Elpi command_name.}
-\end{center}
-
-This invocation runs the command and calls its entry point, a predicate
-named \eI{main} with signature \eI{pred main i:list argument}. An argument
-can be a string, an integer, a term, or an open term.
-
-A command can be extended by adding new rules as follows:
-%
 \begin{coqcode}
-Elpi Accumulate command_name lp:{{
-  ~\PYG{c}{\PYGZpc{} New rules added here}~
+Elpi Accumulate [command_name|tactic_name] lp:{{
+~\PYG{c}{\PYGZpc{} New rules added here}~
 }}.
 \end{coqcode}
 
-In practice, commands are often built on top of an \elpi database. A
-database can be attached to a command using:
-%
-\begin{center}
-  \eI{Elpi Accumulate Db db_name.}
-\end{center}
+As mentioned at the beginning of this chapter, commands are used to extend the
+\rocq language with new definitions and theorems. In other words, a command does
+not return a value: it is mainly used for printing or for modifying the internal
+state of the system. The entry point of a command is a predicate named
+\eI{main}, with signature \eI{pred main i:list argument}. An argument can be a
+string, an integer, a term, or an open term.
 
-Tactics in \elpi aims to solve \rocq goals using the \elpi intepreter. The
-declaration of tactics in \elpi is similar to that of commands. The keyword
-\eI{Command} is replaced by \eI{Tactic}. For example:
-%
-\begin{center}
-  \eI{Elpi Tactic tactic_name.}
-\end{center}
-
-As for commands, a database can be added to a tactic using the same
-\eI{Elpi Accumulate Db} syntax. A tactic can be called via the syntax:
-%
-\begin{center}
-  \eI{elpi command_name.}
-\end{center}
-
-The entry point of a tactic is the
-\eI{msolve} predicate, with the following type:
+Tactics in \elpi are used to solve \rocq goals through the \elpi interpreter.
+Their declaration is similar to that of commands. The entry point of a tactic is
+the predicate \eI{msolve}, with the following type:
 %
 \begin{center}
   \eI{pred msolve i:list sealed-goal, o:list sealed-goal.}
@@ -1284,9 +1266,11 @@ which must have type $T_y$. The list $L$ contains arguments that control the
 behavior of the resolution process. In this work, we mainly use two projections
 of goals, namely the context and the goal type.
 
-If the \eI{msolve} predicate is not implemented, the system tries to solve
-each goal using the \eI{solve} predicate. In this case, the \eI{nabla}
-abstractions are already traversed.
+If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
+the list of goals \eI{L}, then the system attempts to solve each goal in
+\eI{L} individually using the predicate \eI{solve}. In this case, \eI{solve} is
+called on the content of the \eI{seal} constructor, meaning that all
+\eI{nabla}s have already been traversed.
 %
 \begin{center}
   \eI{pred solve i:goal, o:list sealed-goal.}
