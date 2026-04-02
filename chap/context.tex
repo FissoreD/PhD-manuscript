@@ -253,36 +253,81 @@ function \cI{plus} and a proof that \cI{plus} is associative. Then, if
 \cI{addNat}, \cI{addR} and \cI{addProd} are implemented according the new
 definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
 addition is associative over natural and real numbers and pairs.
-This feature of type classes has been adopted in several major \rocq libraries.
-Among them we can site, among others, \tlc, \stdpp~\cite{iris-junk}.
 
-\paragraphTwo{Class hierarchy}
+In order to better structure type classes, the system can be extended so that
+type classes can inherit properties of existing classes. In group theory this
+feature consist, for example, in defining an object called \cI{Magma} with an
+operation \cI{op}, and a second opject \eI{Semigroup} which extends \eI{Magma}s
+by postulating the associative property on \cI{op}.
 
-Magma + Semigroup
+This way for example, the \eI{Add} class, in some developments is formalized as:
 
+\input{code/magma.tex}
 \paragraphTwo{Search strategy}
 
-Source:\cite{rocq_class_command}
+Type classes are used in several major \rocq libraries, such as \tlc,
+\stdpp, and \iris~\cite{iris-junk}. They provide access to the type-class
+solver, which automatically infers instances by searching in a database of
+declared instances. This database is organized as an ordered list. Given a
+type-class goal, the solver tries to unify the goal with the conclusion of
+each instance. When unification succeeds, it then tries to solve the premises
+of that instance.
 
-Dire che la ricerca si base sui tipi delle istanze, l'implementazione dei metodi
-non è importante per la ricerca.
+As an example, consider the instances defined previously for the type class
+\cI{Add}. To solve the goal \cI{Add (nat * R)}, the solver first tries
+\cI{addNat}, which fails because its conclusion does not match the goal. The
+same happens with \cI{addR}. The instance \cI{addProd} can be applied if its
+premises, namely \cI{Add nat} and \cI{Add R}, can be solved. Since both are
+derivable, the resulting instance is \eI{addProd nat R addNat addR}. By
+default, the solver follows a \textit{depth-first search} (DFS): it explores
+the database deeply and backtracks when a branch fails.
 
-Instance search allow backtracking, in haskell default beahvior no overlapping
-instances, in coq they can.
+The order of instances in the database is important, since it may affect both
+performance and termination. For instance, the goal \cI{Add ?X}, where
+\cI{?X} is an existential variable, can lead to non-termination if
+\cI{addProd} has the highest priority. In such a case, the variable may be
+repeatedly instantiated with terms of the form
+$(((\dots * \cI{?X}*{n-2}) * \cI{?X}*{n-1}) * \cI{?X}_n)$, due to the recursive
+use of its first premise.
 
-Instance priority
+The priority of an instance can be specified at the end of its declaration
+using \cI{| N}, where \cI{N} is an integer. The instance is then placed at
+position \cI{N} in the database. A smaller value of \cI{N} means higher
+priority. If no priority is given, \rocq computes it automatically by
+assigning weight $1$ to each premise that is itself a type-class constraint.
+
+Several mechanisms are available to guide the solver. One common tool is
+\emph{modes}, which enforce conditions on the shape of class arguments during
+search. There are three kinds of modes in \rocq. Informally, a mode is a list
+of symbols \texttt{+}, \texttt{!}, or \texttt{-}, indicating whether an
+argument is treated as an input, partially known (its head is fixed), or as
+an output.
+
+Modes can be declared in two ways. One can write \cI{#[mode="+"] Add T.},
+which specifies that the first argument of \cI{Add} must be instantiated in
+goals. Alternatively, one can declare it afterwards using
+\cI{Hint Mode Add +.}.
+
+A type class may have several modes. During instance search, these modes are
+checked dynamically: the search proceeds if at least one mode is satisfied by
+the current goal.
+
+A characteristic of type classes is that several instances may match the same
+goal. This requires backtracking in the solver. In some libraries, such as
+\stdpp, this behavior is exploited to mimic logic programming. For example,
+the type class \cI{SetUnfold} is used to transform set expressions into
+logical properties. For instance, an inclusion $X \subseteq Y$ can be turned
+into a statement of the form $\forall x, P\ x \to Q\ x$, under suitable
+assumptions on $X$ and $Y$. If no transformation applies, the default instance
+\cI{set_unfold_default P : SetUnfold P P} is used, leaving the goal unchanged.
+
+This default instance acts as a catch-all rule, since it applies to any goal.
+While backtracking is useful in such patterns, it can also introduce
+ambiguities and lead to unexpected behavior, which may be difficult to
+control in practice.
+
 
 \paragraphTwo{Type class ambiguities and modes}
-
-Source:\cite{rocq_hint_mode}
-
-Inline modes have been introduced in rocq v 9
-
-Ground mode of rocq is recursively checked when searching for a class
-
-Dire che i modi in stdpp hanno un peso importante: loro fanno ricerca di classi
-à la prolog, a un input si associa un output. Modi sbagliati implicano ricerche
-più lunghe e, potenzialmente sbagliate, dato che ci sono meno vincoli.
 
 Dire che une fonte di ambiguity è instance oberlapping
 
@@ -1133,7 +1178,7 @@ assigned to \cI{?F}.
 \subsection{Database and Main API in \rocqelpi}
 \label{sec:elpi-main-API}
 
-Thanks to the HOAS representation of \rocq terms in \elpi, the two
+Thanks to the HOAS representation of \rocq terms in \elpi, the two\marginpar{TODO: database}
 languages become closer and can share a common representation. This
 makes their interaction easier and allows interleaving computations
 between them. The \rocq language exposes several APIs that can be used

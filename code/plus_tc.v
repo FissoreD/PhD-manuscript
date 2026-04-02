@@ -2,7 +2,7 @@ Require Import Reals.
 From elpi Require Import elpi.
 From elpi.apps Require Import tc.
 
-Elpi Accumulate TC.Compiler lp:{{
+(* Elpi Accumulate TC.Compiler lp:{{
   :after "0"
   tc.add-class-gr _ ClassGR SMR :-
     std.assert! (coq.TC.class? ClassGR) "Only gref of type classes can be added as new predicates",
@@ -11,7 +11,7 @@ Elpi Accumulate TC.Compiler lp:{{
       std.fold EM "" (m\s\r\ sigma a s'\ m = pr a s', if (a = in) (calc (s ^ " 10") r) (calc (s ^ " _") r)) Indexing),
     tc.gref->pred-name ClassGR PredName,
     coq.say "Adding" PredName EM, fail, !.
-}}.
+}}. *)
 
 Notation "¬" := (negb).
 
@@ -111,14 +111,23 @@ Class Add T := { plus: T -> T -> T;
 End S4.
 
 Module groups.
-  Class Magma (T : Type) := { op : T -> T -> T }.
+  (*SNIP: magma *)
+  Class Magma T := {op : T -> T -> T}.
+  Class Semigroup T `{Magma T} := 
+    {assoc a b c : op a (op b c) = op (op a b) c}.
 
-  Instance addNat : Magma nat := { op:= Nat.add }.
-  Instance addR : Magma R := { op:= Rplus }.
+  Instance addNatM : Magma nat := {op := Nat.add}.
+  Instance addNatS : Semigroup nat := {assoc := Nat.add_assoc}.
+  (*ENDSNIP: magma *)
+  Set Printing All.
+
+  Hint Mode Magma + : typeclass_instances.
+
+  Check addNatS.
 
   Instance addProd T1 T2 : Magma T1 -> Magma T2 -> Magma (T1 * T2) :=
     {op '(x1,y1) '(x2, y2) := (op x1 x2, op y1 y2)}.
 
-  Class Semigroup T `{Magma T} := { assoc a b c : op a (op b c) = op (op a b) c }.
+  Instance addR : Magma R := { op:= Rplus }.
 
 End groups.
