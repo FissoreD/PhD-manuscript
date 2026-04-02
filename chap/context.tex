@@ -306,7 +306,7 @@ an output.
 Modes can be declared in two ways. One can write \cI{#[mode="+"] Add T.},
 which specifies that the first argument of \cI{Add} must be instantiated in
 goals. Alternatively, one can declare it afterwards using
-\cI{Hint Mode Add +.}.
+\cI{Hint Mode Add +}.
 
 A type class may have several modes. During instance search, these modes are
 checked dynamically: the search proceeds if at least one mode is satisfied by
@@ -321,26 +321,53 @@ into a statement of the form $\forall x, P\ x \to Q\ x$, under suitable
 assumptions on $X$ and $Y$. If no transformation applies, the default instance
 \cI{set_unfold_default P : SetUnfold P P} is used, leaving the goal unchanged.
 
-This default instance acts as a catch-all rule, since it applies to any goal.
-While backtracking is useful in such patterns, it can also introduce
-ambiguities and lead to unexpected behavior, which may be difficult to
-control in practice.
+This default instance serves as a catch-all rule, as it applies to any goal.
+Although backtracking can be useful in such patterns, it may introduce
+ambiguities and lead to unexpected behavior that is difficult to control in
+practice.
+
+In \rocq, backtracking can be disabled using the flag \texttt{Typeclasses
+Unique Instances}. This forces the system to commit to the first solution found
+during the recursive search. However, this mechanism is not class-specific: once
+enabled, non-backtracking is applied to all type classes involved in the search.
+In practice, a user may prefer a more precise behavior, where only certain type
+classes avoid backtracking, while others retain it. Therefore, at least in the
+libraries we have analized, whis flag is not used.
+
+% Moreover, this flag is not sufficient to prevent the user from control
+% unsepected behavior that can come from the import of different files. Imagine
 
 
-\paragraphTwo{Type class ambiguities and modes}
+% \paragraphTwo{Canonical structures} In \rocq, it exists another, deterministic
+% way, allowing ad-hoc polymorphism called Canonical Structures~\cite{cs},
+% introduced by a Saïbi~\cite{cs0}. Canonical structures extends unification
+% unification algorithm of the \rocq elaborator. While typechecking two symbols,
+% it is possible that the two symbols have different types. In order to make these
+% two types unifyable, the elaborator, tries to introduce a coerce on of the two
+% type to the other. If not possible, it tries to enrich the one of the two object
+% by finding a canonical structure.
 
-Dire che une fonte di ambiguity è instance oberlapping
+% One example, which is at the earth of the \mc library, is the type called
+% \eI{eqType}. In the code below we give a rather simplified version.
 
-\subsection{Ad-hoc polymorphism: Canonical structures}
+% \input{code/cs_struct.tex}
 
-\cite{cs}
-Used to enrich the information about an object. In mathComp
+% The \eI{eqType} structure packs a type called \cI{obj} and \cI{eq} which is a
+% function with type: \cI{~$\forall$~ e : eqType, obj e ~$\to$~ obj e ~$\to$~
+% bool}. This function tests the boolean equality of its two inputs which should
+% be instances of \cI{eqType}.
+
+% \input{code/cs.tex}
+
+% The canonical structure above inform the typecheck that it is possible to of
+% \eI{op _ 3 4}, by inferring $e$ to \cI{eqNat}, which is the canonical structure
+% for the \cI{nat} type.
 
 
-\subsubsectionTwo{Typeclasses vs Canonical structures}
+% \paragraphTwo{Typeclasses vs Canonical structures}
 
-``Find me a structure that works'' $\to$ typeclasses\\
-``This type already carries its structure'' $\to$ canonical structures
+% ``Find me a structure that works'' $\to$ typeclasses\\
+% ``This type already carries its structure'' $\to$ canonical structures
 
 
 \section{The \elpi language}
