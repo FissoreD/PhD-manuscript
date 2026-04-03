@@ -381,7 +381,7 @@ based on CHR (Constraint Handling Rules~\cite{chr,chr-elpi}).
 The term ``embeddable'' highlights that \elpi\ is designed to be used as an
 extension language. Its main application is the \rocqelpi plugin~(see
 \cref{sec:coq-elpi}), which enables communication between \elpi\ as the
-meta-language~\Ho\ and the \rocq\ proof assistant as the object language~\Fo.
+meta-language and the \rocq\ proof assistant as the object language.
 
 A comprehensive presentation of the \elpi\ language and its applications can
 be found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}.
@@ -1211,19 +1211,6 @@ Within an \elpi{} code block, the syntax \cI{{{ ... }}} denotes a
 quotation that allows writing \rocq{} code. Conversely, within \rocq{} code, the
 syntax \eI{lp:{{ ... }}} denotes a quotation for embedding \elpi{} code.
 These constructs can be nested arbitrarily.
-
-% \subsection{Unification in \Fo{} and \Ho{}}
-% \label{sec:unif-fo-ho}
-
-% In this section we want to give the intuition about the unification of \rocq
-% terms inside the \elpi language due to the translation of . Our goal is to show the main discrepancies that
-% exists between the unification procedures of \rocq and \elpi and when this
-% discrepancies cause unification issues. This point is the central for discussing
-% \cref{chap:ho-for-free}, which is also the subject of our paper
-% \cite{fissore2024}. We dedicate a section 
-
-% The translation of \rocq terms in \elpi is very syntactical and it leads to
-% some 
 
 \subsection{Database and Main API in \rocqelpi}
 \label{sec:elpi-main-API}
