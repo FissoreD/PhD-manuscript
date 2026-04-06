@@ -186,125 +186,185 @@ in X [_|YS] :- in X YS.
 main L :- code_before L, in 1 L, code_after L. % OK
 \end{elpicode}
 %
-Tracking the use of backtracking code statically is a well known technique
-in logic programming called determinacy analysis~\cite{warren1989,somogy1996}.
-What the literature lacks
-is a treatment of \elpi features not available in plain \prolog,
-see~\ref{sec:HO-program} and \ref{sec:dynamic-prog}. %and \ref{sec:meta-prog}.
-% We recall them in the following sections.
+Statically tracking the use of backtracking is a well-known technique in
+logic programming, usually referred to as determinacy
+analysis~\cite{warren1989,somogy1996}. However, the literature does not
+provide a detailed treatment of features that are specific to \elpi and not
+available in plain \prolog, such as higher-order programming, dynamic
+programming, and meta-programming.
 
-% TODO: long version
-% \subsection{Meta programs}
-% \label{sec:meta-prog}
-
-% \elpi code is first class, i.e., it can be inspected and generated in \elpi
-% itself.
-% Here we take as
-% an example the code performing the fusion of two calls to \eI{map}~\cite{wadler1989}.\\
-% % \hspace{-.5em}
-% \begin{minipage}{.45\textwidth}
-% \begin{elpicode}
-% func comp (func A -> B),
-%           (func B -> C),
-%           A -> C.
-% comp F G X Z :- F X Y, G Y Z.
-% \end{elpicode}
-% \end{minipage}
-% \begin{minipage}{.5\textwidth}
-% \begin{elpicode}
-% func fuse (func list A -> list B),
-%           (func list B -> list C) ->
-%           (func list A -> list C).
-% fuse (map F) (map G) (map (comp F G)).   
-% \end{elpicode}
-% \end{minipage}
+These features were introduced in
+\cref{sec:example-ho-dyn-programs} and play an important role in
+determinacy. In the following three subsections, we revisit those examples
+and analyze them from the perspective of determinacy.
 
 
-% % \begin{elpicode}
-% %   func comp (func A -> B), (func B -> C), A -> C.
-% %   comp F G X Z :- F X Y, G Y Z.
+\subsection{Higher-order programs}
+\label{sec:HO-program}
 
-% %   func fuse (func list A -> list B), (func list B -> list C) ->
-% %             (func list A -> list C).
-% %   fuse (map F) (map G) (map (comp F G)). 
-% % \end{elpicode}
-
-% The signature of \eI{fuse} has two preconditions, both inputs
-% should be functions, and two postconditions: \eI{fuse} is a function and
-% the output is also a function.% Our static checker accepts the code above.
-% % \todo{maybe: we want the output to be understood as a function, the reasoning
-% % is done in section xx}
-% The code of \eI{fuse} inspects two programs: if both are
-% mapping a list, respectively with \eI{F} and \eI{G}, then it
-% generates a new program \eI{map (comp F G)}. The static analysis
-% is able to verify that this output is a function following this
-% reasoning: since \eI{map F} and \eI{map G} are functions then
-% also \eI{F} and \eI{G} must be; from that we have that
-% \eI{comp F G} is a function and so is \eI{map (comp F G)}.
-
-% Almost every \rocq extension makes some use of meta programming: it typically
-% concludes by generating a new rule and stores it on disk to make it persist
-% across subsequent invocations of the same program. 
+A notable higher-order program is the one turning relations into functions.
+% \footnote{The syntax \eI{~\PYG{k+kd}{(pred)}~}, equivalent to \eI{~\PYG{k+kd}{(pred ->)}~},
+% is for fully applied predicates, i.e. for terms with neither inputs nor outputs}
+% any predicate
+% into a function.
+%
+\begin{elpicode}
+func once (pred) -> . % a function taking a fully applied predicate
+once P :- P, !.       % the ! commits to the first success
+\end{elpicode}
 
 
+%
+We say that the signature of the \eI{once} predicate marks it as \emph{unconditionally}
+a function: \eI{once} leaves no choice points, no matter what it receives as
+the higher-order argument \eI{P}.
 
-% \section{\elpi's abstract syntax and rule selection}
+An example of a \emph{conditional} function is
+the predicate to map over a list:
+\begin{elpicode}
+func map (func A -> B), list A -> list B.
+map _ [] [].
+map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
+\end{elpicode}
+%
+We say that the signature of \eI{map} has a \emph{precondition}, namely
+that \eI{F} is a function, and a \emph{postcondition}, namely that
+\eI{map} is a function, i.e., the call \eI{map F L L'} leaves
+no choice points.
+If the precondition is not met the postcondition is not guaranteed to hold and we say
+that \eI{map} is \emph{miscalled}. In this case we weaken its signature to%
+\footnote{We explain in detail this weakining operation in \cref{sec:basic}}:
+%
+\begin{elpicode}
+pred map (func A -> B), list A -> list B.
+\end{elpicode}
+%
+Our static analysis tracks miscalls to functions and treats them as
+relations when analyzing the surrounding code. This avoids code duplication,
+since only one definition of \eI{map} is needed in the library. We illustrate
+this with four scenarios involving correct calls and miscalls to \eI{map}.
 
-% Any static analysis to rule out non-determinism must depend on the
-% operational semantics of the language. In particular
-% the order in which rules are applied and the order in which rule premises
-% are executed directly impact the scope of the cut directive.
+\begin{elpicode}
+% a function                      % a relation
+func incr int -> int.             pred get_pdiv int -> int.
+incr 1 2.                         get_pdiv 6 3. get_pdiv 6 2.
 
-% Here we specify the relevant aspects of \elpi.
-% Its abstract syntax is given below. %in~\cref{fig:syntaxonly}.
+       % four predicates calling map or miscalling map
+func p list int -> list int.      pred q list int -> list int.
+p L R :- map incr L R. ~\PYG{c}{\PYGZpc{} OK}~       q L R :- map get_pdiv L R. % OK
 
-% We assume a set \PRED of predicate names,
-% a set \DATA of term constructors, and a set \VAR of unification variables.
-% We call the union of these three syntactic categories \emph{symbols}.
-% In the syntax of atoms \ATOM we find predicate calls (\CALLABLE), the \cut operator (explained in \cref{sec:hc})
-% and the \pi\ operator.%
-% \footnote{
-% In reality, in \elpi, \eI{pi} and \eI{=>} are two separate operators,
-% generating a fresh symbol and loading a rule respectively,
-% but for simplicity we only consider their combination.}
-% The arguments of predicate calls are in the \TERM\ nonterminal, for terms,
-% that includes predicate calls along with first order data construction.
-% Because of space constraint we omit from the syntax the construction of
-% data with binders since it plays no interesting role in
-% the static analysis of determinacy.
-% We reserve $s$ for symbols ($\PRED \cup \DATA \cup \VAR$), $v$ for variables, 
-% $k$ for terms in $\PRED \cup \DATA$, $a$ and $b$ for atoms, $c$ for callables
-% and $r$ for rules.
-% Given a rule $h\ \cdash\ b_1 \ldots b_n$ we call $h$ the \emph{head},
-% $b_1 \ldots b_n$ the \emph{body}
-% and each $b_i$ a \emph{body atom}.
-% % In the signatures of the static analyzer,
-% We use non-terminals to represent the class of objects they identify; for example,
-% \TERM identifies (or is the type of) terms. We use \PROG for the type of programs,
-% being lists of rules in \RULE, and we reserve $t$ for terms and $\prog$ for programs.
-% %
-% % \begin{definition}[Rule priority]
-% \subsectionTwo{Rule priority} 
-%  Each rule in a program has a unique identifier called priority; 
-%   this priority stems from the order in which the rule should be 
-%   applied at runtime.
-% There exists a unique total order for rules following their priority.
-% When a rule is applied, its body atoms are executed in order.
+func r list int -> list int.      func r1 list int -> list int.
+r L R :- map get_pdiv L R.        r1 L R :- map get_pdiv L R, !. % OK
+           % ^^^^^^^^ error: non-deterministic atom
+\end{elpicode}
 
-% To conlude, the algorithm informally:
-% \begin{itemize}
-%   \item checks that each rule is mutually exclusive with the rest of the program
-%   \item that its tail of calls is made of well called functional predicates
-%   \item checks that the pre conditions of rules entail the post conditions
-% \end{itemize}
+In this example, \eI{incr} is a function, while \eI{get_pdiv} is a relation.
+In particular, \eI{get_pdiv} associates more than one result to the input
+\eI{6}, making it non-deterministic.
 
-This selection strategy of logic programs may create two sources non-determinism:
-1) at least two rules can be used (successfully) to the \emph{same query} (i.e.,
-lack of mutual exclusion between rules, see~\cref{sec:hc});
-2) the call to a non-deterministic predicate, or the miscall of a deterministic one,
-is not followed by a cut (see~\cref{sec:basic}).
+The predicate \eI{p} is deterministic because it satisfies the precondition
+of \eI{map}: the argument \eI{incr} is a function, so the call does not
+introduce choice points.
+
+The predicate \eI{q} instead contains a miscall to \eI{map}, since
+\eI{get_pdiv} is a relation. As a result, the execution may leave choice
+points. However, this is accepted because \eI{q} is declared as a
+relation (with \eI{pred}), and therefore non-determinism is allowed.
+
+The situation is different for \eI{r}. Its body is the same as \eI{q}, but
+\eI{r} is declared as a function. For this reason, the static analysis
+reports an error: a deterministic predicate cannot contain a
+non-deterministic computation.
+
+Finally, \eI{r1} has the same signature as \eI{r} and also miscalls
+\eI{map}, but it explicitly removes choice points using a cut. This makes
+the overall behavior deterministic, and the definition is accepted by the
+analyzer. Similarly, an implementation such as
+\eI{once (map get_pdiv L R)} would also be valid, since the \eI{once}
+wrapper ensures that any potential choice points are discarded.
 
 
+
+\subsection{Dynamic programs}
+\label{sec:dynamic-prog}
+
+In \cref{sec:example-ho-dyn-programs}, we pointed out the interest of dynamic
+programming in a language like \elpi. In this paragraph, we point out why the
+predicate \eI{copy} can be considered as a deterministic predicate.
+%
+\begin{elpicode}
+func copy tm -> tm.
+copy (app A B) (app C D) :- copy A C, copy B D.
+copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
+\end{elpicode}
+%
+
+\eI{copy} is a function because no
+two rules can apply to the same input: \eI{lam} and \eI{app}
+are different constants, and each constant \eI{x} generated dynamically is
+guaranteed to be fresh by the \eI{pi} operator, hence
+each \eI{copy x x} rule is mutually exclusive with the other rules.
+
+\subsection{Meta programs}
+\label{sec:meta-prog}
+
+The meta-program we have show in \cref{sec:example-ho-dyn-programs} is a good
+example of how our determinacy checker interacts well in program inspecion and
+composition.
+
+We take back the implementation for the predicates \eI{comp} and \eI{fuse}, but
+this time, we pay atention to their determinacy in the signatures.
+
+
+\input{code/fuse_func.tex}
+
+The signature of \eI{comp} infroms the checker that \eI{comp} behaves
+deterministically if its two higher-order arguments are functions. This piece of
+informarmation is important when the checker analyses the rule for \eI{fuse}.
+
+The signature of \eI{fuse} has two preconditions, both inputs
+should be functions, and two postconditions: \eI{fuse} is a function and
+its output is also a function.
+The code of \eI{fuse} inspects two programs: if both are
+mapping a list, respectively with \eI{F} and \eI{G}, then it
+generates a new program \eI{map (comp F G)}. The static analysis
+is able to verify that this output is a function following this
+reasoning: since \eI{map F} and \eI{map G} are functions then
+also \eI{F} and \eI{G} must be; from that we have that
+\eI{comp F G} is a function and so is \eI{map (comp F G)}.
+
+\section{\elpi's abstract syntax and semantics}
+
+Any static analysis to rule out non-determinism must depend on the
+operational semantics of the language. In particular
+the order in which rules are applied and the order in which rule premises
+are executed directly impact the scope of the cut directive.
+
+The \elpi syntax and semantics considered in this section are those presented
+in \cref{sec:elpi-syntax,sec:elpi-semantics}. To simplify the presentation, we
+treat \eI{pi} and \eI{=>} as a single operator. In this setting, the construct
+\piImplCmd{x}{r}{a} represents the introduction of a fresh symbol $x$, which is
+visible in both the rule $r$ and the atom $a$. The local rule $r$ is added to
+the scope of the atom $a$.
+
+Using the combined form \piImplCmd{x}{r}{a} does not reduce the expressiveness
+of \elpi. The behavior of the \eI{pi} operator can be simulated by introducing
+a dummy rule $r$ in $a$, while the \eI{=>} operator can be recovered by using a
+vacuous variable \eI{x}.
+
+We omit from the syntax the construction of data with binders, since it does
+not play a relevant role in the static analysis of determinacy.
+
+We use the following notation: $s$ ranges over symbol names (including
+predicates, data constructors, and variables), $v$ over variables, $k$ over
+predicate and data constructors, $a$ and $b$ over atoms, and $r$ over rules.
+
+In summary, the algorithm proceeds as follows:
+\begin{itemize}
+\item it checks that each rule is mutually exclusive with the others in the program;
+\item it verifies that the sequence of calls in the body consists of correctly used functional predicates;
+\item it ensures that the preconditions of rules entail their postconditions.
+\end{itemize}
 
 \section{Mutual Exclusion}
 \label{sec:hc}

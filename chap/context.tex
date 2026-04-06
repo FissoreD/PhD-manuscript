@@ -904,7 +904,7 @@ $.
 % Lambda prolog: \cite{qi2009}
 
 % WAM: \cite{ait1991-wam}
-\subsection{Higher-order and dynamic programs in \elpi}
+\subsection{Higher-order, dynamic and meta- programs in \elpi}
 \label{sec:example-ho-dyn-programs}
 
 One of the main features of \elpi is the possibility to work with
@@ -1042,6 +1042,28 @@ Our static analysis understands this programming pattern
 and is able to recognize that \eI{whd} is also a function.
 In particular the first rule, if taken, discard the second rule (due to the cut)
 and only calls functions.
+
+\paragraphTwo{Meta-programming}
+
+In \elpi, code is a first-class object, meaning that it can be inspected and
+generated within the language itself. As an example, consider a program that
+performs the fusion of two calls to \eI{map}~\cite{wadler1989}.
+
+\input{code/fuse_pred.tex}
+
+The predicate \eI{fuse} analyzes two programs. If both correspond to mapping a
+list, with functions \eI{F} and \eI{G}, it produces a new program of the form
+\eI{map (comp F G)}, where \eI{comp} denotes function composition.
+
+This approach can improve efficiency. For instance, instead of executing the
+sequence \eI{map F L1 L2, map G L2 L3}, which traverses the list twice, one can
+combine the two computations. By calling \eI{fuse (map F) (map G) H}, a new
+program \eI{H} is obtained. Then, \eI{H L1 L3} computes the same result with a
+single traversal of the list.
+
+More generally, meta-programming is widely used in \rocqelpi. It allows the
+generation of new rules that can be stored on disk and reused in later
+executions of the program.
 
 \subsection{\chr: goal suspension}
 \label{sec:chr}

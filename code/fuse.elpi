@@ -1,0 +1,28 @@
+% shorten std.{map}.
+func map (func A -> B), list A -> list B.
+map _ [] [].
+map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
+
+namespace xx {
+  %SNIP: fuse_pred
+  pred comp i:(pred i:A, o:B), i:(pred i:B, o:C), i:A, o:C.
+  comp F G X Z :- F X Y, G Y Z.
+
+  pred fuse i:(pred i:list A, o:list B), i:(pred i:list B, o:list C),
+            o:(pred i:list A, o:list C).
+  fuse (map F) (map G) (map (comp F G)). 
+  %ENDSNIP: fuse_pred
+}
+
+namespace yy {
+  %SNIP: fuse_func
+  func comp (func A -> B), (func B -> C), A -> C.
+  comp F G X Z :- F X Y, G Y Z.
+
+  func fuse (func list A -> list B), (func list B -> list C) ->
+            (func list A -> list C).
+  fuse (map F) (map G) (map (comp F G)). 
+  %ENDSNIP: fuse_func
+}
+
+main.
