@@ -1,13 +1,13 @@
 \chapter{A Mechanized First-Order Static Determinacy Checker}
 \label{chap:mechanization}
 
-\elpi is a dialect of \lprolog (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi})
-used as an extension language for the \rocq prover (formerly the \coq proof
-assistant). \elpi has become an important infrastructure component: several
-projects and libraries depend on it~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
-Other remarkable libraries include the Hierarchy-Builder library-structuring tool~\cite{hb}
-and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
-framework with industrial applications at SkyLabs AI.
+% \elpi is a dialect of \lprolog (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi})
+% used as an extension language for the \rocq prover (formerly the \coq proof
+% assistant). \elpi has become an important infrastructure component: several
+% projects and libraries depend on it~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
+% Other remarkable libraries include the Hierarchy-Builder library-structuring tool~\cite{hb}
+% and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
+% framework with industrial applications at SkyLabs AI.
 
 Starting with version 3, \elpi is equipped with a static analysis for
 determinacy~\cite{fissore2026} to help users control
@@ -22,7 +22,7 @@ point correspond to an suspended \emph{alternative} in the execution trace.
 In the following we use \emph{choice point} and \emph{alternative} as
 synonyms.
 
-This paper reports our first steps towards a mechanization, in the \rocq
+This chapter reports our first steps towards a mechanization, in the \rocq
 prover, of the determinacy analysis from~\cite{fissore2026}.
 We focus on the control operator \emph{cut}, which is useful to restrict
 backtracking but makes the semantics depart from a pure logical reading.
@@ -64,7 +64,7 @@ then any call to that predicate leaves no choice points.
 
 \section{Preliminaries: syntax and informal semantics of cut}
 \label{sec:preliminaries}
-\begin{figure}[b]
+\begin{figure}
 \begin{coqcode}
 Inductive Tm := Symb of S | Pred of P | Var of V | App of Tm & Tm.
 Inductive Atom := cut | call of Tm.
@@ -92,9 +92,9 @@ Definition ~\ensuremath{\Sigma}~ := {fmap V -> Tm}.
 
 In the entire paper we use \Cref{fig:progx} as our running example, and
 we start by describing how we represent a program like that one.
-In the concrete syntax, variables are written with capital letters, and
-predicate application follows the $\lambda$-calculus style (no
-parentheses).
+% In the concrete syntax, variables are written with capital letters, and
+% predicate application follows the $\lambda$-calculus style (no
+% parentheses).
 
 The description of a program is given by the record $\mathbb{P}$ (in \cref{type:atom}) and
 is shared by both semantics. A program consists of a list of
@@ -247,7 +247,8 @@ syntactic equality.
 
 \section{And-Or Tree semantics}
 \label{tree-sem}
-\begin{figure}[b]
+
+\begin{figure}
     % \input{tex_code/tree_def.tex}
     \begin{coqcode}
 Inductive tree ~$\coloneq$~
@@ -344,7 +345,8 @@ In \cref{tree-ex} we mark with a black arrow the result of \pathend.
 Inductive tag ~$\coloneq$~ Expanded | CutBrothers | Failed | Success.
 Definition step : ~$\mathbb{P}$~ ~$\to$~ ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ (~$\FV$~ * tag * tree)
 Definition prune : ~$\mathbb{B}$~ ~$\to$~ tree ~$\to$~ option tree
-Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
+Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ 
+                                option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
 \end{coqcode}
 
 Since all functions must terminate in \rocq, we define their transitive closure
@@ -370,7 +372,7 @@ the next alternative and continues from there, if one exists.
 % latter case, we note that $B$ can be non-dead, but this is not a problem
 % since the interpreter can run $B$ only if $A$ is non-dead.
 
-\begin{figure}[b]
+\begin{figure}
   \begin{subfigure}{0.45\textwidth}
     \input{formalization/img/next.tex}
     % \caption{Defintion of \getend}
@@ -409,6 +411,7 @@ the next alternative and continues from there, if one exists.
 
 \begin{figure}
   \begin{subfigure}{0.99\textwidth}
+    \centering
     \includegraphics[width=0.05\textwidth, keepaspectratio]{det_check_coq/exec_example1/step1.pdf}
     \caption{Initial query}
     \label{tree-ex0} 
@@ -829,7 +832,7 @@ disjunction.
 \label{stack-sem}
 
 The stack-based semantics we present is very close to what is
-implemented by the \elpi interpreter. This semantics is 
+implemented by the \elpi interpreter (see~\cref{sec:elpi-semantics}). This semantics is 
 similar to the one proposed by Pusch in
 \cite{isabelle}, which is in turn closely related to the
 semantics given by Debray and Mishra in
