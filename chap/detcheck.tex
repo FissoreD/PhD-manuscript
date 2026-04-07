@@ -369,9 +369,8 @@ In summary, the algorithm proceeds as follows:
 \section{Mutual Exclusion}
 \label{sec:hc}
 
-We focus on how to address the first source of non-determinism. In
-\cref{sec:elpi-semantics}, we have already defined the semantics of the \elpi
-language, the same semantics is reused in this section. The interesting aspects
+We focus on how to address the first source of non-determinism.
+The interesting aspects
 for this section are the \cut operator and the \matching/\unify procedure
 depending on the modes of a predicate.
 
@@ -721,11 +720,10 @@ of results'' than relations.
 %
 % \vspace{-5pt}
 $$
-\small
-\begin{array}{c}
-\star \mySub \star \qquad \func \mySub \func \qquad\detI \mySub \relI \\
-\rho \toI \tau \mySub \rho' \toI \tau'  \mathrm{~~iff~~} \rho' \mySub \rho \land \tau \mySub \tau' \\
-\rho \toO \tau \mySub \rho' \toO \tau'  \mathrm{~~iff~~} \rho \mySub \rho' \land \tau \mySub \tau'
+\begin{array}{cr}
+\star \mySub \star \qquad \detI \mySub \detI \qquad \relI \mySub \relI \qquad\detI \mySub \relI & \text{base cases} \\
+\rho \toI \tau \mySub \rho' \toI \tau'  \mathrm{~~iff~~} \rho' \mySub \rho \land \tau \mySub \tau' & \text{covariance}\\
+\rho \toO \tau \mySub \rho' \toO \tau'  \mathrm{~~iff~~} \rho \mySub \rho' \land \tau \mySub \tau' & \text{contravariance}  
 \end{array}
 $$
 %
@@ -733,19 +731,22 @@ The static analysis needs often to keep the stronger or weaker signature among
 two. We hence derive from \mySub\ a \minT and \maxT operators defined below.
 %
 $$
-\small
 \begin{array}{l}
-\minT\ \star\ \star = \star\qquad \minT\ \func \ \func = \func \\
-% \minT\ \detI \ \detI = \detI \quad \minT\ \relI\ \relI = \relI\\
-\minT\ \detI\ \relI = \minT\ \relI\ \detI = \detI \\
+\minT\ \star\ \star = \star\\
+\minT\ \relI \ \relI = \relI \\
+\minT\ \relI \ \detI = \detI \\
+\minT\ \detI \ \relI = \detI \\
+\minT\ \detI \ \detI = \detI \\
 \minT\ (\rho \toI \tau)\ (\rho' \toI \tau') = \maxT\ \rho\ \rho' \toI \minT\ \tau\ \tau' \\
 \minT\ (\rho \toO \tau)\ (\rho' \toO \tau') = \minT\ \rho\ \rho' \toO \minT\ \tau\ \tau'
 \end{array}
-\;\;\;
+\;
 \begin{array}{l}
-\maxT\ \star\ \star = \star\qquad \maxT\ \func\ \func = \func \\
-% \maxT\ \detI \ \detI = \detI \quad \maxT\ \relI\ \relI = \relI\\
-\maxT\ \detI\ \relI = \maxT\ \relI\ \detI = \relI \\
+\minT\ \star\ \star = \star\\
+\minT\ \relI \ \relI = \relI \\
+\minT\ \relI \ \detI = \relI \\
+\minT\ \detI \ \relI = \relI \\
+\minT\ \detI \ \detI = \detI \\
 \maxT\ (\rho \toI \tau)\ (\rho' \toI \tau') = \minT\ \rho\ \rho' \toI \maxT\ \tau\ \tau'\\
 \maxT\ (\rho \toO \tau)\ (\rho' \toO \tau') = \maxT\ \rho\ \rho' \toO \maxT\ \tau\ \tau'
 \end{array}
@@ -757,7 +758,6 @@ When a predicate is miscalled we need to weaken its signature.
 We define \minimize and \maximize as follows:
 %
 $$
-\small
 \begin{array}{l}
 \minimize\ \star = \star\\
 \minimize\ \relI = \detI \quad
@@ -799,7 +799,8 @@ programs.
 
 The static analyzer accumulates
 knowledge on variables in a context $\Gamma$ initially only containing the signature
-of predicates. The checking algorithm considers one rule at a time.
+of predicates. The checking algorithm considers one rule at a time, following
+their priorities.
 It begins by updating \ctx using the preconditions
 on the \emph{inputs} of the head, then it scans all body atoms
 and finally checks the postconditions: the determinacy of the body
@@ -818,35 +819,39 @@ from the two received in input.
 % Consider a predicate \eI{r} with the signature $s_1 \toI s_2 \toI s_1 \toO
 % \detI$. In other words, \eI{r} is a function that takes as input a function
 % and a relation, and that returns a function.
-\begin{elpicode}
-func comp (func int -> int), (func int -> int), int -> int.
-comp F G X Z :- F X Y, G Y Z.
+At first, the checker assumes that the inputs of \eI{comp} satisfy the
+preconditions given in its signature. In particular, \eI{F} and \eI{G}
+are marked as functions in \ctx. Then the algorithm scans the atoms in
+the body. The determinacy of the whole rule is computed as the \maxT of
+the determinacies of its premises. Since both \eI{F X Y} and
+\eI{G Y Z} have determinacy \detI, their \maxT is also \detI. Finally,
+the analyzer verifies that the determinacy of the body is consistent
+with the one declared in the signature.
 
-func compose (func int -> int), (func int -> int) -> (func int -> int).
-compose F G (comp F G).
-\end{elpicode}
+For \eI{compose}, two conditions must be checked: the term
+\eI{comp F G} must be a function, and \eI{compose} itself must also be
+a function. The algorithm assumes again that \eI{F} and \eI{G} are
+functions. The term \eI{comp F G} is a partial application, and it
+returns a function when its arguments are functions. Since this holds
+for \eI{F} and \eI{G}, the preconditions of \eI{comp} are satisfied,
+and the result is a function.
+Finally, the body of \eI{compose} is empty, so it is deterministic.
+Therefore, \eI{compose} behaves deterministically.
 
-After updating \ctx w.r.t. the preconditions of \eI{comp},
-\ctx flags \eI{F} and \eI{G} as functions. Then the algoritms scans all
-body atoms computing the \maxT of their determinacies: since both
-\eI{F X Y} and \eI{G Y Z} are \detI, also their \maxT is. Finally
-the analyzer checks that the determinacy of the body matches the declared one.\\
-The analysis for \eI{compose} needs to check two postconditions:
-1) the \emph{output} term \eI{comp F G} is a function, since the two arguments of \eI{comp}
-match its signature; 2) the body of \eI{compose} is deterministic since empty.
-
-We now move to an example that involes a non-deterministic body atom.
+We now move to an example that involes a miscall to a predicate, that is,
+a rule wih a non-deterministic body atom.
 
 \begin{elpicode}
 func r (func int -> int), (pred int -> int), int -> int.
 r F G X Y :- map G [X] [Z], !, compose F F H, H Z Y.
 \end{elpicode}
 %
-After analyzing the head the context asserts that \eI{F} (resp. \eI{G})
+After analyzing the head of the rule, the context asserts that \eI{F} (resp. \eI{G})
 is a function (resp. a relation).
 In the body of \eI{r}, the first atom is non-deterministic,
 since \eI{G} violates the preconditions of \eI{map}. The signature of
-\eI{map G [X] [Z]} is hence \text{\auxfont weak}ened to \relI. Even if this atom could
+\eI{map G [X] [Z]} is hence \text{\auxfont weak}ened to \relI. Even if this atom 
+could
 generate multiple alternatives, the \cut\ commits to the first one
 restoring the determinism of
 the body of \eI{r} up to that point.
