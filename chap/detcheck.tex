@@ -906,7 +906,7 @@ made by the signature entails the postcondition.
 
 \begin{figure}
   \centering
-  \includegraphics{det_check/ccm.pdf}
+  \includegraphics{det_check/check_rule.pdf}
   \caption{
         Check rule
         }
@@ -1195,12 +1195,22 @@ In other words a deterministic query leaves no alternatives when it succeeds.
 We now link the static check to the deterministic execution of a query.
 
 \begin{definition}[Checked program ($\isdetp~\CTX~\PROG$)] A program \prog
-is checked against a context of signatures \ctx iff it validates these rules:
+is checked against a context of signatures \ctx iff it validates these rules:\\
 %
-\begin{center}
-  \includegraphics{det_check/cAOi.pdf}
+\begin{center}  
+\begin{bprooftree}
+  \AxiomC{\phantom{ \ccC{\prog}{\ctx}{x}{r}}}
+  % \RightLabelM{r1}
+  \UnaryInfC{\isdetp~\ctx~\EmptyList}
+\end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{\ensuremath{
+    \isdetp~\ctx~\prog \qquad \mutExclAll~\prog~r \qquad \ccC{\prog}{\ctx}{x}{r}
+  }}
+  % \RightLabelM{r1}
+  \UnaryInfC{\isdetp~\ctx~(r :: \prog)}
+\end{bprooftree}
 \end{center}
-
 \end{definition}
 
 

@@ -45,18 +45,25 @@ TODO: PROLOGO
 
 TODO: CONCLUSION  
 
-TODO: in HO for free aggiungere la frase che dice della notazione quando non siamo in verbatim mode
+TODO: in HO for free aggiungere la frase che dice della notazione quando non
+      siamo in verbatim mode
 
-TODO: aggiungere questo da qualche parte
-  This selection strategy of logic programs may create two sources non-determinism:
-  1) at least two rules can be used (successfully) to the \emph{same query} (i.e.,
-  lack of mutual exclusion between rules, see~\cref{sec:hc});
-  1) the call to a non-deterministic predicate, or the miscall of a deterministic one,
-  is not followed by a cut (see~\cref{sec:basic}).
+TODO: aggiungere questo da qualche parte This selection strategy of logic
+  programs may create two sources non-determinism:
+  1) at least two rules can be used (successfully) to the \emph{same query}
+     (i.e., lack of mutual exclusion between rules, see~\cref{sec:hc});
+  1) the call to a non-deterministic predicate, or the miscall of a
+     deterministic one, is not followed by a cut (see~\cref{sec:basic}).
 
 TODO: add all rules for determinacy check in elpi
 
-TODO: togliere il check callable dal chap 4
+TODO: rivedere il check callable dal chap 5
+
+TODO: nel chap sulla formalizzazione, riprendere le regole sul capitolo
+      precedente e dire cosa cambia
+
+TODO: aggiungere le regole complete su check input, check output sulle head
+      delle regole
 
 Aggiungere ref : qi2009 e vink1989
 
@@ -64,7 +71,7 @@ Vedere dove è usato run vs runT vs runE, in sec 5.5 c'è un refuso
 
 Aggiungere le regole per il det check
 
-6 / 7/ 8/ 9/10  5
+ -/ 7/ 8/ 9/10  4
 13/14/15/16/17  5
 20/21/22/23     4
 
@@ -75,5 +82,5 @@ Aggiungere le regole per il det check
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 37
+TOT: 36
 
