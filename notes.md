@@ -48,16 +48,11 @@ TODO: aggiungere questo da qualche parte This selection strategy of logic
   2) the call to a non-deterministic predicate, or the miscall of a
      deterministic one, is not followed by a cut (see~\cref{sec:basic}).
 
-TODO: nel chap sulla formalizzazione, riprendere le regole sul capitolo
-      precedente e dire cosa cambia
-
 TODO: PROLOGO  
 
 TODO: CONCLUSION  
 
 TODO: mettere il fresh al bachain nell'intro
-
-TODO: separare i comandi di elpi/rocq per le classi e metterli nella sezione 3.0
 
 TODO: black/white for graphics in 
 
