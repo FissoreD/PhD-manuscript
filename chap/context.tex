@@ -1,9 +1,9 @@
 \chapter{Context: languages and tools}
 
 At the core of this manuscript, there are two important pieces of software
-originating from different areas of computer science. On the one hand, we
+coming from different areas of computer science. On the one hand, we
 consider the \rocq proof assistant (formerly known as \coq); on the other hand,
-we consider \elpi. \marginpar{TODO: connect with the goal of the thesis}
+we consider the logic programming language \elpi.
 
 \rocq~\cite{coqart} is one of the main proof assistants. It is based on
 intuitionistic logic and allows formal reasoning about mathematical statements
@@ -54,7 +54,7 @@ behind the \rocq-elpi plugin.
 A standard introduction to \rocq usually starts with the foundations of the
 language, such as type theory, the $\lambda$-calculus, and the basic constructs
 used to define functions and state theorems. These topics are covered in detail
-in several books, such as~\cite{coqart}, and papers~\cite{coq-huet}. Additional
+ books, such as~\cite{coqart}, and papers~\cite{coq-huet}. Additional
 resources can be found at: \url{https://rocq-prover.org/papers}.
 
 \begin{figure}
@@ -104,7 +104,7 @@ type-checker can infer missing types when symbols are not overloaded, that is,
 when they have a unique interpretation.
 
 For example, assume that \cI{cons} has type
-\cI{~$\forall$~ T, T $\to$ list T $\to$ list T}, \cI{nil} has type
+\cI{~$\forall$~ T, T ~$\to$~ list T ~$\to$~ list T}, \cI{nil} has type
 \cI{~$\forall$~ T, list T}, and \cI{O} has type \cI{nat}. In this context, the
 type-checker can infer that the holes in the term
 \cI{@cons _ O (@nil _)} are both \cI{nat}.
@@ -115,22 +115,20 @@ type $t_2$ by inserting a function of type $t_1 \to t_2$.
 
 For instance, suppose that \cI{nat_to_bool} maps \cI{0} to \cI{false} and any
 other natural number to \cI{true}, and is declared as a coercion from
-\cI{nat} to \cI{bool}. Then the term \cI{not 0}, where \cI{not} expects an
+\cI{nat} to \cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects an
 argument of type \cI{bool}, is automatically elaborated into
-\cI{not (nat_to_bool O)}.
+\cI{negb (nat_to_bool O)}.
 
 Beyond type inference and coercions, a key feature of elaboration is support for
 overloading. This allows the same symbol to be reused at different types. Since
 ad-hoc polymorphism plays an important role in this manuscript, we will examine
-this mechanism in more detail in the following sections.
+this mechanism in more detail in the following subsection.
 
 
 \subsection{Ad-hoc polymorphism}
 \label{sec:ad-hoc-poly}
 
-
 Polymorphism is a fundamental feature of functional programming languages. In
-\marginpar{Collegare con Elaboration}
 his lecture notes, Strachey~\cite{polymorphism} distinguishes between two main
 forms of polymorphism: parametric polymorphism and ad-hoc polymorphism.
 Parametric polymorphic functions are \emph{uniform}, meaning that their behavior
@@ -160,8 +158,8 @@ In
 general, a different symbol must be introduced for each type implementing a
 given mathematical operation.
 
-To address the need for a shared notation for operations and
-properties across types, Wadler and Blott introduced the notion of type classes
+To address the need for a shared notation for operations (and
+properties in proof assistants) across types, Wadler and Blott introduced the notion of type classes
 in 1989~\cite{wadler1989-tc} and were soon implemented in
 \haskell~\cite{wadler1996-hs} as a pervasive feature of the language. Then
 other languages, such as \rocq~\cite{sozeau2008-tc} also extended their

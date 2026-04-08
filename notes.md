@@ -21,8 +21,6 @@ Per il jury?
 
 ================================================================================
 
-TODO: Definition: catchall
-
 TODO: what makes \elpi a programming language: modes, backtracking and cut, rule
 priority: we loose the pur logic programming flavour but we have more control on
 the execution
@@ -34,8 +32,6 @@ TODO: classes in haskell?
 TODO: Canonical structures  
 
 TODO: chiedere a enrico: Related works in elpi: non so se valga la pena farlo  
-TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la stessa cosa?  
-TODO: ENRICO: nel capitolo sull'unif HO, abbiamo scritto tutto in funzione di due linguaggi...  
 TODO: ENRICO: fix true | fig 3.2
 
 TODO: dire della differenza che esiste fra la semantica del paper sulla det check
