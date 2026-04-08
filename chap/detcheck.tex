@@ -1,7 +1,7 @@
 \chapter{Determinacy checking for \elpi}
 \label{chap:det-elpi}
 
-\section{Introduction}
+% \section{Introduction}
 
 % We are interested in the static analysis of \elpi programs, in particular
 % in checking their determinacy. \elpi is a higher-order logic programming
@@ -448,10 +448,6 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
 % For example the query \eI{q 1 R} has only one solution (\eI{R = 3})
 % in the program below, while \eI{p 1 R} has two (\eI{R = 3} and \eI{R = 2}).
 % TODO meglio\\
-For example, the rules for predicate \eI{p} below are not mutually exclusive, so choice points may
-remain after a query resolution, hence introducing non-determinism.
-For instance, \eI{p 1 X} has two solutions, namely
-\eI{X = 3} and \eI{X = 2}.
 
 \mvspace
 \noindent
@@ -478,6 +474,11 @@ r X R :- q X R.
 \end{elpicode}
 \end{minipage}
 \mvspace
+
+For example, the rules for predicate \eI{p} above are not mutually exclusive, so choice points may
+remain after a query resolution, hence introducing non-determinism.
+For instance, \eI{p 1 X} has two solutions, namely
+\eI{X = 3} and \eI{X = 2}.
 
 \noindent
 Conversely, \eI{q} satisfies mutual exclusion: no query can trigger both
@@ -1055,8 +1056,8 @@ types of the output arguments are weakened accordingly.
 
 The procedure to update the context when an atom is found to be
 a good call is \checkao~(\cref{fig:check-atom-out}). %(\caoC{\CTX}{\TERM}{\TYPE}{\CTX}).
-This procedure operates as an iterator
-Other than ignoring input arguments ($\text{\procfont a}_i^\text{\procfont o}$)
+It is an iterator over output arguments:
+other than ignoring input arguments ($\text{\procfont a}_i^\text{\procfont o}$)
 and fetching the signature of symbols
 in the context ($\text{\procfont a}_k^\text{\procfont o}$),
 it calls \assume on output arguments.

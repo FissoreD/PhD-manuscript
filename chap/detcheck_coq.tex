@@ -13,10 +13,9 @@ In the previous chapter we have explained the implementation of the determinacy
 checker algorithm that we have implementated in \elpi, 
 starting from version 3. 
 The checker helps users control
-backtracking. 
-The determinacy checker allows the user to assert which predicates
-should be considered deterministic and then checks that these predicates
-behave like functions, i.e., they commit to their first solution and leave
+backtracking: the user asserts which predicates
+should be considered deterministic and then the checker verifies that these predicates
+behave like functions, i.e., they commit to their first solution, leaving
 no \emph{choice points}.
 
 This chapter reports our first steps towards a mechanization, in the \rocq
@@ -25,21 +24,23 @@ We focus on the control operator \emph{cut}, which is useful to restrict
 backtracking but makes the semantics depart from a pure logical reading.
 
 We formalize two operational semantics for \prolog with cut. The first is a
-stack-based semantics that closely models \elpi implementation and is
+stack-based semantics that closely models a sublanguage of \elpi: we exclude
+from the semantics the interpretation for the \pi and \eI{=>} operators.
+This implementation is
 similar to the semantics mechanized by Pusch in \isabelle~\cite{isabelle}
 and to the model of Debray and Mishra~\cite[Sec.~4.3]{debray1988}.
 This stack-based semantics is a good starting point to study further
 optimizations used by standard \prolog abstract machines~\cite{warren1983,ait1991-wam},
-but it makes reasoning about the scope of cut difficult. To address
+but it makes reasoning about the scope of the cut operator difficult. To address
 this limitation we introduce a tree-based semantics in which the branches
-pruned by cut are explicit and we prove the two semantics equivalent.
+pruned by \cut are explicit and we prove the two semantics equivalent.
 Using the tree-based semantics, we then prove some properties about the
 impact of evaluating the cut in disjunctive queries. For example, unlike in
 classical logic, $q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$,
 since $q_2$ may be cut-away by $q_1$.
 
 Finally, we use the formal semantics to prove the correctness of a static
-determinacy analysis~\cite{fissore2026}. Intuitively,
+determinacy analysis~\cref{chap:det-elpi}. Intuitively,
 nondeterminism arises when a computation can be completed by applying two
 different rules. We exclude this situation in two ways. Firstly, at
 most one rule should be used on a given query. This condition is
@@ -87,7 +88,7 @@ Definition ~\ensuremath{\Sigma}~ := {fmap V -> Tm}.
 
 \end{figure}
 
-In the entire paper we use \Cref{fig:progx} as our running example, and
+In this chapter we use \cref{fig:progx} as our running example, and
 we start by describing how we represent a program like that one.
 % In the concrete syntax, variables are written with capital letters, and
 % predicate application follows the $\lambda$-calculus style (no
@@ -97,14 +98,15 @@ The description of a program is given by the record $\mathbb{P}$ (in \cref{type:
 is shared by both semantics. A program consists of a list of
 rules \cI{R} together with a signature environment \cI{sig}.
 We delay the discussion of signatures to \cref{sec:determinacy} where we
-describe the static analysis that concerns them.
+describe the static analysis that concerns them. The order in which rules appear
+in the list represent their priorities: rules coming first have higher priority.
 
 A rule consists of a head term \cI{Tm} and a list of premises. Each
 premise is an \cI{Atom}, i.e. either the cut operator or a predicate
 call. Terms \cI{Tm} include predicate symbols, data symbols, variables, and term application.
 The syntax tree allows variables to be applied and predicates to be mixed with data.
-These higher-order features play no role in the current paper that focuses on
-first order logic programming, but allows future extensions to full $\lambda$Prolog
+These higher-order features play no role in the current chapter that focuses on
+first-order logic programming, but allows future extensions to full \lprolog
 to be based on the same mechanization.
 
 The set of variables \cI{V}, predicates \cI{P} and data symbols \cI{S}
@@ -265,7 +267,7 @@ of layers that alternate: a disjunctive layer is followed by a conjunctive
 layer and vice versa. At the root (a query), the tree records a list of
 alternatives (an Or-layer); for each alternative, it records a list of
 subqueries to be solved (an And-layer). Intuitively, solving a query requires
-solving one alternative in the Or-layer, but all subqueries in the
+solving one alternative in the Or-layer, and all subqueries in the
 corresponding And-layer.
 
 The tree is built incrementally. The \cI{Todo} node
@@ -336,17 +338,18 @@ functions, \step and \na. Both traverse the tree depth-first, left-to-right.
 The node to be explored in a tree is retrieved thanks to the \pathend (in~\cref{fig:getend}).
 When this node is \okC we say the entire tree is a \emph{success}, when it
 is \koC we say the tree \emph{failed}, otherwise the tree is \emph{incomplete}.
-In \cref{tree-ex} we mark with a black arrow the result of \pathend.
+In \cref{tree-ex}, we provide some graphic representations of trees and
+mark with a black arrow the result of \pathend.
 
 \begin{coqcode}
 Inductive tag ~$\coloneq$~ Expanded | CutBrothers | Failed | Success.
 Definition step : ~$\mathbb{P}$~ ~$\to$~ ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ (~$\FV$~ * tag * tree)
 Definition prune : ~$\mathbb{B}$~ ~$\to$~ tree ~$\to$~ option tree
 Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ 
-                                option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
+                           option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
 \end{coqcode}
 
-Since all functions must terminate in \rocq, we define their transitive closure
+Since all functions must terminate in \rocq, we define the transitive closure
 of \step and \na as the inductive relation \runT.
 More precisely \runT iterates calls to \step on incomplete trees to expand
 \cI{Todo} nodes. When a tree fails it calls \na to find
@@ -865,7 +868,7 @@ as pointers to lower levels of the stack itself. This datum is used to implement
   \begin{minipage}{0.52\textwidth}
   \begin{coqcode}
   Definition save_gs ~$a$~ ~$g$~ ~$b$~ := 
-    [seq (x, ~$a$~) | x <- ~$b$~] ++ ~$g$~.
+    [seq (x, ~$a$~) | x <- ~$b$~] ~\mappend~ ~$g$~.
 
   Definition save_as ~$a$~ ~$g$~ ~$b$~ := 
     [seq (x.1, save_gs ~$a$~ ~$g$~ x.2) | x <- ~$b$~].
