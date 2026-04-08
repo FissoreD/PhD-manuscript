@@ -729,7 +729,7 @@ We believe that the main difficulty in the semantics presented in the previous
 section lies in the treatment of choice points and their interaction with the
 \cut operator.
 
-Several variants of the cut operator exist in the literature. The variant we \marginpar{reformulate}
+Several variants of the cut operator exist in the literature. The variant we
 consider, used in \elpi, is the so-called \emph{hard cut} (see, for example, the
 documentation of \sprolog~\cite{swi-prolog-cut}). When the \cI{backchain}
 function returns a non-empty list of alternatives, the first alternative is
@@ -1064,12 +1064,54 @@ executions of the program.
 
 \subsection{\chr: goal suspension}
 \label{sec:chr}
-\cite{chr,chr15}
 
-CHR elpi: \cite[section 4.3]{chr-elpi}
+Constraint Handling Rules (\chr, \cite{chr,chr15}) is a declarative,
+rule-based language designed to manipulate a multiset of constraints. A
+\chr program consists of rules that match patterns of constraints,
+optionally guarded by conditions, and transform the current constraint
+store by adding or removing elements. Operationally, execution proceeds
+by repeatedly selecting applicable rules and applying them to the
+constraint store. This model offers a flexible way to express
+simplification, propagation, and their combination, known as
+simpagation.
 
-CHR Pfenning: \cite{pfenning1993}
+From a conceptual point of view, \chr can be seen as a rewriting system
+over constraints, where rules describe how local configurations evolve.
+In contrast to standard logic programming rules, which operate on a
+single goal, \chr rules may inspect and rewrite several constraints at
+once. This aspect is important when correctness depends on the
+interaction between constraints, rather than on their independent
+resolution. For this reason, \chr naturally supports a more global view
+of computation.
 
+In \elpi, \chr is integrated as an extension of the underlying
+\lprolog engine. The motivation for this integration comes from the need
+to combine and refine suspended constraints generated during proof
+search.
+
+We do not enter into the details of the syntax or the implementation of
+\chr, since they play only a minor role in this manuscript. A more
+complete presentation can be found in \cite[Sec.~4.3]{chr-elpi} and
+\cite[Sec.~2.4]{hdr}.
+
+% In \elpi, \chr rules are considered in a given order and the
+% execution commits to the first rule that matches and fires. This choice
+% gives a predictable and efficient execution strategy, while still
+% preserving the declarative reading of rules. Moreover, constraints are
+% matched modulo a freezing mechanism: unification variables occurring in
+% constraints are temporarily treated as rigid symbols, preventing
+% undesired interactions between unrelated constraints.
+
+% From the usage perspective, \chr in \elpi acts as a meta-level reasoning
+% mechanism. While the core logic programming engine constructs proof
+% trees in a depth-first manner, \chr rules operate on the set of suspended
+% goals, thus affecting all branches simultaneously. This allows one to
+% encode global invariants, such as uniqueness conditions or consistency
+% checks, in a concise and declarative way. In practice, this combination
+% of \lprolog with \chr makes \elpi particularly suitable for tasks
+% such as type inference, elaboration, and manipulation of partially
+% specified terms, where constraints must be accumulated, combined, and
+% eventually resolved.
 
 \subsection{Rule names and insertion}
 \label{sec:elpi-rule-names}
@@ -1399,14 +1441,14 @@ computation.
 
 Overall, \elpi is good for elaboration
  
-\section{Notational conventions}
-In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
-and $\bot$ for \cI{true} and \cI{false}. The constructors of the option type are written
-$\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}.
-Following the Mathematical Components library, on which we depend,
-we use \cI{x.1} and \cI{x.2} to denote the first and second projection
-applied to the pair \cI{x}. List concatenation is the infix \cI{++},
-while list comprehension (i.e. mapping a function on a list) is written
-\cI{[seq f x | x <- l]}. The function \cI{odflt d o}
-extracts the value from the option \cI{o} and returns the default \cI{d}
-if \cI{o} is $\mnone$.
+% \section{Notational conventions}
+% In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
+% and $\bot$ for \cI{true} and \cI{false}. The constructors of the option type are written
+% $\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}.
+% Following the Mathematical Components library, on which we depend,
+% we use \cI{x.1} and \cI{x.2} to denote the first and second projection
+% applied to the pair \cI{x}. List concatenation is the infix \cI{++},
+% while list comprehension (i.e. mapping a function on a list) is written
+% \cI{[seq f x | x <- l]}. The function \cI{odflt d o}
+% extracts the value from the option \cI{o} and returns the default \cI{d}
+% if \cI{o} is $\mnone$.

@@ -27,13 +27,11 @@ TODO: what makes \elpi a programming language: modes, backtracking and cut, rule
 priority: we loose the pur logic programming flavour but we have more control on
 the execution
 
-TODO: cosè un database
+TODO: cosè un database (\cite[Sec. 4.3]{hdr})
 
 TODO: classes in haskell? 
 
 TODO: Canonical structures  
-
-TODO: CHR  
 
 TODO: chiedere a enrico: Related works in elpi: non so se valga la pena farlo  
 TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la stessa cosa?  
