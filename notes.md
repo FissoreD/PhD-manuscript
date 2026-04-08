@@ -59,11 +59,10 @@ TODO: PROLOGO
 
 TODO: CONCLUSION  
 
+TODO: mettere il fresh al bachain nell'intro
+
 
 Aggiungere ref : qi2009 e vink1989
-
-Vedere dove è usato run vs runT vs runE, in sec 5.5 c'è un refuso
-
 
  -/ -/ 8/ 9/10  3
 13/14/15/16/17  5

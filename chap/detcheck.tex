@@ -415,7 +415,6 @@ are loaded via the \pi operator. For example, the \eI{copy} predicate
 from \cref{sec:dynamic-prog} has two global rules and one local rule.
 
 \begin{definition}[Mutual exclusion ($\mutExclAll~\PROG~\RULE$)]
-  \label{def:mutExcl}
   Given a program \prog and a rule $r$, such that $r\notin \prog$,
   % $r = (k~t_1\ldots t_n~t_{n+1}\dots t_m ~\cdash~ b_1 \ldots b_r) $
   % with
@@ -441,6 +440,7 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
       % $t_d = x$ and
     % forall rules $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
     % $u_d$ is not a variable (not in \VAR).
+  \label{def:mutExcl}
 \end{definition}
 %
 % These two conditions are sufficient to avoid the creation of choice points
@@ -1248,7 +1248,7 @@ In other words a deterministic query leaves no alternatives when it succeeds.
 We now link the static check to the deterministic execution of a query.
 
 \begin{definition}[Checked program ($\isdetp~\CTX~\PROG$)] A program \prog
-is checked against a context of signatures \ctx iff it validates these rules:\\
+is checked against a context of signatures \ctx iff it validates these rules:
 %
 \begin{center}  
 \begin{bprooftree}
@@ -1357,18 +1357,18 @@ The mechanization for the higher-order part is ongoing.
 
 \section{Experience report}
 
-The static analyzer we describe was integrated in the \href{https://github.com/LPCIC/elpi}{\elpi language}
+The static analyzer we describe was integrated in the \elpi language
 version 3.0. It
 consists of
 about $200$ lines of \ocaml code for the implementation of \mutExclAll and about $800$
 lines of code for the implementation of \checkc, along with all the related
 auxiliary functions.
-We have  ported some \rocq libraries written using \elpi: \rocq-\elpi, Hierarchy Builder,
-Algebra Tactics, Trocq, and BRiCk.
+We have  ported some \rocq libraries written using \elpi: \rocq-\elpi, \hb,
+\languages{Algebra Tactics}, \trocq, and \languages{BRiCk}.
 
 We can divide the porting of these libraries into two categories: libraries in
 which we have traversed all the predicates and carefully changed \epred markers
-to \efunc (\elpi, \rocq-\elpi, and Hierarchy Builder), and libraries that have been ported to just pass the
+to \efunc (\elpi, \rocq-\elpi, and \hb), and libraries that have been ported to just pass the
 static analyzer.
 In particular, the latter class of libraries
 measures the minimal cost for adapting code to the changes we made to
@@ -1388,12 +1388,12 @@ We summarize these results in \cref{tab:report}.
       \hline
       \elpi              & 1448  & 97\%     & 1          & 1  (100\%)         \\
       \rocq-\elpi         & 13164 & 79\%     & 91         & 78 (85\%)          \\
-      Hierarchy Builder & 5326  & 94\%     & 33         & 30 (90\%)          \\
+      \hb & 5326  & 94\%     & 33         & 30 (90\%)          \\
       \hline
-      Algebra Tactics   & 1799  & --       & 1          & 1  (100\%)         \\
-      Trocq             & 2918  & --       & 4          & 4  (100\%)         \\
-      BRiCk (public)    & 2500  & --       & 11         & 11 (100\%)         \\
-      BRiCk (private)   & 7500  & --       & 6         & 6  (100\%)         \\
+      \languages{Algebra Tactics}   & 1799  & --       & 1          & 1  (100\%)         \\
+      \trocq             & 2918  & --       & 4          & 4  (100\%)         \\
+      \languages{BRiCk} (public)    & 2500  & --       & 11         & 11 (100\%)         \\
+      \languages{BRiCk} (private)   & 7500  & --       & 6         & 6  (100\%)         \\
       \hline\hline
       Total             & 34655 & 85\%     & 147        & 131 (89\%)
     \end{tabular}
@@ -1426,18 +1426,18 @@ the input cannot be \textit{0} and \textit{greater than 0} at the same time.
 But a complete algorithm identifying all of these scenarios does not exists,
 and we require an explicit \cut in the first rule.
 
-In Hierarchy Builder, we have $460$ functions out of $488$, with $33$
+In \hb, we have $460$ functions out of $488$, with $33$
 higher-order arguments, and we have corrected $30$ bugs in the code.
 
 Overall, we can conclude that $85\%$ of the predicates were functions.
 % This is a strong justification for our work and assists users in writing their
 % code.
 
-In Algebra Tactics, we
-added 1 cut over 1799 lines of codes; in Trocq, we added 4 cuts over 2918
+In \languages{Algebra Tactics}, we
+added 1 cut over 1799 lines of codes; in \trocq, we added 4 cuts over 2918
 lines of code.  None of these libraries were using \eI{copy} as a relation, i.e. to
 generate all possible copies of a term.
-The BRiCk application has some public code we ported
+The \languages{BRiCk} application has some public code we ported
 ourselves and some closed source code ported by the BlueRock company, that we
 thank for sharing these numebrs.
 In the public code we added 11 cuts over 2500 lines of
