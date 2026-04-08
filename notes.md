@@ -21,8 +21,6 @@ Per il jury?
 
 ================================================================================
 
-Find why cref returns fig. for figures instead of figure
-
 TODO: Definition: catchall
 
 TODO: what makes \elpi a programming language: modes, backtracking and cut, rule
@@ -42,10 +40,6 @@ TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la ste
 TODO: ENRICO: nel capitolo sull'unif HO, abbiamo scritto tutto in funzione di due linguaggi...  
 TODO: ENRICO: fix true | fig 3.2
 
-TODO: PROLOGO  
-
-TODO: CONCLUSION  
-
 TODO: in HO for free aggiungere la frase che dice della notazione quando non
       siamo in verbatim mode
 
@@ -53,13 +47,18 @@ TODO: aggiungere questo da qualche parte This selection strategy of logic
   programs may create two sources non-determinism:
   1) at least two rules can be used (successfully) to the \emph{same query}
      (i.e., lack of mutual exclusion between rules, see~\cref{sec:hc});
-  1) the call to a non-deterministic predicate, or the miscall of a
+  2) the call to a non-deterministic predicate, or the miscall of a
      deterministic one, is not followed by a cut (see~\cref{sec:basic}).
 
 TODO: nel chap sulla formalizzazione, riprendere le regole sul capitolo
       precedente e dire cosa cambia
 
 TODO: correggere i font nell'algorithmo di detcheck
+
+TODO: PROLOGO  
+
+TODO: CONCLUSION  
+
 
 Aggiungere ref : qi2009 e vink1989
 

@@ -350,11 +350,11 @@ Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree
 \end{coqcode}
 
 Since all functions must terminate in \rocq, we define their transitive closure
-of \step and \na as the inductive relation \run.
-More precisely \run iterates calls to \step on incomplete trees to expand
+of \step and \na as the inductive relation \runT.
+More precisely \runT iterates calls to \step on incomplete trees to expand
 \cI{Todo} nodes. When a tree fails it calls \na to find
 the next alternative and continues from there, if one exists.
-% We detail \step, \na, and \run in \cref{sec:step,sec:next_alt,sec:runT}.
+% We detail \step, \na, and \runT in \cref{sec:step,sec:next_alt,sec:runT}.
 
 
 % In \cref{type:stepT,type:naT,type:runT} we give the types
@@ -649,9 +649,9 @@ complements \step with respect to failed, successful, and incomplete trees.
 %   \label{fig:na}
 % \end{figure}
 
-\subsection{The \run relation and its properties}\label{sec:runT}
+\subsection{The \runT relation and its properties}\label{sec:runT}
 
-The inductive relation \run relates four inputs to three outputs. The inputs
+The inductive relation \runT relates four inputs to three outputs. The inputs
 are a program, a set of variables, an initial substitution $\sigma$, and a
 tree $t$. The outputs are an optional result $r$, a boolean $b$, and an updated set of variable
 names.
@@ -663,13 +663,13 @@ The boolean $b$ records whether a
 superficial cut was evaluated during execution.
 % , and the updated variable set tracks freshly generated names.
 
-The \run predicate has four cases, depicted as inference rules in \cref{fig:run-rules}.
+The \runT predicate has four cases, depicted as inference rules in \cref{fig:run-rules}.
 (\stopt) If \pathend\ $t$ is a success, then the substitution
 $\sigma'$ is extracted from $t$ (starting from $\sigma$) and the input tree is
 cleaned of its successful path. (\stept) If \pathend\ $t$ is an atom,
-then \step is invoked to evaluate $t$, and \run is called recursively on the
+then \step is invoked to evaluate $t$, and \runT is called recursively on the
 updated tree. (\backt) If \pathend\ $t$ is a failure, then \na is
-called to clear the failed path; if the resulting cleaned tree exists, \run is
+called to clear the failed path; if the resulting cleaned tree exists, \runT is
 called recursively on it. Finally, (\failt) accounts for trees with no
 solutions.
 
@@ -679,39 +679,39 @@ solutions.
   \input{runbp.tex}
   % \begin{prooftree}
   %   \AxiomC{$\success\ A$}
-  %   \RightLabel{$\run\_done$}
-  %   \UnaryInfC{$\run\ fv\ s_1\ A\ (\getsubst\ s_1\ A)\ (\na\ \top\ A)$}
+  %   \RightLabel{$\runT\_done$}
+  %   \UnaryInfC{$\runT\ fv\ s_1\ A\ (\getsubst\ s_1\ A)\ (\na\ \top\ A)$}
   % \end{prooftree}
 
   % \begin{prooftree}
   %   \AxiomC{$\incomplete\ A$}
   %   \AxiomC{$\step\ u\ p\ fv_0\ s_1\ A\ = (fv_1,\ st,\ B)$}
-  %   \AxiomC{$\run\ fv_1\ s_1\ B\ s_2\ r$}
-  %   \RightLabel{$\run\_step$}
-  %   \TrinaryInfC{$\run\ fv_0\ s_1\ A\ s_2\ r$}
+  %   \AxiomC{$\runT\ fv_1\ s_1\ B\ s_2\ r$}
+  %   \RightLabel{$\runT\_step$}
+  %   \TrinaryInfC{$\runT\ fv_0\ s_1\ A\ s_2\ r$}
   % \end{prooftree}
 
   % \begin{prooftree}
   %   \AxiomC{$\failed\ A$}
   %   \AxiomC{$\na\ \bot\ A = \mathrm{Some}\ B$}
-  %   \AxiomC{$\run\ fv_0\ s1\ B\ s_2\ r$}
-  %   \RightLabel{$\run\_fail$}
-  %   \TrinaryInfC{$\run\ fv_0\ s_1\ A\ s_2\ r$}
+  %   \AxiomC{$\runT\ fv_0\ s1\ B\ s_2\ r$}
+  %   \RightLabel{$\runT\_fail$}
+  %   \TrinaryInfC{$\runT\ fv_0\ s_1\ A\ s_2\ r$}
   % \end{prooftree}  
 
-  \caption{Rule system for \run}
+  \caption{Rule system for \runT}
   \label{fig:run-rules}
 \end{figure}
 
-% \subsubsection{Properties of \run}
+% \subsubsection{Properties of \runT}
 \label{sec:run-prop}
 
-The set of rules defining \run is deterministic.
+The set of rules defining \runT is deterministic.
 
 \input{formalization/theorem/runT_det.tex}
 
 
-The proof is by induction on the first \run derivation and is immediate,
+The proof is by induction on the first \runT derivation and is immediate,
 because the rules are selected based on \pathend\ $t$. In particular, the
 hypotheses \success $t$, \incomplete $t$, and \failed $t$ are
 mutually exclusive. Moreover, by \cref{th:pruneNone}, the hypothesis of
@@ -719,7 +719,7 @@ mutually exclusive. Moreover, by \cref{th:pruneNone}, the hypothesis of
 with \stopt and \stept, and it is also exclusive with
 \backt since they impose different requirements on the output of \na.
 
-The boolean output of \run allows us to state interesting properties about the
+The boolean output of \runT allows us to state interesting properties about the
 \orC node in the presence of cut. Here we report only a selection of those we
 proved.
 % We have proven several
@@ -728,15 +728,15 @@ proved.
 % link. Below we show two of these lemmas.
 
 % \begin{lemma}[\texttt{runSST\_or}] $\forall p\ v_0\ v_1\ s_0\ s_1\ t_0\ t_0'\ s_m\ t_1$,
-%   $$\texttt{\run p}\ v_0\ s_0\ t_0\ \boxed{s_1, \boxed{t_0'}}\ \top\ v_1 \to%
-%     \texttt{\run p}\ v_0\ s_0\ (\texttt{Or}\ \boxed{t_0}\ s_m\ t_1)\ %
+%   $$\texttt{\runT p}\ v_0\ s_0\ t_0\ \boxed{s_1, \boxed{t_0'}}\ \top\ v_1 \to%
+%     \texttt{\runT p}\ v_0\ s_0\ (\texttt{Or}\ \boxed{t_0}\ s_m\ t_1)\ %
 %     \boxed{s_1, \boxed{\texttt{Or }\boxed{t_0'}\ s_m\texttt{ KO}}}\ \bot\ v_1$$
 % \end{lemma}
 
 % \begin{lemma}
 %   $$
-%   \run\ p\ v_0\ s_0\ (Or \boxed{t_0}\ s_m\ t_1) (Some\ (s_1, (Or\ \boxed{t_0'}\ s_m\ t_1')))\ \bot\ v_2\ \to
-%     \exists b, \run\ p\ v_0\ s_0\ t_0\ (Some (s_1, \boxed{t_0'}))\ b\ v_2\ \land t_1' = \text{ if } b \text{ then \koC else } t_1.
+%   \runT\ p\ v_0\ s_0\ (Or \boxed{t_0}\ s_m\ t_1) (Some\ (s_1, (Or\ \boxed{t_0'}\ s_m\ t_1')))\ \bot\ v_2\ \to
+%     \exists b, \runT\ p\ v_0\ s_0\ t_0\ (Some (s_1, \boxed{t_0'}))\ b\ v_2\ \land t_1' = \text{ if } b \text{ then \koC else } t_1.
 %   $$
 % \end{lemma}
 
@@ -819,7 +819,7 @@ $$
 $$
 
 It is worth recalling that the ``$A$ cuts'' side-condition in the rules above is
-precisely the boolean result returned by \run. Without this information, it is
+precisely the boolean result returned by \runT. Without this information, it is
 impossible to formulate these rules: it is not merely a matter of whether $A$
 contains a syntactic occurrence of cut, but whether that cut is actually
 executed during the (dis)proof of $A$ (in rules $(\lor_{ir1})$ and $(\lor_{ir2})$).
@@ -884,12 +884,12 @@ Definition stepS p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ens
 
   \input{nurbp.tex}
 
-  \caption{Rule system for \nur}
+  \caption{Rule system for \runS}
   \label{fig:nur-rules}
 \end{figure}
 
 \noindent
-The stack-based semantics is described by the \nur inductive
+The stack-based semantics is described by the \runS inductive
 predicates.
 
 % \mvspace{}
@@ -900,12 +900,12 @@ predicates.
 \end{center}
 
 \noindent
-The \nur predicates relates a set of variables and a
+The \runS predicates relates a set of variables and a
 list of alternatives to optional result. \mnone stands for failure,
 i.e., no solution, whereas $\msome(\sigma, a)$ represent success with $\sigma$ begin the solution and $a$ as the list of non-yet-explored
 alternatives.
 
-The rule system for \nur is given in \cref{fig:nur-rules} and is made by $4$
+The rule system for \runS is given in \cref{fig:nur-rules} and is made by $4$
 cases. We distinguish two main cases. If we run out of alternatives
 we fail: (\fails) stops the execution and return $\mnone$.
 If the list of alternatives is $(\sigma_0, h) :: a$, then
@@ -1060,8 +1060,8 @@ The letters in the figures relate each tree to the corresponding stack.
 For example, \ref{tree-ex1} is translated into \ref{ex-elpi1}. We also
 note that \ref{tree-ex3} and \ref{tree-ex4} are both translated into
 \ref{ex-elpi3}, showing that $t2l$ is not injective: different trees can map to
-the same stack. Consequently, there are transitions in \run that are not visible
-in \nur.
+the same stack. Consequently, there are transitions in \runT that are not visible
+in \runS.
 %
 \begin{figure}[b]
   \begin{center}
@@ -1135,7 +1135,7 @@ the translation of the subtree under $\sigma_2$, since it is one
 % pointers to $bt$, if any, in $lA$. We finally need to treat cases whenever
 % the list $lA$ is empty or not. In the former case the empty list is returned,
 % otherwise, we hasve a list $[::(s_0,gs)\&al]$. By the semantics of
-% the \andC in the \run interpreter, the rhs of the \andC represent the
+% the \andC in the \runT interpreter, the rhs of the \andC represent the
 % sequent of goals to be executed after the first alternative in the lhs,\marginpar{alternative in tree? rephrase}
 % it corresponds to the list of goals $gs$.
 % The reset point $B0$ is to be appended to the next alternatives in the lhs,
@@ -1156,16 +1156,16 @@ we hide it behind existentials.
 
 % Thanks to the two functions \vast and \ttl, we are able to finally state the
 % equivalence theorems between the semantics. The proof we are giving are on a
-% slightly different definition of \run, since in the equivalence, we ignore the
-% verification for the boolean and the variable set returned by \run, these piece
+% slightly different definition of \runT, since in the equivalence, we ignore the
+% verification for the boolean and the variable set returned by \runT, these piece
 % of data are paricularly meant for the proof in \cref{sec:run-prop}.
 
 % The definition we use is the following:
 
 \input{formalization/theorem/runt1.tex}
 
-From \cref{tree-ex,ex-elpi}, we observe that, upon backtracking, \run may perform
-more steps than \nur before returning a solution or a failure.
+From \cref{tree-ex,ex-elpi}, we observe that, upon backtracking, \runT may perform
+more steps than \runS before returning a solution or a failure.
 These silent transitions must be skipped
 when proving the equivalence between the two semantics. Therefore, we
 prove the following lemma.
@@ -1194,7 +1194,7 @@ a tree correspond to those returned as a stack.
 \end{theorem}
 
 \begin{proof}
-We proceed by induction on the execution of \run'. There are four cases
+We proceed by induction on the execution of \runT'. There are four cases
 to consider. The first case arises from \stopt; it deals with
 successful trees. A successful tree must start with an empty list, and
 therefore we conclude using \stops. The case for \stept
@@ -1223,9 +1223,9 @@ translates to the unexplored stack.
 The proof is based on the idea explained in~\cite[Section
 3.5.1]{yves-equiv} and depicted in the figure on the right:
 we have a tree $t$ whose translation is $a$, we proceed by
-induction on the execution of \nur. This gives us not only the output $a'$ but
+induction on the execution of \runS. This gives us not only the output $a'$ but
 that hypothesis that it exists a tree $t'$ such that its translation to a
-stack is $a'$. %This proof strategy is indirectly providing a kind of \ltt function by combining the execution of the \nur and \ttl.
+stack is $a'$. %This proof strategy is indirectly providing a kind of \ltt function by combining the execution of the \runS and \ttl.
 \end{proof}
 \end{minipage}~~~~~~
 \begin{minipage}{0.25\textwidth}
@@ -1238,7 +1238,7 @@ Stating the converse direction in a symmetric way
 would require a function
 \ltt transforming a stack $a$ into a tree $t$.
 Writing this function is far from trivial, since the structure of
-the tree is lost by \saveas and \run that
+the tree is lost by \saveas and \runT that
 intuitively keep the state as a big disjunction of conjunctions by
 distributing conjunctions over disjunctions. Moreover, one would need to
 define a notion of valid stack that is equally intricate.
@@ -1341,7 +1341,7 @@ the program and are encoded as described in
 into deterministic a non-deterministic.
 
 A program execution behaves deterministically if, given a program, a
-substitution, and an input tree for the \run\ inductive, the execution either
+substitution, and an input tree for the \runT\ inductive, the execution either
 fails or, if it succeeds, the resulting tree of alternatives is $\mnone$.
 % Below, we define \texttt{is\_det}.
 
