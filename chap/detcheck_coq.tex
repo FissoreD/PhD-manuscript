@@ -9,18 +9,15 @@
 % and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
 % framework with industrial applications at SkyLabs AI.
 
-Starting with version 3, \elpi is equipped with a static analysis for
-determinacy~\cite{fissore2026} to help users control
-backtracking. \rocq{} users are familiar with functional programming, but
-not necessarily with logic programming; in particular, uncontrolled
-backtracking is a common source of inefficiency and makes debugging
-harder. The determinacy checker allows the user to assert which predicates
+In the previous chapter we have explained the implementation of the determinacy
+checker algorithm that we have implementated in \elpi, 
+starting from version 3. 
+The checker helps users control
+backtracking. 
+The determinacy checker allows the user to assert which predicates
 should be considered deterministic and then checks that these predicates
 behave like functions, i.e., they commit to their first solution and leave
-no \emph{choice points} (places where backtracking could resume). A choice
-point correspond to an suspended \emph{alternative} in the execution trace.
-In the following we use \emph{choice point} and \emph{alternative} as
-synonyms.
+no \emph{choice points}.
 
 This chapter reports our first steps towards a mechanization, in the \rocq
 prover, of the determinacy analysis from~\cite{fissore2026}.
