@@ -33,13 +33,13 @@ The root cause of the problems we outlined in this example
 is a subtle mismatch between the equational theories of the meta language
 and the object language, which in turn makes the 
 unification procedures of the meta language weak.
-% The equational theory of the meta-language \elpi encompasses
-% $\beta\eta$-equivalence and its unification procedure can solve higher-order
-% problems in the pattern fragment. Although 
-% the equational theory of \rocq is much richer, for efficiency and predictability
-% reasons automatic proof search procedures typically employ a unification
-% procedure that only captures a $\beta\eta$-equivalence and only operates
-% in the pattern fragment. % The similarity is striking, but one needs to exercise some caution in order to
+The equational theory of the meta-language \elpi encompasses
+$\beta\eta$-equivalence and its unification procedure can solve higher-order
+problems in the pattern fragment. Although 
+the equational theory of \rocq is much richer, for efficiency and predictability
+reasons automatic proof search procedures typically employ a unification
+procedure that only captures a $\beta\eta$-equivalence and only operates
+in the pattern fragment. % The similarity is striking, but one needs to exercise some caution in order to
 % simulate a higher-order logic program in \rocq using the unification of \elpi.
 
 
@@ -130,13 +130,13 @@ tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
   pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B (Qm p).
 \end{elpicode}
 
-In the body of the rule, we have added a new higher-order \elpi variable \eI{Qm} which
+In the rule body, we have added a new higher-order \elpi variable \eI{Qm} which
 has the type \eI{term ~$\to$~ term}. In the recursive call to \eI{tc-Provable}
 we pass as argument the variable \eI{Qm} applied to \eI{p}, allowing the the
 unification problem \eI{Qm p = p} to have a solution, namely, \eI{Qm = x\ x}.
 
 The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
-to the variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
+to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
 \eI{Q} is assigned to the HOAS term \cI{fun x => x}. With this encoding, the
 query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
@@ -181,179 +181,156 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
 The general idea of this compilation is to identify at compilation time all
 the subterm that could create unification problems up to $\beta\eta$. These
-subterms $t$ are replaced by unification variables $v$ to ease unification in the
+subterms $t$ are replaced by unification variables $v$, to ease unification in the
 meta-langauge and an additional premise is added to relate $t$ to $v$.
 
-In our paper~\cite{fissore2024}, we present a general framework using a
-dedicated syntax for both the HOAS encoding of the terms of the object langauge
-and the one of the meta language. In this chapter, we prefer to stick to the
-HOAS of the \rocq langauge and use the \elpi syntax for the meta language.
+The idea of our compilation strategy is presented via two languages called
+called \Fo{} for object language and \Ho for the meta language. 
+We detail the encoding of \Fo{} in \Ho, and we show that
+the higher-order unification procedure of the meta language \Ue{} can be
+used to simulate a higher-order unification procedure \Uo for
+the object language that features $\beta\eta$-conversion.
 
-Since one of the main issue concerning this chapter is related to the scope of
-\elpi variable, we will explicitely put as subscript the their scopes. For
-example, an elpi variable noted $\eI{X}_{xy}$ means that the $x$ and $y$ are in
-the scope of \eI{F}. We distingish pure \elpi variables from variables mapped to
-\rocq existential variables by prefixing \rocq variables with the \cI{?} symbol.
-By hypothesis every \rocq meta-variable in the following sections have empty
-scope, i.e. they are existentially quantified before any other free variable.
+Section~\ref{sec:problem-statement} states the problem formally and gives the
+intuition behind our solution; \cref{sec:simulation} sets up a basic
+simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
+extend it to higher-order logic programs in the pattern fragment
+while \cref{sec:beta} goes beyond the pattern fragment.
+Section \ref{sec:implementation} discusses the implementation in \elpi.
 
-% The idea of our compilation strategy is presented via two languages called
-% called \rocq for object language and \elpi for the meta language. 
-% We detail the encoding of \rocq in \elpi, and we show that
-% the higher-order unification procedure of the meta language \Ue{} can be
-% used to simulate a higher-order unification procedure \Uo for
-% the object language that features $\beta\eta$-conversion.
-
-Section~\ref{sec:problem-statement} states the problem formally and gives
-the\marginpar{TODO} intuition behind our solution; \cref{sec:simulation} sets up
-a basic simulation of first-order logic programs, \cref{sec:llam} and
-\cref{sec:eta} extend it to higher-order logic programs in the pattern fragment
-while \cref{sec:beta} goes beyond the pattern fragment. Section
-\ref{sec:implementation} discusses the implementation in \elpi. 
-
-% \section{Problem statement and solution} %%%%%%%%%%%%%%%%%%%%%%
-% \label{sec:problem-statement}
+\section{Problem statement and solution} %%%%%%%%%%%%%%%%%%%%%%
+\label{sec:problem-statement}
 
 \newcommand{\maybeeta}{\texorpdfstring{\ensuremath{\Diamond\eta}\xspace}{maybeeta}}
 \newcommand{\maybebeta}{\texorpdfstring{\ensuremath{\Diamond\beta}\xspace}{maybebeta}}
 \newcommand{\notllambda}{\texorpdfstring{\ensuremath{\Diamond\llambda}\xspace}{maybellam}}
 
+Even if we encountered the problem working on \rocq's Calculus of Inductive
+Constructions, we devise
+a minimal setting to ease its study. In this setting, we have
+a language \Fo{} with a rich equational
+theory and a \Ho{} language with a simpler one.
 
+Our encoding of \Fo and \Ho is given in the \elpi language. In
+\cref{code:common-terms}, we provide in the syntax of the terms of \Fo, called
+\eI{to} and the terms of \Ho, called \eI{tm}. As claimed before, our framework
+is general, and therefore not proper to \rocq and \elpi. In our case, \eI{to}
+corresponds to the \eI{term} type of \rocq terms in \elpi and \eI{tm}
+corresponds to the constructs of the $\lambda$-calculus of \elpi.
 
-% Even if we encountered the problem working on \rocq's Calculus of Inductive
-% Constructions, we devise
-% a minimal setting to ease its study. In this setting, we have
-% a language \rocq with a rich equational
-% theory and a \elpi language with a simpler one.
+The only difference between the two term representations is the encoding of
+variables. Variables contain a pointer to a memory address. In \Fo,
+the variables are first-order, i.e. they have no term in their scope, while in
+\Ho, the variables have a scope which is represented as a list of term. We use
+this encoding, since we implement and test the full unification strategy in an
+\elpi development available at \githubUrl.
 
-% Our encoding of \rocq and \elpi is given in the \elpi language. In
-% \cref{code:common-terms}, we provide in the syntax of the terms of \rocq, called
-% \eI{to} and the terms of \elpi, called \eI{tm}. As claimed before, our framework
-% is general, and therefore not proper to \rocq and \elpi. In our case, \eI{to}
-% corresponds to the \eI{term} type of \rocq terms in \elpi and \eI{tm}
-% corresponds to the constructs of the $\lambda$-calculus of \elpi.
-
-% The only difference between the two term representations is the encoding of
-% variables. Variables contain a pointer to a memory address. In \rocq,
-% the variables are first-order, i.e. they have no term in their scope, while in
-% \elpi, the variables have a scope which is represented as a list of term. We use
-% this encoding, since we implement and test the full unification strategy in an
-% \elpi development available at \githubUrl.
-
-% \begin{figure}
-%   \begin{subfigure}{0.47\textwidth}
-%     \input{ho-for-free/img/fo_tm.tex}
-%   \end{subfigure}
-%   \begin{subfigure}{0.47\textwidth}
-%     \input{ho-for-free/img/ho_tm.tex}
-%   \end{subfigure}
-%   \caption{The \rocq and \elpi languages}\vspace{0.3em}
-%   \label{code:common-terms}
-% \end{figure}
+\begin{figure}
+  \begin{subfigure}{0.47\textwidth}
+    \input{ho-for-free/img/fo_tm.tex}
+  \end{subfigure}
+  \begin{subfigure}{0.47\textwidth}
+    \input{ho-for-free/img/ho_tm.tex}
+  \end{subfigure}
+  \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
+  \label{code:common-terms}
+\end{figure}
 
 % \textbf{Notational conventions} 
 %
-% When we write \elpi terms outside code blocks we follow the
-% usual $\lambda$-calculus notation, reserving $f, g, a, b$ for constants,
-% $x, y, z$ for bound variables and $X, Y, Z, F, G, H$ for unification variables.
-% However, we need to
-% distinguish between the ``application'' of a unification variable
-% to its scope and the application of a term to a list of arguments.
-% We write the scope of unification variables in subscript
-% while we use juxtaposition for regular application.
-% Here are few examples:\\\marginpar{da rivedere: usare altra sintassi}
+When we write \Ho terms outside code blocks we follow the
+usual $\lambda$-calculus notation, reserving $f, g, a, b$ for constants,
+$x, y, z$ for bound variables and $X, Y, Z, F, G, H$ for unification variables.
+However, we need to
+distinguish between the ``application'' of a unification variable
+to its scope and the application of a term to a list of arguments.
+We write the scope of unification variables in subscript
+while we use juxtaposition for regular application.
+Here are few examples:\\\marginpar{da rivedere: usare altra sintassi}
+\vspace{4pt}
+{
+\setlength{\tabcolsep}{1em}
+\begin{tabular}{ll}
+  $f\appsep a$                  & \eI{app [con "f", con "a"]}\\
+  $\lambda x.\lambda y.F_{x y}$ & \eI{lam x\ lam y\ uva F [x, y]} \\
+  $\lambda x.F_{x} \appsep a$   & \eI{lam x\ app [uva F [x], con "a"]} \\
+  $\lambda x.F_{x} \appsep x$   & \eI{lam x\ app [uva F [x], x]} \\
+\end{tabular}
+}
+\vspace{4pt}
 
-% \vspace{4pt}
-% {
-% \setlength{\tabcolsep}{1em}
-% \begin{tabular}{ll}
-%   $f\appsep a$                  & \eI{app [con "f", con "a"]}\\
-%   $\lambda x.\lambda y.F_{x y}$ & \eI{lam x\ lam y\ uva F [x, y]} \\
-%   $\lambda x.F_{x} \appsep a$   & \eI{lam x\ app [uva F [x], con "a"]} \\
-%   $\lambda x.F_{x} \appsep x$   & \eI{lam x\ app [uva F [x], x]} \\
-% \end{tabular}
-% }
-% \vspace{4pt}
+When it is clear from the context, we shall use the same syntax for \Fo{} terms
+(although we never use subscripts for unification variables).
+We use $s$, $s_1$, \ldots for terms in \Fo{} and $t$, $t_1$, \ldots for
+terms in \Ho{}.
 
-% When it is clear from the context, we shall use the same syntax for \rocq terms
-% (although we never use subscripts for unification variables).
-% We use $s$, $s_1$, \ldots for terms in \rocq and $t$, $t_1$, \ldots for
-% terms in \elpi.
+\subsection{Equational theories and unification}
 
-\section{Equational theories and unification}
+\paragraphTwo{Term equality: \Eo and \Ee}
+For both languages, we extend the equational theory
+over ground terms to the full language by adding reflexivity for
+unification variables, i.e. a unification variable is equal to itself
+but different to any other term. The implementation is given in~\cref{fig:feq}.
 
-% \paragraphTwo{Term equality: \Eo and \Ee}
-% For both languages, we define the equational theory
-% over ground terms to the full language by adding reflexivity for
-% unification variables, i.e. a unification variable is equal to itself
-% but different to any other term. The implementation is given in~\cref{fig:feq}.
-
-% The first four rules are common to both equalities
-% and define the usual congruence over terms. Since
-% we use an HOAS encoding, they also capture $\alpha$-equivalence.
-% In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
+The first four rules are common to both equalities
+and define the usual congruence over terms. Since
+we use an HOAS encoding, they also capture $\alpha$-equivalence.
+In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 %
 % \input{code/feq}
-% \begin{figure}
-%   \input{ho-for-free/img/feq.tex}%
-%   \caption{\rocq equality implementation}
-%   \label{fig:feq}
-% \end{figure}%
-% %
-% \begin{elpicode}
-%   ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
-%   con C ~\Ee~ con C.
-%   app A ~\Ee~ app B :- forall2 ~(\Ee)~ A B.
-%   lam F ~\Ee~ lam G :- pi x\ x ~\Ee~ x => F x ~\Ee~ G x.
-%   uva N A ~\Ee~ uva N B :- forall2 ~(\Ee)~ A B.
-% \end{elpicode}
+\begin{figure}
+  \input{ho-for-free/img/feq.tex}%
+  \caption{\Fo equality implementation}
+  \label{fig:feq}
+\end{figure}%
+%
+\begin{elpicode}
+  ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
+  con C ~\Ee~ con C.
+  app A ~\Ee~ app B :- forall2 ~(\Ee)~ A B.
+  lam F ~\Ee~ lam G :- pi x\ x ~\Ee~ x => F x ~\Ee~ G x.
+  uva N A ~\Ee~ uva N B :- forall2 ~(\Ee)~ A B.
+\end{elpicode}
 
-% \noindent
-We define two equality procedure, which test term equality over ground terms,
-extended with reflexivity for unification variables, i.e. a unification variable
-is equal to itself but different to any other term. Equality of terms of HOAS
-terms is noted \Eo and simulates the equality of these terms modulo
-$\eta\beta$-conversion in the \rocq langauge, whereas equality of HOAS terms in
-the \elpi language is noted \Ee.
-
-For example, \eI{fun _ x\ app[?F, x]}~\Eo~\eI{?F}, and \eI{app [fun _ x\ x,
-~<<3>>~]}~\Eo~\eI{~<<3>>~}, but \eI{fun _ x\ app[?F, x]}~\nEe~\eI{?F}, and
-\eI{app [fun _ x\ x, ~<<3>>~]}~\nEe~\eI{~<<3>>~}.
+\noindent
+Both procedures use implication to
+assume that the fresh nominal constants introduces by \eI{pi} are
+equal to themselves.
 
 The main point in showing these equality tests is to remark how
-weaker \Ee is, and to identify the the special
-treatment needed for the $\eta\beta$-conversion rules.
+weaker \Ee is, and to identify the four rules that need special
+treatment in the implementation of \Uo.
+For brevity, we omit the code of \eI{beta}:
+it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
+weak-head normal form of \eI{o-app [F | L]}.
 
-% Another impo
-% \paragraphTwo{Substitution: $\rho s$ and $\sigma t$}
+\paragraphTwo{Substitution: $\rho s$ and $\sigma t$}
 
-% We write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
-% the term $t$ to the variable $X$.
-% We write $\sigma t$ for the application of
-% the substitution to a term $t$, and $\sigma X = \{~ \sigma t ~|~ t \in X ~\}$ when
-% $X$ is a set of terms.
-% We write $\sigma \subseteq \sigma'$ when $\sigma$ is more
-% general than $\sigma'$.
-% % The domain of a substitution is the set of unification variables for which
-% % it provides an assignment.
-% % We write $\sigma \cup \sigma'$ to denote the concatenation of
-% % two substitutions whose domains are disjoint.
-% We shall use $\rho$ for \rocq substitutions,
-% and $\sigma$ for the \elpi ones.
-% For brevity, in this section, we consider
-% the substitution for \rocq and \elpi identical.
-% We defer to \cref{sec:grounwork} a more precise description
-% pointing out their differences.
+We write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
+the term $t$ to the variable $X$.
+We write $\sigma t$ for the application of
+the substitution to a term $t$, and $\sigma X = \{~ \sigma t ~|~ t \in X ~\}$ when
+$X$ is a set of terms.
+We write $\sigma \subseteq \sigma'$ when $\sigma$ is more
+general than $\sigma'$.
+% The domain of a substitution is the set of unification variables for which
+% it provides an assignment.
+% We write $\sigma \cup \sigma'$ to denote the concatenation of
+% two substitutions whose domains are disjoint.
+We shall use $\rho$ for \Fo{} substitutions,
+and $\sigma$ for the \Ho ones.
+For brevity, in this section, we consider
+the substitution for \Fo{} and \Ho{} identical.
+We defer to \cref{sec:grounwork} a more precise description
+pointing out their differences.
 
-% \paragraphTwo{Term unification: \Uo vs. \Ue}
+\paragraphTwo{Term unification: \Uo vs. \Ue}
 
 % Although we provide an implementation of the meta-language unification \Ue
 % in the supplementary material (that we used for testing purposes) we only
 % describe its signature here.
+\Ho{}'s unification signature is:
 
-We finally need to define the unification symbols of the \rocq and \elpi
-language. \Ue is the unification of \elpi. Its signature is
-%
 % \input{code/ue_type}
 \input{ho-for-free/img/ue_type.tex}
 
@@ -365,15 +342,6 @@ Note that $\sigma'$ is a refined (i.e. extended) version of $\sigma$; this is
 reflected by the signature above that relates two substitutions.
 We write $t_1 \Ue t_2 \mapsto \sigma'$ when
 the initial substitution $\sigma$ is empty.
-
-The symbol \Uo stands fo the unification of \rocq. Its signature is:
-%
-\begin{elpicode}
-  ~\PYG{k+kd}{type} \PYG{n+nf}{(\Uo)} \PYG{k+kt}{tm -> tm -> subst -> subst -> o}~.
-\end{elpicode}
-
-
-
 % Note that if $\sigma t_1 \Ue \sigma t_2 \mapsto \sigma'$ then
 % the domains of $\sigma$ and $\sigma'$ are disjoint.
 We write \llambda as the set of terms that are in the pattern-fragment, i.e.
@@ -401,7 +369,7 @@ to a domain $\mathcal{D}$ is the following:
 }}
 
 \begin{proposition}[Good unification]\label{prop:good-unif}
-A good unification $\UnifRel$ for equality $\EqualRel$ in the domain
+A good unification $\UnifRel\;$ for equality $\;\EqualRel\;$ in the domain
 $\mathcal{D}$ satisfies the following properties:%\noteD{use $\sigma$, not $\rho$}
   \begin{gather}
     \unifcorrectX{\EqualRel}{\UnifRel}{t}{\{~t_1,~ t_2~\} \subseteq \mathcal{D}}\\
@@ -409,18 +377,17 @@ $\mathcal{D}$ satisfies the following properties:%\noteD{use $\sigma$, not $\rho
   \end{gather}
 \end{proposition}  
 
-% Both \Ue and \Uo satisfy \cref{prop:good-unif}.
-
 \noindent
-Both \Uo in \rocq and \Ue in \elpi are good unifications for terms in \llambda.
+The meta language of choice is expected to provide 
+an implementation of \Ue that is a good unification for \Ee
+in \llambda.
 
-% Even if we provide an implementation of the object-language unification
-% \Uo{} in \cref{sec:founif}, our final goal is to simulate the execution of
-% an entire logic-program.
+Even if we provide an implementation of the object-language unification
+\Uo{} in \cref{sec:founif}, our final goal is to simulate the execution of
+an entire logic-program.
 
 \subsection{The problem: logic-program simulation}
-
-We represent a logic program \emph{run} in \rocq as
+We represent a logic program \emph{run} in \Fo{} as
 a sequence of $n$ \emph{steps}. Each step $p$ consists in
 unifying two terms, $\foUnifPb_{p_l}$ and
 $\foUnifPb_{p_r}$, taken from the list of all unification
@@ -476,16 +443,16 @@ $$
 \noindent
 In order to simulate a logic program we start by compiling
 \foUnifPb to \hoUnifPb, i.e.
-each \rocq-term $s \in \foUnifPb$ is translated to an \elpi-term $t \in \hoUnifPb$.
+each \Fo{}-term $s \in \foUnifPb$ is translated to a \Ho{}-term $t \in \hoUnifPb$.
 We write this translation as $\C{s}{t}{m}{l}$. The implementation of the compiler
 is detailed in \cref{sec:simulation,sec:eta,sec:beta}, here we just point
 out that it additionally produces a variable map $m$ and a list of links $l$.
-The variable map connects unification variables in \elpi to variables
-in \rocq and is used to ``decompile'' the substitution, that is written
+The variable map connects unification variables in \Ho to variables
+in \Fo{} and is used to ``decompile'' the substitution, that is written
 $\D{\sigma}{m}{l}{\rho}$. Links are an accessory piece of information whose
 description is deferred to \cref{sec:nutshell}.
 
-Then we simulate each run in \rocq with a run in \elpi as follows:
+Then we simulate each run in \Fo{} with a run in \Ho as follows:
 %
 %Note that $\sigma_0$ is the empty substitution.
 $$
@@ -501,7 +468,7 @@ $$
 
 \noindent
 By analogy with \foUnifPb, we write $\hoUnifPb_{p_l}$ and $\hoUnifPb_{p_r}$
-for the two \elpi terms being unified at step $p$, and we write $\hoUnifPb_p$
+for the two \Ho{} terms being unified at step $p$, and we write $\hoUnifPb_p$
 for the set $\{~ \hoUnifPb_{p_l},\, \hoUnifPb_{p_r} ~\}$.\\
 The \hstep{} procedure is made of two sub-steps: a call to the meta-language
 unification and a check for \progress{} on the set of links, that intuitively
@@ -534,12 +501,12 @@ $$
 $$
 \end{proposition}
 \noindent
-In particular, this property guarantees that a \emph{failure} in the \rocq run
-is matched by a failure in \elpi \emph{at the same step}. We consider this
+In particular, this property guarantees that a \emph{failure} in the \Fo{} run
+is matched by a failure in \Ho{} \emph{at the same step}. We consider this
 property very important from a practical point of view since it guarantees
 that the execution traces are strongly related, and in turn, this enables a user
-to debug a logic program in \rocq by looking at its execution trace in
-\elpi.
+to debug a logic program in \Fo{} by looking at its execution trace in
+\Ho{}.
 
 We also claim that \hrun handles terms outside \llambda in the following sense:
 
@@ -654,7 +621,7 @@ we write $\subterm{X} = \bigcup_{t\in X} \subterm{t}$ when $X$ is a set of terms
 
 \newcommand{\wellb}{\ensuremath{\mathcal{W}}\xspace}
 \begin{definition}[Well behaved set]
-Given a set of terms $X$, % \subseteq \elpi$,
+Given a set of terms $X$, % \subseteq \Ho{}$,
 $$
 \wellb(X) \Leftrightarrow \forall t \in \subterm{X},
 t \not\in (\maybebeta{} ~\cup~ \maybeeta{} ~\cup~ \notllambda{})
@@ -666,13 +633,13 @@ We write $\wellb(t)$ as a short for $\wellb(\{t\})$.
 We claim our compiler validates the following properties: 
 
 \begin{proposition}[\wellb-enforcing]\label{prop:w-enforcing}
-  Given a term $s$ in \rocq, 
+  Given a term $s$ in \Fo{}, 
   $$
     \C{s}{t}{m}{l} \Rightarrow \wellb(t)
   $$
 \end{proposition}
 
-\begin{proposition}[Compiler-useful]\label{prop:w-noncontra}
+\begin{proposition}[compiler-useful]\label{prop:w-noncontra}
   Given two terms $s_1$ and $s_2$, if $\;\exists \rho, \rho s_1 \Eo \rho s_2$,
   then 
   $$
@@ -752,7 +719,7 @@ If a memory cell is \eI{none}, then the corresponding unification variable
 is not set. \eI{assign} sets an unset cell to the given value, while
 \eI{new} finds the first unused address and sets it to \eI{none}.
 
-Since each \elpi unification variable occurs together with a scope,
+Since each \Ho unification variable occurs together with a scope,
 its assignment needs to be abstracted over it to enable the
 instantiation of the same assignment to different scopes.
 This is expressed by the \eI{inctx} container, and in particular
@@ -761,10 +728,10 @@ its \eI{abs} binding constructor.
 \input{ho-for-free/img/ho_subst.tex}
 
 \noindent
-A solution to a \rocq variable is, instead, a plain term, that is, \eI{fsubst}
+A solution to a \Fo{} variable is, instead, a plain term, that is, \eI{fsubst}
 is an abbreviation for \eI{mem to}.
-%We call \eI{fsubst} the memory of \rocq, while we call \eI{subst}
-%the one of \elpi.
+%We call \eI{fsubst} the memory of \Fo{}, while we call \eI{subst}
+%the one of \Ho.
 %
 The compiler establishes a mapping between variables of the two languages.
 
@@ -777,7 +744,7 @@ the following property:
 
 \begin{invariant}[Unification-variable arity]\label{inv:uvaarity}
   Each variable \eI{A}
-  in \elpi has a (unique) arity \eI{N} and each occurrence
+  in \Ho has a (unique) arity \eI{N} and each occurrence
   \eI{(uva A L)} is such that \eI{L} has length \eI{N}.
 \end{invariant}
 
@@ -796,11 +763,11 @@ approximation, and then ensures the mapping is bijective by introducing
 
 %Applying the substitution corresponds to dereferencing a term with respect to
 %the memory.
-%  To ease the comparison we split \rocq dereferencing into a
+%  To ease the comparison we split \Fo{} dereferencing into a
 % \eI{fder} step and a \eI{napp} one. The former step replaces references
 % to memory cells that are set with their values, and has a corresponding
-% operation in \elpi, namely \eI{deref}. On the contrary \eI{napp}
-% has no corresponding operation in \elpi, and only ensures that
+% operation in \Ho, namely \eI{deref}. On the contrary \eI{napp}
+% has no corresponding operation in \Ho, and only ensures that
 % terms of the form <<\eI{o-app[o-app L1|L2]}>> are replaced by
 % <<\eI{o-app L3}>> where \eI{L3} is the concatenation of \eI{L1}
 % and \eI{L2}. The reasons for this asymmetry is
@@ -810,7 +777,7 @@ approximation, and then ensures the mapping is bijective by introducing
 % \input{code/fderef}
 
 It is worth examining the code of \eI{deref}, that
-applies the substitution to a \elpi term. Notice how assignments are moved
+applies the substitution to a \Ho{} term. Notice how assignments are moved
 to the current scope, i.e. the \eI{abs}-bound variables are renamed
 with the names in the scope of the unification variable occurrence.
 
@@ -835,7 +802,7 @@ for <<\eI{lam x\lam y\y}>>.
 As mentioned in section~\ref{sec:nutshell}, the compiler
 replaces terms in \maybeeta, \maybebeta, and \notllambda with fresh
 variables linked to the problematic terms. Terms in \maybebeta do not
-need a link since \elpi variables faithfully represent
+need a link since \Ho{} variables faithfully represent
 the problematic term thanks to their scope.
 
 \input{ho-for-free/img/comp_links.tex}
@@ -899,7 +866,7 @@ abs x\ val (link-llam (uva A [x]) (app[uva F [x], con "a"]))
 % In the following section we explain how we deal with term (de)compilation and
 % links between unification variables.
 
-% \section[Compilation: fo\_tm to tm]{Basic simulation of \rocq in \elpi}
+% \section[Compilation: fo\_tm to tm]{Basic simulation of \Fo{} in \Ho{}}
 
 % In this section we describe a basic compilation scheme that we refine
 % later, in the following sections. This scheme is sufficient to implement
@@ -914,8 +881,8 @@ The simple compiler described in this section serves as a base for the
 extensions in \cref{sec:llam,sec:eta,sec:beta}.
 Its main task is to beta normalize the term and map one syntax tree to
 the other.
-In order to bring back the substitution from \elpi to \rocq the compiler
-builds a ``memory map'' connecting the \rocq variables to the \elpi ones.
+In order to bring back the substitution from \Ho{} to \Fo{} the compiler
+builds a ``memory map'' connecting the \Fo{} variables to the \Ho ones.
 % using the routine \ref{clause:malloc}.
 
 The signature of the \eI{comp} predicate below allows for the generation of
@@ -968,7 +935,7 @@ of binders.
 \subsection{Execution}
 \label{sec:execution}
 
-A step in \elpi consists in unifying two terms and reconsidering all
+A step in \Ho consists in unifying two terms and reconsidering all
 links for progress. If either of these tasks fails, we consider the entire step to
 fail. It is at this granularity that we can relate steps in the
 two languages.
@@ -1033,7 +1000,7 @@ and that no link causes an occur-check~(\ref{sec:oc})
 and the fact that \linkStore is duplicate-free (see \cref{sec:invariant1}).
 
 The second step allocates
-in the memory of \rocq
+in the memory of \Fo{}
 new variables used to implement the pruning of higher-order variables. 
 For example,
 $F\appsep x\appsep y = F\appsep x\appsep z$ requires allocating a 
@@ -1062,7 +1029,7 @@ were we store the arity (that is a very simple function type).
 
 % \noindent
 % The statement above roughly states that the translation from
-% \rocq to \elpi is not lossy, it can be reversed. The statement
+% \Fo{} to \Ho is not lossy, it can be reversed. The statement
 % is made convoluted by the fact that we hid the procedure to
 % decompile a term in favor of the one to decompile substitutions.
 We omit to sketch the proof of this property for brevity.
@@ -1100,11 +1067,11 @@ the proof will be refined to cover for the new cases.
 \end{theorem}
 \begin{proof}[Proof sketch]
 In this setting, \Ee is as strong as \Eo on ground terms.
-What we have to show is that whenever two different \rocq
+What we have to show is that whenever two different \Fo{}
 terms can be made equal by a substitution $\rho$,
 we can produce this $\rho$ by finding
-a $\sigma$ via \Ue{} on the corresponding \elpi terms and by decompiling it.
-If we look at the syntax of \rocq, the only interesting case is
+a $\sigma$ via \Ue{} on the corresponding \Ho terms and by decompiling it.
+If we look at the syntax of \Fo{}, the only interesting case is
 <<\eI{o-uva X ~\Uo~s}>>. In this case, after compilation, we have
 <<\eI{uva Y [] ~\Ue~t}>>
 that succeeds with $\sigma = \{ Y \mapsto t\}$ and
@@ -1122,7 +1089,7 @@ By \cref{prop:uniffow}, \Ue is equivalent to \Uo in \wellb.
 \subsection{Notational conventions}
 
 In the following sections we use the following notation for input and output
-of the compiler. \foUnifPb represents the input unification problems in \rocq
+of the compiler. \foUnifPb represents the input unification problems in \Fo{}
 while \hoUnifPb their corresponding compiled version with memory mapping
 \mapStore and links \linkStore. For example:
 %
@@ -1147,7 +1114,7 @@ $$
   \noindent
 We index each sub-problem, sub-mapping, and sub-link with its position
 starting from $1$ and counting from left to right, top to bottom.
-For example, $\hoUnifPb_2$ corresponds to the \elpi problem $t_3 \Ue t_4$.
+For example, $\hoUnifPb_2$ corresponds to the \Ho problem $t_3 \Ue t_4$.
 
 As we deal with each category of problematic terms we
 weaken the assumptions of~\cref{thm:fidfow} using the following
@@ -1214,7 +1181,7 @@ $A \appsep x$ and $x$, which is equivalent to <<\eI{app [uva A [], x]}>>
 versus \eI{x}.
 In order to exploit the higher-order unification algorithm of the meta language,
 we %need to 
-compile the \rocq term $X\appsep x$ into the \elpi term $A_x$.
+compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
 %,which is \eI{uva A [x]}.
 
 \subsection{Compilation and decompilation}
@@ -1258,10 +1225,10 @@ No change to \eI{progress} since no link is added.
 \end{lemma}
 
   \begin{proof}[Proof sketch]
-  If we look at the \rocq terms, there is one more interesting case,
+  If we look at the \Fo{} terms, there is one more interesting case,
   namely \eI{o-app[o-uva X|W] ~\Uo~s} when \eI{W}
   are distinct names compiled to $\vec{w}$. In this case
-  the \elpi problem is $Y_{\vec{w}} \Ue t$ that succeeds with
+  the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
    is decompiled to $\rho = \{ Y \mapsto \lambda \vec{y}.s[\vec{w}/\vec{y}]\}$.
    Thanks to rule $r_{\beta_l}$ in \ref{fig:feq} we have
@@ -1410,7 +1377,7 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 A term 
 $\lambda x. t \appsep x$ is said to be the $\eta$-redex of $t$ if
 $x$ does not occur free in $t$, and conversely we say that $t$ is the $\eta$-contraction of
-$\lambda x. t \appsep x$. The equational theory of \rocq identifies these terms,
+$\lambda x. t \appsep x$. The equational theory of \Fo{} identifies these terms,
 but the current compilation scheme does not,
 as shown by the following example:
 while $\lambda x.X \appsep x \Uo{} f$ does admit the solution
@@ -1616,7 +1583,7 @@ since it does not break
 \subsection{Compilation and decompilation}\label{sec:etacomp}
 
 % Thanks to the \eI{maybe-eta} predicate, we can detect ``$\eta$-problematic''
-% terms and, consequently replace them with fresh \elpi unification variables at
+% terms and, consequently replace them with fresh \Ho unification variables at
 % compilation time. The code below illustrate how this relation is used to for
 % term compilation.
 
@@ -1807,7 +1774,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   succeeds, where \hstep is made by a unification step $u$ and a link
   progression $p$.
   Without loss of generality we consider a
-  \rocq unification problem of the form $s_1 \Uo s_2$
+  \Fo{} unification problem of the form $s_1 \Uo s_2$
   where $s_1 \in \maybeeta$ and is compiled to a variable $X$ with the accessory link
   $\linketaM{\Gamma}{X}{\lambda x.t_1}$. 
   The unification $u$ always succeeds, since $X$ is a fresh variable, we 
@@ -1931,15 +1898,15 @@ To address this issue, we post-process \mapStore
 to ensure the following property:
 
 \begin{proposition}[\mapStore is a bijection]
-  After compilation, for each \rocq-variable $X$ in \foUnifPb{} and for each
-  \elpi-variable $A$ in \hoUnifPb{} there is exactly one entry $X \mapsto A^n$
+  After compilation, for each \Fo{}-variable $X$ in \foUnifPb{} and for each
+  \Ho{}-variable $A$ in \hoUnifPb{} there is exactly one entry $X \mapsto A^n$
   in \mapStore.
 \end{proposition}
 
 \noindent
-Note that running \Ue{} may require allocating new variables in \elpi as
+Note that running \Ue{} may require allocating new variables in \Ho{} as
 explained in~\cref{sec:decompilation}. The property above ignores these variables since they are fresh and have no corresponding
-variable in \rocq.
+variable in \Fo.
 
 The core procedure of this post-processing step is \emph{align-arity} that
 is iterated by \emph{map-deduplication}:
@@ -1988,17 +1955,17 @@ $t'$ (under the context $\Gamma$).
 \begin{theorem}[Fidelity with \mapdeduplication]
   Given a list of unification problems \foUnifPb, such that 
   $\wellb_{\beta \eta}(\foUnifPb)$,
-  if $\ \foUnifPb$ contains the same \rocq-variable used at different arities,
+  if $\ \foUnifPb$ contains the same \Fo{}-variable used at different arities,
   then \mapdeduplication guarantees \fullref{prop:fidelity}
 \end{theorem}
 
 \def\chain{\ensuremath{\vec{c}}\xspace}
 
 \begin{proof}[Proof sketch]
-  Let $X$ be a \rocq-variable appearing in two different subterms $s_1$ and $s_2$.
+  Let $X$ be a \Fo{}-variable appearing in two different subterms $s_1$ and $s_2$.
   In $s_1$ variable $X$ is applied to the list of terms $x_1\dots x_m$ while, in $s_2$,
   it is applied to $y_1\dots y_n$. Without loss of generality we take $m < n$.
-  After \mapdeduplication we have two distinct \elpi-variables for $X$, say $A$ and $C$,
+  After \mapdeduplication we have two distinct \Ho{}-variables for $X$, say $A$ and $C$,
   related by a chain \chain of \linketa{}s of length $n - m$. We prove that
   if $A$ and $C$ are assigned respectively to the \wellb terms $\lambda x_1\dots
   x_p.t_1$ and $\lambda x_1\dots x_q.t_2$, then a failure occurs iff
@@ -2006,7 +1973,7 @@ $t'$ (under the context $\Gamma$).
   activates $p$ links of \chain. In particular, when $p \geq n$, then the entire
   chain collapses and unification is performed between $\lambda x_n\dots
   x_p.t_1$ and $\lambda x_1\dots x_q.t_2$. By \cref{th:fidelity-beta} and since
-  we work with \wellb terms, this unification succeeds iff it does in \rocq.
+  we work with \wellb terms, this unification succeeds iff it does in \Fo.
   Otherwise if $p < n$ then we have to consider two cases. 1) If $t_1$ is a rigid
   term then $t_2$ must be the $\eta$-redex of $t_1$, implying $q = 0$. If it
   is not the case, then \progressetaleft
@@ -2106,7 +2073,7 @@ $E_x$ is unified with $\lambda y.y$; then $\linkStore_2$ makes progress thanks t
 rule giving
 $\sigma = \{~ A \mapsto \lambda x.\lambda y.x ~;~ B_x \mapsto \lambda y.x ~;~ C_{yx} \mapsto x ~;~ D \mapsto f\appsep (\lambda y.y) ~;~ E_x \mapsto \lambda y.y ~\}$.\\
 The remaining step $\hoUnifPb_2$ identifies $D$ with $F$,
-hence the resulting \rocq substitution is
+hence the resulting \Fo{} substitution is
 $\rho = \{X \mapsto \lambda x.\lambda y.y ~;~ Y \mapsto f\appsep (\lambda y.y)\}$.
 \end{comment}
 
@@ -2252,7 +2219,7 @@ This construction enforces \fullref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   Assume we have a \linkbeta, by contradiction, if $m = 0$, then the original
-%   \rocq term has the shape \eI{o-app[o-uva M | Ag]} where \eI{Ag} is a
+%   \Fo{} term has the shape \eI{o-app[o-uva M | Ag]} where \eI{Ag} is a
 %   list of distinct names (i.e. the list \eI{Extra} is empty). This case is
 %   however captured by rule~\ref{rule:complam} (from \cref{sec:compilation}) and
 %   no \linkbeta is produced which contradicts our initial assumption.
@@ -2426,7 +2393,7 @@ whenever its \rhs is for sure a \wellb term.
 %   as a variable as a scope which is still in \llambda. 
 % \end{proof}
 
-\begin{theorem}[Fidelity in \rocq]
+\begin{theorem}[Fidelity in \Fo]
   The introduction of \linkbeta guarantees \fullref{prop:fidelity-recovery}
   if $\foUnifPb \not\subseteq \llambda$.
 \end{theorem}
@@ -2436,7 +2403,7 @@ whenever its \rhs is for sure a \wellb term.
   $\sigma$ be the substitution obtained solving
   $\hoUnifPb_1\ldots\hoUnifPb_{i-1}$. After the execution of \hstep
   for the $i-1$ time,
-  each variable $X$ corresponding to a \maybeeta subterm in the original \rocq 
+  each variable $X$ corresponding to a \maybeeta subterm in the original \Fo 
   unification problem, is instantiated iff it is known for sure
   that $X$ is no more in \maybeeta. If $\sigma\hoUnifPb_i$ is in \llambda, then 
   % each variable that the
@@ -2446,7 +2413,7 @@ whenever its \rhs is for sure a \wellb term.
   calls to \Ue{} are between terms in \llambda and by \cref{th:fidelity-beta}
   fidelity is guaranteed. If $\sigma\hoUnifPb$ is still in \notllambda,
   then by \cref{def:progBetaFail} unification fails as the
-  corresponding unification in \rocq would (it is called outside its domain).
+  corresponding unification in \Fo{} would (it is called outside its domain).
 \end{proof}
 
 \begin{comment}
@@ -2477,7 +2444,7 @@ it is replaced with the link:
 \linketaM{}{E}{\lambda x.D_x}, while $C_x$ is unified with $D_x$. The second unification
 problem assigns $f$ to $B$, that in turn activates
 the second \linketa ($f$ is assigned to $C$), and then all the remaining links
-are solved. The final \elpi substitution is $\sigma = \{~A _{} \mapsto \lambda x.x ~;~
+are solved. The final \Ho substitution is $\sigma = \{~A _{} \mapsto \lambda x.x ~;~
 B _{} \mapsto f ~;~ C _{x} \mapsto (f\appsep x) ~;~
 D _{} \mapsto f ~;~ E _{x} \mapsto x ~;~
 F _{x} \mapsto C_{x} ~\}$ and is decompiled into $\rho = \{~X \mapsto \lambda x.x ~;~
@@ -2570,7 +2537,7 @@ $X a$ to $Y$. This heuristic is used by~\cite{sozeau2008-tc}.
 In this paper we did study a compiler and a simulation loop on a minimal language.
 The actual implementation uses the Coq-\elpi meta language to both compile
 the sequence of problems (the rules) and execute them, that is \elpi
-plays the role of \elpi as well.
+plays the role of \Ho{} as well.
 
 The main difference is that we cannot implement \hrun since it is
 the runtime of the programming language. In particular the runtime iterates
