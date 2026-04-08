@@ -221,29 +221,31 @@ Module Logic.
 End Logic.
 
 Module Logic1.
-  Notation atom := nat.
-
+  Section s.
   (*SNIP: HORN1 *)
-  Inductive horn :=
-    | fact : Prop -> horn
-    | and : horn -> horn -> horn
-    | impl : Prop -> horn -> horn.
+  Inductive a := p | q | r.
+  Variable to_prop : a -> Prop.
 
-  Fixpoint interp (p: horn) : Prop := 
+  Inductive mlogic :=
+    | atom : a -> mlogic
+    | and : mlogic -> mlogic -> mlogic
+    | impl : mlogic -> mlogic -> mlogic.
+
+  Fixpoint interp (p: mlogic) : Prop := 
     match p with
-    | fact p => p
-    | impl a b => a -> interp b
+    | atom a => to_prop a
+    | impl a b => interp a -> interp b
     | and a b => interp a /\ interp b
     end.
 
-  Class Provable (T : horn) := { proof : interp T }.
+  Class Provable (T : mlogic) := { proof : interp T }.
 
   Instance Pand F1 F2 :
     Provable F1 -> Provable F2 -> Provable (and F1 F2).
   Proof. now intros [][]; constructor; simpl; auto. Qed. (*HIDE*)
 
   Instance Pimpl F1 F2 :
-    (Provable (fact F1) -> Provable F2) -> Provable (impl F1 F2).
+    (Provable F1 -> Provable F2) -> Provable (impl F1 F2).
   Proof. now intros H; split; simpl; intro H1; case H; auto; split. Qed. (*HIDE*)
   (*ENDSNIP: HORN1 *)
 
@@ -258,11 +260,12 @@ Module Logic1.
   }}.
 
   (* This failes due to absence of links *)
-  Goal forall e, Provable (impl e (fact e)).
-  Proof. intro H. Fail elpi Solver. Abort.
+  Goal Provable (impl (atom p) (atom p)).
+  Proof. Fail elpi Solver. now apply (Pimpl _ _ (fun x => x)). Abort.
 
   Section test.
     Goal forall a, Provable a -> Provable (and a a).
     Proof. intros a H. elpi Solver. Qed.
   End test.
+  End s.
 End Logic1.

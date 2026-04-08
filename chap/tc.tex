@@ -34,7 +34,7 @@ be translated into \elpi queries, enabling proof automation through \elpi's
 search mechanism. In \cref{sec:simple-instance-compiler}, we present a minimal
 instance compiler, showing how a basic type-class solver can be implemented with
 few lines of code. While simple, this approach lacks important features required
-for handling complex instances. We therefore introduce a more expressive
+for handling complex instances. We therefore introduce a more powerful
 compiler in \cref{sec:class-encoding,sec:instance-encoding}.
 
 Next, in \cref{sec:rule-prio,sec:goal-encoding,sec:user-defined-rules}, we
@@ -53,6 +53,7 @@ using \elpi's unification algorithm on \rocq terms. The discussion concludes in
 \cref{sec:tc-discussion}.
 
 \section{Interfacing \rocq with \elpi for Type-Class Resolution}
+\label{sec:interface-rocq-elpi}
 
 To address type-class unification problems, we extend \rocq with the
 following APIs (simplified here for clarity):
@@ -99,13 +100,16 @@ As for observers, solvers can be activated or deactivated by the user.
 \section{Simple instance compiler}
 \label{sec:simple-instance-compiler}
 
-A type-class goal is a \rocq type\footnote{or term, since in \rocq\ types are
-  terms.} $T$ whose head symbol is a type-class $C$. Solving such a goal amounts
-to finding a \rocq instance whose type is an instantiation of $T$.
+% A type-class goal is a \rocq type\footnote{or term, since in \rocq\ types are
+%   terms.} $T$ whose head symbol is a type-class $C$. Solving such a goal amounts
+% to finding a \rocq instance whose type is an instantiation of $T$.
 
 Conceptually, a type-class goal can be translated into a query with two
-arguments: the type to be solved and the concrete instance that provides the
-solution. The predicate used for the search is \eI{pred tc term -> term}.
+arguments: the goal itself and a concrete instance witnessing it. The
+search is expressed using the predicate \eI{pred tc term -> term}.
+
+By invariant, a query of the form \eI{tc T I} ensures that the term
+\eI{I} has type \eI{T}.
 
 As an example, consider the \cI{Add} type-class introduced in
 \cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
@@ -225,12 +229,12 @@ The full code, together with a working example, can be found in
 The implementation presented in this section illustrates the expressive power of
 the \elpi language: the core of the compiler fits in roughly eight lines of
 code, while a similar number of lines is required to complete the \elpi command
-fot the compiler. The solver itself consists of a single rule. However, this
+for the compiler. The solver itself consists of a single rule. However, this
 simplified implementation has some limitations it is worth to point out.
 
 \begin{itemize}
   \item The predicate \eI{tc} does not expose the class arguments as \elpi
-        arguments. Consequently, the modes declared on a class are not preserved
+        arguments. Consequently, the \rocq modes (see~\cref{sec:ad-hoc-poly}) declared on a class are not preserved
         in the \elpi solver. The compiler should therefore generate a specialized
         predicate for each class, with arguments and modes matching those of the
         class so that rule backchaining can be performed correctly. This problem
@@ -243,12 +247,12 @@ simplified implementation has some limitations it is worth to point out.
   \item The compiler does not handle instances of the form
         $(c_1 \to c_2) \to c_3$, where the implementation of $c_3$ requires a
         proof of $c_2$ in a context extended with a local instance of $c_1$.
-        Supporting such cases requires compiling deep hereditary Harrop
-        formulas and therefore tracking the polarity of the instance being
+        Supporting such cases requires generating hereditary Harrop
+        formulas and therefore tracking the polarity (see~\cref{sec:elpi-syntax}) of the instance being
         compiled. This problem is addressed in
         \cref{sec:instance-encoding}.
   \item The \eI{solve} rule of the solver ignores the context of the goal. As
-        discussed in \cref{sec:elpi-tactics}, the first projection of a
+        discussed in \cref{sec:elpi-commands-tactics}, the first projection of a
         \eI{goal} in \rocqelpi is its context, which may contain local
         instances that should be compiled and used during resolution. This
         problem is addressed in \cref{sec:goal-encoding}.
@@ -308,13 +312,8 @@ Since no mode attribute is provided, the compiler receives the empty string.
 
 From the symbol \cI{Add} the compiler retrieves its type and determines the
 number of parameters. In this example, the HOAS representation of the type of
-\cI{Add} in \elpi is
-%
-\begin{center}
-  \eI{prod `T` (sort (typ «Add.u0»)) c0 \ sort (typ «Add.u0»)}
-\end{center}
-
-\noindent which indicates that the class has a single parameter.
+\cI{Add} in \elpi is \eI{{{Type ~$\to$~ Type}}} which indicates that the class
+has a single parameter.
 
 From this information the compiler generates the predicate associated with the
 class:
@@ -332,7 +331,7 @@ mode.
 \subsection{\rocq and \elpi mode discrepancies}
 \label{sec:tc-mode-and-determinacy}
 
-Our typeclass solver is not intended to replicate the \rocq solver. Instead, it\marginpar{posto giusto senza aver discusso istanze?}
+Our typeclass solver is not intended to replicate the \rocq solver. Instead, it
 aims to exploit, whenever possible, the features of the \elpi language. A
 natural claim is that mapping two \rocq mode to only one in \elpi is that the
 \rocq and \elpi type-class solvers will have different runtime behaviors.
@@ -350,7 +349,8 @@ with a rigid applicative head. During the resolution phase, if a goal does not
 satisfy the mode constraint imposed by the class declaration, a failure
 immediately stops the instance search. In contrast, \elpi modes do not check the
 shape of the argument before backchain the query into the database, it, instead,
-modifies the unification strategy by using the \matching procedure.
+modifies the unification strategy by using the \matching procedure
+(see~\cref{sec:elpi-semantics}).
 
 In order to see the different mode behavior of the \rocq and \elpi modes, we
 rework the implementation of the \cI{Add} type class.
@@ -363,27 +363,10 @@ argument of the class is a non-ground term and therefore does not satisfy the
 mode constraint. In contrast, under the \elpi mode interpretation the instance
 \cI{addDummy} is a valid solution.
 
-In the \elpi philosophy, the instance \cI{addDummy} is considered as a catchall:
+The instance \cI{addDummy} is considered as a catchall:
 the first argument of the \cI{Add} class is a variable, i.e a pattern that can
 be used a on any goal for \cI{Add}. It means that \cI{addDummy} can be used as a
 solution for $g$.
-
-
-
-The second discrepancy we point out conserning modes in \rocq, is that a type
-class can be associated to several modes. This is the case of the class
-\eI{Cancel} Note: TCDiag in stdpp is an example of a class where the two modes is needed,
-elpi can't implement it
-
-Guardare: Typeclasses Strict Resolution
-
-Modes in \rocq are very dynamic, they can be changed at any point in the code
-by the code and in elpi this is not possible in elpi since \dots
-
-TODO: dire che i modi dichiarati a posteriori cambiano il comportamento della
-search, potremmo avere due file con diversi in cui in uno si setta il modo e
-nell'altro no, allora si hanno due comportamenti diversi.
-
 
 \section{Instance compilation}
 \label{sec:instance-encoding}
@@ -394,15 +377,16 @@ nell'altro no, allora si hanno due comportamenti diversi.
   \label{fig:simple-elpi-compiler}
 \end{figure}
 
-In \rocq, instance compilation is triggered immediately after an instance
+As explained in \cref{sec:interface-rocq-elpi}, instance compilation is triggered immediately after an instance
 declaration. \Cref{fig:simple-elpi-compiler} shows an instance compiler
-implemented in \elpi where we take more care about the type of dependent
+implemented in \elpi where we take into account the type of dependent
 quantification and the polarity of the instance being compiled is an essential
 ingridient for compiling deep hereditary Harrop formulas.
 
 Similarly to \cref{fig:simple-elpi-compiler-tc}, we define a \eI{compile}
 predicate which calls the \eI{comp} auxiliary function. \eI{comp} this time
-takes one more argument which is a boolean and tells the polarity of an element.
+takes one more argument which is a boolean and tells the polarity of the
+term being compiled.
 
 The compilation proceeds by analyzing the structure of the instance type.
 There are three relevant cases. Rules \eI{~\PYG{c}{r1}~} and
@@ -456,7 +440,7 @@ current polarity. With positive polarity, it produces a standard clause
 
 \begin{figure}
   \input{code/HORN1.tex}
-  \caption{Example with horn logic}
+  \caption{Example with simple logic}
   \label{fig:h-clause}
 \end{figure}
 
@@ -476,26 +460,24 @@ These rules are similar to those produced by the compiler in
 \cref{sec:simple-instance-compiler}, except for the specialization of the
 predicate \eI{tc-Add} for the \cI{Add} class.
 
-An interesting example of deep compilation, where polarities play a
+An interesting example of compilation, where polarities play a
 central role (and are incorrectly handled by the compiler in
 \cref{sec:simple-instance-compiler}), is shown in
 \cref{fig:h-clause}. The code illustrates an encoding of a fragment of
 propositional logic using the \rocq{} typeclass mechanism as a proof
 search engine.
 
-We define an inductive type \texttt{horn} representing a restricted
-language of formulas consisting of atomic facts, conjunctions, and
-implications. The constructor \texttt{fact} embeds a \rocq{}
-proposition into the object language, while \texttt{and} and
+We define an inductive type \texttt{mlogic} representing a restricted
+language of formulas consisting of atoms, conjunctions, and
+implications. The constructor \texttt{atom} corresponds to logic atoms, 
+while \texttt{and} and
 \texttt{impl} correspond to conjunction and implication,
-respectively. In the case of \texttt{impl}, the antecedent is
-restricted to a \rocq{} proposition rather than a \texttt{horn}
-formula.
+respectively.
 
-The function \cI{interp} assigns a semantics to \texttt{horn}
+The function \cI{interp} assigns a semantics to \texttt{mlogic}
 formulas by translating them into \rocq{} propositions. This
-interpretation is compositional: a fact evaluates to its underlying
-proposition, a conjunction is interpreted as a logical conjunction,
+interpretation is compositional: an atom evaluates to a proposition using
+the \cI{to_prop} function, a conjunction is interpreted as a logical conjunction,
 and an implication as a function type.
 
 Automatic reasoning is expressed via the typeclass
@@ -694,21 +676,22 @@ $$
 \begin{figure}
   \centering
   \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.8\textwidth]{img/bench/elpi_stat_check.pdf}
-    \caption{Benchmark with typechecking}
+    \includegraphics[width=0.7\textwidth]{img/bench/elpi_stat_check.pdf}
+    \caption{With typechecking}
     \label{fig:bench-1}
   \end{subfigure}
   \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.8\textwidth]{img/bench/share.pdf}
-    \caption{Benchmark with memory sharing}
+    \includegraphics[width=0.7\textwidth]{img/bench/share.pdf}
+    \caption{With memory sharing}
     \label{fig:bench-2}
   \end{subfigure}
 
   \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.8\textwidth]{img/bench/elpi_stat_no_check.pdf}
-    \caption{Benchmark without typechecking}
+    \includegraphics[width=0.7\textwidth]{img/bench/elpi_stat_no_check.pdf}
+    \caption{Without typechecking}
     \label{fig:bench-3}
   \end{subfigure}
+  \caption{Benchmarks of \elpi solver}
 \end{figure}
 
 For a given $n$, we submit the goal \cI{Inj eq eq ~$g_n$~} to the
@@ -734,7 +717,7 @@ fast. For goals with $2^{15}$ nodes, it takes about $0.25$ seconds
 out of a total of $4.9$ seconds. On the other hand, query
 construction and communication grow with the size of the goal. This
 cost comes from the interaction between \rocq and \elpi and does not
-depend on the tactic.
+depend on the \elpi interpreter itself.
 
 The main cost is typechecking the proof term. It represents about
 $77\%$ of the total time. We consider two ways to reduce this cost.
@@ -847,20 +830,9 @@ explicitly in the lemma.
 \subsection{Unification problems}
 \label{sec:unif-problems}
 
-The \elpi solver can be used as an alternative -- not a replacement -- to the
-\rocq solver. In a development, one can enable or disable either solver
-depending on the needs. The following commands manage the interaction
-between the \elpi and \rocq solvers:
-
-\begin{coqcode}
-  Elpi TC Solver Register TC.Solver.
-  Elpi TC Solver Activate TC.Solver.
-  Elpi TC Solver Deactivate TC.Solver.
-\end{coqcode}
-
-The first command registers a new solver in the \rocq system; in our case,
-this solver is named \cI{TC.Solver}. The other commands control whether
-this solver is active.
+As explained in~\cref{sec:interface-rocq-elpi}, the \elpi solver can be used as
+an alternative -- not a replacement -- to the \rocq solver. In a development,
+one can enable or disable either solver depending on the needs.
 
 When running the \elpi solver on existing libraries, one may observe
 failures in situations where the \rocq solver succeeds, and vice versa,
@@ -962,13 +934,13 @@ definition.
 \section{Discussion}
 \label{sec:tc-discussion}
 
-The previous sections highlight the flexibility of the \elpi language and its
+The previous sections highlighted the flexibility of the \elpi language and its
 suitability for compiling \rocq terms into \elpi rules. In particular, \elpi
 provides a natural framework for proof automation: its \prolog-like search engine
 acts as an inference mechanism, provided that the program contains the
 derivation rules required to solve a given query. Although the type-class engine
-in \rocq exhibits a similar behavior, our goal is not to faithfully reproduce
-the \rocq solver. Instead, we aim to leverage the distinctive features of \elpi
+in \rocq exhibits a similar behavior, our goal was not to faithfully reproduce
+the \rocq solver. Instead, we aimed to leverage the distinctive features of \elpi
 whenever possible.
 
 A key advantage inherited from \elpi is the control the user have over the search

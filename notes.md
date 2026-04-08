@@ -65,6 +65,8 @@ TODO: mettere il fresh al bachain nell'intro
 
 TODO: separare i comandi di elpi/rocq per le classi e metterli nella sezione 3.0
 
+TODO: black/white for graphics in 
+
 Aggiungere ref : qi2009 e vink1989
 
  -/ -/ 8/ 9/10  3
