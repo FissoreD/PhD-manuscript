@@ -125,7 +125,7 @@ central to both semantics.
 \end{center}
 % \cI{Definition backchain : ~\ensuremath{\mathbb{P}}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ ~\ensuremath{\to}~ Tm ~\ensuremath{\to}~ ~\ensuremath{\Sigma}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ * list (~\ensuremath{\Sigma}~ * list Atom) ~\ensuremath{\coloneq}~ ...}
 %\noindent
-Since a rule may be applied multiple times, its variables must be
+Since a rule may be applied multiple times, its variables must be\marginpar{dire che backchain is the same as ctx}
 freshened before each application. Accordingly, the backchain function
 takes a program, the set of variable names used so far (\FV), a
 query term, and the current substitution. It returns an updated
