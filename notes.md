@@ -38,8 +38,9 @@ TODO: Canonical structures
 TODO: CHR  
 
 TODO: chiedere a enrico: Related works in elpi: non so se valga la pena farlo  
-
-TODO: fix true | fig 3.2
+TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la stessa cosa?
+TODO: ENRICO: nel capitolo sull'unif HO, abbiamo scritto tutto in funzione di due linguaggi...  
+TODO: ENRICO: fix true | fig 3.2
 
 TODO: PROLOGO  
 
@@ -55,23 +56,17 @@ TODO: aggiungere questo da qualche parte This selection strategy of logic
   1) the call to a non-deterministic predicate, or the miscall of a
      deterministic one, is not followed by a cut (see~\cref{sec:basic}).
 
-TODO: add all rules for determinacy check in elpi
-
-TODO: rivedere il check callable dal chap 5
-
 TODO: nel chap sulla formalizzazione, riprendere le regole sul capitolo
       precedente e dire cosa cambia
 
-TODO: aggiungere le regole complete su check input, check output sulle head
-      delle regole
+TODO: correggere i font nell'algorithmo di detcheck
 
 Aggiungere ref : qi2009 e vink1989
 
 Vedere dove è usato run vs runT vs runE, in sec 5.5 c'è un refuso
 
-Aggiungere le regole per il det check
 
- -/ 7/ 8/ 9/10  4
+ -/ -/ 8/ 9/10  3
 13/14/15/16/17  5
 20/21/22/23     4
 
@@ -82,5 +77,5 @@ Aggiungere le regole per il det check
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 36
+TOT: 35
 

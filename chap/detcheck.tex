@@ -912,7 +912,7 @@ about \eI{H} accumulated so far in \ctx.
   \centering
   \includegraphics{det_check/check_input.pdf}
   \vspace{-0.3cm}
-  \caption{Rules for \infer: its type is
+  \caption{Rules for \checkai: its type is
       \iC{\CTX}{\TERM}{\TYPE}{\BOOL}} % aka (\infert)}
   \label{fig:infer}
 \end{subfigure}
@@ -984,97 +984,108 @@ The entry point is \checkc (\cref{fig:check-rule}). % , with type \ccC{\PROG}{\C
 This procedure takes a program and a context of signatures,
 it verifies if a rule validates the signature
 ascribed to its predicate. The procedure stores in $\Gamma$ all the
-knowledge available on variables in \VAR and verifies that the precondition
+knowledge available on variables and verifies that the precondition
 made by the signature entails the postcondition.
 
-In particular the \checkhi (\cref{fig:assume-head-input}) % (\chiC{\CTX}{\TERM}{\TYPE}{\CTX})
-procedure
-loads in $\Gamma_1$ the information assumed
-from the head inputs while \checkho (\cref{fig:check-head-output}) % (\choC{\CTX}{\TERM}{\TYPE})
-verifies that $\Gamma_{n+1}$ entails the
-postcondition. Each of the $n$ body atoms $b_i$ is processed by
-\checka (\cref{fig:check-atom}) %, \caC{\PROG}{\CTX}{\F}{\ATOM}{\F}{\CTX})
-that updates the context and computes the determinacy of the
-entire body $\func_{n+1}$.
+In particular, the \checkhi procedure (\cref{fig:assume-head-input})
+loads into $\Gamma_1$ the information assumed from the head inputs.
+This procedure is applied under the assumption that the predicate is
+well-called. Hence, all variables that occur (recursively) in input
+positions are assumed to satisfy the determinacy specified in the
+signature.
 
-We now focus on the analysis of an atom.
-The \checka procedure has two rules to handle
-\cut~($a_!$ in \ref{fig:check-atom}) and \pi~($a_\forall$ in~\ref{fig:check-atom}),
-and two more rules to handle predicate calls~($a_c$ in~\ref{fig:check-atom})
-and predicate miscalls~($a_\bot$ in~\ref{fig:check-atom}). The \cut operator resets the current
-determinacy to \detI, while \pi introduces a fresh symbol,
-checks the hypothetical rule and proceeds after adding $r$ to \prog.
-Rule~$a_c$ verifies that the preconditions for $c$ are
-met, and assumes its postcondition generating an updated $\Gamma'$. The 
-determinacy is set to the maximum of current determinacy and the one of the
-predicate. When the preconditions are not met the context is left untouched and
-the current determinacy is set to \relI.
+On the other hand, the \checkho procedure
+(\cref{fig:check-head-output}) verifies that $\Gamma_{n+1}$ entails the
+required postcondition. More precisely, the inferred type of the terms
+appearing in output positions must be smaller or equal (with respect to
+\mySub) than the type declared in the signature.
+In addition, the determinacy of the body must also by smaller or equal than 
+the expected
+one. For instance, if the predicate is declared deterministic, then the
+determinacy flag inferred for the body must be \detI.
 
-The most interesting procedure is the one to check if the preconditions
-of a predicate call are met, that is \checkai (\cref{fig:infer}, \iC{\CTX}{\TERM}{\TYPE}{\BOOL}). The procedure
-ignores data arguments %~\ref{rule:infer-app-data}
-and output arguments %~\ref{rule:infer-app-o}
-and simply fetches from the context the signature of constants and variables~($tm_k^i$ in~\ref{fig:infer}).
-Rule~$tm_\top^i$ is the standard typing rule for
-application: if the input argument matches the expected signature it
-computes the return type, signaling no miscalls (i.e. $\top$).
-When the head or the argument contain a miscall, or when the argument 
-does not match the expected signature, the rule~$tm_\bot^i$ signals a miscall and
-computes the return type by weakening the one obtained from the head, i.e.,
-the predicate call is considered as a relation, and the signature of the
-output arguments is also recursively weakened.
+Each of the $n$ body atoms $b_i$ is processed by \checka
+(\cref{fig:check-atom}). This procedure updates the context, step by
+step, and computes the determinacy of the whole body, producing
+$\func_{n+1}$.
+
+The \checka procedure includes specific rules to handle
+\cut~($a_!$ in \cref{fig:check-atom}) and
+\pi~($a_\forall$ in~\cref{fig:check-atom}), as well as rules for
+predicate calls~($a_c$) and miscalls~($a_\bot$).
+
+The \cut operator resets the current determinacy to \detI. This follows
+from its semantics: once a \cut is executed, all alternative choice
+points are discarded, so no nondeterminism can arise.
+
+The \pi operator introduces a fresh symbol together with a local rule.
+This rule is checked to ensure that determinacy is preserved. In
+particular, it must satisfy \eI{checkc} in the current context and must
+not violate mutual exclusion. Then, the underlying atom is analysed in
+the program extended with this local rule.
+
+Rule~$a_c$ checks that the preconditions of the predicate $c$ are
+satisfied. This is ensured by \checkai, which verifies that the inputs
+meet the expected conditions. If this holds, the postcondition is
+assumed, producing an updated context $\Gamma'$. The determinacy is
+updated as the maximum between the current one and that declared for
+the predicate.
+
+If the preconditions are not satisfied, the context remains unchanged
+and the determinacy is set to \relI. This value reflects that, in case
+of a miscalled predicate, no deterministic behaviour can be guaranteed.
+
+The most relevant procedure is the one used to check whether the
+preconditions of a predicate call are satisfied, namely \checkai
+(\cref{fig:infer}). This procedure ignores data arguments and output
+arguments, and simply retrieves from the context the signature of
+constants and variables~($tm_k^i$ in~\cref{fig:infer}).
+
+Rule~$tm_\top^i$ corresponds to the standard typing rule for
+application. When the input arguments match the expected signature, it
+computes the resulting type and reports no miscall (i.e.\ $\top$).
+
+Otherwise, the head or the argument contain a miscall, 
+or when the argument does not match the expected signature,
+rule~$tm_\bot^i$ is applied. In this case, a miscall is reported and the
+resulting signature is obtained by weakening the signature inferred from the
+head. Intuitively, the predicate call is treated as a relation, and the
+types of the output arguments are weakened accordingly.
+
 
 The procedure to update the context when an atom is found to be
-a good call is \checkao (\caoC{\CTX}{\TERM}{\TYPE}{\CTX}).
-Other than ignoring input arguments %~\ref{rule:check-head-output-in}
-% and fetching the signature of symbols in the context~\ref{rule:check-atom-output-k},
+a good call is \checkao~(\cref{fig:check-atom-out}). %(\caoC{\CTX}{\TERM}{\TYPE}{\CTX}).
+This procedure operates as an iterator
+Other than ignoring input arguments ($\text{\procfont a}_i^\text{\procfont o}$)
+and fetching the signature of symbols
+in the context ($\text{\procfont a}_k^\text{\procfont o}$),
 it calls \assume on output arguments.
-\vspace{.5em}
 
-\begin{center}
-\includegraphics{det_check/cAOi.pdf}
-\end{center}
+The \assume procedure (\cref{fig:assume}) updates the context when it
+encounters variables (rule $tm_X^o$). If a variable already has a
+signature in the context, the stronger one is kept.
 
+Data and output arguments are ignored, while input arguments are
+traversed recursively. In this way, the signatures of variables
+occurring in input positions are also updated in the context.
 
-% \checkAtomOutFig  
+The processing of the head of a rule is similar to that of body atoms,
+but symmetric with respect to how arguments are treated. The
+\checkhi procedure (\cref{fig:assume-head-input}), called at the beginning of
+\cref{fig:check-rule}, ignores output arguments and applies \assume to
+the inputs.
 
-The \assume procedure (\cref{fig:assume}, \aC{\CTX}{\TERM}{\TYPE}{\CTX})  updates the context
-when it encounters variables~(rule $tm_X^o$). When variable is
-already ascribed a signature in the context, we keep the stronger signature.
-Data %~\ref{rule:assume-app-data} 
-and output arguments %~\ref{rule:assume-app-o}
-are skipped, while input arguments are recursively traversed: the signature
-of variables in their input positions are also updated in the context.
-% This is what makes the \eI{fuse} example work.
+The \checkho procedure (\cref{fig:check-head-output}) is invoked at the end. It ignores input
+arguments and checks that the output ones satisfy the declared
+signature in the current context. This context results from assuming
+the rule preconditions together with the postconditions of all
+well-called body atoms.
 
-The processing of the head of a rule is akin to the one of body atoms, but
-symmetric in which arguments are used to strengthen the context and
-which are checked for conformance. The \checkhi procedure (\chiC{\CTX}{\TERM}{\TYPE}{\CTX})
-called at the
-very beginning of~\ref{rule:check-rule}, ignores outputs and calls
-\assume on inputs. 
-
-The \checkho (\choC{\CTX}{\TERM}{\TYPE}) procedure is called at the very end.
-
-\begin{center}
-\includegraphics{det_check/vHDo.pdf}
-\end{center}
-
-It ignores
-input arguments but checks that the output ones satisfy the ascribed signature
-in the current context, that is the result of assuming the rule
-preconditions and all the postconditions of well called body atoms.
-
-% \checkHeadInFig  
-% \checkHeadOutFig  
-% \checkHeadInOutFig  
-% \vspace{-1em}
-% \newpage
 
 \section{Determinism guarantees}
 
 In order to express \emph{operational determinacy}
-we need to use an operational semantics for \elpi. The semantics is
+we need to use the operational semantics for \elpi. The semantics is
 given in \cref{sec:elpi-semantics}.
 
 % That semantics, for its higher-order logic-programming part,
@@ -1339,9 +1350,10 @@ $$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
 \end{theorem}
 
 The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant, for
-the first-order part~\cite{fissore2026} and is available at
-\url{https://github.com/FissoreD/elpi-formalization}. The mechanization for the
-higher-order part is ongoing.
+the first-order part and is available at
+\url{https://github.com/FissoreD/elpi-formalization}. We discuss of the
+first-order formalization in deterail at~\cref{chap:mechanization}.
+The mechanization for the higher-order part is ongoing.
 
 \section{Experience report}
 
