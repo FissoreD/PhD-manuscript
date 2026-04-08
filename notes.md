@@ -36,9 +36,13 @@ TODO: Canonical structures
 TODO: CHR  
 
 TODO: chiedere a enrico: Related works in elpi: non so se valga la pena farlo  
-TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la stessa cosa?
+TODO: ENRICO: detcheck: assume term output vs assume head input non fanno la stessa cosa?  
 TODO: ENRICO: nel capitolo sull'unif HO, abbiamo scritto tutto in funzione di due linguaggi...  
 TODO: ENRICO: fix true | fig 3.2
+
+TODO: dire della differenza che esiste fra la semantica del paper sulla det check
+      e quella della sezione 2.xx: le variabili possono apparire in testa alle
+      regole
 
 TODO: in HO for free aggiungere la frase che dice della notazione quando non
       siamo in verbatim mode
@@ -53,14 +57,13 @@ TODO: aggiungere questo da qualche parte This selection strategy of logic
 TODO: nel chap sulla formalizzazione, riprendere le regole sul capitolo
       precedente e dire cosa cambia
 
-TODO: correggere i font nell'algorithmo di detcheck
-
 TODO: PROLOGO  
 
 TODO: CONCLUSION  
 
 TODO: mettere il fresh al bachain nell'intro
 
+TODO: separare i comandi di elpi/rocq per le classi e metterli nella sezione 3.0
 
 Aggiungere ref : qi2009 e vink1989
 

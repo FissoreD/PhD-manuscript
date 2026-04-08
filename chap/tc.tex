@@ -2,33 +2,16 @@
 \label{chap:tc}
 
 Type classes provide an elegant mechanism for implementing ad-hoc
-polymorphism~\cite{wadler1989}. They allow the same symbol to be reused in
-different contexts while preserving the same mathematical properties. From a
-Prolog-like perspective, a type-class problem corresponds to resolving a query
-to a predicate that associates its input with an instance solving the
+polymorphism~\cite{wadler1989}. As explained in~\cref{sec:ad-hoc-poly},
+they allow the same symbol to be reused in
+different contexts, and in a proof assistant like \rocq,
+instances of a type class preserve the same mathematical properties. From a
+Prolog-like perspective, a type-class goal of \rocq corresponds to resolving a query
+to a predicate that associates its inputs with an instance solving the
 type-class constraint. In \rocq, instances act as rules stored in a database,
 which are used to backchain and resolve type-class queries.
 
-To address type-class unification problems, we extended \rocq with an API called
-\cI{Class_tactics.register_solver}. This API allows developers to register
-custom type-class solvers within the \rocq elaborator. In this way, type-class
-resolution can be delegated to a meta-language: the custom solver computes a
-solution (if it exists) to the type-class constraint and returns it to the
-\rocq elaborator. We refer to such a custom solver as a \emph{meta-solver}.
-
-% When the elaborator encounters a type-class constraint during the elaboration
-% of a \rocq term, it may delegate its resolution to a registered meta-solver.
-% The meta-solver receives the type-class goal together with the context in
-% which it appears and must return an updated environment (called an
-% \cI{evar_map} in \rocq terminology).
-
-To support this mechanism, we also introduced another API,
-\cI{Classes.register_observer}. This API provides a systematic way to notify
-the meta-language whenever a new class or instance is declared in \rocq. The
-meta-language can then translate these declarations into its own
-representation and store them in its knowledge base.
-
-Concretely, a meta-language integration must provide two components:
+A meta-language integration for type-class resolution must provide two components:
 (1) a compiler that translates \rocq class and instance declarations into the
 meta-language representation, and (2) a type-class solver that animates the
 search by interacting with the resulting database.
@@ -38,7 +21,8 @@ In our setting, the meta-language used to implement the meta-solver is
 compiler, which incrementally builds the database on which the \elpi program
 operates.
 
-The type-class solver itself typically follows a \prolog-like resolution
+As explained in~\cref{sec:ad-hoc-poly}, 
+the type-class solver itself typically follows a \prolog-like resolution
 strategy: instances are tried according to their priority, and backtracking
 may reconsider previous choices when a branch fails. In \elpi, this behavior
 comes for free, since the resolution mechanism of the type-class solver
@@ -67,6 +51,50 @@ and \rocq modes and their impact on resolution. Finally, in
 \cref{sec:unif-problems}, we discuss the unification challenges that arise when
 using \elpi's unification algorithm on \rocq terms. The discussion concludes in
 \cref{sec:tc-discussion}.
+
+\section{Interfacing \rocq with \elpi for Type-Class Resolution}
+
+To address type-class unification problems, we extend \rocq with the
+following APIs (simplified here for clarity):
+
+\begin{camlcode}
+(* API for Compiler *)
+val register_observer : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
+val activate_observer : string ~$\to$~ unit
+val deactivate_observer : string ~$\to$~ unit
+
+(* API for Solver *)
+val register_solver : string ~$\to$~ tc_solver ~$\to$~ condition ~$\to$~ unit
+val activate_solver : string ~$\to$~ unit
+val deactivate_solver : string ~$\to$~ unit
+\end{camlcode}
+
+This APIs allow one to declare new compilers and new solvers inside the
+\rocq system. 
+
+A compiler is implemented as an observer, which is
+triggered whenever a new class or instance is declared.
+To define a new \mlI{observer}, one provides a name and an event handler
+to \mlI{register_observer}. The observer is stored in a table mapping
+names to handlers. The handler is a higher-order function, invoked each
+time an event occurs. Its role is to process the received information
+and update its internal database.
+Observers can be activated or deactivated when needed.
+
+A type-class solver is registered via \mlI{register_solver}, which takes
+a name, a value of type \mlI{tc_solver}, and a condition. The
+\mlI{tc_solver} is a higher-order function that receives a \rocq context
+and a list of goals, and returns an updated environment where some
+type-class goals may be solved. The condition explains if the current solved
+is meant to solve the current list of type-class goals. This is useful, for
+example, if the aim of a solver is meant to be used on particular type-class
+goals.
+
+Solvers are also stored in a table indexed by their name. During resolution, the
+\rocq type-class mechanism scans the registered solvers and selects the first
+active one that satisfies its condition. If the condition does not hold, the
+next solver is considered.
+As for observers, solvers can be activated or deactivated by the user.
 
 \section{Simple instance compiler}
 \label{sec:simple-instance-compiler}
