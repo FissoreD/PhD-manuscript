@@ -568,7 +568,7 @@ following structure:
 {
 \mvspace
 \centering
-\txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\VAR$~; sig: ~\env~}}\par
+\txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\NVAR$~; sig: ~\env~}}\par
 \mvspace
 }
 
@@ -659,25 +659,31 @@ $\sigma' u = \sigma q$, where $\sigma'$ assigns at most the free variables
 occurring in $u$.
 \end{definition}
 
-Backchaining is defined by the function \backchain:\marginpar{var refreshing in bc def}
+Backchaining is defined by the function \backchain:
 
-\begin{definition}[Backchain, $\backchain : \PROG \times \TERM \times \Sigma \to
+\begin{definition}[Backchain, $\backchain : \txtI{set}\ \VAR \times \PROG \times \TERM \times \Sigma \to
 \vecL{\Sigma \times \vecL{\ATOM}}$]
 \[
-\backchain(\prog, q, \sigma) =
+\backchain(V, \prog, q, \sigma) =
 \bigg[
 (\sigma', b)\ \kIF\
 \select(\getmode(\prog.\mathrm{sig}, q), q, h, \sigma) = \sigma' \neq \mnone
 \ \bigg|\ 
-(\clauseCmd{h}{}{b}) \in \prog.\mathrm{index}
+(\clauseCmd{h}{}{b}) \in \text{fresh}(V, \prog.\mathrm{index})
 \bigg].
 \]
 \end{definition}
 
 Intuitively, \backchain selects the rules that can be applied to the current
-query $q$ under substitution $\sigma$. For each usable rule it returns the
-updated substitution obtained by matching/unifying the rule head with $q$,
-together with the rule body.
+query $q$ under a substitution $\sigma$. The variables occurring in the program
+rules are assumed to be disjoint from those in the current execution state. To
+guarantee this, the program is refreshed using the function \texttt{fresh},
+which renames its variables with respect to the set $V$ provided as input to
+\backchain.
+
+For each applicable rule, \backchain returns the substitution obtained by
+matching/unifying the rule head with $q$, together with the corresponding
+rule body.
 
 The definition relies on two auxiliary functions:
 \begin{align}
@@ -1538,9 +1544,9 @@ which skips typechecking and directly produces the list of sealed subgoals from
 the given term and goal. This results in faster, although less reliable,
 computation.
 
-\subsection{Concluding remarks}
+% \subsection{Concluding remarks}
 
-Overall, \elpi is good for elaboration
+% Overall, \elpi is good for elaboration
  
 % \section{Notational conventions}
 % In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
