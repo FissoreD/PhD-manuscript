@@ -118,13 +118,15 @@ while the composition of two substitutions $\sigma_1$ and $\sigma_2$ with
 disjoint supports as $\sigma_1 + \sigma_2$. %\marginpar{usiamo + ?}
  
 The backchaining operation applies all rules to a query term; it is
-central to both semantics.
+central to both semantics. Its implementation is very similar to the function
+\backchain from \cref{sec:elpi-semantics}.
+
 %\input{tex_code/bc_type.tex}
 \begin{center}\cI{Definition backchain : ~\ensuremath{\mathbb{P}}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ ~\ensuremath{\to}~ Tm ~\ensuremath{\to}~ ~\ensuremath{\Sigma}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ * list (~\ensuremath{\Sigma}~ * list Atom) }
 \end{center}
 % \cI{Definition backchain : ~\ensuremath{\mathbb{P}}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ ~\ensuremath{\to}~ Tm ~\ensuremath{\to}~ ~\ensuremath{\Sigma}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ * list (~\ensuremath{\Sigma}~ * list Atom) ~\ensuremath{\coloneq}~ ...}
 %\noindent
-Since a rule may be applied multiple times, its variables must be\marginpar{dire che backchain is the same as ctx}
+Since a rule may be applied multiple times, its variables must be
 freshened before each application. Accordingly, the backchain function
 takes a program, the set of variable names used so far (\FV), a
 query term, and the current substitution. It returns an updated
@@ -832,7 +834,10 @@ disjunction.
 \label{stack-sem}
 
 The stack-based semantics we present is very close to what is
-implemented by the \elpi interpreter (see~\cref{sec:elpi-semantics}). This semantics is 
+implemented by the \elpi interpreter (see~\cref{sec:elpi-semantics}).
+Since we encode a first-order interpreter, we have no \pi and \eI{=>} operators,
+therefore the corresponding rules (\runE[\forall] and \runE[\Rightarrow]) are fired.
+This semantics is 
 similar to the one proposed by Pusch in
 \cite{isabelle}, which is in turn closely related to the
 semantics given by Debray and Mishra in
@@ -865,22 +870,33 @@ as pointers to lower levels of the stack itself. This datum is used to implement
 % directly in the cutE terminal.
 \begin{figure}
 
-  \begin{minipage}{0.52\textwidth}
-  \begin{coqcode}
-  Definition save_gs ~$a$~ ~$g$~ ~$b$~ := 
-    [seq (x, ~$a$~) | x <- ~$b$~] ~\mappend~ ~$g$~.
+%   \begin{minipage}{0.52\textwidth}
+%   \begin{coqcode}
+%   Definition save_gs ~$a$~ ~$g$~ ~$b$~ := 
+%     [seq (x, ~$a$~) | x <- ~$b$~] ~\mappend~ ~$g$~.
 
-  Definition save_as ~$a$~ ~$g$~ ~$b$~ := 
-    [seq (x.1, save_gs ~$a$~ ~$g$~ x.2) | x <- ~$b$~].
-  \end{coqcode}
-  \end{minipage}
-  \begin{minipage}{0.38\textwidth}    
-\begin{coqcode}
-Definition stepS p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{\coloneq}~
-  let (~\ensuremath{v'}~, ~\ensuremath{r}~) ~\ensuremath{\coloneq}~ backchain p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ in
-  (~\ensuremath{v'}~, save_as ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{r}~).
-\end{coqcode}
-  \end{minipage}
+%   Definition save_as ~$a$~ ~$g$~ ~$b$~ := 
+%     [seq (x.1, save_gs ~$a$~ ~$g$~ x.2) | x <- ~$b$~].
+%   \end{coqcode}
+%   \end{minipage}
+%   \begin{minipage}{0.38\textwidth}    
+% \begin{coqcode}
+% Definition stepS p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{\coloneq}~
+%   let (~\ensuremath{v'}~, ~\ensuremath{r}~) ~\ensuremath{\coloneq}~ backchain p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ in
+%   (~\ensuremath{v'}~, save_as ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{r}~).
+% \end{coqcode}
+%   \end{minipage}
+  \[
+  \backchainS(\prog, v, t, \sigma, a, g) =
+  \bigg[
+  \sigma',
+  (
+    [(\prog, q, a) \mid q \in b] \atsign g
+  )
+  \ \bigg|\ 
+  (\sigma', b) \in \backchain(\prog, v, t, \sigma)
+  \bigg].
+  \]
 
   \input{nurbp.tex}
 

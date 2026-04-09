@@ -1,6 +1,6 @@
 
 
-\newcommand{\ruleName}[2]{\customlabel{#1}{\runE[#2]}}
+\newcommand{\ruleName}[2]{\runE[#2]}
 
 \newcommand{\ruleFail}{\ruleName{rule:backtrack}{\circlearrowright }}
 \newcommand{\ruleAbort}{\ruleName{rule:abort}{\bot}}
@@ -24,7 +24,7 @@
   \begin{prooftree}
     % STOP
     \AxiomC{\phantom{\ensuremath{\backchainE}}}
-    \RightLabelM{\ruleStop}
+    \RightLabel{\rulelabel{\ruleStop}}
     \UnaryInfC{\runCmd{\EmptyList}{\altsV}{\subst}{\altsV}{\subst}}
   \end{prooftree}
 }
@@ -34,7 +34,7 @@
     % UNIF
     \AxiomC{\unifyCmd{x}{y}{\subst}{\subst[']}}
     \AxiomC{\runCmdR{\gV}{\altsV}{\subst[']}}
-    \RightLabelM{\ruleUnif}
+    \RightLabel{\rulelabel{\ruleUnif}}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\_}{x = y}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}
   \end{prooftree}
 }
@@ -44,7 +44,7 @@
     % MATCH
     \AxiomC{\matchCmd{x}{y}{\subst}{\subst[']}}
     \AxiomC{\runCmd{\gV}{\altsV}{\subst[']}{\altsV[']}{\subst['']}}
-    \RightLabelM{\ruleMatch}
+    \RightLabel{\rulelabel{\ruleMatch}}
     \BinaryInfC{\runCmd{\ConsHdNP{\goalCmd{\_}{(x =_m y)}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}{\altsV[']}{\subst['']}}
   \end{prooftree}
 }
@@ -54,7 +54,7 @@
     % FAIL
     \AxiomC{\unifyCmd{x}{y}{\subst}{\bot}}
     \AxiomC{\runCmdQR{\altsV}{as}}
-    \RightLabelM{\ruleFail}
+    \RightLabel{\rulelabel{\ruleFail}}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\_}{x = y}{\_}}\ConsTlNP{\_}}{\ConsHd{\altsV}\ConsTl{as}}{\subst}}
   \end{prooftree}%
 }
@@ -63,7 +63,7 @@
   \begin{prooftree}
     % FAIL
     \AxiomC{\unifyCmd{x}{y}{\subst}{\bot}}
-    \RightLabelM{\ruleAbort}
+    \RightLabel{\rulelabel{\ruleAbort}}
     \UnaryInfC{\runCmdF{\ConsHdNP{\goalCmd{\_}{x = y}{\_}}\ConsTlNP{\_}}{\EmptyList}{\subst}}
   \end{prooftree}%
 }
@@ -72,7 +72,7 @@
   \begin{prooftree}
     % CUT
     \AxiomC{\runCmdR{\gV}{\altsV}{\subst}}
-    \RightLabelM{\ruleBang}
+    \RightLabel{\rulelabel{\ruleBang}}
     \UnaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\_}{\cut}{\altsV}}\ConsTlNP{\gV}}{\_}{\subst}}
   \end{prooftree}
 }
@@ -82,7 +82,7 @@
     % CALL
     \AxiomC{$\backchainE(\prog, (\subst\ t), \subst, \altsV, \gV) = \altsV'$}
     \AxiomC{\runCmdQR{(\altsV'\ \atsign\ \altsV)}}
-    \RightLabelM{\ruleCall}
+    \RightLabel{\rulelabel{\ruleCall}}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{t}}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}
   \end{prooftree}
 }
@@ -91,7 +91,7 @@
     % CALL
     \AxiomC{$\backchainE(\prog, \subst, c, \gV, (a::as)) = \EmptyList$}
     \AxiomC{\runCmdQR{a}{as}}
-    \RightLabelM{\ruleCallF}
+    \RightLabel{\rulelabel{\ruleCallF}}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{\callCmd{c}}{\_}}\ConsTlNP{\gV}}{(a :: as)}{\subst}}
   \end{prooftree}
 }
@@ -99,7 +99,7 @@
   \begin{prooftree}
     % CALL
     \AxiomC{\phantom{A}}
-    \RightLabelM{\ruleCallFH}
+    \RightLabel{\rulelabel{\ruleCallFH}}
     \UnaryInfC{$\runE\ \EmptyList \arr \mnone$}
   \end{prooftree}
 }
@@ -107,7 +107,7 @@
 \newcommand{\ruleCallBeta}{
   \begin{prooftree}
     \AxiomC{$\subst \cdot c = c' \qquad c \neq c' \qquad {\runCmdR{\ConsHdNP{\goalCmd{\prog}{c'}{a}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}$}
-    \RightLabelM{\ruleBeta}
+    \RightLabel{\rulelabel{\ruleBeta}}
     \UnaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{c}{a}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}
   \end{prooftree}
 }
@@ -119,7 +119,7 @@
 %     \AxiomC{$(\subst h)\ \vecL{t} =_\beta \pred\ \vecL{u}$}
 %     \AxiomC{$\backchainE(\prog, \pred\ \vecL{u}, \subst, \altsV) = \ConsHdNP{g}\ConsTlNP{new\_alt}$}
 %     \AxiomC{\runCmdR{(g\ \atsign\ \gV)}{(new\_alt\ \atsign\ \altsV)}{\subst}}
-%     \RightLabelM{\ruleCallB}
+%     \RightLabel{\rulelabel{\ruleCallB}}
 %     \TrinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{(h\ \vecL{t})}{\_}}\ConsTlNP{\gV}}{\altsV}{\subst}}
 %   \end{prooftree}
 % }
@@ -128,7 +128,7 @@
 %   \begin{prooftree}
 %     % IMPL
 %     \AxiomC{\runCmd{\ConsHdNP{(\goalCmd{(H + \ctx)}{B}{\altsV})}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
-%     \RightLabelM{\ruleImpl}
+%     \RightLabel{\rulelabel{\ruleImpl}}
 %     \UnaryInfC{\runCmd{\ConsHdNP{\goalCmd{\ctx}{(\implCmd{H}{B})}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
 %   \end{prooftree}
 % }
@@ -137,7 +137,7 @@
 %   \begin{prooftree}
 %     % PI
 %     \AxiomC{\runCmd{\ConsHdNP{\goalCmd{(x \uplus \ctx)}{B}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
-%     \RightLabelM{\rulePi}
+%     \RightLabel{\rulelabel{\rulePi}}
 %     \UnaryInfC{\runCmd{\ConsHdNP{\goalCmd{\ctx}{(\piCmd{x}{B})}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
 %   \end{prooftree}
 % }
@@ -147,7 +147,7 @@
     % IMPL
     \AxiomC{$y \mathrm{~fresh}$}
     \AxiomC{\runCmdR{\ConsHdNP{\goalCmd{r[y/x] :: \prog}{g[y/x]}{\altsV}}\ConsTlNP{\gV}}{as}{\subst}}
-    \RightLabelM{\rulePiImpl}
+    \RightLabel{\rulelabel{\rulePiImpl}}
     \BinaryInfC{\runCmdR{\ConsHdNP{\goalCmd{\prog}{(\piCmd{x}{\implCmd{r }{g}})}{\altsV}}\ConsTlNP{\gV}}{as}{\subst}}
   \end{prooftree}
 }
@@ -157,7 +157,7 @@
 %   \begin{prooftree}
 %     % PI
 %     \AxiomC{\runCmd{\ConsHdNP{\goalCmd{\ctx}{(B[x\backslash T])}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
-%     \RightLabelM{\ruleLam}
+%     \RightLabel{\rulelabel{\ruleLam}}
 %     \UnaryInfC{\runCmd{\ConsHdNP{\goalCmd{\ctx}{((\lambda x. B) T)}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}{\altsV['']}{\subst[']}}
 %   \end{prooftree}
 % }
@@ -168,7 +168,7 @@
   \begin{prooftree}
     % IMPL
     \AxiomC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{h +_\Rightarrow \prog}{\centerCmd{\implCmd{h}{t}}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
-    \RightLabelM{\ruleImpl}
+    \RightLabel{\rulelabel{\ruleImpl}}
     \UnaryInfC{\ensuremath{\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{$h +_\Rightarrow \prog$}{\prog}}{\implCmd{h}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
   \end{prooftree}
 }
@@ -177,7 +177,7 @@
   \begin{prooftree}
     % PI
     \AxiomC{\ensuremath{y \# \prog \quad \runCmdR{\ConsHdNP{\goalCmd{y +_\forall \prog}{\centerCmd{\piCmd{x}{t}}{$t[x/y]$}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
-    \RightLabelM{\rulePi}
+    \RightLabel{\rulelabel{\rulePi}}
     \UnaryInfC{\ensuremath{\quad\qquad\runCmdR{\ConsHdNP{\goalCmd{\centerCmd{$y +_\forall \prog$}{\prog}}{\piCmd{x}{t}}{\altsV}}\ConsTlNP{\gV}}{\altsV[']}{\subst}}}
   \end{prooftree}
 }

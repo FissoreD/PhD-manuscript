@@ -1254,14 +1254,12 @@ is checked against a context of signatures \ctx iff it validates these rules:
 \begin{center}  
 \begin{bprooftree}
   \AxiomC{\phantom{ \ccC{\prog}{\ctx}{x}{r}}}
-  % \RightLabelM{r1}
   \UnaryInfC{\isdetp~\ctx~\EmptyList}
 \end{bprooftree}
 \begin{bprooftree}
   \AxiomC{\ensuremath{
     \isdetp~\ctx~\prog \qquad \mutExclAll~\prog~r \qquad \ccC{\prog}{\ctx}{x}{r}
   }}
-  % \RightLabelM{r1}
   \UnaryInfC{\isdetp~\ctx~(r :: \prog)}
 \end{bprooftree}
 \end{center}

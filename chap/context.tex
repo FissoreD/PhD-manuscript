@@ -661,10 +661,10 @@ occurring in $u$.
 
 Backchaining is defined by the function \backchain:
 
-\begin{definition}[Backchain, $\backchain : \txtI{set}\ \VAR \times \PROG \times \TERM \times \Sigma \to
+\begin{definition}[Backchain, $\backchain : \PROG \times \txtI{set}\ \VAR \times \TERM \times \Sigma \to
 \vecL{\Sigma \times \vecL{\ATOM}}$]
 \[
-\backchain(V, \prog, q, \sigma) =
+\backchain(\prog, V, q, \sigma) =
 \bigg[
 (\sigma', b)\ \kIF\
 \select(\getmode(\prog.\mathrm{sig}, q), q, h, \sigma) = \sigma' \neq \mnone
@@ -715,14 +715,16 @@ $\sigma'$; otherwise it returns $\mnone$.
   [(\prog, q, a) \mid q \in b] \atsign g
 )
 \ \bigg|\ 
-(\sigma', b) \in \backchain(\prog, t, \sigma)
+(\sigma', b) \in \backchain(\prog, \mathrm{get\_fv}\ (t,g::a,\sigma), t, \sigma)
 \bigg].
 \]
 \end{definition}
 
 The function \backchainE, used by rule \runE[\backchain] in
 \cref{fig:elpi-semantics}, builds a new list of alternatives from the result of
-\backchain. For each filtered rule, the atoms in the rule body become new
+\backchain (get\_fv is the function retrieving the list of free variables in 
+the term $t$, the list of alternatives $g::a$ and the substitution $\sigma$).
+For each filtered rule, the atoms in the rule body become new
 goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.

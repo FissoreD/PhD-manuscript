@@ -5,7 +5,7 @@
 \newcommand{\iV}{
   \begin{bprooftree}
     \AxiomC{\ensuremath{\ctx~ s = \tau }}
-    \RightLabelM{\ruleIVar}
+    \RightLabel{\rulelabel{\ruleIVar}}
     \UnaryInfC{\iC{\ctx}{s}{\tau}{\top}}
   \end{bprooftree}
 }
@@ -13,7 +13,7 @@
 \newcommand{\iAS}{
   \begin{bprooftree}
     \AxiomC{\ensuremath{\iC{\ctx}{f}{\expI \toI \tau}{b}}}
-    \RightLabelM{\ruleIAppStar}
+    \RightLabel{\rulelabel{\ruleIAppStar}}
     \UnaryInfC{\iC{\ctx}{f~d}{\tau}{b}}
   \end{bprooftree}
 }
@@ -25,7 +25,7 @@
             \iC{\ctx}{t}{\rho'}{\top} \qquad
             \rho' \mySub \rho
         }}
-    \RightLabelM{\ruleIAppIt}
+    \RightLabel{\rulelabel{\ruleIAppIt}}
     \UnaryInfC{\iC{\ctx}{f~t}{\tau}{\top}}
   \end{bprooftree}
 }
@@ -37,7 +37,7 @@
       \iC{\ctx}{t}{\rho'}{b_2} \qquad
       b_1 = \bot \lor b_2 = \bot \lor \rho' \not\mySub \rho
       }}
-    \RightLabelM{\ruleIAppIb}
+    \RightLabel{\rulelabel{\ruleIAppIb}}
     \UnaryInfC{\iC{\ctx}{f~t}{\maximize\ \tau}{\bot}}
   \end{bprooftree}
 }
@@ -45,7 +45,7 @@
 \newcommand{\iAO}{
   \begin{bprooftree}
     \AxiomC{\iC{\ctx}{f}{\_ \toO \tau}{b}}
-    \RightLabelM{\ruleIAppO}
+    \RightLabel{\rulelabel{\ruleIAppO}}
     \UnaryInfC{\iC{\ctx}{f\ t}{\tau}{b}}
   \end{bprooftree}
 }

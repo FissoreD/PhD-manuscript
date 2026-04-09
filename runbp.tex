@@ -4,23 +4,23 @@
   \AxiomC{ \codenames{next\_subst} \ensuremath{\sigma} \ensuremath{t} = \ensuremath{\sigma'} }
   \AxiomC{ \codenames{prune} \ensuremath{\top} \ensuremath{t} = \ensuremath{t'} }
   \RightLabel{\stopt}
-  \TrinaryInfC{ \codenames{runT} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \msome (\ensuremath{\sigma'}, \ensuremath{t'}) \ensuremath{\bot} \ensuremath{v}}
+  \TrinaryInfC{ \codenames{runT} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \msome (\ensuremath{\sigma'}, \ensuremath{t'}) \ensuremath{\bot} \ensuremath{v}}
 \end{prooftree}
 \begin{prooftree}
-  \AxiomC{\stackanchor{ \codenames{incomplete} \ensuremath{t} }{ \codenames{step} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} = (\ensuremath{v'}, tg, \ensuremath{t'}) }}
-  \AxiomC{\stackanchor{ \ensuremath{b'} = (tg = \codenames{CutBrothers}) $\lor$ \ensuremath{b} }{ \codenames{runT} p \ensuremath{v'} \ensuremath{\sigma} \ensuremath{t'} \ensuremath{r} \ensuremath{b} \ensuremath{v''} }}
+  \AxiomC{\stackanchor{ \codenames{incomplete} \ensuremath{t} }{ \codenames{step} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} = (\ensuremath{v'}, tg, \ensuremath{t'}) }}
+  \AxiomC{\stackanchor{ \ensuremath{b'} = (tg = \codenames{CutBrothers}) $\lor$ \ensuremath{b} }{ \codenames{runT} \prog \ensuremath{v'} \ensuremath{\sigma} \ensuremath{t'} \ensuremath{r} \ensuremath{b} \ensuremath{v''} }}
   \RightLabel{\stept}
-  \BinaryInfC{ \codenames{runT} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{r} \ensuremath{b'} \ensuremath{v''}}
+  \BinaryInfC{ \codenames{runT} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{r} \ensuremath{b'} \ensuremath{v''}}
 \end{prooftree}
 \begin{prooftree}
   \AxiomC{ \codenames{failed} \ensuremath{t} }
   \AxiomC{ \codenames{prune} \ensuremath{\bot} \ensuremath{t} = \msome \ensuremath{t'} }
-  \AxiomC{ \codenames{runT} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t'} \ensuremath{r} n \ensuremath{v'} }
+  \AxiomC{ \codenames{runT} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t'} \ensuremath{r} n \ensuremath{v'} }
   \RightLabel{\backt}
-  \TrinaryInfC{ \codenames{runT} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{r} n \ensuremath{v'}}
+  \TrinaryInfC{ \codenames{runT} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{r} n \ensuremath{v'}}
 \end{prooftree}
 \begin{prooftree}
   \AxiomC{ \codenames{prune} \ensuremath{\bot} \ensuremath{t} = \ensuremath{\square} }
   \RightLabel{\failt}
-  \UnaryInfC{ \codenames{runT} p \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{\square} \ensuremath{\bot} \ensuremath{v}}
+  \UnaryInfC{ \codenames{runT} \prog \ensuremath{v} \ensuremath{\sigma} \ensuremath{t} \ensuremath{\square} \ensuremath{\bot} \ensuremath{v}}
 \end{prooftree}

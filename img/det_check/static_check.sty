@@ -36,7 +36,7 @@
 %         }
 %       }
 %     }
-%     \RightLabelM{\ruleCheckClause}
+%     \RightLabel{\rulelabel{\ruleCheckClause}}
 %     \UnaryInfC{\checkClause{\ctx}{(\clauseCmd{p}{\vecL{t}}{\vecL{bs}})}{v}}
 %   \end{bussproof}
 % }
@@ -46,7 +46,7 @@
 %   \begin{bussproof}{#1}
 %     % CUT
 %     \AxiomC{}
-%     \RightLabelM{\ruleCheckCut}
+%     \RightLabel{\rulelabel{\ruleCheckCut}}
 %     \UnaryInfC{\checkCmd{\ctx}{\_}{\cut}{\ctx}{\detI}}
 %   \end{bussproof}
 % }
@@ -65,7 +65,7 @@
 %       \stackanchor
 %       {\ensuremath{\assumeCmd{\ctx}{\func{_{AB}}}{A}{\ctx[']}}}
 %       {\ensuremath{\assumeCmd{\ctx[']}{\func{_{AB}}}{B}{\ctx['']}}}}
-%     \RightLabelM{\ruleCheckUnif}
+%     \RightLabel{\rulelabel{\ruleCheckUnif}}
 %     \TrinaryInfC{\checkCmd{\ctx}{\func}{(A = B)}{\ctx['']}{\func}}
 %   \end{bussproof}
 % }
@@ -75,7 +75,7 @@
 %   \begin{bussproof}{#1}
 %     % UNIF FAIL
 %     \AxiomC{\ensuremath{\inferCmdArr{\ctx}{A}{(\_,\bot)} \lor \inferCmdArr{\ctx}{B}{(\_,\bot)}}}
-%     \RightLabelM{\ruleCheckUnifFail}
+%     \RightLabel{\rulelabel{\ruleCheckUnifFail}}
 %     \UnaryInfC{\checkCmd{\ctx}{\func}{(A = B)}{\ctx}{\func}}
 %   \end{bussproof}
 % }
@@ -86,7 +86,7 @@
 %     % PiImpl
 %     \AxiomC{ $\checkClause{(\ctx + \{x \mapsto \expI\})}{h}{x} \quad$ 
 %       \checkCmd[(\prog + h)]{\ctx + \{x \mapsto \expI\}}{\func}{t}{\ctx[']}{\func[']} } 
-%     \RightLabelM{\ruleCheckPiImpl}
+%     \RightLabel{\rulelabel{\ruleCheckPiImpl}}
 %     \UnaryInfC{\checkCmd{\ctx}{\func}{(\piImplCmd[\expI]{x}{h}{t})}{\ctx[']\bs \{x\}}{\func[']}}
 %   \end{bussproof}
 % }
@@ -101,7 +101,7 @@
 % %     \AxiomC{\inferCmdArr{\ctx}{i}{\func[_i']}{\top}}
 % %     \AxiomC{\ensuremath{\func[_i'] \mySub \func[_i]}}
 % %     \AxiomC{\assumeCmd{\ctx}{\func[_o]}{o}{\ctx[']}}
-% %     \RightLabelM{\ruleCheckCall}
+% %     \RightLabel{\rulelabel{\ruleCheckCall}}
 % %     \QuaternaryInfC{\checkCmd{\ctx}{\func}{(\predVar\ i\ o)}{\ctx[']}{\maxT\ \func\ \func[']}}
 % %   \end{bussproof}
 % % }
@@ -127,7 +127,7 @@
 %     %   {\stackanchor
 %     %     {then $\func[''] = \maxT\ \func\ \func[']$}
 %     %     {else $\func[''] = \relI$}}}
-%     \RightLabelM{\ruleCheckCall}
+%     \RightLabel{\rulelabel{\ruleCheckCall}}
 %     \UnaryInfC{\checkCmd{\ctx}{\func}{(c\ \vecL{t})}{\ctx[']}{\maxT\ \func\ \func[']}}
 %   \end{bussproof}
 % }
@@ -139,7 +139,7 @@
 %     \AxiomC{\ensuremath{ \ctx\ c = \dtype{\_}{\func}{\_} }}
 %     \AxiomC{ \map\ \inferCmdArr[1]{\ctx}{\vecL{t_i}}{\vecL{(\func['],\bool)}}}
 %     \AxiomC{$ \exists i, \func[_i'] \not\mySub \func[_i]\ \lor\ \bool_i = \bot$}
-%     \RightLabelM{\ruleCheckCallFail}
+%     \RightLabel{\rulelabel{\ruleCheckCallFail}}
 %     \TrinaryInfC{\checkCmd{\ctx}{\_}{(c\ \vecL{t})}{\ctx}{\relI}}
 %   \end{bussproof}
 % }
@@ -149,7 +149,7 @@
 % %   \begin{bussproof}{#1}
 % %     % EMPTY
 % %     \AxiomC{}
-% %     \RightLabelM{\ruleCheckEmpty}
+% %     \RightLabel{\rulelabel{\ruleCheckEmpty}}
 % %     \UnaryInfC{\checkCmd{\ctx}{\func}{\EmptyList}{\ctx}{\func}}
 % %   \end{bussproof}
 % % }
@@ -159,7 +159,7 @@
 %   % EMPTY
 %   \begin{bussproof}{#1}
 %     \AxiomC{}
-%     \RightLabelM{\ruleCheckEmpty}
+%     \RightLabel{\rulelabel{\ruleCheckEmpty}}
 %     \UnaryInfC{\checkLCmd{\ctx}{\func}{\EmptyList}{\ctx}{\func}}
 %   \end{bussproof}
 % }
@@ -170,7 +170,7 @@
 %   \begin{bussproof}{#1}
 %     \AxiomC{\checkCmd{\ctx}{\func}{\EmptyList}{\ctx[']}{\func[']}}
 %     \AxiomC{\checkLCmd{\ctx[']}{\func[']}{\EmptyList}{\ctx['']}{\func['']}}
-%     \RightLabelM{\ruleCheckCons}
+%     \RightLabel{\rulelabel{\ruleCheckCons}}
 %     \BinaryInfC{\checkLCmd{\ctx}{\func}{\ConsHd{h}\ConsTl{t}}{\ctx['']}{\func['']}}
 %   \end{bussproof}
 % }
@@ -182,7 +182,7 @@
   % CONS
   \begin{bprooftree}
     \AxiomC{}
-    \RightLabelM{\ruleCAcut}
+    \RightLabel{\rulelabel{\ruleCAcut}}
     \UnaryInfC{\caC{\prog}{\ctx}{\_}{\cut}{\detI}{\ctx}}
   \end{bprooftree}
 }
@@ -201,7 +201,7 @@
       \mutExclAll\ \prog\ \ctx\ x\ r \qquad
       \caC{(r :: \prog)}{\ctx + \{x \mapsto \star \}}{\func}{a}{\func'}{\ctx'}}}
     }
-    \RightLabelM{\ruleCApi}
+    \RightLabel{\rulelabel{\ruleCApi}}
     \UnaryInfC{\caC{\prog}{\ctx}{\func}{\piImplCmd{x}{r}{a}}{\func'}{\ctx'}}
   \end{bprooftree}
 }
@@ -214,7 +214,7 @@
       \iC{\ctx}{c}{\func'}{\top} \qquad
       \caoC{\ctx}{c}{\func'}{\ctx'}
     }}
-    \RightLabelM{\ruleCAcall}
+    \RightLabel{\rulelabel{\ruleCAcall}}
     \UnaryInfC{\caC{\prog}{\ctx}{\func}{c}{\maxT~\func~\func'}{\ctx'}}
   \end{bprooftree}
 }
@@ -226,7 +226,7 @@
     \AxiomC{\ensuremath{
       \iC{\ctx}{c}{\relI}{\bot} \qquad
     }}
-    \RightLabelM{\ruleCAmiscall}
+    \RightLabel{\rulelabel{\ruleCAmiscall}}
     \UnaryInfC{\caC{\prog}{\ctx}{\_}{c}{\relI}{\ctx}}
   \end{bprooftree}
 }
@@ -239,7 +239,7 @@
     \AxiomC{\ensuremath{
       \chiC{\ctx}{f}{\_ \toO \tau}{\ctx'} \quad\lor\quad \chiC{\ctx}{f}{\star \toI \tau}{\ctx'}
     }}
-    \RightLabelM{\ruleCHDi}
+    \RightLabel{\rulelabel{\ruleCHDi}}
     \UnaryInfC{\chiC{\ctx}{f~t}{\tau}{\ctx'}}
   \end{bprooftree}
 }
@@ -251,7 +251,7 @@
       \chiC{\ctx}{f}{\rho \toI \tau}{\ctx'} \qquad
       \aC{\ctx'}{t}{\rho}{\ctx''}
     }}
-    \RightLabelM{\ruleCHDo}
+    \RightLabel{\rulelabel{\ruleCHDo}}
     \UnaryInfC{\chiC{\ctx}{f~t}{\tau}{\ctx''}}
   \end{bprooftree}
 }
@@ -262,7 +262,7 @@
     \AxiomC{\ensuremath{
       \ctx~k = \tau
     }}
-    \RightLabelM{\ruleCHDf}
+    \RightLabel{\rulelabel{\ruleCHDf}}
     \UnaryInfC{\chiC{\ctx}{k}{\tau}{\ctx}}
   \end{bprooftree}
 }
@@ -275,7 +275,7 @@
       \caoC{\ctx}{f}{\rho \toO \tau}{\ctx'} \qquad
       \aC{\ctx'}{t}{\rho}{\ctx''}
     }}
-    \RightLabelM{\ruleCAOi}
+    \RightLabel{\rulelabel{\ruleCAOi}}
     \UnaryInfC{\caoC{\ctx}{f~t}{\tau}{\ctx''}}
   \end{bprooftree}
 }
@@ -286,7 +286,7 @@
     \AxiomC{\ensuremath{
       \caoC{\ctx}{f}{\_ \toI \tau}{\ctx} \qquad
     }}
-    \RightLabelM{\ruleCAOo}
+    \RightLabel{\rulelabel{\ruleCAOo}}
     \UnaryInfC{\caoC{\ctx}{f~t}{\tau}{\ctx}}
   \end{bprooftree}
 }
@@ -297,7 +297,7 @@
     \AxiomC{\ensuremath{
       \ctx~s = \tau 
     }}
-    \RightLabelM{\ruleCAOf}
+    \RightLabel{\rulelabel{\ruleCAOf}}
     \UnaryInfC{\caoC{\ctx}{s}{\tau}{\ctx}}
   \end{bprooftree}
 }
@@ -310,7 +310,7 @@
     \AxiomC{\ensuremath{
       \choC{\ctx}{f}{\_ \toI \tau} \quad \lor \quad \choC{\ctx}{f}{\star \toO \tau}
     }}
-    \RightLabelM{\rulevHDi}
+    \RightLabel{\rulelabel{\rulevHDi}}
     \UnaryInfC{\choC{\ctx}{f~t}{\tau}}
   \end{bprooftree}
 }
@@ -323,7 +323,7 @@
       \iC{\ctx}{t}{\rho'}{\top} \qquad
       \rho' \mySub \rho
     }}
-    \RightLabelM{\rulevHDo}
+    \RightLabel{\rulelabel{\rulevHDo}}
     \UnaryInfC{\choC{\ctx}{f~t}{\tau}}
   \end{bprooftree}
 }
@@ -334,7 +334,7 @@
     \AxiomC{\ensuremath{
       \ctx~k = \tau' \qquad \tau \mySub \tau'
     }}
-    \RightLabelM{\rulevHDf}
+    \RightLabel{\rulelabel{\rulevHDf}}
     \UnaryInfC{\choC{\ctx}{k}{\tau}}
   \end{bprooftree}
 }
@@ -357,7 +357,7 @@
         \choC{\ctx_{n+1}}{c}{\func_{n+1}}
       }} %}
     }
-    \RightLabelM{\ruleCR}
+    \RightLabel{\rulelabel{\ruleCR}}
     \UnaryInfC{\ccC{\prog}{\ctx}{x}{c\ \cdash\ b_1 \ldots b_n}}
   \end{bprooftree}
 }

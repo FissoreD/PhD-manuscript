@@ -15,7 +15,7 @@
   \begin{bprooftree}
     % \AxiomC{\ensuremath{\ctx~ X = \tau' ~\lor~ \tau = \tau'}}
     \AxiomC{\ensuremath{\tau' = \mathrm{if}~ X \in \ctx ~\mathrm{then}~ \ctx~ X ~\mathrm{else}~ \tau}}
-    \RightLabelM{\ruleAVar}
+    \RightLabel{\rulelabel{\ruleAVar}}
     \UnaryInfC{\aC{\ctx}{X}{\tau}{\ctx + \{X \mapsto \minT~ \tau~ \tau'\}}}
   \end{bprooftree}
 }
@@ -23,7 +23,7 @@
 \newcommand{\aK}{
   \begin{bprooftree}
     \AxiomC{\ensuremath{\ctx~ k = \tau' \quad \tau' \mySub \tau}}
-    \RightLabelM{\ruleAConst}
+    \RightLabel{\rulelabel{\ruleAConst}}
     \UnaryInfC{\aC{\ctx}{k}{\tau}{\ctx}}
   \end{bprooftree}
 }
@@ -31,7 +31,7 @@
 \newcommand{\aAS}{
   \begin{bprooftree}
     \AxiomC{\ensuremath{\aC{\ctx}{f}{\expI \toI \tau}{\ctx'}}}
-    \RightLabelM{\ruleAAppStar}
+    \RightLabel{\rulelabel{\ruleAAppStar}}
     \UnaryInfC{\aC{\ctx}{f~d}{\tau}{\ctx'}}
   \end{bprooftree}
 }
@@ -39,7 +39,7 @@
 \newcommand{\aAI}{
   \begin{bprooftree}
     \AxiomC{\ensuremath{\aC{\ctx}{f}{\rho \toI \tau}{\ctx'} \qquad \aC{\ctx'}{t}{\rho}{\ctx''}}}
-    \RightLabelM{\ruleAAppI}
+    \RightLabel{\rulelabel{\ruleAAppI}}
     \UnaryInfC{\aC{\ctx}{f~t}{\tau}{\ctx''}}
   \end{bprooftree}
 }
@@ -47,7 +47,7 @@
 \newcommand{\aAO}{
   \begin{bprooftree}
     \AxiomC{\aC{\ctx}{f}{\_ \toO \tau}{\ctx'}}
-    \RightLabelM{\ruleAAppO}
+    \RightLabel{\rulelabel{\ruleAAppO}}
     \UnaryInfC{\aC{\ctx}{f~t}{\tau}{\ctx'}}
   \end{bprooftree}
 }

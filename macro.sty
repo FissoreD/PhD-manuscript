@@ -38,7 +38,7 @@
   {\DisplayProof\egroup\vspace{.3em}}
 
 \newcommand{\codenames}[1]{\texttt{#1}\xspace}
-\newcommand{\rulelabel}[1]{\small{\textit{#1}}\xspace}
+\newcommand{\rulelabel}[1]{\scriptsize{#1}\xspace}
 
 \AtBeginDocument{
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,11 +66,11 @@
   \newenvironment{myproof}[1][Proof]{\noindent\textit{#1}.\nopagebreak\begin{list}{}{\setlength\leftmargin{10pt}}\item}{\hfill$\diamond$\end{list}\smallskip}
 }
 
-\newcommand{\RightLabelM}[1]{\RightLabel{\scriptsize #1}}
 \makeatletter
 \newcommand{\customlabel}[2]{%
-  \protected@write \@auxout {}{\string \newlabel {#1}{{\ensuremath{#2}}{\thepage}{#2}{#1}{}} }%
-  \hypertarget{#1}{\ensuremath{#2}}
+  % \protected@write \@auxout {}{\string \newlabel {#1}{{\ensuremath{#2}}{\thepage}{#2}{#1}{}} }%
+  % \hypertarget{#1}{\ensuremath{#2}}
+  \ensuremath{#2}
 }
 \makeatother
 
@@ -101,17 +101,19 @@
 \newcommand{\failed}{\codenames{failed}}
 \newcommand{\incomplete}{\codenames{incomplete}}
 
-% \newcommand{\runE}[1][]{\ensuremath{\codenames{runE}_#1}}
-\newcommand{\runE}[1][]{\ensuremath{\codenames{runE}\ifx\expandafter\relax
+\newcommand{\runBuilder}[2][]{\ensuremath{\codenames{run#2}\ifx\expandafter\relax
       \detokenize{#1}\relax\else{_{#1}}\fi}\xspace}
 
-\newcommand{\runT}{\codenames{runT}}
-\newcommand{\runS}{\codenames{runS}}
 
-\newcommand{\stopt}{\rulelabel{StopT}}
-\newcommand{\stept}{\rulelabel{StepT}}
-\newcommand{\backt}{\rulelabel{BackT}}
-\newcommand{\failt}{\rulelabel{FailT}}
+% \newcommand{\runE}[1][]{\ensuremath{\codenames{runE}_#1}}
+\newcommand{\runE}[1][]{\runBuilder[#1]{E}}
+\newcommand{\runT}[1][]{\runBuilder[#1]{T}}
+\newcommand{\runS}[1][]{\runBuilder[#1]{S}}
+
+\newcommand{\stopt}{\rulelabel{\runT[\top]}}
+\newcommand{\stept}{\rulelabel{\runT[\backchain]}}
+\newcommand{\backt}{\rulelabel{\runT[\circlearrowleft]}}
+\newcommand{\failt}{\rulelabel{\runT[\bot]}}
 
 \newcommand{\stops}{\rulelabel{StopS}}
 \newcommand{\cuts}{\rulelabel{CutS}}
@@ -302,6 +304,7 @@
       \detokenize{#1}\relax\else{_{#1}}\fi}\xspace}
 
 \newcommand{\backchainE}{\backchain[E]}
+\newcommand{\backchainS}{\backchain[S]}
 \newcommand{\backchainT}{\backchain[T]}
 
 \newcommand{\runCmdF}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr \bot}}
