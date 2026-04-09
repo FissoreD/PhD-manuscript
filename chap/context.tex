@@ -788,13 +788,14 @@ the execution of \runE on an empty list of goals.
 Despite these differences, as the theorem below claims, the two semantics are
 equivalent when executed on non-empty lists of alternatives, modulo the
 absence of constraints, which is forced to the empty list in the \texttt{run}
-semantic.
+semantic (this is performed by the \txtI{map}ping of one list to the other
+and putting the empty set, i.e. $\emptyset$, of constraints).
 
 \begin{theorem}
   \begin{equation*}
     \begin{split}
-      \forall\ a_0\ a_s\ r\ \sigma,\ & \text{let } (a_0', a_s') := \text{map } (\lambda x. (\emptyset, x))\ (a_0 :: a_s) \text{ in} \\ 
-                             & \text{let } r' := \text{map } (\lambda x. (\emptyset, x))\ r \text{ in} \\
+      \forall\ a_0\ a_s\ r\ \sigma,\ & \txtI{let}\ (a_0', a_s') := \txtI{map}\ (\lambda x. (\emptyset, x))\ (a_0 :: a_s) \txtI{ in} \\ 
+                             & \txtI{let}\ r' := \txtI{map}\ (\lambda x. (\emptyset, x))\ r \txtI{ in} \\
                              & \runE\ (a_0 :: a_s) \arr (\sigma, r') \leftrightarrow \texttt{run}\ a_0'\ a_s' \arr (\emptyset, \sigma, r')
     \end{split}
   \end{equation*}
@@ -1365,7 +1366,7 @@ These constructs can be nested arbitrarily.
 \subsection{Database and Main API in \rocqelpi}
 \label{sec:elpi-main-API}
 
-Thanks to the HOAS representation of \rocq terms in \elpi, the two\marginpar{TODO: database}
+Thanks to the HOAS representation of \rocq terms in \elpi, the two
 languages become closer and can share a common representation. This
 makes their interaction easier and allows interleaving computations
 between them. The \rocq language exposes several APIs that can be used
@@ -1391,6 +1392,17 @@ modules, modes, and more.
 
 For example, the predicate above allows declaring a type class from a
 global reference in \rocq directly within \rocqelpi.
+
+\subsection{Declaring Databases in \rocqelpi}
+
+In \cite[Sec. 4.4.3]{hdr}, a database is defined as a non-executable \elpi
+program. It contain a collection of code that can be included into commands
+or tactics by referring to its name.
+
+When a program is executed, it does not use the state of the database at the
+moment when the command was defined. Rather, it accesses the current content
+of the database at execution time. This means that any update to the database
+is visible to all programs that include it.
 
 An \elpi database can be dynamically modified by adding new predicate
 signatures and rules.
@@ -1425,13 +1437,13 @@ These last two predicates are particularly useful in the context of
 \subsection{Writing Commands and Tactics in \rocqelpi}
 \label{sec:elpi-commands-tactics}
 
-\begin{table}
+\begin{table}[b]
   \begin{tabular}{lll}
-    commands                        & tactic                        & description \\
+    Commands                        & Tactic                        & Description \\
     \hline
-    \cI{Elpi Command command_name.} & \cI{Elpi Tactic tactic_name.} & declaration \\
-    \cI{Elpi command_name.}         & \cI{elpi tactic_name.}        & invocation \\
-    \eI{main}                       & \eI{msolve} and \eI{solve}    & entry point
+    \cI{Elpi Command command_name.} & \cI{Elpi Tactic tactic_name.} & Declaration \\
+    \cI{Elpi command_name.}         & \cI{elpi tactic_name.}        & Invocation \\
+    \eI{main}                       & \eI{msolve} and \eI{solve}    & Entry point
   \end{tabular}
   \caption{Command and Tactic main commands}
   \label{tab:comm-tac}
