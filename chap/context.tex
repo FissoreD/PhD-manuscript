@@ -399,11 +399,12 @@ operator in the \elpi language. We then discuss two main programming
 styles in \elpi, namely higher-order programming and dynamic
 programming, and explain how they interact with the \elpi semantics.
 
-In \cref{sec:chr,sec:elpi-rule-names}, we outline two key features of the
+Finally, in \cref{sec:chr,sec:elpi-rule-names}, we outline two key features of the
 \elpi language: the constraint handling rules system, and rule naming
-and grafting. Finally, \cref{sec:ctx-elpi-related-words} reviews related
-work and compares our presentation of \elpi with existing approaches in
-the literature.
+and grafting. 
+% Finally, \cref{sec:ctx-elpi-related-words} reviews related
+% work and compares our presentation of \elpi with existing approaches in
+% the literature.
 
 \subsection{Abstract syntax of \elpi (without \chr)}
 \label{sec:elpi-syntax}
@@ -606,7 +607,7 @@ associated substitution together with the remaining alternatives. Conversely,
 rule \runE[\bot] states that evaluation fails when the list of alternatives is
 empty.
 
-The remaining rules of \runE, namely \runE[!], \runE[\backchainE],
+The remaining rules of \runE, namely \runE[!], \runE[\backchain],
 \runE[\forall], and \runE[\Rightarrow], apply when the first alternative
 contains a non-empty list of goals. Such alternative list has the form
 $\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where $q$ is the current goal atom
@@ -719,6 +720,37 @@ The function \backchainE, used by rule \runE[\backchain] in
 goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
+
+\paragraphTwo{Comparison wrt Tassi's hdr}
+
+In the previous subsections, we presented the \elpi language: its syntax and
+semantics, together with some feature the make it a programming language
+offering the user practical features to control the the search engine, such as
+modes, the cut operator. This formalization has been realized in collaboration
+with Enrico Tassi. A work which explain the \elpi language from \emph{A-Z} is
+his \textit{hdr}~\cite{hdr}. We however, point out some differences we have
+adopted in the syntax and semantics presentation of this section. In particular,
+we use binaray application for term application instead of $n$-anry application
+in the syntax. In the semantics we let programs to carry not only the list of
+rules and the list of nominal variables, but also the signature of declared
+predicates. We omit from the semantics the menagement of constraints (since we
+don't need their formalization for the rest of the manuscript, a brief
+explication of their functionamento is sufficient). Moreover, in his
+presentation, Tassi declares the \runE to be a procedure expecting two entries:
+the current list of goals and the list of alternatives, this corresponds better
+to the concrete implementation in the \elpi language: the interpreter is run
+from a query and a query is an alternative. In our presentation, however, we
+choose to give \runE a single input: a list of alternatives, which is pattern
+match to (eventually) get the first alternative in the list. This change is
+mainly due to the machanization in \rocq we use in \cref{chap:mechanization},
+where we need to prove the equivalence of two semantics, and represent the
+execution of \runE on an empty list of goals.
+
+Concretely, the semantics presented in this section and Tassi's one are
+equivalent on the execution of non-empty list of alternatives. We also avoid the
+implementation of rule $\text{run}_\sigma$ from Tassi's presentation, since we
+delegate the dereferencing and term application of variables to directly in rule
+\runE[\backchain]: we call \backchainE on the dereferenced term.
 
 \subsection{Example of program execution in \elpi with \cut}
 \label{sec:elpi-execution-example}
@@ -1148,14 +1180,6 @@ The usefulness of grafting becomes clearer in
 specific positions in the database to respect the intended priority.
 
 
-\subsection{Related works}
-\label{sec:ctx-elpi-related-words}
-
-TODO: differently from pure logic programming language, elpi provide the user
-some features allowing to control the execution of a query. We account among
-them modes, the cut operator. The cut prevents from ad-hoc compilation, in ...
-or in ... the absence of the cut allows parallel computation \dots
-
 % \section{\rocqelpi: \rocq and \elpi interleaving}
 \section{\rocqelpi: A Logical Framework for \rocq}
 \label{sec:coq-elpi}
@@ -1199,7 +1223,7 @@ type prod    name ~$\to$~ term ~$\to$~ (term ~$\to$~ term) ~$\to$~ term.
 \label{fig:hoas}
 \end{figure}
 
-The base constructors are \eI{sort}, which encodes the \eI{Type} and \eI{Prop}
+The base constructors are \eI{sort}, which encodes the \cI{Type} and \cI{Prop}
 terms of \rocq, and \eI{global}. The \eI{global} constructor represents
 user-defined symbols such as types, inductives, and constants. 
 
