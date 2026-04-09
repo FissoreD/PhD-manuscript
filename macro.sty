@@ -110,15 +110,15 @@
 \newcommand{\runT}[1][]{\runBuilder[#1]{T}}
 \newcommand{\runS}[1][]{\runBuilder[#1]{S}}
 
-\newcommand{\stopt}{\rulelabel{\runT[\top]}}
-\newcommand{\stept}{\rulelabel{\runT[\backchain]}}
-\newcommand{\backt}{\rulelabel{\runT[\circlearrowleft]}}
-\newcommand{\failt}{\rulelabel{\runT[\bot]}}
+\newcommand{\stopt}{\runT[\top]}
+\newcommand{\stept}{\runT[\backchain]}
+\newcommand{\backt}{\runT[\circlearrowleft]}
+\newcommand{\failt}{\runT[\bot]}
 
-\newcommand{\stops}{\rulelabel{StopS}}
-\newcommand{\cuts}{\rulelabel{CutS}}
-\newcommand{\calls}{\rulelabel{CallS}}
-\newcommand{\fails}{\rulelabel{FailS}}
+\newcommand{\stops}{StopS}
+\newcommand{\cuts}{CutS}
+\newcommand{\calls}{CallS}
+\newcommand{\fails}{FailS}
 
 \newcommand{\ttl}{\codenames{t2l}}
 \newcommand{\ltt}{\codenames{l2t}}

@@ -1,14 +1,14 @@
 \begin{minipage}{0.4\textwidth}
   \begin{prooftree}
     \AxiomC{}
-    \RightLabel{\stops}
+    \RightLabel{\rulelabel{\stops}}
     \UnaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, \mnil) :: $a$) \msome ($\sigma$, $a$)}
   \end{prooftree}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
 \begin{prooftree}
   \AxiomC{ \codenames{runS} \prog $v$ (($\sigma$, $g$) :: $ca$) r }
-  \RightLabel{\cuts}
+  \RightLabel{\rulelabel{\cuts}}
   \UnaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, (cut, $ca$) :: $g$) :: \_) r}
 \end{prooftree}
 \end{minipage}
@@ -18,14 +18,14 @@
 \begin{prooftree}
   \AxiomC{ \backchainS(\prog, $v$, $t$, $\sigma$, $a$, $g$) = ($v_1$, $a'$) }
   \AxiomC{ \codenames{runS} \prog $v_1$ ($a'$ \mappend $a$) r }
-  \RightLabel{\calls}
+  \RightLabel{\rulelabel{\calls}}
   \BinaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, (call $t$, \_) :: $g$) :: $a$) r}
 \end{prooftree}
 \end{minipage}
 \begin{minipage}{0.22\textwidth}
 \begin{prooftree}
   \AxiomC{\phantom{A}}
-  \RightLabel{\fails}
+  \RightLabel{\rulelabel{\fails}}
   \UnaryInfC{\codenames{runS} \prog \_ \mnil $\square$}
 \end{prooftree}
 \end{minipage}
