@@ -143,7 +143,7 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 % \noindent
 % Once the head of rule \emph{r3'} unifies with the goal,
 % the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
-% back to the domain \eI{tm} of Coq terms, obtaining the expected solution: 
+% back to the domain \eI{tm} of \rocq terms, obtaining the expected solution: 
 % % \ref{solution:intro}:
 
 % \begin{elpicode}
@@ -158,7 +158,7 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
 % In fact
 % the solution for \eI{P} above generates a
-% (Coq) $\beta$-redex in the second premise (the predicate
+% (\rocq) $\beta$-redex in the second premise (the predicate
 % under the \eI{pi w\ }\hspace{-0.4em}).
 % We show below the premise before and
 % after the instantiation of \eI{P}:
@@ -1013,7 +1013,7 @@ carries no additional information (other than the function body),
 each \eI{abs} node can be decompiled to a \eI{o-lam} one.
 
 However, if the \eI{o-lam} node was carrying more information,
-as is the case for Coq where it holds the type of the bound variable,
+as is the case for \rocq where it holds the type of the bound variable,
 one would need to store this piece of information in the memory map,
 were we store the arity (that is a very simple function type).
 
@@ -2487,7 +2487,7 @@ Teyjus~\cite{teyjus} delay the resolution of \notllambda unification
 problems until the substitution makes them reenter \llambda.
 Other systems apply heuristics like preferring projection over mimic,
 and commit to that solution. This is the case for
-the unification algorithm Coq uses in its type-class
+the unification algorithm \rocq uses in its type-class
 solver~\cite{sozeau2008-tc}, 
 
 In this section we show how we can implement these strategies
@@ -2535,7 +2535,7 @@ $X a$ to $Y$. This heuristic is used by~\cite{sozeau2008-tc}.
 \section{Actual implementation in \elpi}\label{sec:implementation}
 
 In this paper we did study a compiler and a simulation loop on a minimal language.
-The actual implementation uses the Coq-\elpi meta language to both compile
+The actual implementation uses the \rocqelpi meta-language to both compile
 the sequence of problems (the rules) and execute them, that is \elpi
 plays the role of \Ho{} as well.
 
@@ -2543,15 +2543,16 @@ The main difference is that we cannot implement \hrun since it is
 the runtime of the programming language. In particular the runtime iterates
 \Ue, but \hstep also needs to check links for \progress. Luckily \elpi extends
 $\lambda$Prolog with constraints (suspended goals) and
-Constraint Handling Rules (CHR) to operate on them~\cite{chr-elpi,chr15}.
+Constraint Handling Rules (\chr) to operate on them~\cref{sec:chr}.
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
 suspended on a list of variables that is resumed \emph{as soon as one of these variable
 is assigned}, before any other existing goal is considered. 
 In turn link activation grants~\fullref{prop:fidelity}.
 We point out that \cite{pfenning1993} delays \notllambda unification problems
 while we also delay problems that are in \maybeeta.
-For brevity we only provide two pseaudo-code snippets. The first one depicts
-how \linketa are suspended or make \progress.
+
+In the following snippet, we show how \linketa is either suspended or
+allowed to make \progress.
 
 \begin{elpicode}
 link-eta L R :- not (var L), !, eta-progress-lhs L R.
@@ -2559,16 +2560,18 @@ link-eta L R :- not (maybe-eta R), !, eta-progress-rhs L R.
 link-eta L R :- declare_constraint (link-eta L R) [L,R].
 \end{elpicode}
 
-\noindent
-The second snippet illustrates the deduplication of \linketa. The syntax
-<<\eI{N ~$\triangleright$~ G ?- P}>> denotes a $\lambda$Prolog sequent, that is a 
-goal \eI{P} under a set \eI{G} of hypothetical rules (introduced
-by \eI{=>}) and where the program context binds (via the \eI{pi}
-operator) eigenvariables in \eI{N}. Sequents are presented to
-CHR with their higher order unification variables replaced by
-``frozen constants'', that is $A_{xyz}$ becomes <<\eI{uvar ~$f_A$~ [x,y,z]}>>
-for a fresh constant $f_A$. Frozen constants are ``defrost'' when
-they are part of a new goal (see \cite[section 4.3]{chr-elpi}).
+The first two clauses describe when \progress can occur. If \eI{L} is no longer
+a variable, the invariant \cref{inv:linklhs} is violated; therefore, we trigger
+unification between \eI{L} and \eI{R}. Similarly, if \eI{R} is no longer a
+\maybeeta term, the invariant \cref{inv:link-eta-right} does not hold anymore,
+and we again force unification of \eI{L} and \eI{R}.
+
+If neither condition holds, no \progress is possible, and the constraint is
+suspended again.
+Similar rules are implemented for \linkbeta.
+
+% \noindent
+% HERE
 
 \begin{elpicode}
   rule (N1 ~$\triangleright$~ G1 ?- link-eta (uvar X LX1) T1)   % match
@@ -2576,6 +2579,16 @@ they are part of a new goal (see \cite[section 4.3]{chr-elpi}).
     |  (relocate LX1 LX2 T2 T2')               % condition
    <=> (N1 ~$\triangleright$~ G1 ?- T1 = T2').                  % new goal
 \end{elpicode}
+
+In the snippet above, we illustrate the deduplication of \linketa. The syntax
+<<\eI{N ~$\triangleright$~ G ?- P}>> denotes a $\lambda$Prolog sequent, that is a 
+goal \eI{P} under a set \eI{G} of hypothetical rules (introduced
+by \eI{=>}) and where the program context binds (via the \eI{pi}
+operator) eigenvariables in \eI{N}. Sequents are presented to
+\chr with their higher-order unification variables replaced by
+``frozen constants'', that is $A_{xyz}$ becomes <<\eI{uvar ~$f_A$~ [x,y,z]}>>
+for a fresh constant $f_A$. Frozen constants are ``defrost'' when
+they are part of a new goal (see \cite[section 4.3]{chr-elpi}).
 
 \noindent
 The first directive matches a constraint
@@ -2599,8 +2612,9 @@ The first approach that comes to mind consist in implementing \Uo as a
 regular routine, i.e. write rules as follows
 
 \begin{elpicode}
-  decision X :- unify X (all A x\ app [P, x]), finite A,
-    pi x\ decision (app [P, x]).
+  tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
+    pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B X,
+    unify X {{lp:Q lp:p}}.
 \end{elpicode}
 
 \noindent
@@ -2616,16 +2630,17 @@ Another possibility is to avoid having application and abstraction nodes
 in the syntax tree, and use the meta language ones, as in:
 
 \begin{elpicode}
-decision (all A x\ P x) :- finite A, pi x\ decision (P x).
+  tc-Provable ({{impl}} F B) ({{Pimpl}} F B Q}} :-
+    pi p \ tc-Provable ({{fact}} F) p => tc-Provable B (Q p).
 \end{elpicode}
 
 \noindent
 However, this encoding has two big limitations. First it is
-not always feasible to adopt it for Coq due to the fact that the type system
+not always feasible to adopt it for \rocq due to the fact that the type system
 of the meta language is too limited to accommodate the one of the object language,
-e.g. Coq can typecheck variadic functions~\cite{cpdt}. \\
-Second, the encoding of Coq terms provided by \elpi is primarily used for meta
-programming, i.e. to extend the Coq system. Consequently, it must be able to
+e.g. \rocq can typecheck variadic functions~\cite{cpdt}. \\
+Second, the encoding of \rocq terms provided by \elpi is primarily used for meta
+programming, i.e. to extend the \rocq system. Consequently, it must be able to
 manipulate terms that are not known in advance
 without relying on introspection primitives such as Prolog's
 \texttt{functor/3} and \texttt{arg/3}. To avoid that constants 
@@ -2651,7 +2666,7 @@ control over the search procedure.
 Another work that is, somewhat surprisingly, only superficially related to ours is the
 type-class engine built in Isabelle's meta language. In~\cite{wenzel97-tc}
 classes identify (simple) types, they are not higher order predicates
-as in Coq, hence the solver does not require a higher-order unification
+as in \rocq, hence the solver does not require a higher-order unification
 procedure.\\
 ~\\
 \emph{The approach presented in this paper}
@@ -2672,7 +2687,7 @@ Some preliminary benchmarks on the Stdpp
 library~\cite{iris-junk} show
 encouraging results: our type-class solver has some
 overhead on small goals but is consistently faster than
-the Coq one starting from goals made of $32$ nodes.
+the \rocq one starting from goals made of $32$ nodes.
 Moreover our approach is flexible enough to accommodate different strategies
 and heuristics to handle terms outside the pattern fragment.
 Finally, our encoding is sufficiently shallow to: 1)
