@@ -21,8 +21,6 @@ Per il jury?
 
 ================================================================================
 
-TODO: cosè un database (\cite[Sec. 4.3]{hdr})
-
 TODO: classes in haskell? 
 
 TODO: Canonical structures  
@@ -47,9 +45,14 @@ TODO: PROLOGO
 
 TODO: CONCLUSION  
 
-TODO: mettere il fresh al bachain nell'intro
-
 TODO: black/white for graphics in 
+
+TODO: dire che nella semantica elpi nella meccanizzazione passiamo un set di variabili,
+      al contrari di quanto detto nella presentazione. Queste variabili ci servono per...
+      dire anche che lo stato ad albero contiene potenzialmente più variabili di
+      quello a stack, e dato che vogliamo avere esattamente la stessa sostituzione in
+      uscita, non una equivalente che ci costerebbe un sacco di fatica per definire
+      e provare cosa sono due sostituzioni equivalento.
 
 Aggiungere ref : qi2009 e vink1989
 
