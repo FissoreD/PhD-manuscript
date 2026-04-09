@@ -21,17 +21,12 @@ Per il jury?
 
 ================================================================================
 
-TODO: what makes \elpi a programming language: modes, backtracking and cut, rule
-priority: we loose the pur logic programming flavour but we have more control on
-the execution
-
 TODO: cosè un database (\cite[Sec. 4.3]{hdr})
 
 TODO: classes in haskell? 
 
 TODO: Canonical structures  
 
-TODO: chiedere a enrico: Related works in elpi: non so se valga la pena farlo  
 TODO: ENRICO: fix true | fig 3.2
 
 TODO: dire della differenza che esiste fra la semantica del paper sulla det check
@@ -58,7 +53,7 @@ TODO: black/white for graphics in
 
 Aggiungere ref : qi2009 e vink1989
 
- -/ -/ 8/ 9/10  3
+ -/ -/ -/ 9/10  2
 13/14/15/16/17  5
 20/21/22/23     4
 
@@ -69,5 +64,5 @@ Aggiungere ref : qi2009 e vink1989
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 35
+TOT: 34
 

@@ -721,36 +721,103 @@ goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
 
-\paragraphTwo{Comparison wrt Tassi's hdr}
+\paragraphTwo{Comparison with Tassi's hdr}
 
-In the previous subsections, we presented the \elpi language: its syntax and
-semantics, together with some feature the make it a programming language
-offering the user practical features to control the the search engine, such as
-modes, the cut operator. This formalization has been realized in collaboration
-with Enrico Tassi. A work which explain the \elpi language from \emph{A-Z} is
-his \textit{hdr}~\cite{hdr}. We however, point out some differences we have
-adopted in the syntax and semantics presentation of this section. In particular,
-we use binaray application for term application instead of $n$-anry application
-in the syntax. In the semantics we let programs to carry not only the list of
-rules and the list of nominal variables, but also the signature of declared
-predicates. We omit from the semantics the menagement of constraints (since we
-don't need their formalization for the rest of the manuscript, a brief
-explication of their functionamento is sufficient). Moreover, in his
-presentation, Tassi declares the \runE to be a procedure expecting two entries:
-the current list of goals and the list of alternatives, this corresponds better
-to the concrete implementation in the \elpi language: the interpreter is run
-from a query and a query is an alternative. In our presentation, however, we
-choose to give \runE a single input: a list of alternatives, which is pattern
-match to (eventually) get the first alternative in the list. This change is
-mainly due to the machanization in \rocq we use in \cref{chap:mechanization},
-where we need to prove the equivalence of two semantics, and represent the
-execution of \runE on an empty list of goals.
+\begin{table}
+    \begin{subtable}{0.48\textwidth}
+    \centering
+    \begin{tabular}{ll}
+      \runE rules & \texttt{run} rules\\
+      \hline
+      \runE[\top]        & $\texttt{run}_\top$ \\
+      \runE[\bot]        & unreachable case \\
+      \runE[\backchain]  & $\texttt{run}_{\circlearrowleft,\bot,\sigma,@}$ + IH \\
+      \runE[!]           & $\texttt{run}_!$ and IH \\
+      \runE[\forall]     & $\texttt{run}_\forall$ + IH \\
+      \runE[\Rightarrow] & $\texttt{run}_\Rightarrow$ + IH \\
+    \end{tabular} \\
+    \vspace{10pt}
+    \phantom{aa}\\
+    \caption{$\runE \to \texttt{run}$}
+    \label{table:run-run-proof-t1}
+  \end{subtable}
+  \begin{subtable}{0.48\textwidth}
+    \centering
+    \begin{tabular}{ll}
+      \texttt{run} rules & \runE rules\\
+      \hline
+      $\texttt{run}_\top$             & \runE[\top] \\
+      $\texttt{run}_\bot$             & \runE[\backchain] and \runE[\bot] \\
+      $\texttt{run}_\circlearrowleft$ & \runE[\backchain] and IH \\
+      $\texttt{run}_@$                & \runE[\backchain] and IH \\
+      $\texttt{run}_\sigma$           & \runE[\backchain] and IH \\
+      $\texttt{run}_!$                & \runE[!] and IH \\
+      $\texttt{run}_\forall$          & \runE[\forall] and IH \\
+      $\texttt{run}_\Rightarrow$      & \runE[\Rightarrow] and IH \\
+    \end{tabular}
+    \caption{$\texttt{run} \to \runE$}
+    \label{table:run-run-proof-t2}
+  \end{subtable}
+  \caption{High-level proof schema of~\cref{th:run-run-equiv}}
+  \label{table:run-run-proof}
+\end{table}
 
-Concretely, the semantics presented in this section and Tassi's one are
-equivalent on the execution of non-empty list of alternatives. We also avoid the
-implementation of rule $\text{run}_\sigma$ from Tassi's presentation, since we
-delegate the dereferencing and term application of variables to directly in rule
-\runE[\backchain]: we call \backchainE on the dereferenced term.
+In the previous subsections, we presented the \elpi language, including its
+syntax and semantics. This formalization has been
+developed in collaboration with Enrico Tassi. A comprehensive description of
+\elpi can be found in his work \emph{hdr}~\cite{hdr}.
+
+We highlight here the main differences between his presentation and the one
+adopted in this section. First, in the syntax, we use binary application for
+terms, instead of the $n$-ary application used in \emph{hdr}. Second, in the
+semantics, programs carry not only the list of rules and nominal variables, but
+also the signature of declared predicates. We also omit the formal treatment of
+constraints, as it is not required for the remainder of this manuscript; a brief
+informal explanation is sufficient for our purposes (see~\cref{sec:chr}).
+
+Another difference concerns the definition of \runE. In Tassi's presentation,
+\runE, called \texttt{run}, is defined as a procedure that takes two arguments:
+the current alternative and the list of future alternatives. This choice
+reflects closely the concrete implementation in \elpi, where execution starts
+from a query, and a query is represented as an alternative. In contrast, we
+define \runE with a single input, namely a list of alternatives, from which the
+first element is extracted by pattern matching when needed. This design choice
+is motivated by the mechanization in \rocq (see \cref{chap:mechanization}),
+where we need to prove the equivalence between two semantics and to represent
+the execution of \runE on an empty list of goals.
+Despite these differences, as the theorem below claims, the two semantics are
+equivalent when executed on non-empty lists of alternatives, modulo the
+absence of constraints, which is forced to the empty list in the \texttt{run}
+semantic.
+
+\begin{theorem}
+  \begin{equation*}
+    \begin{split}
+      \forall\ a_0\ a_s\ r\ \sigma,\ & \text{let } (a_0', a_s') := \text{map } (\lambda x. (\emptyset, x))\ (a_0 :: a_s) \text{ in} \\ 
+                             & \text{let } r' := \text{map } (\lambda x. (\emptyset, x))\ r \text{ in} \\
+                             & \runE\ (a_0 :: a_s) \arr (\sigma, r') \leftrightarrow \texttt{run}\ a_0'\ a_s' \arr (\emptyset, \sigma, r')
+    \end{split}
+  \end{equation*}
+  \label{th:run-run-equiv}
+\end{theorem}
+
+\begin{proof}
+  The proof is relatively simple. It is based on two inductions, one for each
+  direction of the $\leftrightarrow$ operator, respectively on \runE and
+  \texttt{run}. The intuition is illustrated in
+  \cref{table:run-run-proof}, where IH denotes the induction hypothesis.
+
+  The first subtable corresponds to the left-hand side of the implication, while
+  the second one corresponds to the right-hand side. In both cases, the goal is
+  to relate the constructors of the two semantics.
+
+  More precisely, we match each constructor of one semantics with the
+  corresponding constructors of the other, and, since our semantics has fewer
+  constructors, depending on the considered case, several constructors of
+  \texttt{run} may be used on a single constructor of \runE. We also point out,
+  that the \runE[\bot] case in \ref{table:run-run-proof-t1}, is unreachable
+  since we start from an non-empty list of goals.
+\end{proof}
 
 \subsection{Example of program execution in \elpi with \cut}
 \label{sec:elpi-execution-example}
