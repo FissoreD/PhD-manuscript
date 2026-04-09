@@ -115,10 +115,10 @@
 \newcommand{\backt}{\runT[\circlearrowleft]}
 \newcommand{\failt}{\runT[\bot]}
 
-\newcommand{\stops}{StopS}
-\newcommand{\cuts}{CutS}
-\newcommand{\calls}{CallS}
-\newcommand{\fails}{FailS}
+\newcommand{\stops}{\runE[\top]}
+\newcommand{\cuts}{\runE[!]}
+\newcommand{\calls}{\runE[\backchain]}
+\newcommand{\fails}{\runE[\bot]}
 
 \newcommand{\ttl}{\codenames{t2l}}
 \newcommand{\ltt}{\codenames{l2t}}

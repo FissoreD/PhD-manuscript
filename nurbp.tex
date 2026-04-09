@@ -2,14 +2,14 @@
   \begin{prooftree}
     \AxiomC{}
     \RightLabel{\rulelabel{\stops}}
-    \UnaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, \mnil) :: $a$) \msome ($\sigma$, $a$)}
+    \UnaryInfC{ \runS \prog $v$ (($\sigma$, \mnil) :: $a$) \msome ($\sigma$, $a$)}
   \end{prooftree}
 \end{minipage}
 \begin{minipage}{0.5\textwidth}
 \begin{prooftree}
-  \AxiomC{ \codenames{runS} \prog $v$ (($\sigma$, $g$) :: $ca$) r }
+  \AxiomC{ \runS \prog $v$ (($\sigma$, $g$) :: $ca$) r }
   \RightLabel{\rulelabel{\cuts}}
-  \UnaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, (cut, $ca$) :: $g$) :: \_) r}
+  \UnaryInfC{ \runS \prog $v$ (($\sigma$, (cut, $ca$) :: $g$) :: \_) r}
 \end{prooftree}
 \end{minipage}
 \begin{minipage}{1\textwidth}
@@ -17,16 +17,16 @@
 \begin{minipage}{0.75\textwidth}
 \begin{prooftree}
   \AxiomC{ \backchainS(\prog, $v$, $t$, $\sigma$, $a$, $g$) = ($v_1$, $a'$) }
-  \AxiomC{ \codenames{runS} \prog $v_1$ ($a'$ \mappend $a$) r }
+  \AxiomC{ \runS \prog $v_1$ ($a'$ \mappend $a$) r }
   \RightLabel{\rulelabel{\calls}}
-  \BinaryInfC{ \codenames{runS} \prog $v$ (($\sigma$, (call $t$, \_) :: $g$) :: $a$) r}
+  \BinaryInfC{ \runS \prog $v$ (($\sigma$, (call $t$, \_) :: $g$) :: $a$) r}
 \end{prooftree}
 \end{minipage}
 \begin{minipage}{0.22\textwidth}
 \begin{prooftree}
   \AxiomC{\phantom{A}}
   \RightLabel{\rulelabel{\fails}}
-  \UnaryInfC{\codenames{runS} \prog \_ \mnil $\square$}
+  \UnaryInfC{\runS \prog \_ \mnil $\square$}
 \end{prooftree}
 \end{minipage}
 \end{minipage}
