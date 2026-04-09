@@ -285,7 +285,7 @@ performance and termination. For instance, the goal \cI{Add ?X}, where
 \cI{?X} is an existential variable, can lead to non-termination if
 \cI{addProd} has the highest priority. In such a case, the variable may be
 repeatedly instantiated with terms of the form
-$(((\dots * \cI{?X}*{n-2}) * \cI{?X}*{n-1}) * \cI{?X}_n)$, due to the recursive
+$(((\dots * \cI{?X}_{n-2}) * \cI{?X}_{n-1}) * \cI{?X}_n)$, due to the recursive
 use of its first premise.
 
 The priority of an instance can be specified at the end of its declaration
@@ -301,7 +301,7 @@ of symbols \texttt{+}, \texttt{!}, or \texttt{-}, indicating whether an
 argument is treated as an input, partially known (its head is fixed), or as
 an output.
 
-Modes can be declared in two ways. One can write \cI{#[mode="+"] Add T.},
+Modes can be declared in two ways. One can write \cI{~\#~[mode="+"] Add T.},
 which specifies that the first argument of \cI{Add} must be instantiated in
 goals. Alternatively, one can declare it afterwards using
 \cI{Hint Mode Add +}.
