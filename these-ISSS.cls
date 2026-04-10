@@ -44,7 +44,7 @@
 \RequirePackage{lmodern}
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
-\RequirePackage{times}
+% \RequirePackage{times}
 % \RequirePackage{fancyvrb}
 % \RequirePackage{fancybox}
 \RequirePackage{lastpage}

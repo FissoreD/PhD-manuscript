@@ -146,6 +146,18 @@ under $\sigma$, then $\sigma'~t_1 = \sigma'~t_2$, where
 $\sigma~t$ denotes substitution application and $=$ denotes 
 syntactic equality.
 
+\paragraphTwo{Notational conventions}
+In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
+and $\bot$ for \cI{true} and \cI{false}. The constructors of the option type are written
+$\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}. 
+Following the Mathematical Components library, on which we depend,
+we use \cI{x.1} and \cI{x.2} to denote the first and second projection
+applied to the pair \cI{x}. List concatenation is the infix \cI{++},
+while list comprehension (i.e. mapping a function on a list) is written
+\cI{[seq f x | x <- l]}. The function \cI{odflt d o}
+extracts the value from the option \cI{o} and returns the default \cI{d}
+if \cI{o} is $\mnone$.
+
 
 % \input{tex_code/unif_type.tex}
 % TODO: state axioms and explain matching; cite Dale's unification results.
@@ -859,8 +871,8 @@ as pointers to lower levels of the stack itself. This datum is used to implement
 % \input{tex_code/elpi_def.tex}
 \begin{center}
 \begin{coqcode}
-~\ensuremath{\qquad\qquad}~ Inductive alts  := nilA | consA of (~\ensuremath{\Sigma}~ * goals) & alts
-~\ensuremath{\qquad\qquad}~ with      goals := nilG | consG of (Atom * alts)  & goals 
+~\ensuremath{\qquad\qquad}~ Inductive alts  := nilA | consA of (~\ensuremath{\Sigma}~ * goals) ~$\;$~ & alts
+~\ensuremath{\qquad\qquad}~ with      goals := nilG | consG of (Atom * alts) & goals 
 \end{coqcode}
 \end{center}
 
