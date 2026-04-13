@@ -916,7 +916,7 @@ but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 \inlinefigure{%
   \input{ho-for-free/img/comp_base.tex}%
   \vspace{-18pt}
-  \captionof{figure}{First order compilation}
+  \captionof{figure}{First-order compilation}
   \label{fig:comp-fo}
 }
 
@@ -2654,7 +2654,7 @@ Another possibility is to avoid having application and abstraction nodes
 in the syntax tree, and use the meta language ones, as in:
 
 \begin{elpicode}
-  tc-Provable ({{impl}} F B) ({{Pimpl}} F B Q}} :-
+  tc-Provable ({{impl}} F B) ({{Pimpl}} F B Q) :-
     pi p \ tc-Provable ({{fact}} F) p => tc-Provable B (Q p).
 \end{elpicode}
 
@@ -2693,7 +2693,7 @@ classes identify (simple) types, they are not higher order predicates
 as in \rocq, hence the solver does not require a higher-order unification
 procedure.\\
 ~\\
-\emph{The approach presented in this paper}
+\emph{The approach chapter in this paper}
 %provides a third option that 
 addresses all the concerns
 mentioned earlier. It takes advantage of the
