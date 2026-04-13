@@ -268,15 +268,17 @@ terms in \Ho{}.
 \subsection{Equational theories and unification}
 
 \paragraphTwo{Term equality: \Eo and \Ee}
-For both languages, we extend the equational theory
-over ground terms to the full language by adding reflexivity for
-unification variables, i.e. a unification variable is equal to itself
-but different to any other term. The implementation is given in~\cref{fig:feq,fig:heq}.
+For both languages, we extend the equational theory from ground
+terms to the full language by adding reflexivity for unification
+variables. That is, a unification variable is equal to itself,
+but different from any other term. The corresponding
+implementation is given in~\cref{fig:feq,fig:heq}.
 
-The first four rules are common to both equalities
-and define the usual congruence over terms. Since
-we use an HOAS encoding, they also capture $\alpha$-equivalence.
-In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
+The first four rules are shared by both equalities and define
+the standard congruence on terms. Because we use an HOAS
+encoding, these rules also account for $\alpha$-equivalence.
+In addition, \Eo includes rules for $\eta$- and
+$\beta$-equivalence.
 %
 % \input{code/feq}
 \begin{figure}
@@ -522,13 +524,13 @@ $$
 $$
 \end{proposition}
 \noindent
-In particular, this property guarantees that a \emph{failure} in the \Fo{} run
-is matched by a failure in \Ho{} \emph{at the same step}. We consider this
-property very important from a practical point of view since it guarantees
-that the execution traces are strongly related, and in turn, this enables a user
-to debug a logic program in \Fo{} by looking at its execution trace in
-\Ho{}.
-
+In particular, this property ensures that a \emph{failure} in the
+\Fo{} execution is reflected by a failure in \Ho{} at the
+\emph{same step}. We consider this aspect important in practice,
+as it guarantees a strong correspondence between execution
+traces.
+As a consequence, a user can debug a logic program written in
+\Fo{} by inspecting its execution trace in \Ho{}.
 We also claim that \hrun handles terms outside \llambda in the following sense:
 
 \begin{proposition}[Fidelity recovery]\label{prop:fidelity-recovery} 
@@ -661,14 +663,23 @@ We claim our compiler validates the following properties:
   $$
 \end{proposition}
 
-\begin{proposition}[compiler-useful]\label{prop:w-noncontra}
+\begin{proposition}
   Given two terms $s_1$ and $s_2$, if $\;\exists \rho, \rho s_1 \Eo \rho s_2$,
   then 
   $$
-    \C{s_i}{t_i}{m_i}{l_i} ~\mathrm{for}~ i \in \{ 1,2 \} \Rightarrow
+    \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \Rightarrow
     t_1 \Ue t_2 \mapsto \sigma \label{prop:compilation-w}
   $$
 \end{proposition}
+
+% TODO: ENRICO check
+% \begin{proof}[Proof sketch]
+% The proof can be done by induction of $s_1$. The interesting cases are the
+% application of a variable to a list of terms and $\lambda$-abstractions. In the
+% first case, we are either considering a \maybebeta or a \notllambda term, in
+% both situation, the compiled term is replaced with a fresh meta variable 
+% having in the scope all the .
+% \end{proof}
 
 \noindent
 In other words the compiler outputs terms in \wellb even if its
@@ -723,6 +734,10 @@ We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
 \section{Basic compilation and simulation}
 \label{sec:simulation}
 
+In the following subsections, we show our encoding in \elpi representing the
+memory menagement, how variable in \Fo and \Ho are assigned, allocated and
+mapped for one language to the other. We aim to show a first simple compiler
+from terms in \Fo to term in \Ho.
 
 \subsection{Memory map (\mapStore) and substitution (\texorpdfstring{$\rho$ and $\sigma$}{rho and sigma})}
 \label{sec:grounwork}
