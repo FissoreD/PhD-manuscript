@@ -845,10 +845,10 @@ inspecting the execution traces of both \elpi (using the \elpi trace
 browser~\cite[Sec.~3.5]{hdr}) and \rocq (using the \cI{Set Typeclasses Debug}
 option). Our analysis shows that most discrepancies arise from unification
 issues. We distinguish two main categories encountered in our study: failures
-related to $\eta\beta$-reduction, and failures related to $\delta$-reduction
+related to $\beta\eta$-reduction, and failures related to $\delta$-reduction
 (see~\cite{rocq-unif}).
 
-A typical $\eta\beta$-unification example is the term
+A typical $\beta\eta$-unification example is the term
 \cI{fun x y => ?F y x} unified with \cI{map}\footnote{The standard list map
 function}, where \cI{?F} is a unification variable. In \rocq, this succeeds
 by instantiating \cI{?F} with \cI{fun x y => map y x}. In contrast, \elpi
@@ -863,20 +863,20 @@ problems -- expressed differently -- should be solvable. For example, using
 \elpi-style $\lambda$-abstraction and application, the term
 \eI{(x\ y\ F y x)} unifies with \cI{map}, assigning \eI{F} to
 \eI{x\ y\ map y x}. To address this, we extend the instance compiler to
-detect potential $\eta\beta$-unification issues. Such terms are replaced
+detect potential $\beta\eta$-unification issues. Such terms are replaced
 with a fresh unification variable $v$, simplifying unification in \elpi.
 The variable $v$ is then linked back to the original \rocq term, so that
 instantiations in \elpi are reflected in \rocq. This approach led to our
 contribution presented in~\cite{fissore2024}, described in detail in
 \cref{chap:ho-for-free}, which provides an automatic solution to
-$\eta\beta$-unification issues.
+$\beta\eta$-unification issues.
 
-A concrete example of $\eta\beta$-unification failure in the \elpi solver
+A concrete example of $\beta\eta$-unification failure in the \elpi solver
 arises from the compiled rule for the instance \cI{Pimpl}, introduced at
 the end of \cref{sec:instance-encoding}. Consider the goal
 \cI{Provable (impl a (fact a))} for some proposition \cI{a}. This goal has
 the solution \cI{Pimp a (fact a) (fun x => x)}. However, the compiled rule
-fails to find this solution due to $\eta\beta$-unification.
+fails to find this solution due to $\beta\eta$-unification.
 
 After applying the rule for \cI{Pimpl}, the sub-query becomes
 

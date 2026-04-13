@@ -1,10 +1,10 @@
-\chapter{\texorpdfstring{$\eta\beta$}{eta beta}-unification support for meta-programs}
+\chapter{\texorpdfstring{$\beta\eta$}{eta beta}-unification support for meta-programs}
 \label{chap:ho-for-free}
 
 In the previous chapter, and in particular in \cref{sec:unif-problems}, we have
 talked about the unification issues that we incounter in the \elpi class solver
 when unifying certain \rocq terms. Unification up to $\delta$ is not possible
-in \elpi, but the $\eta\beta$-conversion rules are part of the \elpi unification
+in \elpi, but the $\beta\eta$-conversion rules are part of the \elpi unification
 algorithm. In this chapter we propose a framework allowing to ease the unification
 of the HOAS representation of the object language terms in the meta language.
 We take from our paper~\cite{fissore2024} the sentence which better 
@@ -13,7 +13,7 @@ reuse the higher-order unification procedure of the meta language in order to
 simulate a higher-order logic program for the object language}.
 
 The example we have given in \cref{sec:unif-problems} providing a source of
-$\eta\beta$-unification problem is due to the instance \cI{Pimpl}.
+$\beta\eta$-unification problem is due to the instance \cI{Pimpl}.
 
 \begin{elpicode}
   tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
@@ -43,7 +43,7 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 % simulate a higher-order logic program in \rocq using the unification of \elpi.
 
 
-% Taken from \stdpp, another example dealing with $\eta\beta$-unification can be
+% Taken from \stdpp, another example dealing with $\beta\eta$-unification can be
 % obtained from the classes \cI{Decision} and \cI{Finite}, defined below.
 
 % \input{code/finite.tex}

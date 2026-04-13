@@ -40,9 +40,9 @@ automatic reasoning via proof transfer.
 
 In the following sections, we introduce the key concepts that form the
 foundation of \cref{chap:tc,chap:ho-for-free,chap:det-elpi,chap:mechanization}.
-In particular, in \cref{sec:rocq-intro}, we briefly discuss a central component
-of proof assistants such as \rocq: the elaborator, which mediates the
-interaction between the user and the system. In
+In particular, in \cref{sec:rocq-intro}, we briefly discuss about elaboration
+and in particular about type-classes, a central component
+of a proof assistant such as \rocq. In
 \cref{sec:the-elpi-language}, we present the core aspects of the \elpi language,
 including its syntax and semantics, which are necessary to understand its
 execution model. Finally, in \cref{sec:coq-elpi}, we describe the main ideas
@@ -103,11 +103,39 @@ Type inference is one of the main mechanisms used to fill these holes. The
 type-checker can infer missing types when symbols are not overloaded, that is,
 when they have a unique interpretation.
 
-For example, assume that \cI{cons} has type
-\cI{~$\forall$~ T, T ~$\to$~ list T ~$\to$~ list T}, \cI{nil} has type
-\cI{~$\forall$~ T, list T}, and \cI{O} has type \cI{nat}. In this context, the
-type-checker can infer that the holes in the term
-\cI{@cons _ O (@nil _)} are both \cI{nat}.
+\begin{center}
+\begin{minipage}{0.44\textwidth}
+\begin{center}
+  \begin{bprooftree}
+    \AxiomC{$s : \tau \in \Gamma$}
+    \RightLabel{\rulelabel{const}}
+    \UnaryInfC{$\Gamma \vdash s : \tau$}
+  \end{bprooftree}\\
+  \begin{bprooftree}
+    \AxiomC{$\Gamma \vdash f : \tau_1 \to \tau_2 \quad \Gamma \vdash a : \tau_1$}
+    \RightLabel{\rulelabel{app}}
+    \UnaryInfC{$\Gamma \vdash f\ a : \tau_2$}
+  \end{bprooftree}
+\end{center}
+\end{minipage}
+\begin{minipage}{0.5\textwidth}
+\begin{center}  
+\begin{tabular}{ccc}
+  Symbol & & Type \\
+  \hline
+  \cI{cons} & : & \cI{~$\forall$~ T, T ~$\to$~ list T ~$\to$~ list T} \\
+  \cI{nil}  & : & \cI{~$\forall$~ T, list T} \\
+  \cI{O}    & : & \cI{nat}
+\end{tabular}
+\end{center}
+\end{minipage}
+\end{center}
+
+In the simple setting displayed above, using the typing rules for symbols
+and function application, and assuming a context $\Gamma$ that contains
+the types of the symbols \cI{cons}, \cI{nil}, and \cI{O}, the type checker
+can infer that both holes in the term \cI{@cons \_ O (@nil \_)} have type
+\cI{nat}.
 
 Another important feature of the elaborator is the coercion mechanism~\cite{barthe95}.
 Coercions allow one to implicitly convert a term of type $t_1$ into a term of
@@ -1371,7 +1399,7 @@ quotation that allows writing \rocq{} code. Conversely, within \rocq{} code, the
 syntax \eI{lp:{{ ... }}} denotes a quotation for embedding \elpi{} code.
 These constructs can be nested arbitrarily.
 
-\subsection{Database and Main API in \rocqelpi}
+\subsection{API in \rocqelpi}
 \label{sec:elpi-main-API}
 
 Thanks to the HOAS representation of \rocq terms in \elpi, the two
