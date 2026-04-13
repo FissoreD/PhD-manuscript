@@ -2706,48 +2706,53 @@ Another work that is, somewhat surprisingly, only superficially related to ours 
 type-class engine built in Isabelle's meta language. In~\cite{wenzel97-tc}
 classes identify (simple) types, they are not higher order predicates
 as in \rocq, hence the solver does not require a higher-order unification
-procedure.\\
-~\\
-\emph{The approach proposed in this chapter}
-%provides a third option that 
-addresses all the concerns
-mentioned earlier. It takes advantage of the
-unification capabilities of the meta language
-at the price of handling problematic sub terms on
-the side.
-As a result %of this choice 
-our encoding takes
-advantage of indexing data structures and
-mode analysis for clause filtering.
-It is worth mentioning that we replace terms with variables only
-when it is strictly needed, leaving the rest of the term structure intact
-and hence indexable. % by the meta language logic programming engine.
-Some preliminary benchmarks on the Stdpp
-library~\cite{iris-junk} show
-encouraging results: our type-class solver has some
-overhead on small goals but is consistently faster than
-the \rocq one starting from goals made of $32$ nodes.
-Moreover our approach is flexible enough to accommodate different strategies
-and heuristics to handle terms outside the pattern fragment.
-Finally, our encoding is sufficiently shallow to: 1)
-allow to lift forms of static analysis for
-the meta language, such as determinacy, also to the object
-language; 2) take advantage of future improvements to the
-logic-programming engine of \elpi, such as tabled search.
+procedure.
 
-We considered mechanizing our results with Abella~\cite{abella},
-especially in the early phase of this work, but unfortunately we could not.
-The main reason is that the logic of Abella does not let one quantify over
-predicates nor use the cut operator. Eliminating cut or
-higher order
-combinators like \eI{map} or \eI{forall2} is surely
-possible, but 
-has a high cost in verbosity given how pervasively they are used.
-Moreover, and more importantly, it creates a distance
-between the verified and the actual code, which we found to
-hinder our exploration. However, we did establish a
-test suite with about a hundred cases.
-It is available at \githubUrl.
+\emph{The approach proposed in this chapter} addresses the issues
+discussed earlier. It exploits the unification mechanism of the
+meta-language, while handling problematic subterms separately
+when needed.
+
+With this design, the encoding can benefit from indexing data
+structures and mode analysis for clause filtering. In
+particular, subterms are replaced by variables \textit{only} when
+strictly necessary, so that most of the original structure is
+preserved and remains indexable.
+
+Benchmarks on the \stdpp library~\cite{iris-junk} show
+promising results. Our type-class solver introduces some
+overhead on small goals, but becomes consistently faster than
+the \rocq one for goals of size $32$ nodes or more. The use of
+links also turns out to be useful in practice, as about $15\%$
+of the instances in \stdpp require them.
+
+Another advantage is the flexibility of the approach, which
+allows different strategies and heuristics to deal with terms
+outside the pattern fragment.
+
+Finally, the encoding remains sufficiently shallow to:
+(1) extend certain forms of static analysis from the
+meta-language, such as determinacy, to the object language;
+(2) benefit from future improvements in the logic programming
+engine of \elpi, for example tabled search.
+
+We considered mechanizing our results in
+Abella~\cite{abella}, in particular at an early stage of this
+work, but we were not able to complete it.
+
+The main limitation is that the logic of Abella does not support
+quantification over predicates, nor the use of the cut operator.
+It is in principle possible to eliminate cut and higher-order
+combinators such as \eI{map} or \eI{forall2}, but this leads to a
+significant increase in verbosity, since these constructs are
+used pervasively.
+
+More importantly, this transformation introduces a gap between
+the verified version and the actual implementation, which we
+found to hinder the development and exploration of the system.
+
+Nevertheless, we established a test suite of about one hundred
+cases, which is available at \githubUrl.
 
 % \cite{Fissore2024}
 
