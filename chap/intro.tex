@@ -1,67 +1,118 @@
 \chapter{Introduction}
 
-\section{Prologue}
+Automation is a central component of modern proof assistants such
+as \rocq. Mechanisms like type-class resolution allow the system
+to infer implicit arguments and build proof terms with limited
+user input. Operationally, this process can be seen as a form of
+logic programming, where goals are solved by searching for
+instances in a database. This view suggests using a meta-language
+with strong support for search and unification.
 
-Automation everywhere in CS, we want to set up boilerplates to help our
-development.
+In this work, we study the integration of \rocq with the
+logic-programming language \elpi. The language follows a
+\prolog-like execution model based on higher-order unification,
+backtracking, and control operators such as cut. These features
+make it suitable for implementing a type-class solver for \rocq in \elpi.
 
-Examples:
+A first point we emphasize is the simplicity of this approach.
+A basic compiler for type classes can be written in only a few
+lines, while the solver directly relies on the existing
+interpreter. We then extend this basic translation to support more
+complex instances as found in practice, and evaluate the resulting
+solver against the native one of \rocq.
 
-- Continuous integration\\
-- Macros are everywhere\\
-- Artifitial intelligence\\
+A difficulty arises from the mismatch between the object language
+and the meta-language. Although both support higher-order
+unification and $\beta\eta$-conversion, the representation of
+terms in \elpi differs from that of \rocq. As a result, some terms
+that unify in \rocq may fail to unify in \elpi after thier translation. A direct
+reuse of meta-level unification is therefore not sufficient.
 
-We delegate tasks to some tools.
+To overcome this issue, we introduce a compilation scheme that
+preserves most of the structure of compiled terms while isolating
+problematic parts. These subterms are replaced only when needed
+and recorded as \emph{links}, which represent delayed constraints.
+They are checked during execution, allowing us to recover the
+intended behavior without reimplementing unification.
 
-expert system $\to$ 
+This design is also motivated by efficiency. Since most of the
+term structure is kept, the execution can benefit from indexing
+and mode unification strategy provided by \elpi. This is important for
+type-class resolution, where the search space can be large.
 
-example plus frappant: \\
-artificial intelligence: based on probability but not reproductible, not predicatable
+An additional contribution of this work is a determinacy analysis
+for \elpi programs. Determinacy aims to ensure that certain
+predicates do not introduce choice points and produce at most one
+solution. This property is useful to understand and control the
+behavior of logic programs. 
 
-several other examples in computer sciences:\\
-...
+We present an analysis that guarantees determinacy by inspecting
+clauses and tracking argument modes. The algorithm is designed to
+cover most features of \elpi, including higher-order predicates,
+dynamic programming and the cut operator. 
+Handling cut is essential, as it can enforce
+deterministic behavior but interacts in subtle ways with the
+logical reading of programs.
 
-% The human brain is equipped to process positives, not negatives.\\
-% What happens, not what doesn't happen.\\
-% You can notice a helicopter arriving, but you can't notice a helicopter not arriving
+To support this development, we also study a first-order fragment
+of the language, where terms do not contain higher-order
+abstractions. In this setting, unification is simpler and can be
+treated formally. We mechanize (in \rocq) the determinacy checker for this
+fragment and prove its main properties.
 
+This mechanization provides a formal basis for the analysis and
+serves as a reference for the full algorithm. Even if it does not
+cover all higher-order features, it captures the essential
+behavior and increases confidence in the approach.
 
-\section{Automation is everywhere}
+% Overall, the contributions combine a practical compilation
+% technique for type-class resolution with a determinacy analysis
+% for \elpi. Together, they provide both an efficient
+% implementation and a better understanding of the behavior of the
+% resulting programs.
 
-In the domain of formal proof automation is everywhere, and it is formally
-called elaboration~\cite{elaboration}
+\section{Contributions and structure of the thesis}
 
-In formal proof, proofs are verbose and have lot of details: types, coercions,
-canonical structures, type-classes. 
+The remainder of this thesis is organized as follows. We first present the
+context of the work (\cref{chap:context}). In particular, we describe the
+type-class resolution mechanism implemented in \rocq, together with its main
+options. Then, we introduce the \elpi language and give a formal description of
+its syntax and semantics. Finally, we present the \rocqelpi plugin, which enables
+the interaction between \elpi and \rocq.
 
-In theorem provers the user benefit of notations, implicit inference and
-tactics to ease his job.
+This thesis contains four main contributions, organized as follows:
 
+\begin{description}
+  \item[\Cref{chap:tc}] We study the implementation of a type-class solver
+                        written in \elpi for \rocq. We present the core part of
+                        the compiler that translates \rocq classes and
+                        instances into an \elpi database. This database is then
+                        used by the interpreter to search for inhabitants of
+                        type classes. We also compare our solver with the one of
+                        \rocq, focusing on performance, modes, and unification
+                        issues.
 
-% \subsection{Probabilistic reasoning: artificial intelligence}
+  \item[\Cref{chap:ho-for-free}] We analyze unification problems arising from
+                the higher-order abstract syntax used to represent \rocq terms
+                in \elpi. In \rocq, terms that are equal up to
+                $\beta\eta$-conversion can unify, while in \elpi such
+                unification may fail, even if its algorithm supports these
+                conversions. Based on our work~\cite{fissore2024}, we explain how
+                to address this issue by delaying problematic unifications using
+                a system of links.
 
-% \subsection{Automated reasoning: elaboration}
+  \item[\Cref{chap:det-elpi}] We present a static determinacy checker
+               implemented in \elpi, available since version 3. This tool
+               verifies that predicates declared as deterministic by the user
+               effectively behave deterministically, meaning that they never
+               create additional choice points. This result is based on our
+               work~\cite{fissore2026}.
 
-Simply typed lambda calculus is an exmaple of automation: an algo checks
-if ...
-
-% \subsection{Elaboration}
-
-\section{Contributions}
-
-In this manuscript we focus on an alternative type-class solver written
-in the elpi meta-language.
-
-Discimination tree,
-
-Elpi semantics,
-
-Higher order unification, 
-
-Alternative type-class solver in \rocqelpi
-
-\rocqelpi: Higher-order unification support
-
-Static determinacy checking for \elpi
-
-First-order static determinacy checker formalization
+  \item[\Cref{chap:mechanization}] We mechanize the determinacy checker in the
+               \rocq proof assistant. The formalization considers a restricted
+               fragment of \elpi, namely its first-order part, where variables
+               only represent data. Within this setting, we prove the main
+               determinacy property: in a program that satisfies the checker,
+               any call to a deterministic predicate produces at most one
+               solution.
+\end{description}
