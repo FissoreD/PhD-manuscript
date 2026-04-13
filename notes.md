@@ -54,6 +54,11 @@ TODO: dire che nella semantica elpi nella meccanizzazione passiamo un set di var
       uscita, non una equivalente che ci costerebbe un sacco di fatica per definire
       e provare cosa sono due sostituzioni equivalento.
 
+TODO: correggere bib libro enrico
+
+TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow per
+      separare gli input dagli output
+
 Aggiungere ref : qi2009 e vink1989
 
  -/ -/ -/ 9/10  2

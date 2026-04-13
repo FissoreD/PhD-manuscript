@@ -30,7 +30,7 @@ sub-query \eI{tc-Provable {{fact a}} {{lp:(Q p)}}} will fails since not
 unifying with the local rule \eI{tc-Provable {{fact a}} p}.
 
 The root cause of the problems we outlined in this example
-is a subtle mismatch between the equational theories of the meta language
+is a mismatch between the equational theories of the meta language
 and the object language, which in turn makes the 
 unification procedures of the meta language weak.
 The equational theory of the meta-language \elpi encompasses
@@ -126,18 +126,19 @@ would reshape the compiled rule for \cI{Pimpl} as follows:
 
 \begin{elpicode}
 tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :- 
-  link Qm Q, % relating the local variable Qm with Q
+  link Qm Q, % a constraint relating the local variable Qm with Q
   pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B (Qm p).
 \end{elpicode}
 
-In the rule body, we have added a new higher-order \elpi variable \eI{Qm} which
-has the type \eI{term ~$\to$~ term}. In the recursive call to \eI{tc-Provable}
-we pass as argument the variable \eI{Qm} applied to \eI{p}, allowing the the
-unification problem \eI{Qm p = p} to have a solution, namely, \eI{Qm = x\ x}.
+In the body of the rule, we have added a new higher-order \elpi variable \eI{Qm}
+which has the type \eI{term ~$\to$~ term}. In the recursive call to
+\eI{tc-Provable} we pass as argument the variable \eI{Qm} applied, using \elpi
+application, to \eI{p}, allowing the the unification problem \eI{Qm p = p} to
+get a solution, namely, \eI{Qm = x\ x}.
 
 The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
 to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
-\eI{Q} is assigned to the HOAS term \cI{fun x => x}. With this encoding, the
+\eI{Q} is assigned to the HOAS term \cI{fun _ _ x => x}. With this encoding, the
 query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
 % \noindent
@@ -179,17 +180,18 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 
 % \paragraph{Contributions}
 
-The general idea of this compilation is to identify at compilation time all
-the subterm that could create unification problems up to $\beta\eta$. These
-subterms $t$ are replaced by unification variables $v$, to ease unification in the
-meta-langauge and an additional premise is added to relate $t$ to $v$.
+The purpose of this compilation is to detect, at compile time, all
+subterms that may cause unification difficulties up to $\beta\eta$-conversion.
+Each such subterm $t$ is replaced by a unification variable $v$. This
+transformation simplifies unification in the meta-language, while an
+additional premise is introduced to relate $t$ and $v$.
 
-The idea of our compilation strategy is presented via two languages called
-called \Fo{} for object language and \Ho for the meta language. 
-We detail the encoding of \Fo{} in \Ho, and we show that
-the higher-order unification procedure of the meta language \Ue{} can be
-used to simulate a higher-order unification procedure \Uo for
-the object language that features $\beta\eta$-conversion.
+Our compilation strategy is described as a general framework based on
+two languages: \Fo{} for the object language, and \Ho{} for the
+meta-language. We explain how \Fo{} is encoded into \Ho{}, and we show
+that the higher-order unification procedure of the meta-language,
+denoted \Ue{}, can simulate a higher-order unification procedure \Uo{}
+for the object language, including $\beta\eta$-conversion.
 
 Section~\ref{sec:problem-statement} states the problem formally and gives the
 intuition behind our solution; \cref{sec:simulation} sets up a basic
@@ -211,18 +213,17 @@ a minimal setting to ease its study. In this setting, we have
 a language \Fo{} with a rich equational
 theory and a \Ho{} language with a simpler one.
 
-Our encoding of \Fo and \Ho is given in the \elpi language. In
-\cref{code:common-terms}, we provide in the syntax of the terms of \Fo, called
-\eI{to} and the terms of \Ho, called \eI{tm}. As claimed before, our framework
-is general, and therefore not proper to \rocq and \elpi. In our case, \eI{to}
-corresponds to the \eI{term} type of \rocq terms in \elpi and \eI{tm}
-corresponds to the constructs of the $\lambda$-calculus of \elpi.
+Our encoding of \Fo and \Ho is written in the \elpi language.
+In \cref{code:common-terms}, we show the syntax used for terms.
+The terms of \Fo are denoted by \eI{to}, while the terms of \Ho
+are denoted by \eI{tm}. These represent, respectively, the terms
+of the object language and those of the meta language. 
 
 The only difference between the two term representations is the encoding of
 variables. Variables contain a pointer to a memory address. In \Fo,
 the variables are first-order, i.e. they have no term in their scope, while in
-\Ho, the variables have a scope which is represented as a list of term. We use
-this encoding, since we implement and test the full unification strategy in an
+\Ho, the variables have a scope which is represented as a list of term. We
+implement and test this incoding in an
 \elpi development available at \githubUrl.
 
 \begin{figure}
@@ -270,7 +271,7 @@ terms in \Ho{}.
 For both languages, we extend the equational theory
 over ground terms to the full language by adding reflexivity for
 unification variables, i.e. a unification variable is equal to itself
-but different to any other term. The implementation is given in~\cref{fig:feq}.
+but different to any other term. The implementation is given in~\cref{fig:feq,fig:heq}.
 
 The first four rules are common to both equalities
 and define the usual congruence over terms. Since
@@ -280,17 +281,23 @@ In addition to that, \Eo has rules for $\eta$ and $\beta$-equivalence.
 % \input{code/feq}
 \begin{figure}
   \input{ho-for-free/img/feq.tex}%
+  \vspace{-15pt}
   \caption{\Fo equality implementation}
   \label{fig:feq}
 \end{figure}%
 %
-\begin{elpicode}
-  ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
-  con C ~\Ee~ con C.
-  app A ~\Ee~ app B :- forall2 ~(\Ee)~ A B.
-  lam F ~\Ee~ lam G :- pi x\ x ~\Ee~ x => F x ~\Ee~ G x.
-  uva N A ~\Ee~ uva N B :- forall2 ~(\Ee)~ A B.
-\end{elpicode}
+\begin{figure}
+  \begin{elpicode}
+    ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
+    con C ~\Ee~ con C.
+    app A ~\Ee~ app B :- forall2 ~(\Ee)~ A B.
+    lam F ~\Ee~ lam G :- pi x\ x ~\Ee~ x => F x ~\Ee~ G x.
+    uva N A ~\Ee~ uva N B :- forall2 ~(\Ee)~ A B.
+  \end{elpicode}
+  \vspace{-15pt}
+  \caption{\Ho equality implementation}
+  \label{fig:heq}
+\end{figure}
 
 \noindent
 Both procedures use implication to
@@ -299,12 +306,12 @@ equal to themselves.
 
 The main point in showing these equality tests is to remark how
 weaker \Ee is, and to identify the four rules that need special
-treatment in the implementation of \Uo.
+treatment in the simpulation of \Uo in \Ho.
 For brevity, we omit the code of \eI{beta}:
 it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
 weak-head normal form of \eI{o-app [F | L]}.
 
-\paragraphTwo{Substitution: $\rho s$ and $\sigma t$}
+\paragraphTwo{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
 
 We write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
 the term $t$ to the variable $X$.
@@ -338,8 +345,7 @@ pointing out their differences.
 We write 
 $\sigma t_1 \Ue \sigma t_2 \mapsto \sigma'$ when
 $\sigma t_1$ and $\sigma t_2$ unify with substitution $\sigma'$.
-Note that $\sigma'$ is a refined (i.e. extended) version of $\sigma$; this is
-reflected by the signature above that relates two substitutions.
+$\sigma'$ is a substitution extension of $\sigma$ (see~\cref{def:sub-extension}).
 We write $t_1 \Ue t_2 \mapsto \sigma'$ when
 the initial substitution $\sigma$ is empty.
 % Note that if $\sigma t_1 \Ue \sigma t_2 \mapsto \sigma'$ then
@@ -378,22 +384,24 @@ $\mathcal{D}$ satisfies the following properties:%\noteD{use $\sigma$, not $\rho
 \end{proposition}  
 
 \noindent
-The meta language of choice is expected to provide 
-an implementation of \Ue that is a good unification for \Ee
+The meta and (resp. object) language of choice are expected to provide 
+an implementation of \Ue (resp. \Uo) that is a good unification for \Ee (resp. \Ue)
 in \llambda.
 
-Even if we provide an implementation of the object-language unification
-\Uo{} in \cref{sec:founif}, our final goal is to simulate the execution of
-an entire logic-program.
-
 \subsection{The problem: logic-program simulation}
-We represent a logic program \emph{run} in \Fo{} as
-a sequence of $n$ \emph{steps}. Each step $p$ consists in
-unifying two terms, $\foUnifPb_{p_l}$ and
-$\foUnifPb_{p_r}$, taken from the list of all unification
-problems \foUnifPb.
-We write $\foUnifPb_p = \{~ \foUnifPb_{p_l},\, \foUnifPb_{p_r} ~\}$
-and $s \in \foUnifPb \Leftrightarrow \exists p, s \in \foUnifPb_p$.
+
+We simulate the execution, called \emph{run}, of a sequence of
+unification problems, denoted \foUnifPb, from the object language \Fo
+into the meta-language \Ho.
+The sequence \foUnifPb is given as a list of \emph{step}s. Each step
+$\foUnifPb_p$ corresponds to the unification of two terms,
+$\foUnifPb_{p_l}$ and $\foUnifPb_{p_r}$. We write
+$\foUnifPb_p = \{~ \foUnifPb_{p_l},\, \foUnifPb_{p_r} ~\}$.
+A term $s$ is said to belong to \foUnifPb if it appears either on the
+left-hand side or on the right-hand side of some unification step
+in \foUnifPb.
+
+% $s \in \foUnifPb \Leftrightarrow \exists p, s \in \foUnifPb_p$.
 % \footnote{If the same rule is used multiple times in a run we
 % consider as many copies as needed of the terms composing the
 % rules, with fresh unification variables each time. Also, we do not
@@ -469,12 +477,25 @@ $$
 \noindent
 By analogy with \foUnifPb, we write $\hoUnifPb_{p_l}$ and $\hoUnifPb_{p_r}$
 for the two \Ho{} terms being unified at step $p$, and we write $\hoUnifPb_p$
-for the set $\{~ \hoUnifPb_{p_l},\, \hoUnifPb_{p_r} ~\}$.\\
-The \hstep{} procedure is made of two sub-steps: a call to the meta-language
-unification and a check for \progress{} on the set of links, that intuitively
-will compensate for the weaker equational theory honored by \Ue.
-Procedure \hrun{} compiles all terms in \foUnifPb{}, then executes each step, and
-finally decompiles the solution.
+for the set $\{~ \hoUnifPb_{p_l},\, \hoUnifPb_{p_r} ~\}$.
+
+The \hstep{} procedure performs the unification of the $p^{th}$
+problem in \hoUnifPb under a substitution $\sigma$ and a list of
+links \linkStore. It consists of two sub-steps: first, a call to
+the meta-language unification procedure; second, a check of the
+\progress{} condition on the set of links. This check compensates
+for the weaker equational theory supported by \Ue.
+
+Since we simulate unification of \Fo within \Ho, the purpose of
+\hrun{} is to take a list of unification problems \foUnifPb and
+produce a substitution $\rho_n$ for \Fo. This substitution
+is equivalente to the one returned by \frun{} when applied to
+\foUnifPb.
+
+The \hrun{} procedure first compiles all terms in \foUnifPb,
+then executes each \hstep{} to compute a substitution $\sigma_n$,
+and finally decompiles $\sigma_n$ to obtain $\rho_n$.
+
 We claim:
 
 \begin{proposition}[Run equivalence]\label{prop:simulation}
@@ -533,11 +554,12 @@ unification is restored.
 
 This property has practical relevance since in many logic programming
 implementations, including \elpi, the order in which unification problems
-are tackled does matter.
+are executed does matter.
 The simplest example is the sequence $F \UnifRel \lambda x.a$ and
 $F \appsep a \UnifRel a$: the second problem is not in \llambda and has two
 unifiers, namely $\sigma_1 = \{~ F \mapsto \lambda x.x ~\}$ and
-$\sigma_2 = \{~ F \mapsto \lambda x.a ~\}$. The first problem picks $\sigma_2$,
+$\sigma_2 = \{~ F \mapsto \lambda x.a ~\}$. If we execute the two unification
+problem in order, the first unification return $\sigma_2$,
 making the second problem re-enter \llambda.
 
 % \paragraph{Backtracking} We omit it from our model of logic-program execution
@@ -657,7 +679,7 @@ general one: when applied to terms in \wellb
 the meta-language unification 
 \Ue{} agrees with the object-language equality \Eo. Note that a compiler that
 translate all terms to unification variables would satisfy this
-property, but wound certainly fail to verify \cref{prop:fidelity}.
+property, but would certainly fail to verify \cref{prop:fidelity}.
 
 \begin{proposition}[\wellb{}-preservation]\label{prop:w-preservation}
 $\forall \hoUnifPb, \forall \linkStore, \forall p, \forall \sigma, \forall \sigma'$
@@ -751,6 +773,7 @@ the following property:
 \noindent
 \inlinefigure{%
 \input{ho-for-free/img/alloc_mapping.tex}%
+\vspace{-18pt}
 \captionof{figure}{Malloc code}
 \label{clause:malloc}
 }
@@ -889,12 +912,12 @@ The signature of the \eI{comp} predicate below allows for the generation of
 links (suspended unification problems), which plays no role in this section
 but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
 
-\fbox{%
-  \begin{minipage}{1\textwidth}
-    \input{ho-for-free/img/comp_base.tex}%
-    \captionof{figure}{Comp FO}
-    \label{fig:comp-fo}
-  \end{minipage}
+\mvspace
+\inlinefigure{%
+  \input{ho-for-free/img/comp_base.tex}%
+  \vspace{-18pt}
+  \captionof{figure}{First order compilation}
+  \label{fig:comp-fo}
 }
 
 \input{ho-for-free/img/compile.tex}
@@ -907,12 +930,12 @@ in order to allocate space for the variables, i.e. it sets their memory
 address to \eI{none} (a detail not worth mentioning in the
 previous sections).
 
-\fbox{%
-  \begin{minipage}{1\textwidth}
-    \input{ho-for-free/img/comp_lam.tex}%
-    \captionof{figure}{Comp FO}
-    \label{fig:comp-lam}
-  \end{minipage}
+\mvspace
+\inlinefigure{%
+  \input{ho-for-free/img/comp_lam.tex}%
+  \vspace{-18pt}
+  \captionof{figure}{Compilation of $\lambda$-abstractions}
+  \label{fig:comp-lam}
 }
 
 \noindent
@@ -1065,6 +1088,7 @@ the proof will be refined to cover for the new cases.
   (as per \cref{prop:good-unif})
   in the domain \wellb.
 \end{theorem}
+
 \begin{proof}[Proof sketch]
 In this setting, \Ee is as strong as \Eo on ground terms.
 What we have to show is that whenever two different \Fo{}
