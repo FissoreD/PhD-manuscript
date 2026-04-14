@@ -1,4 +1,4 @@
-\chapter{\texorpdfstring{$\beta\eta$}{eta beta}-unification support for meta-programs}
+\chapter{\texorpdfstring{$\beta\eta$}{etabeta}-unification support for meta-programs}
 \label{chap:ho-for-free}
 
 In the previous chapter, and in particular in \cref{sec:unif-problems}, we have
@@ -7,7 +7,7 @@ when unifying certain \rocq terms. Unification up to $\delta$ is not possible
 in \elpi, but the $\beta\eta$-conversion rules are part of the \elpi unification
 algorithm. In this chapter we propose a framework allowing to ease the unification
 of the HOAS representation of the object language terms in the meta language.
-We take from our paper~\cite{fissore2024} the sentence which better 
+The sentence which better 
 describe the aim of this chapter: \emph{how to
 reuse the higher-order unification procedure of the meta language in order to
 simulate a higher-order logic program for the object language}.
@@ -95,10 +95,10 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 
 
 % \noindent
-% Unfortunately this encoding of rule \emph{r3} in \ref{fig:rules-elpi} does not work
+% Unfortunately this encoding of rule \emph{r3} in \cref{fig:rules-elpi} does not work
 % since it uses the predicate \cI{P} as a first order term: for the meta
 % language its type is \eI{tm}. If we try to back-chain the rule
-% \emph{r3} in \ref{fig:rules-elpi} on the encoding of the goal below given here
+% \emph{r3} in \cref{fig:rules-elpi} on the encoding of the goal below given here
 
 % \begin{elpicode}
 % decision (all (app [gl"fin", gl"7"]) x\ app [gl"nfact", x, gl"3"]).
@@ -109,7 +109,7 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 % we obtain an unsolvable unification problem below:
 % the two lists of terms have different lengths!
 % %The root cause is that
-% %\ref{problem:p} is an higher order in CIC, but becomes
+% %\cref{problem:p} is an higher order in CIC, but becomes
 % %first order in the meta language due to the ``naive'' encoding.
 
 % \begin{elpicode}
@@ -145,7 +145,7 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 % Once the head of rule \emph{r3'} unifies with the goal,
 % the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
 % back to the domain \eI{tm} of \rocq terms, obtaining the expected solution: 
-% % \ref{solution:intro}:
+% % \cref{solution:intro}:
 
 % \begin{elpicode}
 % P = lam A x\ app [con"nfact", x, con"3"]
@@ -168,7 +168,7 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 % decision (app [lam A (a\ app [con"nfact", a, con"3"]), w])
 % \end{elpicode}
 % \noindent
-% In turn, this redex prevents rule \emph{r2} in \ref{fig:rules-elpi} from backchaining properly since
+% In turn, this redex prevents rule \emph{r2} in \cref{fig:rules-elpi} from backchaining properly since
 % the following unification problem has no solution:
 
 % \begin{elpicode}
@@ -193,12 +193,12 @@ that the higher-order unification procedure of the meta-language,
 denoted \Ue{}, can simulate a higher-order unification procedure \Uo{}
 for the object language, including $\beta\eta$-conversion.
 
-Section~\ref{sec:problem-statement} states the problem formally and gives the
+Section~\cref{sec:problem-statement} states the problem formally and gives the
 intuition behind our solution; \cref{sec:simulation} sets up a basic
 simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
 extend it to higher-order logic programs in the pattern fragment
 while \cref{sec:beta} goes beyond the pattern fragment.
-Section \ref{sec:implementation} discusses the implementation in \elpi.
+Section \cref{sec:implementation} discusses the implementation in \elpi.
 
 \section{Problem statement and solution} %%%%%%%%%%%%%%%%%%%%%%
 \label{sec:problem-statement}
@@ -707,7 +707,7 @@ $$
 \end{proposition}
 
 \noindent
-Proposition \ref{prop:w-preservation} is key to proving \cref{prop:simulation,prop:fidelity}.
+Proposition \cref{prop:w-preservation} is key to proving \cref{prop:simulation,prop:fidelity}.
 Informally, it says that the problematic terms moved on the side by the compiler
 are not reintroduced by \hstep, hence \Ue{} can continue to operate properly.
 In \cref{sec:llam,sec:eta,sec:beta}
@@ -716,9 +716,9 @@ recognize terms in \maybebeta, \maybeeta and
 \notllambda and how \progress takes care of links and how it preserves \wellb
 and ensures \cref{prop:simulation,prop:fidelity,prop:fidelity-recovery}.
 
-We prove \fullref{prop:fidelity} in
+We prove \cref{prop:fidelity} in
 \cref{sec:eta,sec:beta,sec:invariant1}
-and \fullref{prop:simulation} only in \cref{sec:llam},
+and \cref{prop:simulation} only in \cref{sec:llam},
 where links are not present yet.
 In order to prove \cref{prop:simulation} in the presence of links
 one needs to refine \cref{prop:fidelity} by relating the two
@@ -726,9 +726,9 @@ substitutions $\rho_p$ and $\sigma_p$: they are equivalent only by using decompi
 take into account terms in \linkStore.
 Then, by induction
 on the number of steps, \cref{prop:fidelity} implies \cref{prop:simulation}.
-We discuss \fullref{prop:fidelity-recovery} in \cref{sec:beta}.
+We discuss \cref{prop:fidelity-recovery} in \cref{sec:beta}.
 
-% Note that proposition \ref{prop:w-preservation} does not hold for \hrun as a whole
+% Note that proposition \cref{prop:w-preservation} does not hold for \hrun as a whole
 % since decompilation can introduce (actually restore) problematic terms.
 
 \section{Basic compilation and simulation}
@@ -776,7 +776,7 @@ The compiler establishes a mapping between variables of the two languages.
 
 \noindent
 Each \eI{mvariable} is stored in the mapping together with
-its arity (a number) so that the code of \ref{clause:malloc} below can preserve
+its arity (a number) so that the code of \cref{clause:malloc} below can preserve
 the following property:
 
 \begin{invariant}[Unification-variable arity]\label{inv:uvaarity}
@@ -797,7 +797,7 @@ the following property:
 When a single \eI{ovariable} occurs multiple times with different numbers
 of arguments, the compiler generates multiple mappings for it, on a first
 approximation, and then ensures the mapping is bijective by introducing
-\linketa; this detail is discussed in section \ref{sec:invariant1}.
+\linketa; this detail is discussed in section \cref{sec:invariant1}.
 
 %Applying the substitution corresponds to dereferencing a term with respect to
 %the memory.
@@ -822,7 +822,7 @@ with the names in the scope of the unification variable occurrence.
 \input{ho-for-free/img/deref.tex}
 
 \noindent
-Note that \eI{move} strongly relies on invariant \ref{inv:uvaarity}: the length
+Note that \eI{move} strongly relies on invariant \cref{inv:uvaarity}: the length
 of the arguments of all occurrences of a unification variable is the same. Hence,
 they have the same simple type for the meta-level, and therefore the number of
 \eI{abs} nodes in the assignment matches that length.
@@ -837,7 +837,7 @@ for <<\eI{lam x\lam y\y}>>.
 \subsection{Links (\linkStore)}
 
 \noindent
-As mentioned in section~\ref{sec:nutshell}, the compiler
+As mentioned in section~\cref{sec:nutshell}, the compiler
 replaces terms in \maybeeta, \maybebeta, and \notllambda with fresh
 variables linked to the problematic terms. Terms in \maybebeta do not
 need a link since \Ho{} variables faithfully represent
@@ -848,7 +848,7 @@ the problematic term thanks to their scope.
 \noindent
 The right-hand side of a link, the problematic term, can occur under binders.
 To accommodate this situation, the compiler wraps \eI{baselink} using
-the \eI{inctx} container. % (see~\ref{data:inctx} also used for \eI{subst}).
+the \eI{inctx} container. % (see~\cref{data:inctx} also used for \eI{subst}).
 
 \begin{invariant}[Link left hand side]\label{inv:linklhs}
   The left-hand side of a suspended link
@@ -921,7 +921,7 @@ Its main task is to beta normalize the term and map one syntax tree to
 the other.
 In order to bring back the substitution from \Ho{} to \Fo{} the compiler
 builds a ``memory map'' connecting the \Fo{} variables to the \Ho ones.
-% using the routine \ref{clause:malloc}.
+% using the routine \cref{clause:malloc}.
 
 The signature of the \eI{comp} predicate below allows for the generation of
 links (suspended unification problems), which plays no role in this section
@@ -993,7 +993,7 @@ can update the substitution, which may then enable another link to progress.
 \paragraphTwo{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
-Sections \ref{sec:eta} and \ref{sec:beta} add rules to \eI{progress1}
+Sections \cref{sec:eta} and \cref{sec:beta} add rules to \eI{progress1}
 and explain why they do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
@@ -1023,7 +1023,7 @@ $\linketaM{}{Y}{\lambda z.X_z}$: we don't know yet if $Y$ will feature
 a lambda in head position, but we surely know it contains $X$.
 The procedure \eI{occur-check-links} is in charge of
 performing this check that is needed in order to
-guarantee \fullref{prop:fidelity}.
+guarantee \cref{prop:fidelity}.
 
 
 \subsection{Substitution decompilation}\label{sec:decompilation}
@@ -1033,8 +1033,8 @@ Decompiling the substitution involves three steps.
 First and foremost, problematic terms stored in
 \linkStore have to be moved back into the game:
 a suspended link must be turned into a valid assignment.
-This operation is possible thanks to \fullref{inv:linklhs},
-and that no link causes an occur-check~(\ref{sec:oc})
+This operation is possible thanks to \cref{inv:linklhs},
+and that no link causes an occur-check~(\cref{sec:oc})
 and the fact that \linkStore is duplicate-free (see \cref{sec:invariant1}).
 
 The second step allocates
@@ -1094,7 +1094,7 @@ variables have an empty scope).
 Still, we can prove that \Uo is a good
 ``first-order'' unification algorithm if the input
 already happens to be in \wellb.
-Later, when the compiler will ensure \fullref{prop:w-enforcing},
+Later, when the compiler will ensure \cref{prop:w-enforcing},
 the proof will be refined to cover for the new cases.
 
 \begin{theorem}[Properties of \Uo in \wellb]\label{prop:uniffow}
@@ -1118,7 +1118,7 @@ $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \end{proof}
 
 \begin{theorem}[Fidelity in \wellb] \Fullref{prop:simulation} and
-\fullref{prop:fidelity} hold if $\;\wellb{(\foUnifPb)}$. \label{thm:fidfow}
+\cref{prop:fidelity} hold if $\;\wellb{(\foUnifPb)}$. \label{thm:fidfow}
 \end{theorem}
 \begin{proof}[Proof sketch]
 Since \eI{progress1} is a no-op then \fstep and \hstep are the same.
@@ -1225,7 +1225,7 @@ compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
 
 \subsection{Compilation and decompilation}
 
-We add the following rule before rule $r_@$ in~\ref{fig:comp-fo}, where
+We add the following rule before rule $r_@$ in~\cref{fig:comp-fo}, where
 \eI{pattern-fragment} is a predicate checking if a list of
 terms is a list of distinct names.
 
@@ -1235,13 +1235,13 @@ terms is a list of distinct names.
 \noindent
 Note that compiling \eI{Ag} cannot create new mappings nor links, since \eI{Ag}
 is made of bound variables, and the hypothetical rule 
-in~\ref{fig:comp-lam}
+in~\cref{fig:comp-lam}
 loaded by \eI{comp-lam}
 grants this property.
 
 % The only detail worth discussing is the fact that the procedure updates a
 % substitution, rather than just crafting one as presented in
-% section~\ref{sec:problem-statement}. The reason is that the algorithm folds
+% section~\cref{sec:problem-statement}. The reason is that the algorithm folds
 % over a term, updating a substitution while it traverses it.\noteE[inline]{explain better}
 
 \paragraphTwo{Decompilation}
@@ -1270,7 +1270,7 @@ No change to \eI{progress} since no link is added.
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
    is decompiled to $\rho = \{ Y \mapsto \lambda \vec{y}.s[\vec{w}/\vec{y}]\}$.
-   Thanks to rule $r_{\beta_l}$ in \ref{fig:feq} we have
+   Thanks to rule $r_{\beta_l}$ in \cref{fig:feq} we have
    $(\lambda \vec{y}.s[\vec{w}/\vec{y}])~\vec{w} \Eo s$.
   \end{proof}
   
@@ -1287,7 +1287,7 @@ No change to \eI{progress} since no link is added.
 In other words the compiler eliminates all subterms that are in \maybebeta.
 
 \begin{theorem}[Fidelity in $\wellb_\beta$] \Fullref{prop:simulation} and
-\fullref{prop:fidelity} hold if $\;\wellb_\beta(\foUnifPb)$.
+\cref{prop:fidelity} hold if $\;\wellb_\beta(\foUnifPb)$.
 \label{th:fidelity-beta}
 \end{theorem}
 \begin{proof}[Proof sketch] Thanks to \cref{lem:w-enforcement-maybebeta},
@@ -1525,7 +1525,7 @@ A $\beta$-normal term $s = \lambda x_1 \ldots x_n.t$
 \end{lemma}
 \begin{proof}[Proof sketch]
 Since our terms are in $\beta$-normal form the only
-rule that can play a role is $r_{\eta_l}$ in \ref{fig:feq}, and note that
+rule that can play a role is $r_{\eta_l}$ in \cref{fig:feq}, and note that
 that rule uses \eI{beta} to add an argument to an
 application or to the scope of a variable.
 If the term $s$ is not exactly $x$ (case 1)
@@ -1627,7 +1627,7 @@ since it does not break
 % term compilation.
 
 \paragraphTwo{Compilation}
-The following rule is inserted just before rule $r_\lambda$ in~\ref{fig:comp-fo}.
+The following rule is inserted just before rule $r_\lambda$ in~\cref{fig:comp-fo}.
 
 \input{ho-for-free/img/comp_eta.tex}
 
@@ -1640,7 +1640,7 @@ variable \eI{A}. This variable sees all the names free in
 
 \begin{corollary}
   The \rhs of any \linketa has exactly one lambda abstraction, hence
-  the rule above respects \fullref{inv:link-eta-right}.
+  the rule above respects \cref{inv:link-eta-right}.
   \label{cor:rhs-eta-onelamb}
 \end{corollary}
 
@@ -1757,7 +1757,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 \end{proof}
 
 \begin{lemma}
-  The progress of \linketa guarantees \fullref{prop:w-preservation}
+  The progress of \linketa guarantees \cref{prop:w-preservation}
   \label{lemma:unif-wellb}
 \end{lemma}
 
@@ -1773,8 +1773,8 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
 \end{lemma}
 
 \begin{proof}[Proof sketch]
-  Rules \ref{def:progressetaleft} and
-  \ref{def:progressetadedup} remove one link from \linkStore, hence they
+  Rules \cref{def:progressetaleft} and
+  \cref{def:progressetadedup} remove one link from \linkStore, hence they
   cannot be applied indefinitely.
   Moreover each rule only relies on terminating operations such as \Ue,
   $\eta$-contraction, $\eta$-redex, relocation (a recursive copy of a
@@ -1799,7 +1799,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   $\wellb_{\beta \eta}(\foUnifPb)$, if the 
   memory map is bijective then
   the introduction 
-  of \linketa guarantees \fullref{prop:fidelity}.
+  of \linketa guarantees \cref{prop:fidelity}.
   %\footnote{The bijective property of \mapStore is proved in \cref{sec:invariant1}}
   \label{lemma:fidelity-maybeeta}
 \end{theorem}
@@ -1830,13 +1830,13 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
     \item $s_2 \notin \maybeeta$,
           in this case $s_2$ is compiled to $t_2$ and the unification step $u$ assigns $t_2$ to $X$
           and triggers \progressetaleft.
-          If $s_1$ and $s_2$ are equal thanks to $r_{\eta_l}$ in \ref{fig:feq} then
+          If $s_1$ and $s_2$ are equal thanks to $r_{\eta_l}$ in \cref{fig:feq} then
           progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$ namly
-          $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule $r_{\lambda\lambda}$ in \ref{fig:feq}
+          $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule $r_{\lambda\lambda}$ in \cref{fig:feq}
           and the link progress $p$ unifies $\lambda x.t_1$ with $t_2$.
           Alternatively, if $s_1$ are different $s_2$
           it cannot be because of the $\lambda$ constructor in the head of $t_1$,
-          since rule $r_{\lambda\lambda}$ in \ref{fig:feq} or rule $r_{\eta_l}$ in \ref{fig:feq} move under it, eventually finding two
+          since rule $r_{\lambda\lambda}$ in \cref{fig:feq} or rule $r_{\eta_l}$ in \cref{fig:feq} move under it, eventually finding two
           different subterms $s_1'$ and $s_2'$. By \cref{th:fidelity-beta},
           \Ue fails on terms $t_1'$ and $t_2'$ even if \progressetaleft
           $\eta$-expands $t_2$.
@@ -1852,12 +1852,12 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   % Two cases should be analyzed: 1) $\fstep_i$ succeeds to unify 
   % $s1$ with $s2$. The interesting case is when fostep succeds by
   % finding a $\rho$ such that $\rho s1 \Eo \rho s2$ requires
-  % rules~\ref{clause:eta1} and \ref{clause:eta2} at the top level,
+  % rules~\cref{clause:eta1} and \cref{clause:eta2} at the top level,
   % and that is in exactly the cases in which T (from page 3) is
   % not a lam (see 5.9.1) compensating for the missing rules in \Ue.
   % 
   % 2) If $\fstep_i$ fails to unify $s1 \Uo s2$
-  % it means that, after applying rules~\ref{clause:eta1} and \ref{clause:eta2}
+  % it means that, after applying rules~\cref{clause:eta1} and \cref{clause:eta2}
   % and the one o-lam-o-lam we find different terms.
   % (5.9.1) only adds lambdas that are forcibly consumed by
   % lam-lam rule.
@@ -1926,7 +1926,7 @@ a bijection. For example:
 
 in the unification problems \foUnifPb above, $X$ is used with arity $1$ in
 $\foUnifPb_1$ and with arity $0$ in $\foUnifPb_2$. 
-In order to preserve \fullref{inv:uvaarity} the compiler
+In order to preserve \cref{inv:uvaarity} the compiler
 did generate two entries in \mapStore for $X$, namely $B$ and $C$. 
 However, there is no connection between these two variables
 and any incompatible assignements to them would not be detected,
@@ -1995,7 +1995,7 @@ $t'$ (under the context $\Gamma$).
   Given a list of unification problems \foUnifPb, such that 
   $\wellb_{\beta \eta}(\foUnifPb)$,
   if $\ \foUnifPb$ contains the same \Fo{}-variable used at different arities,
-  then \mapdeduplication guarantees \fullref{prop:fidelity}
+  then \mapdeduplication guarantees \cref{prop:fidelity}
 \end{theorem}
 
 \def\chain{\ensuremath{\vec{c}}\xspace}
@@ -2181,7 +2181,7 @@ and \progress routines.
 In particular $\hoUnifPb_1$ generates $\sigma = \{~ A
 \mapsto \lambda x. a ~\}$ making $\sigma\hoUnifPb_2$ equal to
 $(\lambda x. a) \appsep a \Ue a$ that \Ue{} cannot solve since it
-lacks rules $r_{\beta_l}$ and $r_{\beta_r}$ in \ref{fig:feq}.
+lacks rules $r_{\beta_l}$ and $r_{\beta_r}$ in \cref{fig:feq}.
 
 To address this problem the compiler must recognize
 \notllambda terms
@@ -2189,7 +2189,7 @@ and replace them
 with fresh variables and generate a new kind of links
 that we call \linkbeta.
 
-In addition to \fullref{inv:linklhs}, the term on the \rhs of a \linkbeta
+In addition to \cref{inv:linklhs}, the term on the \rhs of a \linkbeta
 has the following property:
 
 \newcommand{\rhsBetaHead}{\ensuremath{X_{s_1\dots s_n}}}
@@ -2227,7 +2227,7 @@ has the following property:
 \subsection{Compilation and decompilation}
 
 We insert this rule
-just before rule $r_@$ in \ref{fig:comp-fo}
+just before rule $r_@$ in \cref{fig:comp-fo}
 
 \input{ho-for-free/img/comp_beta.tex}
 
@@ -2242,7 +2242,7 @@ in scope all names in \eI{Pf1} (the compilation of \eI{Pf}).
 The variable \eI{B}, returned as the compiled term, is a fresh variable
 having in scope all the free variables occurring in \eI{Pf1} and
 \eI{Extra1} (the compilation of \eI{Extra}).
-This construction enforces \fullref{inv:beta-rhs}.
+This construction enforces \cref{inv:beta-rhs}.
 
 % In the following, we pose $X_{s_1\dots s_n}$ to represent a variable $X$ with
 % the list of distinct names $s_1\dots s_n$ as scope. Moreover, $X_{s_1\dots
@@ -2260,7 +2260,7 @@ This construction enforces \fullref{inv:beta-rhs}.
 %   Assume we have a \linkbeta, by contradiction, if $m = 0$, then the original
 %   \Fo{} term has the shape \eI{o-app[o-uva M | Ag]} where \eI{Ag} is a
 %   list of distinct names (i.e. the list \eI{Extra} is empty). This case is
-%   however captured by rule~\ref{rule:complam} (from \cref{sec:compilation}) and
+%   however captured by rule~\cref{rule:complam} (from \cref{sec:compilation}) and
 %   no \linkbeta is produced which contradicts our initial assumption.
 % \end{proof}
 % \end{comment}
@@ -2361,7 +2361,7 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 \noindent
 We relax this condition and accommodate for
 % the implementation of 
-heuristics in~\ref{sec:heuristics}.
+heuristics in~\cref{sec:heuristics}.
 
 Finally
 %in order to correctly correlate a variable appearing in the \lhs of a
@@ -2433,7 +2433,7 @@ whenever its \rhs is for sure a \wellb term.
 % \end{proof}
 
 \begin{theorem}[Fidelity in \Fo]
-  The introduction of \linkbeta guarantees \fullref{prop:fidelity-recovery}
+  The introduction of \linkbeta guarantees \cref{prop:fidelity-recovery}
   if $\foUnifPb \not\subseteq \llambda$.
 \end{theorem}
 
@@ -2513,7 +2513,7 @@ unification problem
 confirm that $B$ equal $a$. The final substitution $\sigma = \{~A \mapsto \lambda x.a ~;~ B \mapsto a ~\}$ is decompiled into $\rho = \{~ X \mapsto \lambda x.a ~;~ Y \mapsto
 a ~\}$.
 \end{comment} 
-\subsection{\texorpdfstring{Relaxing \fullref{def:progBetaFail}}{Relaxing progress-llam-fail}}
+\subsection{\texorpdfstring{Relaxing \cref{def:progBetaFail}}{Relaxing progress-llam-fail}}
 \label{sec:heuristics}
 \newcommand{\progBetaNoLLWait}{\emph{progress-beta-\notllambda}}
 
@@ -2554,9 +2554,9 @@ we can relax \cref{def:progBetaFail}.
 Instead of failing when the \lhs of $\linkStore_1$ becomes rigid (equal to $a$),
 we keep it in \linkStore until the head of its \rhs also become rigid.
 In this case, since both the \lhs and \rhs have rigid heads, they can be unified.
-While this relaxed rule does not break \fullref{prop:fidelity} per se,
+While this relaxed rule does not break \cref{prop:fidelity} per se,
 the \eI{occur-check-links} procedure becomes incomplete since
-\fullref{inv:linklhs} is broken. Also note that delaying unification outside \llambda can leave \linkbeta for the
+\cref{inv:linklhs} is broken. Also note that delaying unification outside \llambda can leave \linkbeta for the
 decompilation phase. Therefore \eI{commit-links} should
 be modified accordingly.
 
@@ -2586,7 +2586,7 @@ Constraint Handling Rules (\chr) to operate on them~\cref{sec:chr}.
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
 suspended on a list of variables that is resumed \emph{as soon as one of these variable
 is assigned}, before any other existing goal is considered. 
-In turn link activation grants~\fullref{prop:fidelity}.
+In turn link activation grants~\cref{prop:fidelity}.
 We point out that \cite{pfenning1993} delays \notllambda unification problems
 while we also delay problems that are in \maybeeta.
 
@@ -2637,7 +2637,7 @@ relocates \eI{T2} and the latter crafts the new goal that unifies
 \eI{T1} with \eI{T2'} under \eI{G1} and the set of
 heigenvariables \eI{N1}.
 
-% Remark that \fullref{inv:uvaarity} makes it possible to relocate \eI{T2}
+% Remark that \cref{inv:uvaarity} makes it possible to relocate \eI{T2}
 % using the name-to-name mapping obtained by zipping
 % the lists (of equal length) \eI{LX1} and \eI{LX2}.
 

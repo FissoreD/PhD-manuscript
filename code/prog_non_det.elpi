@@ -1,12 +1,12 @@
 %SNIP: prog_non_det
-pred f i:int, o:int.
+pred f int -> int.
 f 1 2.
 f 2 3.               
-pred r i:int, o:int.
+pred r int -> int.
 r 0 0.
 r 0 1.
 r 0 2 :- !.
-pred g i:int, o:int.
+pred g int -> int.
 g A C :- r A B, f B C, !.
 g D F :- f D E, f E F.
 %ENDSNIP: prog_non_det

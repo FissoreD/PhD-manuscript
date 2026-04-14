@@ -1,36 +1,36 @@
-pred r i:int, o:int.
+pred r int -> int.
 r 0 0.
 r 0 1.
 r 0 2 :- !.
 
-pred once i:prop.
+pred once prop ->.
 once P :- P, !.
 
 %SNIP: cut_p1
-pred p1 i:int, o:int.
+pred p1 int -> int.
 p1 1 X :- r 0 X.
 p1 1 3.
 %ENDSNIP: cut_p1
 
 %SNIP: cut_p2
-pred p2 i:int, o:int.
+pred p2 int -> int.
 p2 1 X :- r 0 X, !.
 p2 1 3.
 %ENDSNIP: cut_p2
 
 %SNIP: cut_p3
-pred p3 i:int, o:int.
+pred p3 int -> int.
 p3 1 X :- once (r 0 X).
 p3 1 3.
 %ENDSNIP: cut_p3
 
-pred get-res (pred i:A, o:B), prop -> B.
+pred get-res (pred A -> B), prop -> B.
 get-res PAB (PAB _ R) R.
 
-pred get-res-all list prop, (pred i:A, o:B) -> list B.
+pred get-res-all list prop, (pred A -> B) -> list B.
 get-res-all L P R :- std.map L (get-res P) R.
 
-pred find-all-print (pred i:int, o:int).
+pred find-all-print (pred int -> int).
 find-all-print P :-
   std.findall (P 1 _) R,
   get-res-all R P RS,

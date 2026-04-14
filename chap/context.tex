@@ -546,14 +546,15 @@ is an equivalent notation following the convention of~\cite{miller2012}.
 \elpi\ provides a dedicated syntax for declaring predicates, which also
 allows the programmer to specify the modes of their arguments.
 
-The declaration
-\eI{pred p i:t1, o:t2.} where \eI{t1} and \eI{t2} are types,
-is equivalent to the declaration
-\eI{type p t1 -> t2 -> prop} but it also specifies that the first
-argument of \eI{p} is an input (\eI{i:}) and the second is an output
-(\eI{o:}). These modes are used at runtime to determine which
-unification strategy should be applied when matching the head of a rule
-with the current goal.
+The declaration \eI{pred p t1 -> t2}, where \eI{t1} and \eI{t2} are
+types, is equivalent to \eI{type p t1 -> t2 -> prop}. However, it also
+defines the modes of the two arguments.
+
+Arguments placed before the arrow symbol in a \eI{pred} declaration
+are considered inputs, while those
+after the arrow are outputs. These modes are used at runtime to decide
+which unification strategy must be applied when matching the head of a
+rule with the current goal.
 
 \paragraphTwo{Program type checking}
 
@@ -1050,7 +1051,7 @@ reference when discussing determinacy checking in \elpi (see
 implementation is shown below.
 %
 \begin{elpicode}
-pred map i:(pred i:A, o:B), i:list A, o:list B.
+pred map (pred A -> B), list A -> list B.
 map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
@@ -1065,7 +1066,7 @@ Another common higher-order construct in \elpi is the predicate
 \eI{once}, defined as follows.
 %
 \begin{elpicode}
-pred once i:(pred).
+pred once (pred) ->.
 once P :- P, !.
 \end{elpicode}
 
@@ -1127,7 +1128,7 @@ A simple program manipulating higher-order data is the function
 performing a deep copy of a term:
 %
 \begin{elpicode}
-pred copy i:tm, o:tm.
+pred copy tm -> tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
 copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
@@ -1161,7 +1162,7 @@ the application of a $\lambda$-abstraction
 to an argument and uses \eI{copy} to perform the substitution:
 
 \begin{elpicode}
-pred whd i:tm, o:tm.
+pred whd tm -> tm.
 whd (app H A) R :- whd H (lam F), !,           % we fire the redex
   pi x\ copy x A => copy (F x) S, whd S R.     %   and we continue
 whd X X.                                       % or we stop
@@ -1411,7 +1412,7 @@ between them. The \rocq language exposes several APIs that can be used
 directly from \elpi.
 %
 \begin{center}
-  \eI{pred coq.unify-eq i:term, i:term, o:diagnostic.}
+  \eI{pred coq.unify-eq term, term ~$\to$~ diagnostic.}
 \end{center}
 
 The predicate above is widely used in \elpi developments. It takes two
@@ -1425,7 +1426,7 @@ Other predicates allow extending the \rocq system with new definitions,
 modules, modes, and more.
 %
 \begin{center}
-  \eI{pred coq.TC.declare-class i:gref.}
+  \eI{pred coq.TC.declare-class gref ~$\to$~.}
 \end{center}
 
 For example, the predicate above allows declaring a type class from a
@@ -1451,10 +1452,10 @@ kind clause type.
 type clause string ~$\to$~ grafting ~$\to$~ prop ~$\to$~ clause.
 
 %                           DB name  Indexing  PName
-pred coq.elpi.add-predicate i:string, i:string, i:string,
-                                  i:list (pair argument_mode string).
+pred coq.elpi.add-predicate string, string, string,
+                                  list (pair argument_mode string) ~$\to$~.
 %                        Scope    DB name   Clause
-pred coq.elpi.accumulate i:scope, i:string, i:clause.
+pred coq.elpi.accumulate scope, string, clause ~$\to$~.
 \end{elpicode}
 
 The \eI{coq.elpi.add-predicate} predicate takes as arguments the name of
@@ -1504,7 +1505,7 @@ As mentioned at the beginning of this chapter, commands are used to extend the
 \rocq language with new definitions and theorems. In other words, a command does
 not return a value: it is mainly used for printing or for modifying the internal
 state of the system. The entry point of a command is a predicate named
-\eI{main}, with signature \eI{pred main i:list argument}. An argument can be a
+\eI{main}, with signature \eI{pred main list argument ~$\to$~}. An argument can be a
 string, an integer, a term, or an open term.
 
 Tactics in \elpi are used to solve \rocq goals through the \elpi interpreter.
@@ -1512,7 +1513,7 @@ Their declaration is similar to that of commands. The entry point of a tactic is
 the predicate \eI{msolve}, with the following type:
 %
 \begin{center}
-  \eI{pred msolve i:list sealed-goal, o:list sealed-goal.}
+  \eI{pred msolve list sealed-goal ~$\to$~ list sealed-goal.}
 \end{center}
 
 \begin{figure}
@@ -1555,7 +1556,7 @@ called on the content of the \eI{seal} constructor, meaning that all
 \eI{nabla}s have already been traversed.
 %
 \begin{center}
-  \eI{pred solve i:goal, o:list sealed-goal.}
+  \eI{pred solve goal ~$\to$~ list sealed-goal.}
 \end{center}
 
 The final point addressed in this section concerns the \eI{refine} predicate.

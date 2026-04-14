@@ -5,11 +5,11 @@ map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 
 namespace xx {
   %SNIP: fuse_pred
-  pred comp i:(pred i:A, o:B), i:(pred i:B, o:C), i:A, o:C.
+  pred comp (pred A -> B), (pred B -> C), A -> C.
   comp F G X Z :- F X Y, G Y Z.
 
-  pred fuse i:(pred i:list A, o:list B), i:(pred i:list B, o:list C),
-            o:(pred i:list A, o:list C).
+  pred fuse (pred list A -> list B), (pred list B -> list C) ->
+            (pred list A -> list C).
   fuse (map F) (map G) (map (comp F G)). 
   %ENDSNIP: fuse_pred
 }

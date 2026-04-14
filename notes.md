@@ -59,10 +59,12 @@ TODO: correggere bib libro enrico
 TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow per
       separare gli input dagli output
 
+TODO: sostituire tutti i pred che usano la sintassi input output con quella che
+usa la freccia
+
 Aggiungere ref : qi2009 e vink1989
 
- -/ -/ -/ 9/10  2
-13/14/15/16/17  5
+ -/14/15/16/17  4
 20/21/22/23     4
 
 5/ 6/ 7         3
@@ -72,5 +74,5 @@ Aggiungere ref : qi2009 e vink1989
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 34
+TOT: 31
 
