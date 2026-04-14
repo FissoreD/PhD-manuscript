@@ -12,6 +12,7 @@ def clean_line(_):
         l = re.sub("===o",r"~$\\Uo$~",l)
         l = re.sub("==o",r"~$\\Eo$~",l)
         l = re.sub(".*% *HIDE.*\n","",l)
+        l = re.sub(r"\bz\b","0",l)
         l = re.sub("% label: (.*).* cnt: (.*)",r"~\\customlabel{\g<1>}{(\g<2>)}~",l)
         l = re.sub("type \(~\$([^ ]+)\$~\) ([^\.]+)",r"~\\PYG{k+kd}{type} \\PYG{n+nf}{(\g<1>)} \\PYG{k+kt}{\g<2>}~",l)
         l = re.sub("type (\([^ ]+\)) ([^\.]+)",r"~\\PYG{k+kd}{type} \\PYG{n+nf}{\g<1>} \\PYG{k+kt}{\g<2>}~",l)
