@@ -8,6 +8,7 @@ def clean_line(_):
         l = re.sub("^ *%ENDSNIP.*\n","",l)   
         l = re.sub("^ *%%%.*\n","",l)   
         l = re.sub("==l",r"~$\\Ue$~",l) 
+        l = re.sub("==m",r"~$\\Ee$~",l) 
         l = re.sub("===o",r"~$\\Uo$~",l)
         l = re.sub("==o",r"~$\\Eo$~",l)
         l = re.sub(".*% *HIDE.*\n","",l)

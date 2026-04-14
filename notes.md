@@ -59,8 +59,7 @@ TODO: correggere bib libro enrico
 TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow per
       separare gli input dagli output
 
-TODO: sostituire tutti i pred che usano la sintassi input output con quella che
-usa la freccia
+TODO: minted.py for elpi with pred and infix notation
 
 Aggiungere ref : qi2009 e vink1989
 

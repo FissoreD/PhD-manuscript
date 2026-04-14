@@ -207,24 +207,23 @@ Section \cref{sec:implementation} discusses the implementation in \elpi.
 \newcommand{\maybebeta}{\texorpdfstring{\ensuremath{\Diamond\beta}\xspace}{maybebeta}}
 \newcommand{\notllambda}{\texorpdfstring{\ensuremath{\Diamond\llambda}\xspace}{maybellam}}
 
-Even if we encountered the problem working on \rocq's Calculus of Inductive
-Constructions, we devise
-a minimal setting to ease its study. In this setting, we have
-a language \Fo{} with a rich equational
-theory and a \Ho{} language with a simpler one.
+Although the problem was first observed while working on \rocq's Calculus of
+Inductive Constructions, we introduce a simplified setting to study it more
+easily. In this setting, we consider a language \Fo{} with a rich equational
+theory, and a \Ho{} language with a simpler one.
 
-Our encoding of \Fo and \Ho is written in the \elpi language.
-In \cref{code:common-terms}, we show the syntax used for terms.
-The terms of \Fo are denoted by \eI{to}, while the terms of \Ho
-are denoted by \eI{tm}. These represent, respectively, the terms
-of the object language and those of the meta language. 
+Both \Fo{} and \Ho{} are encoded in the \elpi language. The syntax of terms is
+shown in \cref{code:common-terms}. Terms of \Fo{} are written as \eI{to}, while
+terms of \Ho{} are written as \eI{tm}. These correspond, respectively, to
+object-level terms and meta-level terms.
 
-The only difference between the two term representations is the encoding of
-variables. Variables contain a pointer to a memory address. In \Fo,
-the variables are first-order, i.e. they have no term in their scope, while in
-\Ho, the variables have a scope which is represented as a list of term. We
-implement and test this incoding in an
-\elpi development available at \githubUrl.
+The main difference between these two representations lies in how variables are
+encoded. Variables are associated with a memory address. In \Fo{}, variables are
+first-order and do not carry any scope. In contrast, variables in \Ho{} include a
+scope, represented as a list of terms.
+
+This encoding is implemented and tested in an \elpi development available at
+\githubUrl.
 
 \begin{figure}
   \begin{subfigure}{0.47\textwidth}
@@ -284,20 +283,14 @@ $\beta$-equivalence.
 \begin{figure}
   \input{ho-for-free/img/feq.tex}%
   \vspace{-15pt}
-  \caption{\Fo equality implementation}
+  \caption{Equality implementation for \Fo}
   \label{fig:feq}
 \end{figure}%
 %
 \begin{figure}
-  \begin{elpicode}
-    ~\PYG{k+kd}{type} \PYG{n+nf}{(\Ee)} \PYG{k+kt}{tm -> tm -> o}~.
-    con C ~\Ee~ con C.
-    app A ~\Ee~ app B :- forall2 ~(\Ee)~ A B.
-    lam F ~\Ee~ lam G :- pi x\ x ~\Ee~ x => F x ~\Ee~ G x.
-    uva N A ~\Ee~ uva N B :- forall2 ~(\Ee)~ A B.
-  \end{elpicode}
+  \input{ho-for-free/img/heq.tex}%
   \vspace{-15pt}
-  \caption{\Ho equality implementation}
+  \caption{Equality implementation for \Ho}
   \label{fig:heq}
 \end{figure}
 
