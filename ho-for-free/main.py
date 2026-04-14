@@ -13,9 +13,13 @@ def clean_line(_):
         l = re.sub("==o",r"~$\\Eo$~",l)
         l = re.sub(".*% *HIDE.*\n","",l)
         l = re.sub(r"\bz\b","0",l)
+        l = re.sub(r"<->","~$\\\\leftrightarrow$~",l)
+        l = re.sub(r"->","~$\\\\to$~",l)
         l = re.sub("% label: (.*).* cnt: (.*)",r"~\\customlabel{\g<1>}{(\g<2>)}~",l)
-        l = re.sub("type \(~\$([^ ]+)\$~\) ([^\.]+)",r"~\\PYG{k+kd}{type} \\PYG{n+nf}{(\g<1>)} \\PYG{k+kt}{\g<2>}~",l)
-        l = re.sub("type (\([^ ]+\)) ([^\.]+)",r"~\\PYG{k+kd}{type} \\PYG{n+nf}{\g<1>} \\PYG{k+kt}{\g<2>}~",l)
+        if l.strip().startswith("type (") or l.strip().startswith("pred ("):
+            l = re.sub(r"( [a-zA-Z]+[^)])", "~\\\\PYG{k+kt}{\g<1>}~",l)
+            l = l.replace("\PYG{k+kt}{ type }", "\PYG{k+kd}{ type }")
+            l = l.replace("\PYG{k+kt}{ pred }", "\PYG{k+kd}{ pred }")
         return l
     return f
 

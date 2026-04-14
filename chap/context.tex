@@ -574,21 +574,29 @@ and correct implementation bugs early.
 \end{figure}
 
 A substitution $\sigma$ of type $\Sigma$ is a partial mapping from
-unification variables \UVAR\ to terms \TERM. The application of a substitution
-to a term $t$ is written $\sigma\ t$. The empty substitution is denoted by
-$\EmptySubst$. The domain $\dom\ \sigma$ of a substitution $\sigma$ is the set
+unification variables \UVAR\ to terms \TERM. The empty substitution is denoted by
+$\EmptySubst$. The notation $\sigma = \{ X \mapsto t\}$ represents a substitution
+$\sigma$ where the variable $X$ is assigned to the term $t$.
+The domain $\dom\ \sigma$ of a substitution $\sigma$ is the set
 of variables that are assigned in $\sigma$.
 
 \begin{definition}[Substitution extension]
-  A substitution $\sigma'$ is an extension of $\sigma$ iff
-  $$
-  \exists \sigma''.\
-  \sigma + \sigma'' = \sigma'
-  \ \land\
-  \dom\ \sigma'' \cap \dom\ \sigma = \varnothing .
-  $$
+  A substitution $\sigma'$ is an extension of $\sigma$, noted $\sigma \subseteq \sigma'$,
+  iff
+  $$\exists \sigma'',\ \sigma + \sigma'' = \sigma' \ \land\
+  \dom\ \sigma'' \cap \dom\ \sigma = \varnothing $$
   \label{def:sub-extension}
 \end{definition}
+
+\vspace{-3em}
+
+\begin{definition}[Substitution application (or term dereferencing)]
+  A substitution $\sigma$ applied to a term $t$, noted $\sigma t$, is the operation
+  allowing to recursively replace the variables in $t$ by their assignement in 
+  $\sigma$.
+  \label{def:deref}
+\end{definition}
+
 
 \noindent
 A typing environment $\env$ maps predicates \PRED\ to their signatures.
@@ -671,6 +679,14 @@ modes, which determine if a argument should be ``matched'' or ``unified''.
 taking two terms and an initial substitution $\sigma$. They either fail
 (returning $\mnone$) or succeed with an updated substitution $\sigma'$ that is
 an extension of $\sigma$.
+
+\begin{definition}[Pattern fragment]
+  A $\lambda$-term belongs to Miller's pattern frangment if in every subterm of
+  the form $F\ t_1\ t_2 \dots t_n$, where $F$ is a higher-order unification
+  variable, each term $t_i$ is a bound variable distinct from any $t_j$ (with $i
+  \neq j$).
+  \label{def:pattern-fragment}
+\end{definition}
 
 The procedure \unify\ implements higher-order unification restricted to the
 pattern fragment~\cite{miller1991-pf} and is used for arguments in

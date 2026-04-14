@@ -35,7 +35,7 @@ and the object language, which in turn makes the
 unification procedures of the meta language weak.
 The equational theory of the meta-language \elpi encompasses
 $\beta\eta$-equivalence and its unification procedure can solve higher-order
-problems in the pattern fragment. Although 
+problems in the pattern fragment (\cref{def:pattern-fragment}). Although 
 the equational theory of \rocq is much richer, for efficiency and predictability
 reasons automatic proof search procedures typically employ a unification
 procedure that only captures a $\beta\eta$-equivalence and only operates
@@ -210,20 +210,33 @@ Section \cref{sec:implementation} discusses the implementation in \elpi.
 Although the problem was first observed while working on \rocq's Calculus of
 Inductive Constructions, we introduce a simplified setting to study it more
 easily. In this setting, we consider a language \Fo{} with a rich equational
-theory, and a \Ho{} language with a simpler one.
+theory, and a language \Ho{} with a simpler one.
 
 Both \Fo{} and \Ho{} are encoded in the \elpi language. The syntax of terms is
-shown in \cref{code:common-terms}. Terms of \Fo{} are written as \eI{to}, while
-terms of \Ho{} are written as \eI{tm}. These correspond, respectively, to
+shown in \cref{code:common-terms}. Terms of \Fo{} are called as \eI{otm}, while
+the HOAS encoding of these terms in \Ho{} are written as \eI{mtm}. 
+These correspond, respectively, to
 object-level terms and meta-level terms.
 
-The main difference between these two representations lies in how variables are
-encoded. Variables are associated with a memory address. In \Fo{}, variables are
-first-order and do not carry any scope. In contrast, variables in \Ho{} include a
+The main difference between these two representations is in the way variables
+are encoded. In both cases, a variable is linked to a memory address. However,
+in \Fo{}, variables are first-order objects and they do not carry any notion of
+scope. On the other hand, variables in \Ho{} are equipped with an explicit
 scope, represented as a list of terms.
 
-This encoding is implemented and tested in an \elpi development available at
-\githubUrl.
+This scope is intended to capture the application of meta-level variables to
+terms. By contrast, the constructor \eI{mapp} encodes the application of
+\Fo{} terms at the meta-language level.
+
+This distinction can be seen in the example introduced in the previous section
+for the rule \eI{tc-Provable}. The term \eI{(Qm p)} is represented as
+\eI{muva [Qm, p]}, while the term 
+\eI{~{\PYGZob{}\PYGZob{}}\PYG{l+m}{lp:}\PYG{n+nv}{Q}\PYG{+w}{ }\PYG{l+m}{lp:}\PYG{n+nv}{p}\PYG{p}{\PYGZcb{}\PYGZcb{}}~}
+is encoded as
+\eI{mapp [Q, p]}.
+
+% This encoding is implemented and tested in an \elpi development available at
+% \githubUrl.
 
 \begin{figure}
   \begin{subfigure}{0.47\textwidth}
@@ -266,6 +279,12 @@ terms in \Ho{}.
 
 \subsection{Equational theories and unification}
 
+To reproduce the unification issue in \elpi when dealing with \rocq terms,
+we extend our setting with two main routines: one for unification, and one
+for testing equality between terms. The second routine is required to check
+that the substitution produced by the unification process indeed makes the
+two terms equal.
+
 \paragraphTwo{Term equality: \Eo and \Ee}
 For both languages, we extend the equational theory from ground
 terms to the full language by adding reflexivity for unification
@@ -278,6 +297,8 @@ the standard congruence on terms. Because we use an HOAS
 encoding, these rules also account for $\alpha$-equivalence.
 In addition, \Eo includes rules for $\eta$- and
 $\beta$-equivalence.
+This is because, in the object language, the term \eI{oapp[olam x\ x, con"3"]} 
+and \eI{con"3"} are definitionally equal.
 %
 % \input{code/feq}
 \begin{figure}
@@ -304,13 +325,14 @@ weaker \Ee is, and to identify the four rules that need special
 treatment in the simpulation of \Uo in \Ho.
 For brevity, we omit the code of \eI{beta}:
 it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
-weak-head normal form of \eI{o-app [F | L]}.
+weak-head normal form of \eI{oapp [F | L]}.
 
 \paragraphTwo{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
 
-We write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
-the term $t$ to the variable $X$.
-We write $\sigma t$ for the application of
+We reuse the notations for substitution from \cref{sec:elpi-semantics}:
+we write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
+the term $t$ to the variable $X$,
+we write $\sigma t$ for the application of
 the substitution to a term $t$, and $\sigma X = \{~ \sigma t ~|~ t \in X ~\}$ when
 $X$ is a set of terms.
 We write $\sigma \subseteq \sigma'$ when $\sigma$ is more
@@ -319,9 +341,9 @@ general than $\sigma'$.
 % it provides an assignment.
 % We write $\sigma \cup \sigma'$ to denote the concatenation of
 % two substitutions whose domains are disjoint.
-We shall use $\rho$ for \Fo{} substitutions,
-and $\sigma$ for the \Ho ones.
-For brevity, in this section, we consider
+We will use $\rho$ for representing substitutions in \Fo{},
+and $\sigma$ for the ones in \Ho.
+In this section, we consider
 the substitution for \Fo{} and \Ho{} identical.
 We defer to \cref{sec:grounwork} a more precise description
 pointing out their differences.
@@ -331,22 +353,25 @@ pointing out their differences.
 % Although we provide an implementation of the meta-language unification \Ue
 % in the supplementary material (that we used for testing purposes) we only
 % describe its signature here.
+As the signature of \unify and \matching in \cref{sec:elpi-semantics}, 
 \Ho{}'s unification signature is:
-
+%
 % \input{code/ue_type}
+\begin{center}  
 \input{ho-for-free/img/ue_type.tex}
+\end{center}
 
 \noindent
 We write 
-$\sigma t_1 \Ue \sigma t_2 \mapsto \sigma'$ when
+$(t_1 \Ue t_2)\ \sigma \arr \sigma'$ when
 $\sigma t_1$ and $\sigma t_2$ unify with substitution $\sigma'$.
 $\sigma'$ is a substitution extension of $\sigma$ (see~\cref{def:sub-extension}).
-We write $t_1 \Ue t_2 \mapsto \sigma'$ when
+We write $t_1 \Ue t_2 \arr \sigma'$ when
 the initial substitution $\sigma$ is empty.
 % Note that if $\sigma t_1 \Ue \sigma t_2 \mapsto \sigma'$ then
 % the domains of $\sigma$ and $\sigma'$ are disjoint.
-We write \llambda as the set of terms that are in the pattern-fragment, i.e.
-every unification variable is applied to a list of distinct names.
+We write \llambda as the set of terms that are in the pattern fragment
+(\cref{def:pattern-fragment}).
 
 The specification of a ``good'' unification procedure restricted
 to a domain $\mathcal{D}$ is the following:
@@ -355,7 +380,7 @@ to a domain $\mathcal{D}$ is the following:
   % \forall \rho #3_1 #3_2, %
     % \{#3_1, #3_2\} \subseteq \llambda \Rightarrow %
    #4 \Rightarrow
-      #3_1 #2 #3_2 \mapsto \rho
+      #3_1 #2 #3_2 \arr \rho
         \Rightarrow
           \rho #3_1 #1 \rho #3_2  %
 }}
@@ -366,7 +391,7 @@ to a domain $\mathcal{D}$ is the following:
     #4 \Rightarrow
       % \forall \rho, %
         \rho #3_1 #1 \rho #3_2  %
-          \Rightarrow \exists \rho', #3_1 #2 #3_2 \mapsto \rho' \land \rho' \subseteq \rho
+          \Rightarrow \exists \rho', #3_1 #2 #3_2 \arr \rho' \land \rho' \subseteq \rho
 }}
 
 \begin{proposition}[Good unification]\label{prop:good-unif}
@@ -396,7 +421,7 @@ A term $s$ is said to belong to \foUnifPb if it appears either on the
 left-hand side or on the right-hand side of some unification step
 in \foUnifPb.
 
-% $s \in \foUnifPb \Leftrightarrow \exists p, s \in \foUnifPb_p$.
+% $s \in \foUnifPb \leftrightarrow \exists p, s \in \foUnifPb_p$.
 % \footnote{If the same rule is used multiple times in a run we
 % consider as many copies as needed of the terms composing the
 % rules, with fresh unification variables each time. Also, we do not
@@ -409,25 +434,25 @@ empty substitution $\rho_0$ produces the final
 substitution $\rho_n$, which is the result of the
 logic program execution.
 %
-\newcommand{\C}[4]{\ensuremath{\langle #1 \rangle}\mapsto(#2,#3,#4)}
-\newcommand{\D}[4]{\ensuremath{\langle #1,#2,#3 \rangle^{-1}\mapsto #4}}
+\newcommand{\C}[4]{\ensuremath{\langle #1 \rangle}\arr(#2,#3,#4)}
+\newcommand{\D}[4]{\ensuremath{\langle #1,#2,#3 \rangle^{-1}\arr #4}}
 \newcommand{\progress}{\ensuremath{\mathrm{progress}}\xspace}
 \newcommand{\fstep}{\ensuremath{{\mathrm{step}}_o}\xspace}
 \newcommand{\hstep}{\ensuremath{{\mathrm{step}}_m}\xspace}
 \newcommand{\frun}{\ensuremath{{\mathrm{run}}_o}\xspace}
 \newcommand{\hrun}{\ensuremath{{\mathrm{run}}_m}\xspace}
-\newcommand{\stepF}[4]{\ensuremath{\fstep(#1,#2,#3) \mapsto #4}}
+\newcommand{\stepF}[4]{\ensuremath{\fstep(#1,#2,#3) \arr #4}}
 \newcommand{\stepFD}[4]{%
-\ensuremath{#3 #1_{#2_l} \Uo #3 #1_{#2_r} \mapsto #4}}
-\newcommand{\stepH}[6]{\ensuremath{\hstep(#1,#2,#3,#4) \mapsto (#5, #6)}}
+\ensuremath{(#1_{#2_l} \Uo #1_{#2_r})\ #3 \arr #4}}
+\newcommand{\stepH}[6]{\ensuremath{\hstep(#1,#2,#3,#4) \arr (#5, #6)}}
 \newcommand{\stepHD}[6]{\ensuremath{%
-#3 #1_{#2_l} \Ue #3 #1_{#2_r} \mapsto #4 \land \progress(#6,#4) \mapsto (#6',#5)}}
-\newcommand{\runF}[3]{\ensuremath{\frun(#1,#2) \mapsto #3_{#2}}}
-\newcommand{\runFx}[3]{\ensuremath{\frun(#1,#2) \mapsto #3}}
+#3 #1_{#2_l} \Ue #3 #1_{#2_r} \arr #4 \land \progress\ (#6,#4) \arr (#6',#5)}}
+\newcommand{\runF}[3]{\ensuremath{\frun(#1,#2) \arr #3_{#2}}}
+\newcommand{\runFx}[3]{\ensuremath{\frun(#1,#2) \arr #3}}
 \newcommand{\runFD}[2]{\ensuremath{%
 \bigwedge_{p = 1}^{#2} \stepF{#1}{p}{\rho_{p-1}}{\rho_{p}}}}
-\newcommand{\runH}[3]{\ensuremath{\hrun(#1,#2) \mapsto #3_{#2}}}
-\newcommand{\runHx}[3]{\ensuremath{\hrun(#1,#2) \mapsto #3}}
+\newcommand{\runH}[3]{\ensuremath{\hrun(#1,#2) \arr #3_{#2}}}
+\newcommand{\runHx}[3]{\ensuremath{\hrun(#1,#2) \arr #3}}
 \newcommand{\runHD}[3]{\ensuremath{%
 \bigwedge_{p = 1}^{#2} \stepH{#1}{p}{\sigma_{p-1}}{#3_{p-1}}{\sigma_{p}}{#3_p}}}
 \newcommand{\deff}{\ensuremath{\stackrel{{\scriptscriptstyle def}}{=\!=\!\!\!=}}}
@@ -444,14 +469,15 @@ $$
 $$
 
 \noindent
-In order to simulate a logic program we start by compiling
-\foUnifPb to \hoUnifPb, i.e.
+In order to simulate the execution of \frun in \Ho, we start by converting
 each \Fo{}-term $s \in \foUnifPb$ is translated to a \Ho{}-term $t \in \hoUnifPb$.
 We write this translation as $\C{s}{t}{m}{l}$. The implementation of the compiler
 is detailed in \cref{sec:simulation,sec:eta,sec:beta}, here we just point
 out that it additionally produces a variable map $m$ and a list of links $l$.
-The variable map connects unification variables in \Ho to variables
-in \Fo{} and is used to ``decompile'' the substitution, that is written
+The final goal of this simulation in \Ho is to generate a substitution which is 
+a valid substitution for \Fo. Therefore, we need a 
+variable map that connects unification variables in \Ho to variables
+in \Fo{} and is used to ``decompile'' the substitution. Decompilation is noted
 $\D{\sigma}{m}{l}{\rho}$. Links are an accessory piece of information whose
 description is deferred to \cref{sec:nutshell}.
 
@@ -463,7 +489,7 @@ $$
 \stepH{\hoUnifPb}{p}{\sigma}{\linkStore}{\sigma''}{\linkStore'} \deff\vspace{2pt}\\
   \qquad\stepHD{\hoUnifPb}{p}{\sigma}{\sigma'}{\sigma''}{\linkStore}\vspace{2pt}\\
   \runH{\foUnifPb}{n}{\rho} \deff \vspace{2pt}\\
-  \qquad \hoUnifPb \times \mapStore \times \linkStore_0 = \{ (t,m,l) | s \in \foUnifPb, \C{s}{t}{m}{l} \}\vspace{2pt}\\
+  \qquad \hoUnifPb \times \mapStore \times \linkStore_0 = \{ (t,m,l) \mid s \in \foUnifPb, \C{s}{t}{m}{l} \}\vspace{2pt}\\
   \qquad \runHD{\hoUnifPb}{n}{\linkStore}\vspace{2pt}\\
   \qquad \D{\sigma_{n}}{\mapStore}{\linkStore_{n}}{\rho_{n}}
 \end{array}
@@ -493,8 +519,8 @@ and finally decompiles $\sigma_n$ to obtain $\rho_n$.
 
 We claim:
 
-\begin{proposition}[Run equivalence]\label{prop:simulation}
-$\forall \foUnifPb, \forall n,$ if $~\foUnifPb \subseteq \llambda$
+\begin{proposition}[Run equivalence]\label{prop:simulation} $\forall \foUnifPb,
+\forall n,$ if all terms in \foUnifPb belongs to \llambda
 $$
   \runFx{\foUnifPb}{n}{\rho} \land
   \runHx{\foUnifPb}{n}{\rho'}
@@ -508,11 +534,11 @@ That is, the two executions give equivalent results if all terms in
 \foUnifPb are in the pattern fragment. Moreover:
 
 \begin{proposition}[Simulation fidelity]\label{prop:fidelity}
-In the context of  \frun and \hrun, if $~\foUnifPb \subseteq \llambda$ we have that
+In the context of  \frun and \hrun, if all term in \foUnifPb belongs to $\llambda$ we have that
 $\forall p \in 1 \ldots n,$
 $$
 \stepF{\foUnifPb}{p}{\rho_{p-1}}{\rho_p}
-\Leftrightarrow
+\leftrightarrow
 \stepH{\hoUnifPb}{p}{\sigma_{p-1}}{\linkStore_{p-1}}{\sigma_p}{\linkStore_p}
 $$
 \end{proposition}
@@ -532,7 +558,7 @@ $\rho_{p-1} \foUnifPb_{p} \subseteq \llambda$
 (even if $\;\foUnifPb_{p} \not\subseteq \llambda$)
 then
 $$
-\stepF{\foUnifPb}{p}{\rho_{p-1}}{\rho_p} \Leftrightarrow
+\stepF{\foUnifPb}{p}{\rho_{p-1}}{\rho_p} \leftrightarrow
 \stepH{\hoUnifPb}{p}{\sigma_{p-1}}{\linkStore_{p-1}}{\sigma_{p}}{\linkStore_p}
 $$
 \end{proposition}
@@ -566,15 +592,22 @@ making the second problem re-enter \llambda.
 
 \subsection{The solution (in a nutshell)}
 \label{sec:nutshell}
-A term $s$ is compiled to a term $t$ where every
-``problematic'' subterm $e$ is replaced by a fresh unification variable $h$
-with an accessory \emph{link} that represents a suspended unification problem
-$h \Ue e$. As a result, \Ue is ``well behaved'' on $t$, in the sense that
-it does not contradict \Eo as it would otherwise do on the
-``problematic'' sub-terms.\\
-We now define ``problematic'' and ``well behaved'' more formally.
-We use the $\Diamond$ symbol since it stands for ``possibly'' in modal logic
-and all problematic terms are characterized by some uncertainty.
+
+The role of the compiler is to translate terms from the object language into
+terms of the meta-language.
+
+In particular, a term $s$ is compiled into a term $t$ in which every
+``problematic'' subterm $e$ is replaced by a fresh unification variable $h$.
+Each such variable is equipped with an additional \emph{link}, which encodes a
+suspended unification problem between $h$ and $e$. In this way, the
+unification procedure $\Ue$ behaves well on $t$, since it no longer
+contradicts with $\Eo$ in the way it would on the original problematic
+subterms.
+
+We now give a more precise definition of what we call ``problematic'' and
+``well behaved''. We use the symbol $\Diamond$, which in modal logic means
+``possibly'', since problematic terms are characterized by a certain
+uncertainty.
 
 \begin{definition}[\maybebeta]\label{def:maybebeta}
   \maybebeta is the set of terms of the form $F \appsep x_1 \ldots x_n$
@@ -582,11 +615,11 @@ and all problematic terms are characterized by some uncertainty.
 \end{definition}
 
 \noindent
-An example of a \maybebeta{} term is the application $F \appsep x$.
-This term is problematic since the application node of 
-its syntax tree cannot be used to justify a
-unification failure, i.e. by properly instantiating $F$, the term
-head constructor may become a $\lambda$, or a constant, or a name, or remain an application.
+An example of a \maybebeta{} term is the application $F \appsep x$. This term is
+problematic since the application node of its syntax tree cannot be used to
+justify a unification failure, i.e. by properly instantiating $F$, the term head
+constructor may become a $\lambda$, or a constant, or a name, or remain an
+application.
 
 \begin{definition}[\maybeeta]\label{def:maybeeta}
   \maybeeta is the set of terms $\lambda x.s$ such that $\exists \rho, \rho (\lambda x.s)$
@@ -640,7 +673,7 @@ we write $\subterm{X} = \bigcup_{t\in X} \subterm{t}$ when $X$ is a set of terms
 \begin{definition}[Well behaved set]
 Given a set of terms $X$, % \subseteq \Ho{}$,
 $$
-\wellb(X) \Leftrightarrow \forall t \in \subterm{X},
+\wellb(X) \leftrightarrow \forall t \in \subterm{X},
 t \not\in (\maybebeta{} ~\cup~ \maybeeta{} ~\cup~ \notllambda{})
 $$
 \end{definition}
@@ -661,7 +694,7 @@ We claim our compiler validates the following properties:
   then 
   $$
     \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \Rightarrow
-    t_1 \Ue t_2 \mapsto \sigma \label{prop:compilation-w}
+    t_1 \Ue t_2 \arr \sigma \label{prop:compilation-w}
   $$
 \end{proposition}
 
@@ -690,10 +723,10 @@ $\forall \hoUnifPb, \forall \linkStore, \forall p, \forall \sigma, \forall \sigm
 $$
 \begin{array}{l}
 \wellb(\sigma\hoUnifPb) \land
-  \sigma\hoUnifPb_{p_l} \Ue \sigma\hoUnifPb_{p_r} \mapsto {\sigma'}
+  \sigma\hoUnifPb_{p_l} \Ue \sigma\hoUnifPb_{p_r} \arr {\sigma'}
   \Rightarrow \wellb(\sigma' \hoUnifPb)\\
 \wellb(\sigma\hoUnifPb) \land
-  \progress(\linkStore,\sigma) \mapsto (\_,\sigma')
+  \progress(\linkStore,\sigma) \arr (\_,\sigma')
   \Rightarrow \wellb(\sigma' \hoUnifPb)
 \end{array}
 $$
@@ -1154,13 +1187,13 @@ definitions:
 
 \begin{definition}[$\wellb_\beta$]
   $
-  \wellb_\beta(X) \Leftrightarrow \forall t \in \subterm{X}, t \not\in (\maybeeta{} ~\cup~ \notllambda{})
+  \wellb_\beta(X) \leftrightarrow \forall t \in \subterm{X}, t \not\in (\maybeeta{} ~\cup~ \notllambda{})
   $
   \end{definition}
   
 \begin{definition}[$\wellb_{\beta \eta}$]
   $
-  \wellb_{\beta \eta}(X) \Leftrightarrow \forall t \in \subterm{X}, t \not\in \notllambda{}
+  \wellb_{\beta \eta}(X) \leftrightarrow \forall t \in \subterm{X}, t \not\in \notllambda{}
   $
 \end{definition}
 
@@ -2278,7 +2311,7 @@ This construction enforces \cref{inv:beta-rhs}.
 
 % \begin{definition}[$\wellb_{\beta \eta \llambda}$]
 %   $
-%   \wellb_{\beta \eta}(X) \Leftrightarrow \forall t \in \subterm{X}, t \not\in \notllambda{}
+%   \wellb_{\beta \eta}(X) \leftrightarrow \forall t \in \subterm{X}, t \not\in \notllambda{}
 %   $
 % \end{definition}
 
