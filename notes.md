@@ -62,7 +62,8 @@ TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow 
 TODO: minted.py for elpi with pred and infix notation
 
 TODO: minted: fix `type lamo` in fig 4.1  
-TODO: minted: fix `pred step_m` in sec 4.2.4
+TODO: minted: fix `pred step_m` in sec 4.2.4  
+TODO: Continuare il capitolo sulla ho-for-free da pagina 60
 
 Aggiungere ref : qi2009 e vink1989
 

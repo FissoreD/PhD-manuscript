@@ -1,18 +1,27 @@
 \chapter{Introduction}
 
 Automation is a central component of modern proof assistants such
-as \rocq. Mechanisms like type-class resolution allow the system
-to infer implicit arguments and build proof terms with limited
-user input. Operationally, this process can be seen as a form of
-logic programming, where goals are solved by searching for
-instances in a database. This view suggests using a meta-language
-with strong support for search and unification.
+as \rocq. Mechanisms like the elaborator allow the system
+to infer implicit piece of information by following a system of
+inference rules stored in a knowledge base.
+Type-class resolution is one of the elaborator's tasks, they are
+used for symbol overloading: the same symbol has several different
+meaning depending to the context in which it is used. The solver
+is charged in finding the right implementation.
 
-In this work, we study the integration of \rocq with the
-logic-programming language \elpi. The language follows a
-\prolog-like execution model based on higher-order unification,
-backtracking, and control operators such as cut. These features
-make it suitable for implementing a type-class solver for \rocq in \elpi.
+Operationally, this process can be seen as a form of
+logic programming, where goals are solved by searching for
+instances in a database, potentially backtracking in the search tree if a failure
+is incountered. It seems quite natural to investigate how this same approach
+can be delegated to a meta-language based on logic programming where
+this inference model is natively handled by the interpreter of the language.
+
+In this work, we study the integration of the \rocq proof assistant
+with an alternative type-class solver written in the meta-programming
+language \elpi. This language follows a \prolog-like execution model,
+based on higher-order unification, backtracking, and control
+operators such as cut. These features make it well suited for our
+goal.
 
 A first point we emphasize is the simplicity of this approach.
 A basic compiler for type classes can be written in only a few
@@ -21,24 +30,31 @@ interpreter. We then extend this basic translation to support more
 complex instances as found in practice, and evaluate the resulting
 solver against the native one of \rocq.
 
-A difficulty arises from the mismatch between the object language
-and the meta-language. Although both support higher-order
-unification and $\beta\eta$-conversion, the representation of
-terms in \elpi differs from that of \rocq. As a result, some terms
-that unify in \rocq may fail to unify in \elpi after thier translation. A direct
-reuse of meta-level unification is therefore not sufficient.
+However, this approach also has limitations. A difficulty comes from
+the mismatch between the object language and the meta-language.
+Although both support higher-order unification and
+$\beta\eta$-conversion, the higher-order abstract syntax used to
+represent \rocq terms in \elpi encodes $\lambda$-abstractions and
+applications using rigid constructors. This introduces additional
+unification constraints that the \elpi algorithm cannot handle in
+general.
 
-To overcome this issue, we introduce a compilation scheme that
+As a result, some terms that unify in \rocq may fail to unify in
+\elpi after translation. Therefore, a direct reuse of meta-level
+unification is not sufficient.
+
+To overcome this issue, we have studied a compilation scheme that
 preserves most of the structure of compiled terms while isolating
-problematic parts. These subterms are replaced only when needed
+problematic subterms. These subterms are replaced only when needed
 and recorded as \emph{links}, which represent delayed constraints.
 They are checked during execution, allowing us to recover the
 intended behavior without reimplementing unification.
 
-This design is also motivated by efficiency. Since most of the
-term structure is kept, the execution can benefit from indexing
-and mode unification strategy provided by \elpi. This is important for
-type-class resolution, where the search space can be large.
+This design is also motivated by efficiency. Since most of the term
+structure is preserved, we can still exploit features of the \elpi
+language such as indexing and mode-directed unification. This is
+particularly important for type-class resolution, where the search
+space can be large.
 
 An additional contribution of this work is a determinacy analysis
 for \elpi programs. Determinacy aims to ensure that certain
@@ -54,22 +70,18 @@ Handling cut is essential, as it can enforce
 deterministic behavior but interacts in subtle ways with the
 logical reading of programs.
 
-To support this development, we also study a first-order fragment
-of the language, where terms do not contain higher-order
-abstractions. In this setting, unification is simpler and can be
-treated formally. We mechanize (in \rocq) the determinacy checker for this
-fragment and prove its main properties.
+We have started formalizing the expected properties of the static
+checker in the \rocq proof assistant by encoding the \elpi interpreter.
+To support this development, we restrict the model to a first-order
+fragment of the language, where terms do not contain higher-order
+variables. In this setting, the absence of propositional variables
+simplifies the formalization and allows us to produce a fully
+mechanized proof.
 
 This mechanization provides a formal basis for the analysis and
 serves as a reference for the full algorithm. Even if it does not
 cover all higher-order features, it captures the essential
 behavior and increases confidence in the approach.
-
-% Overall, the contributions combine a practical compilation
-% technique for type-class resolution with a determinacy analysis
-% for \elpi. Together, they provide both an efficient
-% implementation and a better understanding of the behavior of the
-% resulting programs.
 
 \section{Contributions and structure of the thesis}
 
