@@ -378,20 +378,20 @@ to a domain $\mathcal{D}$ is the following:
 
 \newcommand{\unifcorrectX}[4]{\ensuremath{
   % \forall \rho #3_1 #3_2, %
-    % \{#3_1, #3_2\} \subseteq \llambda \Rightarrow %
-   #4 \Rightarrow
+    % \{#3_1, #3_2\} \subseteq \llambda \to %
+   #4 \to
       #3_1 #2 #3_2 \arr \rho
-        \Rightarrow
+        \to
           \rho #3_1 #1 \rho #3_2  %
 }}
 
 \newcommand{\unifcompleteX}[4]{\ensuremath{
   % \forall #3_1 #3_2, %
-    % \{#3_1, #3_2\} \subseteq \llambda \Rightarrow %
-    #4 \Rightarrow
+    % \{#3_1, #3_2\} \subseteq \llambda \to %
+    #4 \to
       % \forall \rho, %
         \rho #3_1 #1 \rho #3_2  %
-          \Rightarrow \exists \rho', #3_1 #2 #3_2 \arr \rho' \land \rho' \subseteq \rho
+          \to \exists \rho', #3_1 #2 #3_2 \arr \rho' \land \rho' \subseteq \rho
 }}
 
 \begin{proposition}[Good unification]\label{prop:good-unif}
@@ -524,7 +524,7 @@ We claim:
 $$
   \runFx{\foUnifPb}{n}{\rho} \land
   \runHx{\foUnifPb}{n}{\rho'}
-  \Rightarrow
+  \to
   \forall s \in \foUnifPb, \rho s \Eo \rho' s
 $$
 \end{proposition}
@@ -661,8 +661,8 @@ We write $\subterm{t}$ for the set of sub-terms of $t$, and
 %$$
 %\begin{array}{l}
 %t \in \subterm{t}\\
-%t = f t_1\ldots t_n \Rightarrow \subterm{t_i} \subseteq \subterm{t} \land f \in \subterm{t}\\
-%t = \lambda x.t' \Rightarrow \subterm{t'} \subseteq \subterm{t}\\
+%t = f t_1\ldots t_n \to \subterm{t_i} \subseteq \subterm{t} \land f \in \subterm{t}\\
+%t = \lambda x.t' \to \subterm{t'} \subseteq \subterm{t}\\
 %\end{array}
 %$$
 %\end{definition}
@@ -685,62 +685,68 @@ We claim our compiler validates the following properties:
 \begin{proposition}[\wellb-enforcing]\label{prop:w-enforcing}
   Given a term $s$ in \Fo{}, 
   $$
-    \C{s}{t}{m}{l} \Rightarrow \wellb(t)
+    \C{s}{t}{m}{l} \to \wellb(t)
   $$
 \end{proposition}
 
-\begin{proposition}
+\begin{lemma}\label{prop:xxx}
   Given two terms $s_1$ and $s_2$, if $\;\exists \rho, \rho s_1 \Eo \rho s_2$,
   then 
   $$
-    \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \Rightarrow
+    \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \to
     t_1 \Ue t_2 \arr \sigma \label{prop:compilation-w}
   $$
-\end{proposition}
+\end{lemma}
+
+In other words, \cref{prop:w-enforcing} states that any term $s$ in \Fo is
+compiled into a term $t$ in \Ho that satisfies \wellb, even when $s$ itself
+does not satisfy \wellb.
 
 % TODO: ENRICO check
-% \begin{proof}[Proof sketch]
-% The proof can be done by induction of $s_1$. The interesting cases are the
-% application of a variable to a list of terms and $\lambda$-abstractions. In the
-% first case, we are either considering a \maybebeta or a \notllambda term, in
-% both situation, the compiled term is replaced with a fresh meta variable 
-% having in the scope all the .
-% \end{proof}
+\begin{proof}[Proof sketch]
+By \cref{prop:w-enforcing} and the (still high-level) definition of term
+compilation, we know that $t_1$ and $t_2$ belong to \wellb(t). This means
+that $t_1$ and $t_2$ are the HOAS representations of the source language
+terms $s_1$ and $s_2$, where problematic subterms are replaced by fresh
+variables.
+By hypothesis, there exists a substitution that makes $s_1$ and $s_2$
+equal. It follows that their compiled forms, $t_1$ and $t_2$, must unify.
+\end{proof}
 
 \noindent
-In other words the compiler outputs terms in \wellb even if its
-input is not. And if two terms can be unified in the source language
-then their images can also be unified in the target language. 
-Note that the property holds for any substitution, not necessarily a most
-general one: when applied to terms in \wellb
-the meta-language unification 
-\Ue{} agrees with the object-language equality \Eo. Note that a compiler that
-translate all terms to unification variables would satisfy this
-property, but would certainly fail to verify \cref{prop:fidelity}.
+This theorem states that if two terms can be unified in the source language,
+then their compiled forms can also be unified in the target language. Note that
+a compiler that maps every term to a unification variable would satisfy
+\cref{prop:xxx}, but would clearly fail to meet \cref{prop:fidelity}.
 
 \begin{proposition}[\wellb{}-preservation]\label{prop:w-preservation}
-$\forall \hoUnifPb, \forall \linkStore, \forall p, \forall \sigma, \forall \sigma'$
+$\forall \hoUnifPb\ \linkStore\ p\ \sigma\ \sigma',$
 $$
 \begin{array}{l}
 \wellb(\sigma\hoUnifPb) \land
   \sigma\hoUnifPb_{p_l} \Ue \sigma\hoUnifPb_{p_r} \arr {\sigma'}
-  \Rightarrow \wellb(\sigma' \hoUnifPb)\\
+  \to \wellb(\sigma' \hoUnifPb)\\
 \wellb(\sigma\hoUnifPb) \land
   \progress(\linkStore,\sigma) \arr (\_,\sigma')
-  \Rightarrow \wellb(\sigma' \hoUnifPb)
+  \to \wellb(\sigma' \hoUnifPb)
 \end{array}
 $$
 \end{proposition}
 
 \noindent
-Proposition \cref{prop:w-preservation} is key to proving \cref{prop:simulation,prop:fidelity}.
-Informally, it says that the problematic terms moved on the side by the compiler
-are not reintroduced by \hstep, hence \Ue{} can continue to operate properly.
-In \cref{sec:llam,sec:eta,sec:beta}
-we describe how to %the compiler
-recognize terms in \maybebeta, \maybeeta and
-\notllambda and how \progress takes care of links and how it preserves \wellb
-and ensures \cref{prop:simulation,prop:fidelity,prop:fidelity-recovery}.
+\Cref{prop:w-preservation} is central for proving
+\cref{prop:simulation,prop:fidelity}. Informally, it states that the
+problematic subterms set aside by the compiler are not reintroduced,
+neither by \Ue nor by the progress relation. As a consequence, each
+\hstep, whose definition relies on these two notions, produces terms that
+still belong to \wellb.
+
+In the next sections of this chapter, namely
+\cref{sec:llam,sec:eta,sec:beta}, we explain how the compiler
+recognizes terms in \maybebeta, \maybeeta, and \notllambda,
+respectively. We also focus on how \progress handles links, and how it
+preserves \wellb while ensuring
+\cref{prop:simulation,prop:fidelity,prop:fidelity-recovery}.
 
 We prove \cref{prop:fidelity} in
 \cref{sec:eta,sec:beta,sec:invariant1}
@@ -760,10 +766,11 @@ We discuss \cref{prop:fidelity-recovery} in \cref{sec:beta}.
 \section{Basic compilation and simulation}
 \label{sec:simulation}
 
-In the following subsections, we show our encoding in \elpi representing the
-memory menagement, how variable in \Fo and \Ho are assigned, allocated and
-mapped for one language to the other. We aim to show a first simple compiler
-from terms in \Fo to term in \Ho.
+In this section, we present our encoding in \elpi for memory
+management, and explain how variables in \Fo and \Ho are assigned,
+allocated, and mapped from one language to the other. At the end of the
+section, we introduce a first simple compiler translating terms from
+\Fo to \Ho.
 
 \subsection{Memory map (\mapStore) and substitution (\texorpdfstring{$\rho$ and $\sigma$}{rho and sigma})}
 \label{sec:grounwork}
@@ -778,32 +785,54 @@ The memory and its associated operations are described below:
 \input{ho-for-free/img/mem_types.tex}
 
 \noindent
-If a memory cell is \eI{none}, then the corresponding unification variable
-is not set. \eI{assign} sets an unset cell to the given value, while
-\eI{new} finds the first unused address and sets it to \eI{none}.
+If a memory cell is \eI{none}, then the corresponding unification
+variable is unset. The operation \eI{assign} sets an unset cell to a
+given value, while \eI{new} selects the first unused address and
+initializes it with \eI{none}.
 
-Since each \Ho unification variable occurs together with a scope,
-its assignment needs to be abstracted over it to enable the
-instantiation of the same assignment to different scopes.
-This is expressed by the \eI{inctx} container, and in particular
-its \eI{abs} binding constructor.
+Since each unification variable in \Ho appears together with a scope,
+its assignment must be abstracted over that scope. This allows the same
+assignment to be instantiated in different scopes. This abstraction is
+captured by the \eI{inctx} container, in particular by its binding
+constructor \eI{abs}.
 
 \input{ho-for-free/img/ho_subst.tex}
 
-\noindent
-A solution to a \Fo{} variable is, instead, a plain term, that is, \eI{fsubst}
-is an abbreviation for \eI{mem to}.
+For example, in a context where $y$ is a bound variable and $X$ a
+unification variable, the unification $X_y \Ue \lambda z. y$ yields
+the assignment $\{X_y \mapsto \lambda z. y \}$, which corresponds in \elpi
+concrete syntax to \eI{abs y\ val (mlam z\ y)}.
+
+Intuitively, the \eI{abs} node represents abstraction in the
+meta-language, while \eI{mlam} encodes object-level abstraction of in the HOAS
+of \Ho, in the same way \eI{muva} represents application of
+the meta-language, and \eI{mapp} encodes object-level applications in the HOAS
+of \Ho.
+
+In contrast, assignments for variables in \Fo are represented as plain
+terms. In particular, \eI{fsubst} is an abbreviation for
+\eI{memory mtm}. In this setting, the unification
+$X \appsep y \Uo \lambda z. y$ produces the assignment
+$\{X \mapsto \lambda y z. y\}$, which corresponds to \eI{olam y\ olam z\ y} in
+\elpi concrete syntax.
+
+
 %We call \eI{fsubst} the memory of \Fo{}, while we call \eI{subst}
 %the one of \Ho.
 %
-The compiler establishes a mapping between variables of the two languages.
+The compiler defines a mapping between variables of the two languages,
+so as to preserve the correspondence between variables in \Fo and
+variables in \Ho. This mapping is represented in the following code
+snippet.
 
 \input{ho-for-free/img/comp_base_types.tex}
 
 \noindent
-Each \eI{mvariable} is stored in the mapping together with
-its arity (a number) so that the code of \cref{clause:malloc} below can preserve
-the following property:
+The variable mapping store is called \eI{mmap} and consists of a list
+of \eI{mapping}. Each mapping relates variables of the object language
+(\eI{ovariable}) with variables of the meta-language
+(\eI{mvariable}). We associate a number to each \eI{mvariable} in order
+to record its arity.
 
 \begin{invariant}[Unification-variable arity]\label{inv:uvaarity}
   Each variable \eI{A}
@@ -825,40 +854,32 @@ of arguments, the compiler generates multiple mappings for it, on a first
 approximation, and then ensures the mapping is bijective by introducing
 \linketa; this detail is discussed in section \cref{sec:invariant1}.
 
-%Applying the substitution corresponds to dereferencing a term with respect to
-%the memory.
-%  To ease the comparison we split \Fo{} dereferencing into a
-% \eI{fder} step and a \eI{napp} one. The former step replaces references
-% to memory cells that are set with their values, and has a corresponding
-% operation in \Ho, namely \eI{deref}. On the contrary \eI{napp}
-% has no corresponding operation in \Ho, and only ensures that
-% terms of the form <<\eI{o-app[o-app L1|L2]}>> are replaced by
-% <<\eI{o-app L3}>> where \eI{L3} is the concatenation of \eI{L1}
-% and \eI{L2}. The reasons for this asymmetry is
-% that an \eI{o-app} node with a flexible head is always mapped
-% to a \eI{uva} (as per \cref{sec:simulation,sec:beta}),
-% preventing nested applications to materialize.
-% \input{code/fderef}
-
-It is worth examining the code of \eI{deref}, that
-applies the substitution to a \Ho{} term. Notice how assignments are moved
-to the current scope, i.e. the \eI{abs}-bound variables are renamed
-with the names in the scope of the unification variable occurrence.
-
-\input{ho-for-free/img/deref.tex}
+It is worth examining the code of the application of substitution to terms in
+\Ho. This is called \eI{deref} and implements \cref{def:deref}. Notice how
+assignments are moved to the current scope, i.e. the \eI{abs}-bound variables
+are renamed with the names in the scope of the unification variable occurrence.
 
 \noindent
-Note that \eI{move} strongly relies on invariant \cref{inv:uvaarity}: the length
-of the arguments of all occurrences of a unification variable is the same. Hence,
-they have the same simple type for the meta-level, and therefore the number of
-\eI{abs} nodes in the assignment matches that length.
-This guarantees that \eI{move} never fails.
+\begin{minipage}{0.64\textwidth}
+  \noindent
+  \input{ho-for-free/img/deref.tex}
+\end{minipage}
+\begin{minipage}{0.35\textwidth}
+  \input{ho-for-free/img/move.tex}  
+\end{minipage}
 
-\input{ho-for-free/img/move.tex}
+\mvspace
 
-We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
-<<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
-for <<\eI{lam x\lam y\y}>>.
+Note that \eI{move} relies crucially on invariant \cref{inv:uvaarity},
+which ensures that all occurrences of a unification variable are
+applied to argument lists of the same length. As a consequence, these
+occurrences share the same simple type at the meta-level, and the
+number of \eI{abs} nodes in the resulting assignment matches this
+length.
+
+% We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
+% <<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
+% for <<\eI{lam x\lam y\y}>>.
 
 \subsection{Links (\linkStore)}
 
@@ -892,9 +913,9 @@ In the examples we represent links as equations
 under a context.
 The equality sign is subscripted with the
 kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
-\begin{elpicode}
-abs x\ val (link-llam (uva A [x]) (app[uva F [x], con "a"]))
-\end{elpicode}
+\begin{center}
+\eI{abs x\ val (link-llam (uva A [x]) (app[uva F [x], con "a"]))}
+\end{center}
 
 % The first three rules unify terms with same rigid heads, and
 % call the unification relation on the sub-terms. If $t_1$ (resp. $t_2$) is an

@@ -10,16 +10,20 @@ def clean_line(_):
         l = re.sub("==l",r"~$\\Ue$~",l) 
         l = re.sub("==m",r"~$\\Ee$~",l) 
         l = re.sub("===o",r"~$\\Uo$~",l)
+        l = re.sub(r">=llam",r"~$=_\\beta$~",l)
+        l = re.sub(r">=eta",r"~$=_\\eta$~",l)
         l = re.sub("==o",r"~$\\Eo$~",l)
         l = re.sub(".*% *HIDE.*\n","",l)
         l = re.sub(r"\bz\b","0",l)
-        l = re.sub(r"<->","~$\\\\leftrightarrow$~",l)
+        l = re.sub(r"\bhstep\b","~\\\\hstep~",l)
+        l = re.sub(r"<->","~$\\\\mapsto$~",l)
         l = re.sub(r"->","~$\\\\to$~",l)
         l = re.sub("% label: (.*).* cnt: (.*)",r"~\\customlabel{\g<1>}{(\g<2>)}~",l)
         if l.strip().startswith("type (") or l.strip().startswith("pred ("):
             l = re.sub(r"( [a-zA-Z]+[^)])", "~\\\\PYG{k+kt}{\g<1>}~",l)
             l = l.replace("\PYG{k+kt}{ type }", "\PYG{k+kd}{ type }")
             l = l.replace("\PYG{k+kt}{ pred }", "\PYG{k+kd}{ pred }")
+            l = re.sub("^pred ", "~\\\\PYG{k+kd}{pred }~", l)
         return l
     return f
 
