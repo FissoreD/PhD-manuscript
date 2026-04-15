@@ -914,7 +914,7 @@ under a context.
 The equality sign is subscripted with the
 kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
 \begin{center}
-\eI{abs x\ val (link-llam (uva A [x]) (app[uva F [x], con "a"]))}
+\eI{abs x\ val (uva A [x] ~$=_{\llambda}$~ app[uva F [x], con "a"])}
 \end{center}
 
 % The first three rules unify terms with same rigid heads, and
@@ -962,57 +962,81 @@ kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
 \subsection{Compilation}
 \label{sec:compilation}
 
-The simple compiler described in this section serves as a base for the
-extensions in \cref{sec:llam,sec:eta,sec:beta}.
-Its main task is to beta normalize the term and map one syntax tree to
-the other.
-In order to bring back the substitution from \Ho{} to \Fo{} the compiler
-builds a ``memory map'' connecting the \Fo{} variables to the \Ho ones.
-% using the routine \cref{clause:malloc}.
+\begin{figure}
 
-The signature of the \eI{comp} predicate below allows for the generation of
-links (suspended unification problems), which plays no role in this section
-but plays a major role in \cref{sec:llam,sec:eta,sec:beta}.
+  \begin{subfigure}{1\textwidth}    
+    \input{ho-for-free/img/comp_base.tex}%
+    \vspace{-15pt}
+    \caption{Recursive compilation on terms}
+    \label{fig:comp-fo}
+  \end{subfigure}
 
-\mvspace
-\inlinefigure{%
-  \input{ho-for-free/img/comp_base.tex}%
-  \vspace{-18pt}
-  \captionof{figure}{First-order compilation}
-  \label{fig:comp-fo}
-}
+  \vspace{.5em}
 
-\input{ho-for-free/img/compile.tex}
+  \begin{subfigure}{1\textwidth}    
+    \input{ho-for-free/img/comp_lam.tex}%
+    \vspace{-15pt}
+    \caption{Compilation of $\lambda$-abstractions}
+    \label{fig:comp-lam}
+  \end{subfigure}
 
-\noindent
-With respect to \cref{sec:problem-statement}, the signature also allows
-for updates to the substitution.
-The code above uses that possibility
-in order to allocate space for the variables, i.e. it sets their memory
-address to \eI{none} (a detail not worth mentioning in the
-previous sections).
+  \vspace{.5em}
 
-\mvspace
-\inlinefigure{%
-  \input{ho-for-free/img/comp_lam.tex}%
-  \vspace{-18pt}
-  \captionof{figure}{Compilation of $\lambda$-abstractions}
-  \label{fig:comp-lam}
-}
+  \begin{subfigure}{1\textwidth}    
+    \input{ho-for-free/img/comp_close_links.tex}%
+    \vspace{-15pt}
+    \caption{Close links}
+    \label{fig:close-links}
+  \end{subfigure}
 
-\noindent
-In the code above, the auxiliary predicate \eI{fold6} folds a predicate
-with three accumulators (the memory map, the links and the substitution)
-over a lists to obtain a new list and the final values of the
-accumulators.
+  \vspace{.5em}
 
-The auxiliary function \eI{close-links} tests if the bound variable
-\eI{v} really occurs in the link. If it does, the link is wrapped into
-an additional \eI{abs} node binding \eI{v}. In this way links generated
-deep inside the compiled terms can be moved outside their original context
-of binders.
+  \begin{subfigure}{1\textwidth}    
+    \input{ho-for-free/img/compile.tex}%
+    \vspace{-15pt}
+    \caption{Entry point}
+    \label{fig:comp-entry-point}
+  \end{subfigure}
+  \caption{First-order compiler}
+  \label{fig:comp-fo-all}
+\end{figure}
 
-\input{ho-for-free/img/comp_close_links.tex}
+The simple compiler described in this section, and shown in
+\cref{fig:comp-fo-all}, serves as a basis for the extensions presented in
+\cref{sec:llam,sec:eta,sec:beta}. Its entry point
+(\ref{fig:comp-entry-point}) first performs $\beta$-normalisation of the
+input term $s$ in \Fo, and then compiles $s$ into its corresponding HOAS
+representation in \Ho.
+
+Together with the term $s$, the compiler is initially given a memory
+map, a list of links, and a substitution. These three components act as
+accumulators and are progressively updated during the compilation phase.
+
+The auxiliary predicate \eI{comp}, shown in \cref{fig:comp-fo}, performs
+the recursive traversal of the \Fo term. Its current implementation is
+partial and will be extended in the following sections to handle
+problematic subterms. At this stage, the list of links is left
+unchanged. Rules $r_c$ and $r_@$ in \cref{fig:comp-fo} implement the
+straightforward translation between the two term representations.
+
+Rule $r_v$ is responsible for variables in the object language. It maps
+them to meta-language variables by introducing a fresh entry in the
+memory map and updating the substitution with a pointer for this fresh
+variable. This pointer is initially set to \eI{none}. These operations
+are delegated to the \eI{m-alloc} procedure, which performs the actual
+allocation.
+
+The $\lambda$-case is handled by rule $r_\lambda$, which invokes the
+auxiliary function \eI{comp-lam}. This procedure recursively calls
+\eI{comp} in an extended context containing two local variables,
+\eI{x} and \eI{y}, representing respectively abstractions at the
+object and meta-level.
+
+Finally, the auxiliary function \eI{close-links} checks whether the
+bound variables occur in a link. If this is the case, the link is
+wrapped in an additional \eI{abs} node binding. In this way,
+links generated deep inside the compiled term can be lifted outside
+their original binding context.
 
 % \noindent
 % \todo{remove pruning optimization from code above}
