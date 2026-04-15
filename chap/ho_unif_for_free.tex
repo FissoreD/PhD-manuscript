@@ -1032,9 +1032,8 @@ auxiliary function \eI{comp-lam}. This procedure recursively calls
 \eI{x} and \eI{y}, representing respectively abstractions at the
 object and meta-level.
 
-Finally, the auxiliary function \eI{close-links} checks whether the
-bound variables occur in a link. If this is the case, the link is
-wrapped in an additional \eI{abs} node binding. In this way,
+Finally, the auxiliary function \eI{close-links} recursively wraps the
+abstractions in the links in an additional \eI{abs} node binding. In this way,
 links generated deep inside the compiled term can be lifted outside
 their original binding context.
 
@@ -1052,9 +1051,9 @@ two languages.
 
 \input{ho-for-free/img/hstep.tex}
 
-\noindent
-Note that the infix notation \eI{((A ~\Ue~B) C D)} is syntactic sugar for
-\eI{((~\Ue\!\!\!~) A B C D)}.
+% \noindent
+% Note that the infix notation \eI{((A ~\Ue~B) C D)} is syntactic sugar for
+% \eI{((~\Ue\!\!\!~) A B C D)}.
 
 Reconsidering links is a fixpoint process because the progress of a link
 can update the substitution, which may then enable another link to progress.
@@ -1069,22 +1068,6 @@ and explain why they do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
 
-\paragraphTwo{Scope check}\label{sec:sc}
-The predicate \eI{scope-check} 
-replaces each
-link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
-a link
-\linketaM{{x_1\ldots x_n}}{X_{x_1\ldots x_n}}{t'} whenever $\{x_1\ldots x_n\} \subset \Gamma$.
-The term $t' = \lambda x.Y_{{x_1\ldots x_n}~x}$ is obtained after
-executing $\lambda x.Y_{{x_1\ldots x_n}~x} \Ue t$ using a fresh $Y$.
-This unification
-ensures that $t'$ cannot contain variables in $\Gamma / \{x_1\ldots x_n\}$,
-and if it fails then \progress hence \hstep fails.
-In turn this grants fidelity in the case where the \lhs of an \linketa
-is pruned of a name that occurs (rigidly) in $t$:
-links represent suspended unification problems
-\emph{that may succeed}.
-
 \paragraphTwo{Occur check}\label{sec:oc}
 Since compilation moves problematic terms out of the sight of \Ue{},
 that procedure can only perform a partial occur check. For example, the
@@ -1095,6 +1078,22 @@ a lambda in head position, but we surely know it contains $X$.
 The procedure \eI{occur-check-links} is in charge of
 performing this check that is needed in order to
 guarantee \cref{prop:fidelity}.
+
+\paragraphTwo{Scope check}\label{sec:sc}
+The predicate \eI{scope-check} 
+replaces each
+link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
+a link
+\linketaM{{x_1\ldots x_n}}{X_{x_1\ldots x_n}}{t'} whenever $\{x_1\ldots x_n\} \subseteq \Gamma$.
+The term $t' = \lambda x.Y_{{x_1\ldots x_n}~x}$ is obtained after
+executing $\lambda x.Y_{{x_1\ldots x_n}~x} \Ue t$ using a fresh $Y$.
+This unification
+ensures that $t'$ cannot contain variables in $\Gamma / \{x_1\ldots x_n\}$,
+and if it fails then \progress hence \hstep fails.
+In turn this grants fidelity in the case where the \lhs of an \linketa
+is pruned of a name that occurs (rigidly) in $t$:
+links represent suspended unification problems
+\emph{that may succeed}.
 
 
 \subsection{Substitution decompilation}\label{sec:decompilation}
@@ -1115,13 +1114,13 @@ For example,
 $F\appsep x\appsep y = F\appsep x\appsep z$ requires allocating a 
 variable $G$ in order to express the assignment $F_{ab} \mapsto G_a$.
 
-The final step is to decompile each assignment. The \eI{val}
+The final step is to decompile each assignment in the \Ho substitution. The \eI{val}
 node carries a term that is easy to decompile since \mapStore is a bijection.
-Since the \eI{o-lam} node
+Since the \eI{olam} node
 carries no additional information (other than the function body),
-each \eI{abs} node can be decompiled to a \eI{o-lam} one.
+each \eI{abs} node can be decompiled to a \eI{olam} one.
 
-However, if the \eI{o-lam} node was carrying more information,
+However, if the \eI{olam} node was carrying more information,
 as is the case for \rocq where it holds the type of the bound variable,
 one would need to store this piece of information in the memory map,
 were we store the arity (that is a very simple function type).
@@ -1182,7 +1181,7 @@ terms can be made equal by a substitution $\rho$,
 we can produce this $\rho$ by finding
 a $\sigma$ via \Ue{} on the corresponding \Ho terms and by decompiling it.
 If we look at the syntax of \Fo{}, the only interesting case is
-<<\eI{o-uva X ~\Uo~s}>>. In this case, after compilation, we have
+<<\eI{ouva X ~\Uo~s}>>. In this case, after compilation, we have
 <<\eI{uva Y [] ~\Ue~t}>>
 that succeeds with $\sigma = \{ Y \mapsto t\}$ and
 $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
@@ -1336,7 +1335,7 @@ No change to \eI{progress} since no link is added.
 
   \begin{proof}[Proof sketch]
   If we look at the \Fo{} terms, there is one more interesting case,
-  namely \eI{o-app[o-uva X|W] ~\Uo~s} when \eI{W}
+  namely \eI{oapp[ouva X|W] ~\Uo~s} when \eI{W}
   are distinct names compiled to $\vec{w}$. In this case
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
@@ -1350,7 +1349,7 @@ No change to \eI{progress} since no link is added.
 \end{lemma}
 % \begin{proof}[Proof sketch]
 %   problematic terms are mapped to uva by comp,
-%   the problematic o-app node is gone.
+%   the problematic oapp node is gone.
 %   if F x = t then  F = lam x.t[]
 %   \todo{finish/maybe W enforcement is not needed here}
 % \end{proof}
@@ -1371,26 +1370,26 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % OK
 
 % \begin{elpicode}
-% Terms [ o-lam x\ o-app[o-con"g",o-app[o-uva z, x]]
-%       , o-lam x\ o-app[o-con"g", o-con"a"] ]
+% Terms [ olam x\ oapp[o-con"g",oapp[ouva z, x]]
+%       , olam x\ oapp[o-con"g", o-con"a"] ]
 % Problems = [ pr z (s z) ] % $\lambda x.g (F x) = \lambda x.g a$
 % lam x\ app[con"g",uva z [x]] ~\Uo~lam x\ app[con"g", con"a"]
 % link z z (s z)
 % HS = [some (abs x\con"a")]
-% S = [some (o-lam x\o-con a)]
+% S = [some (olam x\o-con a)]
 % \end{elpicode}
 
 % KO
 
 % \begin{elpicode}
-%   Terms [ o-lam x\ o-app[o-con"g",o-app[o-uva z, x]]
-%   , o-lam x\ o-app[o-con"g", o-con"a"] ]
+%   Terms [ olam x\ oapp[o-con"g",oapp[ouva z, x]]
+%   , olam x\ oapp[o-con"g", o-con"a"] ]
 % Problems = [ pr 0 1   % $A = \lambda x.x$
 %            , pr 2 3 ] % $A a = a$
 % lam x\ app[con"g",uva z [x]] ~\Uo~lam x\ app[con"g", con"a"]
 % link z z (s z)
 % HS = [some (abs x\con"a")]
-% S = [some (o-lam x\o-con a)]
+% S = [some (olam x\o-con a)]
 % lam x\ app[f, app[X, x]] = Y,
 %   lam x\ x) = X.
 % \end{elpicode}
@@ -1703,7 +1702,7 @@ The following rule is inserted just before rule $r_\lambda$ in~\cref{fig:comp-fo
 \input{ho-for-free/img/comp_eta.tex}
 
 \noindent
-Whenever \eI{o-lam F} is detected to be in
+Whenever \eI{olam F} is detected to be in
 \maybeeta it is compiled to \eI{lam F1} and replaced by the fresh
 variable \eI{A}. This variable sees all the names free in
 \eI{lam F1} and is connected to \eI{lam F1} via a \linketa.
@@ -1929,7 +1928,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   % 
   % 2) If $\fstep_i$ fails to unify $s1 \Uo s2$
   % it means that, after applying rules~\cref{clause:eta1} and \cref{clause:eta2}
-  % and the one o-lam-o-lam we find different terms.
+  % and the one olam-olam we find different terms.
   % (5.9.1) only adds lambdas that are forcibly consumed by
   % lam-lam rule.
 \end{proof}
@@ -2329,7 +2328,7 @@ This construction enforces \cref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   Assume we have a \linkbeta, by contradiction, if $m = 0$, then the original
-%   \Fo{} term has the shape \eI{o-app[o-uva M | Ag]} where \eI{Ag} is a
+%   \Fo{} term has the shape \eI{oapp[ouva M | Ag]} where \eI{Ag} is a
 %   list of distinct names (i.e. the list \eI{Extra} is empty). This case is
 %   however captured by rule~\cref{rule:complam} (from \cref{sec:compilation}) and
 %   no \linkbeta is produced which contradicts our initial assumption.
@@ -2345,7 +2344,7 @@ This construction enforces \cref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   By construction, the lists $s_1\dots s_n$ and $t_1\dots t_m$ are built by splitting
-%   the list \eI{Ag} from the original term \eI{o-app [o-uva A|Ag]}.
+%   the list \eI{Ag} from the original term \eI{oapp [ouva A|Ag]}.
 %   $s_1\dots s_n$ is the longest prefix of the compiled terms in \eI{Ag} which is
 %   in \llambda. Therefore, by definition of \llambda, $t_1$ must appear  
 %   in $s_1\dots s_n$, otherwise $s_1\dots s_n$ is not the longest prefix in
