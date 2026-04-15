@@ -4,6 +4,33 @@
 \usepackage{languages}
 \usepackage{mminted}
 \usepackage{lineno}
+% \usepackage[toc]{glossaries}
+
+% \makeglossaries
+% \glsdisablehyper
+
+% \newglossaryentry{maths}
+% {
+%     name=mathematics,
+%     description={Mathematics is what mathematicians do}
+% }
+
+% \newglossaryentry{latex}
+% {
+%     name=latex,
+%     description={Is a markup language specially suited for 
+% scientific documents}
+% }
+
+
+% \newglossaryentry{formula}
+% {
+%     name=formula,
+%     description={A mathematical expression}
+% }
+
+% FOR GLOSSARY: see https://www.overleaf.com/learn/latex/Glossaries
+
 
 % \usepackage{draftwatermark}
 % \usepackage{datetime} % for date formatting
@@ -57,6 +84,7 @@
   \input{chap/tc.tex}
   \input{chap/ho_unif_for_free.tex}
   \input{chap/detcheck.tex}
+
   \input{chap/detcheck_coq.tex}
   \input{chap/conclusion.tex}
 
@@ -73,7 +101,10 @@
   % \renewcommand{\listtheoremname}{Theorem's list}
   % \listoftheorems[ignoreall,show={thoerem}]
 
+  % \printglossary[title=Glossary, toctitle=List of terms]
+
   \appendix
   \input{chap/appendix.tex}
+
 
 \end{document}

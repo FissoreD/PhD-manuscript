@@ -344,3 +344,32 @@
 \newcommand{\mcon}{\ensuremath{\texttt{con}_m}\xspace}
 \newcommand{\mlam}{\ensuremath{\texttt{lam}_m}\xspace}
 \newcommand{\muva}{\ensuremath{\texttt{uva}_m}\xspace}
+
+\newcommand{\maybeeta}{\texorpdfstring{\ensuremath{\Diamond\eta}\xspace}{maybeeta}}
+\newcommand{\maybebeta}{\texorpdfstring{\ensuremath{\Diamond\beta}\xspace}{maybebeta}}
+\newcommand{\notllambda}{\texorpdfstring{\ensuremath{\Diamond\llambda}\xspace}{maybellam}}
+
+\newcommand{\C}[4]{\ensuremath{\langle #1 \rangle}\arr(#2,#3,#4)}
+\newcommand{\D}[4]{\ensuremath{\langle #1,#2,#3 \rangle^{-1}\arr #4}}
+\newcommand{\progress}{\ensuremath{\mathrm{progress}}\xspace}
+\newcommand{\fstep}{\ensuremath{{\mathrm{step}}_o}\xspace}
+\newcommand{\hstep}{\ensuremath{{\mathrm{step}}_m}\xspace}
+\newcommand{\frun}{\ensuremath{{\mathrm{run}}_o}\xspace}
+\newcommand{\hrun}{\ensuremath{{\mathrm{run}}_m}\xspace}
+\newcommand{\stepF}[4]{\ensuremath{\fstep(#1,#2,#3) \arr #4}}
+\newcommand{\stepFD}[4]{%
+  \ensuremath{(#1_{#2_l} \Uo #1_{#2_r})\ #3 \arr #4}}
+\newcommand{\stepH}[6]{\ensuremath{\hstep(#1,#2,#3,#4) \arr (#5, #6)}}
+\newcommand{\stepHD}[6]{\ensuremath{%
+    #3 #1_{#2_l} \Ue #3 #1_{#2_r} \arr #4 \land \progress\ (#6,#4) \arr (#6',#5)}}
+\newcommand{\runF}[3]{\ensuremath{\frun(#1,#2) \arr #3_{#2}}}
+\newcommand{\runFx}[3]{\ensuremath{\frun(#1,#2) \arr #3}}
+\newcommand{\runFD}[2]{\ensuremath{%
+    \bigwedge_{p = 1}^{#2} \stepF{#1}{p}{\rho_{p-1}}{\rho_{p}}}}
+\newcommand{\runH}[3]{\ensuremath{\hrun(#1,#2) \arr #3_{#2}}}
+\newcommand{\runHx}[3]{\ensuremath{\hrun(#1,#2) \arr #3}}
+\newcommand{\runHD}[3]{\ensuremath{%
+    \bigwedge_{p = 1}^{#2} \stepH{#1}{p}{\sigma_{p-1}}{#3_{p-1}}{\sigma_{p}}{#3_p}}}
+\newcommand{\deff}{\ensuremath{\stackrel{{\scriptscriptstyle def}}{=\!=\!\!\!=}}}
+\newcommand{\subterm}[1]{\ensuremath{\mathcal{P}(#1)}}
+\newcommand{\wellb}{\ensuremath{\mathcal{W}}\xspace}
