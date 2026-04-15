@@ -1019,12 +1019,15 @@ problematic subterms. At this stage, the list of links is left
 unchanged. Rules $r_c$ and $r_@$ in \cref{fig:comp-fo} implement the
 straightforward translation between the two term representations.
 
-Rule $r_v$ is responsible for variables in the object language. It maps
-them to meta-language variables by introducing a fresh entry in the
-memory map and updating the substitution with a pointer for this fresh
-variable. This pointer is initially set to \eI{none}. These operations
-are delegated to the \eI{m-alloc} procedure, which performs the actual
-allocation.
+Rule $r_v$ handles variables in the object language. A variable $v_o$
+in \Fo is mapped to a variable in \Ho using the memory map. If $v_o$ is
+not yet present in the variable mapping, a fresh entry is created and
+the substitution is updated with a pointer for this new variable. This
+pointer is initially set to \eI{none}.
+If, instead, $v_o$ already occurs in the mapping and is associated with
+a meta-language variable $v_m$ in \Ho, then $v_m$ is simply returned.
+All these operations are delegated to the \eI{m-alloc} procedure, which
+performs the actual allocation.
 
 The $\lambda$-case is handled by rule $r_\lambda$, which invokes the
 auxiliary function \eI{comp-lam}. This procedure recursively calls
@@ -1140,7 +1143,7 @@ were we store the arity (that is a very simple function type).
 % \Fo{} to \Ho is not lossy, it can be reversed. The statement
 % is made convoluted by the fact that we hid the procedure to
 % decompile a term in favor of the one to decompile substitutions.
-We omit to sketch the proof of this property for brevity.
+% We omit to sketch the proof of this property for brevity.
 
 % \noteD{Should also decompile links\dots}
 % \begin{proof}[Proof sketch]
