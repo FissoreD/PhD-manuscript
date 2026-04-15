@@ -285,7 +285,7 @@ for testing equality between terms. The second routine is required to check
 that the substitution produced by the unification process indeed makes the
 two terms equal.
 
-\paragraphTwo{Term equality: \Eo and \Ee}
+\paragraph*{Term equality: \Eo and \Ee}
 For both languages, we extend the equational theory from ground
 terms to the full language by adding reflexivity for unification
 variables. That is, a unification variable is equal to itself,
@@ -327,7 +327,7 @@ For brevity, we omit the code of \eI{beta}:
 it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
 weak-head normal form of \eI{~\oapp~ [F | L]}.
 
-\paragraphTwo{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
+\paragraph*{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
 
 We reuse the notations for substitution from \cref{sec:elpi-semantics}:
 we write $\sigma = \{~ X \mapsto t ~\}$ for the substitution that assigns
@@ -348,7 +348,7 @@ the substitution for \Fo{} and \Ho{} identical.
 We defer to \cref{sec:grounwork} a more precise description
 pointing out their differences.
 
-\paragraphTwo{Term unification: \Uo vs. \Ue}
+\paragraph*{Term unification: \Uo vs. \Ue}
 
 % Although we provide an implementation of the meta-language unification \Ue
 % in the supplementary material (that we used for testing purposes) we only
@@ -705,7 +705,7 @@ does not satisfy \wellb.
 % TODO: ENRICO check
 \begin{proof}[Proof sketch]
 By \cref{prop:w-enforcing} and the (still high-level) definition of term
-compilation, we know that $t_1$ and $t_2$ belong to \wellb(t). This means
+compilation, we know that $t_1$ and $t_2$ belong to $\wellb(t)$. This means
 that $t_1$ and $t_2$ are the HOAS representations of the source language
 terms $s_1$ and $s_2$, where problematic subterms are replaced by fresh
 variables.
@@ -1040,6 +1040,16 @@ abstractions in the links in an additional \eI{abs} node binding. In this way,
 links generated deep inside the compiled term can be lifted outside
 their original binding context.
 
+\begin{lemma}[$\wellb$-partial-enforcement]\label{lem:w-enforcement-pf}
+  $\forall s, \C{s}{t}{m}{l}$, if $\wellb(s)$  then $\wellb(t)$.
+\end{lemma}
+
+\begin{proof}
+  By the definition of \eI{comp}, the compilation precedure is a simple mapper
+  from terms in \Fo to terms in \Ho. By hypothesis, $\wellb(s)$, therefore
+  $\wellb(t)$.
+\end{proof}
+
 % \noindent
 % \todo{remove pruning optimization from code above}
 
@@ -1063,7 +1073,7 @@ can update the substitution, which may then enable another link to progress.
 
 \input{ho-for-free/img/progress.tex}
 
-\paragraphTwo{Progress}
+\paragraph*{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
 Sections \cref{sec:eta} and \cref{sec:beta} add rules to \eI{progress1}
@@ -1071,7 +1081,7 @@ and explain why they do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
 
-\paragraphTwo{Occur check}\label{sec:oc}
+\paragraph*{Occur check}\label{sec:oc}
 Since compilation moves problematic terms out of the sight of \Ue{},
 that procedure can only perform a partial occur check. For example, the
 unification problem $X \Ue f~Y$ cannot generate a cyclic substitution alone,
@@ -1082,7 +1092,7 @@ The procedure \eI{occur-check-links} is in charge of
 performing this check that is needed in order to
 guarantee \cref{prop:fidelity}.
 
-\paragraphTwo{Scope check}\label{sec:sc}
+\paragraph*{Scope check}\label{sec:sc}
 The predicate \eI{scope-check} 
 replaces each
 link of the form \linketaM{\Gamma}{X_{x_1\ldots x_n}}{t} with
@@ -1195,14 +1205,16 @@ $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \cref{prop:fidelity} hold if $\;\wellb{(\foUnifPb)}$. \label{thm:fidfow}
 \end{theorem}
 \begin{proof}[Proof sketch]
-Since \eI{progress1} is a no-op then \fstep and \hstep are the same.
-By \cref{prop:uniffow}, \Ue is equivalent to \Uo in \wellb.
+Since \eI{progress1} is a no-op, \fstep and \hstep coincide. By
+\cref{prop:uniffow}, the unification relation \Ue is equivalent to
+\Uo on terms in \wellb.
 \end{proof}
 
 \subsection{Notational conventions}
 
-In the following sections we use the following notation for input and output
-of the compiler. \foUnifPb represents the input unification problems in \Fo{}
+In the following sections we use the following notation to represent
+the behavior of the compiler. 
+\foUnifPb represent the input unification problems in \Fo{}
 while \hoUnifPb their corresponding compiled version with memory mapping
 \mapStore and links \linkStore. For example:
 %
@@ -1226,7 +1238,7 @@ $$
 
   \noindent
 We index each sub-problem, sub-mapping, and sub-link with its position
-starting from $1$ and counting from left to right, top to bottom.
+starting from $1$ and counting from left to right.
 For example, $\hoUnifPb_2$ corresponds to the \Ho problem $t_3 \Ue t_4$.
 
 As we deal with each category of problematic terms we
@@ -1297,7 +1309,7 @@ we %need to
 compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
 %,which is \eI{muva A [x]}.
 
-\subsection{Compilation and decompilation}
+% \subsection{Compilation and decompilation}
 
 We add the following rule before rule $r_@$ in~\cref{fig:comp-fo}, where
 \eI{pattern-fragment} is a predicate checking if a list of
@@ -1318,7 +1330,7 @@ grants this property.
 % section~\cref{sec:problem-statement}. The reason is that the algorithm folds
 % over a term, updating a substitution while it traverses it.\noteE[inline]{explain better}
 
-\paragraphTwo{Decompilation}
+\paragraph*{Decompilation}
 No change
 to \eI{commit-link}
 since no link is added.
@@ -1326,7 +1338,7 @@ since no link is added.
 %\maybebeta terms, no modification to the \eI{commit-link}
 %is needed.
 
-\paragraphTwo{Progress}
+\paragraph*{Progress}
 No change to \eI{progress} since no link is added.
 % Similarly to decompilation, since no link is produced,
 % no modification to the \eI{progress} predicate is needed.
@@ -1337,27 +1349,29 @@ No change to \eI{progress} since no link is added.
   for \Eo in the domain $\wellb_\beta$.
 \end{lemma}
 
-  \begin{proof}[Proof sketch]
+\begin{proof}[Proof sketch]
   If we look at the \Fo{} terms, there is one more interesting case,
   namely \eI{~\oapp~ [~\ouva~ X|W] ~\Uo~s} when \eI{W}
-  are distinct names compiled to $\vec{w}$. In this case
+  is a list of distinct names compiled to $\vec{w}$. In this case
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
    is decompiled to $\rho = \{ Y \mapsto \lambda \vec{y}.s[\vec{w}/\vec{y}]\}$.
    Thanks to rule $r_{\beta_l}$ in \cref{fig:feq} we have
    $(\lambda \vec{y}.s[\vec{w}/\vec{y}])~\vec{w} \Eo s$.
-  \end{proof}
+\end{proof}
   
 \begin{lemma}[$\wellb$-partial-enforcement]\label{lem:w-enforcement-maybebeta}
-  $\forall s, \C{s}{t}{m}{l}$, if $\:\wellb_\beta(s)$  then $\:\wellb(t)$.
+  $\forall s, \C{s}{t}{m}{l}$, if $\wellb_\beta(s)$  then $\wellb(t)$.
 \end{lemma}
-% \begin{proof}[Proof sketch]
-%   problematic terms are mapped to muva by comp,
-%   the problematic \oapp node is gone.
-%   if F x = t then  F = mlam x.t[]
-%   \todo{finish/maybe W enforcement is not needed here}
-% \end{proof}
-\noindent
+
+\begin{proof}[Proof sketch]
+  We need to extend the proof \cref{lem:w-enforcement-pf}, since we need to
+  consider the case of terms in \maybebeta. Terms in \maybebeta are captured by
+  the new rule for \eI{comp} at the beginning of this section. The compiled
+  term is a variable and its arguments are distinct names, therefore the
+  returned term is also in $\wellb_\beta$.
+\end{proof}
+
 In other words the compiler eliminates all subterms that are in \maybebeta.
 
 \begin{theorem}[Fidelity in $\wellb_\beta$] \Cref{prop:simulation} and
@@ -1513,8 +1527,9 @@ In order to guarantee \cref{prop:simulation}, we detect
 lambda abstractions that can disappear by $\eta$-contraction
 (\cref{sec:etadetection}), and we modify the compiler so that it
 generates fresh unification variables
-in their place and moves the problematic term 
-from \hoUnifPb to \linkStore (\cref{sec:etacomp}). The compilation
+in their place and delegates the problematic term $t$ 
+to \linkStore (\cref{sec:etacomp}) by replacing $t$ with a unification
+variable. The compilation
 of the problem \foUnifPb above is refined to: 
 
 % \input{ho-for-free/links/log1310-1.tex}
@@ -1533,7 +1548,9 @@ while the right-hand side is a term in \maybeeta that has the following property
 \end{invariant}
 
 Each \linketa is kept in the link store \linkStore during execution
-and is activated under some conditions.
+and is activated under specific conditions, in particular, whern \cref{inv:linklhs}
+or \cref{inv:link-eta-right} are no more true, or the rhs is for sure a term 
+that cannot be $\eta$-contracted.
 Activation is implemented
 in \cref{sec:etaprogress}
 by extending the \eI{progress1}
@@ -1563,21 +1580,25 @@ is not as trivial as it may seems. Here a few examples:
 % reduce to $x$ by setting $A_x = \lambda x.x$, 
 % the second one is not a \maybeeta since it exists no substitution
 % for $A_x$ such that $A_x$ reduces to $x$ and $x$ is not free in the subterm $f \appsep x$.
-\noindent
-The first two examples are easy, and show how a unification variable can expose
-or erase a variable in its scope, turning the resulting term into an $\eta$-redex or not.\\
-The third example shows that when a variable occurs outside the scope of a unification
-variable, it cannot be erased and can hence prevent a term from being an $\eta$-redex.\\
-The last example shows the recursive nature of the check we need to implement.
-The term starts with a spine of two lambdas, hence the whole term
-is in \maybeeta iff the inner term $\lambda y.f\appsep (A \appsep x) \appsep (B \appsep y \appsep x)$
-is in \maybeeta itself. If it is, it could $\eta$-contract to
-$f \appsep (A \appsep x)$ making $\lambda x.f \appsep (A \appsep x)$ a potential
-$\eta$-redex.\\
-We can now detail how \maybeeta terms are detected.
+The first two examples are straightforward, and illustrate how a
+unification variable can either expose or hide a bound name in its scope,
+thereby turning the resulting term into an $\eta$-redex or not.
 
+The third example shows that when a variable occurs outside the scope
+of a unification variable, it cannot be erased and may therefore prevent
+the term from being an $\eta$-redex.
+
+The last example highlights the recursive nature of the check we need
+to implement. The term begins with a spine of two $\lambda$-abstractions,
+so the whole term belongs to \maybeeta if and only if the inner term
+$\lambda y.\, f \appsep (A \appsep x) \appsep (B \appsep y \appsep x)$
+also belongs to \maybeeta. If this is the case, it could
+$\eta$-contract to $f \appsep (A \appsep x)$, making
+$\lambda x.\, f \appsep (A \appsep x)$ a potential $\eta$-redex.
+
+We now describe how terms in \maybeeta are detected.
 \newcommand{\reduceto}{\emph{may-contract-to}}
-\begin{definition}[\reduceto]
+\begin{definition}[\reduceto]\label{def:may-contract-to}
   A $\beta$-normal term $s$ \reduceto{} a name $x$ if there exists a
   substitution $\rho$ such that $\rho s \Eo{} x$.
 \end{definition}
@@ -1619,8 +1640,8 @@ that can be assigned to the application $x \appsep x_1 \ldots x_n$ (case 3).
 \newcommand{\occursrigid}{\emph{occurs-rigidly}\xspace}
 \newcommand{\occurrigid}{\emph{occur-rigidly}\xspace}
 \begin{definition}[\occursrigid]\label{def:occrigid}
-  A name $x$ \occursrigid{} in a $\beta$-normal term $t$, if $\forall \rho, x \in
-  \subterm{\rho t}$
+  A name $x$ \occursrigid{} in a $\beta$-normal term $t$, if for any substitution
+  $\rho$, $x$ is a subterm of $\rho t$
 \end{definition}
 
 In other words, $x$ \occursrigid in $t$ if it occurs in $t$
@@ -1649,6 +1670,7 @@ We can now describe the implementation of \maybeeta detection:
       \reduceto{} $x_i$.
   \end{enumerate}
 \end{definition}
+
 \begin{lemma}[\maybeeta detection]\label{lem:maybeeta}
   If $t$ is a $\beta$-normal term
   and
@@ -1661,7 +1683,8 @@ Follows from \cref{def:occrigid} and \cref{lem:reduceto}
 
 \noindent
 Remark that the converse of \cref{lem:maybeeta} does not hold: 
-there exists a term $t$ satisfying the criteria (1) of
+\testmaybeeta performs an over-approximation of terms that are in \maybeeta.
+There exists, in fact, a term $t$ satisfying the criteria (1) of
 \cref{def:testmaybeeta} that is not in $\maybeeta$, i.e.
 there exists no substitution $\rho$ such that $\rho t$ is an
 $\eta$-redex. A simple counter example is
@@ -1700,7 +1723,7 @@ since it does not break
 % compilation time. The code below illustrate how this relation is used to for
 % term compilation.
 
-\paragraphTwo{Compilation}
+\paragraph*{Compilation}
 The following rule is inserted just before rule $r_\lambda$ in~\cref{fig:comp-fo}.
 
 \input{ho-for-free/img/comp_eta.tex}
@@ -1738,7 +1761,7 @@ variable \eI{A}. This variable sees all the names free in
 \end{proof}
 
 
-\paragraphTwo{Decompilation}
+\paragraph*{Decompilation}
 The decompilation of a \linketa is performed by unifying
 the \lhs with the \rhs. Note that this unification never fails, since the \lhs is a
 flexible term not appearing in any other \linketa
@@ -1947,7 +1970,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   for \Eo in the domain $\wellb_{\beta\eta}$.
 \end{corollary}
 
-\paragraphTwo{Example of \progressetaleft}
+\paragraph*{Example of \progressetaleft}
 
 The example at the beginning of \cref{sec:eta}, once
 $\sigma = \{~ A \mapsto f ~\}$, triggers \progressetaleft since the link
@@ -2144,7 +2167,7 @@ $t'$ (under the context $\Gamma$).
 % $X_1$ and $X_2$ are unified with different terms.
 % \todo{what are these X1 and X2?}
 
-\paragraphTwo{Example of \mapdeduplication}
+\paragraph*{Example of \mapdeduplication}
 If we take back the example given at the beginning of this section,
 \mapdeduplication produces the following result:
 
@@ -2371,9 +2394,9 @@ This construction enforces \cref{inv:beta-rhs}.
   By \cref{lem:w-enforcement-maybebeta,lem:w-enforcement-maybeeta} and the 
   rule above.
 \end{proof}
+S
 
-
-\paragraphTwo{Decompilation}
+\paragraph*{Decompilation}
 All \linkbeta should be solved before decompilation.
 If any \linkbeta remains in \linkStore, decompilation fails.
 
