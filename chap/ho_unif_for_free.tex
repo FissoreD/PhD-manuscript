@@ -1724,16 +1724,26 @@ since it does not break
 % term compilation.
 
 \paragraph*{Compilation}
-The following rule is inserted just before rule $r_\lambda$ in~\cref{fig:comp-fo}.
 
-\input{ho-for-free/img/comp_eta.tex}
+\begin{figure}  
+  \input{ho-for-free/img/comp_eta.tex}
+  \vspace{-15pt}
+  \caption{Compilation of \maybeeta terms}
+  \label{fig:com-maybeeta}
+  \vspace{-10pt}
+\end{figure}
 
-\noindent
-Whenever \eI{~\olam~ F} is detected to be in
-\maybeeta it is compiled to \eI{~\mlam~ F1} and replaced by the fresh
-variable \eI{A}. This variable sees all the names free in
-\eI{~\mlam~ F1} and is connected to \eI{~\mlam~ F1} via a \linketa.
-\Cref{inv:linklhs} holds for this link. Moreover:
+In order to take into account the compilation of \maybeeta terms, we
+insert the rule in~\cref{fig:com-maybeeta}
+just before rule $r_\lambda$ in~\cref{fig:comp-fo}.
+
+% \noindent
+Whenever a term of the form \eI{~\olam~ F} is detected to belong to
+\maybeeta, it is compiled into \eI{~\mlam~ F1} and replaced by a fresh
+variable \eI{A}. This variable sees all names that are free in
+\eI{~\mlam~ F1}, and it is linked to \eI{~\mlam~ F1} through a
+\linketa. The invariant \cref{inv:linklhs} is satisfied for this link. 
+Moreover:
 
 \begin{corollary}
   The \rhs of any \linketa has exactly one lambda abstraction, hence
@@ -1757,7 +1767,11 @@ variable \eI{A}. This variable sees all the names free in
 \end{lemma}
 
 \begin{proof}[Proof sketch]
-  By \cref{lem:maybeeta}
+  We need to extend the proof of \cref{lem:w-enforcement-maybeeta}, since we
+  need to conseder the case of terms \maybeeta. By \cref{lem:maybeeta},
+  we know that any \maybeeta term is captured by \testmaybeeta, therefore
+  the rule in \cref{fig:com-maybeeta} is used. The output is a variable,
+  where in \llambda, therefore, the new terms is \wellb.
 \end{proof}
 
 
@@ -1770,18 +1784,18 @@ flexible term not appearing in any other \linketa
 \subsection{Progress}\label{sec:etaprogress}
 
 \linketa{}s are meant to delay the unification of ``problematic'' terms until
-we know for sure if their head lambdas can be $\eta$-contracted.
+we know for sure if their head lambdas can (or cannot) be $\eta$-contracted.
 
 \newcommand{\progressetaleft}{\emph{\texorpdfstring{$\eta$}{eta}-progress-\lhs}\xspace}
 
 \begin{definition}[\progressetaleft]\label{def:progressetaleft}
 A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
-$X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
+$X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
 \begin{enumerate}
-  \item if $X = a$ or $X = y$ or $X = f \appsep a_1\ldots a_n$
+  \item if $\sigma X = a$ or $\sigma X = y$ or $\sigma X = f \appsep a_1\ldots a_n$
     we unify the $\eta$-redex of $X$ with $t$, that is we run
-    $\lambda x.X \appsep x\Ue{} t$
-    \item if $X = \lambda x.s$ we run $X \Ue{} t$.
+    $(\lambda x.X \appsep x\Ue{} t)\ \sigma$
+    \item if $\sigma X = \lambda x.s$ we run $(X \Ue{} t)\ \sigma$.
 \end{enumerate}
 \end{definition}
 
@@ -1910,7 +1924,7 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   succeeds, where \hstep is made by a unification step $u$ and a link
   progression $p$.
   Without loss of generality we consider a
-  \Fo{} unification problem of the form $s_1 \Uo s_2$
+  unification problem in \Fo{} of the form $s_1 \Uo s_2$
   where $s_1 \in \maybeeta$ and is compiled to a variable $X$ with the accessory link
   $\linketaM{\Gamma}{X}{\lambda x.t_1}$. 
   The unification $u$ always succeeds, since $X$ is a fresh variable, we 
