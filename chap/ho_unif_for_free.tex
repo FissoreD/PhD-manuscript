@@ -84,10 +84,10 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 
 % \begin{figure}  
 % \begin{elpicode}
-% finite   (app [gl "fin", N]) (app [gl "fin_fin", N]).                % (r1)
-% decision (app [gl "nfact", N, NF])  (app [gl "nfact_dec", N, NF]).          % (r2)
-% decision (prod _ A x\ app [P, x]) (app [gl "all_dec", A, P, FA, DP]) :- % (r3) 
-%   finite A FA, pi w\ decision (app [P, w]) DP.
+% finite   (mapp [gl "fin", N]) (mapp [gl "fin_fin", N]).                % (r1)
+% decision (mapp [gl "nfact", N, NF])  (mapp [gl "nfact_dec", N, NF]).          % (r2)
+% decision (prod _ A x\ mapp [P, x]) (mapp [gl "all_dec", A, P, FA, DP]) :- % (r3) 
+%   finite A FA, pi w\ decision (mapp [P, w]) DP.
 % \end{elpicode}
 % \caption{Rules in elpi}
 % \label{fig:rules-elpi}
@@ -101,7 +101,7 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 % \emph{r3} in \cref{fig:rules-elpi} on the encoding of the goal below given here
 
 % \begin{elpicode}
-% decision (all (app [gl"fin", gl"7"]) x\ app [gl"nfact", x, gl"3"]).
+% decision (all (mapp [gl"fin", gl"7"]) x\ mapp [gl"nfact", x, gl"3"]).
 % \end{elpicode}
 
 
@@ -113,7 +113,7 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 % %first order in the meta language due to the ``naive'' encoding.
 
 % \begin{elpicode}
-% app [con"nfact", x, con"3"] = app [P, x]
+% mapp [mcon"nfact", x, mcon"3"] = mapp [P, x]
 % \end{elpicode}
 
 % \noindent
@@ -148,7 +148,7 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 % % \cref{solution:intro}:
 
 % \begin{elpicode}
-% P = lam A x\ app [con"nfact", x, con"3"]
+% P = \mlam A x\ mapp [mcon"nfact", x, mcon"3"]
 % \end{elpicode}
 
 % \noindent
@@ -164,16 +164,16 @@ query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
 % We show below the premise before and
 % after the instantiation of \eI{P}:
 % \begin{elpicode}
-% decision (app [                   P                  , w])
-% decision (app [lam A (a\ app [con"nfact", a, con"3"]), w])
+% decision (mapp [                   P                  , w])
+% decision (mapp [\mlam A (a\ mapp [mcon"nfact", a, mcon"3"]), w])
 % \end{elpicode}
 % \noindent
 % In turn, this redex prevents rule \emph{r2} in \cref{fig:rules-elpi} from backchaining properly since
 % the following unification problem has no solution:
 
 % \begin{elpicode}
-% app [ lam A (a\ app [con"nfact", a, con"3"]) , x] =
-% app [ con"nfact"                             , N, NF]
+% mapp [ \mlam A (a\ mapp [mcon"nfact", a, mcon"3"]) , x] =
+% mapp [ mcon"nfact"                             , N, NF]
 % \end{elpicode}
 
 % \noindent
@@ -213,8 +213,8 @@ easily. In this setting, we consider a language \Fo{} with a rich equational
 theory, and a language \Ho{} with a simpler one.
 
 Both \Fo{} and \Ho{} are encoded in the \elpi language. The syntax of terms is
-shown in \cref{code:common-terms}. Terms of \Fo{} are called as \eI{otm}, while
-the HOAS encoding of these terms in \Ho{} are written as \eI{mtm}. 
+shown in \cref{code:common-terms}. Terms of \Fo{} are called as \otm, while
+the HOAS encoding of these terms in \Ho{} are written as \mtm. 
 These correspond, respectively, to
 object-level terms and meta-level terms.
 
@@ -225,15 +225,15 @@ scope. On the other hand, variables in \Ho{} are equipped with an explicit
 scope, represented as a list of terms.
 
 This scope is intended to capture the application of meta-level variables to
-terms. By contrast, the constructor \eI{mapp} encodes the application of
+terms. By contrast, the constructor \mapp encodes the application of
 \Fo{} terms at the meta-language level.
 
 This distinction can be seen in the example introduced in the previous section
 for the rule \eI{tc-Provable}. The term \eI{(Qm p)} is represented as
-\eI{muva [Qm, p]}, while the term 
+\eI{~\muva~ [Qm, p]}, while the term 
 \eI{~{\PYGZob{}\PYGZob{}}\PYG{l+m}{lp:}\PYG{n+nv}{Q}\PYG{+w}{ }\PYG{l+m}{lp:}\PYG{n+nv}{p}\PYG{p}{\PYGZcb{}\PYGZcb{}}~}
 is encoded as
-\eI{mapp [Q, p]}.
+\eI{~\mapp~ [Q, p]}.
 
 % This encoding is implemented and tested in an \elpi development available at
 % \githubUrl.
@@ -264,10 +264,10 @@ Here are few examples:\\
 {
 \setlength{\tabcolsep}{1em}
 \begin{tabular}{ll}
-  $f\appsep a$                  & \eI{app [con "f", con "a"]}\\
-  $\lambda x.\lambda y.F_{x y}$ & \eI{lam x\ lam y\ uva F [x, y]} \\
-  $\lambda x.F_{x} \appsep a$   & \eI{lam x\ app [uva F [x], con "a"]} \\
-  $\lambda x.F_{x} \appsep x$   & \eI{lam x\ app [uva F [x], x]} \\
+  $f\appsep a$                  & \eI{~\mapp~ [~\mcon~ "f", ~\mcon~ "a"]}\\
+  $\lambda x.\lambda y.F_{x y}$ & \eI{~\mlam~ x\ ~\mlam~ y\ ~\muva~ F [x, y]} \\
+  $\lambda x.F_{x} \appsep a$   & \eI{~\mlam~ x\ ~\mapp~ [~\muva~ F [x], ~\mcon~ "a"]} \\
+  $\lambda x.F_{x} \appsep x$   & \eI{~\mlam~ x\ ~\mapp~ [~\muva~ F [x], x]} \\
 \end{tabular}
 }
 \vspace{4pt}
@@ -297,8 +297,8 @@ the standard congruence on terms. Because we use an HOAS
 encoding, these rules also account for $\alpha$-equivalence.
 In addition, \Eo includes rules for $\eta$- and
 $\beta$-equivalence.
-This is because, in the object language, the term \eI{oapp[olam x\ x, con"3"]} 
-and \eI{con"3"} are definitionally equal.
+This is because, in the object language, the term \eI{~\oapp~[~\olam~ x\ x, ~\ocon~"3"]} 
+and \eI{~\ocon~"3"} are definitionally equal.
 %
 % \input{code/feq}
 \begin{figure}
@@ -325,7 +325,7 @@ weaker \Ee is, and to identify the four rules that need special
 treatment in the simpulation of \Uo in \Ho.
 For brevity, we omit the code of \eI{beta}:
 it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
-weak-head normal form of \eI{oapp [F | L]}.
+weak-head normal form of \eI{~\oapp~ [F | L]}.
 
 \paragraphTwo{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
 
@@ -801,19 +801,19 @@ constructor \eI{abs}.
 For example, in a context where $y$ is a bound variable and $X$ a
 unification variable, the unification $X_y \Ue \lambda z. y$ yields
 the assignment $\{X_y \mapsto \lambda z. y \}$, which corresponds in \elpi
-concrete syntax to \eI{abs y\ val (mlam z\ y)}.
+concrete syntax to \eI{abs y\ val (~\mlam~ z\ y)}.
 
 Intuitively, the \eI{abs} node represents abstraction in the
-meta-language, while \eI{mlam} encodes object-level abstraction of in the HOAS
-of \Ho, in the same way \eI{muva} represents application of
-the meta-language, and \eI{mapp} encodes object-level applications in the HOAS
+meta-language, while \mlam encodes object-level abstraction of in the HOAS
+of \Ho, in the same way \muva represents application of
+the meta-language, and \mapp encodes object-level applications in the HOAS
 of \Ho.
 
 In contrast, assignments for variables in \Fo are represented as plain
 terms. In particular, \eI{fsubst} is an abbreviation for
-\eI{memory mtm}. In this setting, the unification
+\eI{memory ~\otm~}. In this setting, the unification
 $X \appsep y \Uo \lambda z. y$ produces the assignment
-$\{X \mapsto \lambda y z. y\}$, which corresponds to \eI{olam y\ olam z\ y} in
+$\{X \mapsto \lambda y z. y\}$, which corresponds to \eI{~\olam~ y\ ~\olam~ z\ y} in
 \elpi concrete syntax.
 
 
@@ -837,7 +837,7 @@ to record its arity.
 \begin{invariant}[Unification-variable arity]\label{inv:uvaarity}
   Each variable \eI{A}
   in \Ho has a (unique) arity \eI{N} and each occurrence
-  \eI{(uva A L)} is such that \eI{L} has length \eI{N}.
+  \eI{(~\muva~ A L)} is such that \eI{L} has length \eI{N}.
 \end{invariant}
 
 \noindent
@@ -879,7 +879,7 @@ length.
 
 % We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
 % <<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
-% for <<\eI{lam x\lam y\y}>>.
+% for <<\eI{\mlam x\mlam y\y}>>.
 
 \subsection{Links (\linkStore)}
 
@@ -914,7 +914,7 @@ under a context.
 The equality sign is subscripted with the
 kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
 \begin{center}
-\eI{abs x\ val (uva A [x] ~$=_{\llambda}$~ app[uva F [x], con "a"])}
+\eI{abs x\ val (~\muva~ A [x] ~$=_{\llambda}$~ ~\mapp~ [~\muva~ F [x], ~\mcon~ "a"])}
 \end{center}
 
 % The first three rules unify terms with same rigid heads, and
@@ -977,7 +977,7 @@ kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
     \input{ho-for-free/img/comp_lam.tex}%
     \vspace{-15pt}
     \caption{Compilation of $\lambda$-abstractions}
-    \label{fig:comp-lam}
+    \label{fig:comp-mlam}
   \end{subfigure}
 
   \vspace{.5em}
@@ -1030,7 +1030,7 @@ All these operations are delegated to the \eI{m-alloc} procedure, which
 performs the actual allocation.
 
 The $\lambda$-case is handled by rule $r_\lambda$, which invokes the
-auxiliary function \eI{comp-lam}. This procedure recursively calls
+auxiliary function \eI{comp-mlam}. This procedure recursively calls
 \eI{comp} in an extended context containing two local variables,
 \eI{x} and \eI{y}, representing respectively abstractions at the
 object and meta-level.
@@ -1119,11 +1119,11 @@ variable $G$ in order to express the assignment $F_{ab} \mapsto G_a$.
 
 The final step is to decompile each assignment in the \Ho substitution. The \eI{val}
 node carries a term that is easy to decompile since \mapStore is a bijection.
-Since the \eI{olam} node
+Since the \olam node
 carries no additional information (other than the function body),
-each \eI{abs} node can be decompiled to a \eI{olam} one.
+each \eI{abs} node can be decompiled to a \olam one.
 
-However, if the \eI{olam} node was carrying more information,
+However, if the \olam node was carrying more information,
 as is the case for \rocq where it holds the type of the bound variable,
 one would need to store this piece of information in the memory map,
 were we store the arity (that is a very simple function type).
@@ -1154,7 +1154,8 @@ were we store the arity (that is a very simple function type).
 
 \subsection{Definition of \Uo{} and its properties}\label{sec:founif}
 
-We already have all the ingredients to show the code of \Uo{}.
+We already have all the ingredients to show how to implement the simulation of
+\Uo{} in the meta-language.
 
 \input{ho-for-free/img/unif_fo.tex}
 
@@ -1184,8 +1185,8 @@ terms can be made equal by a substitution $\rho$,
 we can produce this $\rho$ by finding
 a $\sigma$ via \Ue{} on the corresponding \Ho terms and by decompiling it.
 If we look at the syntax of \Fo{}, the only interesting case is
-<<\eI{ouva X ~\Uo~s}>>. In this case, after compilation, we have
-<<\eI{uva Y [] ~\Ue~t}>>
+\eI{~\ouva~ X ~\Uo~s}. In this case, after compilation, we have
+\eI{~\muva~ Y [] ~\Ue~t}
 that succeeds with $\sigma = \{ Y \mapsto t\}$ and
 $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \end{proof}
@@ -1289,12 +1290,12 @@ $$
 $$
 
 The unification problem $\hoUnifPb_1$ fails while trying to unify
-$A \appsep x$ and $x$, which is equivalent to <<\eI{app [uva A [], x]}>>
+$A \appsep x$ and $x$, which is equivalent to \eI{~\mapp~ [~\muva~ A [], x]}
 versus \eI{x}.
 In order to exploit the higher-order unification algorithm of the meta language,
 we %need to 
 compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
-%,which is \eI{uva A [x]}.
+%,which is \eI{muva A [x]}.
 
 \subsection{Compilation and decompilation}
 
@@ -1308,8 +1309,8 @@ terms is a list of distinct names.
 \noindent
 Note that compiling \eI{Ag} cannot create new mappings nor links, since \eI{Ag}
 is made of bound variables, and the hypothetical rule 
-in~\cref{fig:comp-lam}
-loaded by \eI{comp-lam}
+in~\cref{fig:comp-mlam}
+loaded by \eI{comp-mlam}
 grants this property.
 
 % The only detail worth discussing is the fact that the procedure updates a
@@ -1338,7 +1339,7 @@ No change to \eI{progress} since no link is added.
 
   \begin{proof}[Proof sketch]
   If we look at the \Fo{} terms, there is one more interesting case,
-  namely \eI{oapp[ouva X|W] ~\Uo~s} when \eI{W}
+  namely \eI{~\oapp~ [~\ouva~ X|W] ~\Uo~s} when \eI{W}
   are distinct names compiled to $\vec{w}$. In this case
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
@@ -1351,9 +1352,9 @@ No change to \eI{progress} since no link is added.
   $\forall s, \C{s}{t}{m}{l}$, if $\:\wellb_\beta(s)$  then $\:\wellb(t)$.
 \end{lemma}
 % \begin{proof}[Proof sketch]
-%   problematic terms are mapped to uva by comp,
-%   the problematic oapp node is gone.
-%   if F x = t then  F = lam x.t[]
+%   problematic terms are mapped to muva by comp,
+%   the problematic \oapp node is gone.
+%   if F x = t then  F = mlam x.t[]
 %   \todo{finish/maybe W enforcement is not needed here}
 % \end{proof}
 \noindent
@@ -1373,34 +1374,34 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % OK
 
 % \begin{elpicode}
-% Terms [ olam x\ oapp[o-con"g",oapp[ouva z, x]]
-%       , olam x\ oapp[o-con"g", o-con"a"] ]
+% Terms [ \olam x\ \oapp[\ocon"g",\oapp[ouva z, x]]
+%       , \olam x\ \oapp[\ocon"g", \ocon"a"] ]
 % Problems = [ pr z (s z) ] % $\lambda x.g (F x) = \lambda x.g a$
-% lam x\ app[con"g",uva z [x]] ~\Uo~lam x\ app[con"g", con"a"]
+% mlam x\ mapp[mcon"g",muva z [x]] ~\Uo~mlam x\ mapp[mcon"g", mcon"a"]
 % link z z (s z)
-% HS = [some (abs x\con"a")]
-% S = [some (olam x\o-con a)]
+% HS = [some (abs x\mcon"a")]
+% S = [some (\olam x\\ocon a)]
 % \end{elpicode}
 
 % KO
 
 % \begin{elpicode}
-%   Terms [ olam x\ oapp[o-con"g",oapp[ouva z, x]]
-%   , olam x\ oapp[o-con"g", o-con"a"] ]
+%   Terms [ \olam x\ \oapp[\ocon"g",\oapp[ouva z, x]]
+%   , \olam x\ \oapp[\ocon"g", \ocon"a"] ]
 % Problems = [ pr 0 1   % $A = \lambda x.x$
 %            , pr 2 3 ] % $A a = a$
-% lam x\ app[con"g",uva z [x]] ~\Uo~lam x\ app[con"g", con"a"]
+% mlam x\ mapp[mcon"g",muva z [x]] ~\Uo~mlam x\ mapp[mcon"g", mcon"a"]
 % link z z (s z)
-% HS = [some (abs x\con"a")]
-% S = [some (olam x\o-con a)]
-% lam x\ app[f, app[X, x]] = Y,
-%   lam x\ x) = X.
+% HS = [some (abs x\mcon"a")]
+% S = [some (\olam x\\ocon a)]
+% mlam x\ mapp[f, mapp[X, x]] = Y,
+%   mlam x\ x) = X.
 % \end{elpicode}
 
 % \otext{Goal: $s_1 \Uo s_2$ is compiled into $t_1 \Ue t_2$}
 % \otext{What is done: uvars \eI{fo_uv} of OL are replaced into uvars \eI{ho_uv} of the ML}
 % \otext{Each \eI{fo_uv} is linked to an \eI{ho_uv} of the OL}
-% \otext{Example needing the compiler v0 (tra l'altro lo scope è ignorato):\\ \eI{lam x\ app[con"g",app[uv 0, x]] ~\Uo~lam x\ app[con"g", c"a"]}}
+% \otext{Example needing the compiler v0 (tra l'altro lo scope è ignorato):\\ \eI{mlam x\ mapp[mcon"g",mapp[uv 0, x]] ~\Uo~mlam x\ mapp[mcon"g", c"a"]}}
 % \otext{Links used to instantiate vars of elpi}
 % \otext{After all links, the solution in links are compacted and given to coq}
 % \otext{It is not so simple, see next sections (multi-vars, eta, beta)}
@@ -1442,41 +1443,41 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % modified version from \cref{sec:intro}):
 
 % \begin{elpicode}
-%   lam x\ app[c"decision", app[c"nfact", x, c"3"]] ~\Uo~
-%     lam x\ app [c"decision", app[uv 0, x]]
+%   mlam x\ mapp[c"decision", mapp[c"nfact", x, c"3"]] ~\Uo~
+%     mlam x\ mapp [c"decision", mapp[uv 0, x]]
 % \end{elpicode}
 
 % \noindent
-% we have the main unification problem where the nested \eI{app} nodes have
+% we have the main unification problem where the nested \eI{mapp} nodes have
 % lists of different lengths making the unification to fail. The compilation of
 % these terms produces a new unification problem with the following shape:
 
 % \begin{elpicode}
-%   lam x\ app[c"decision", app[c"nfact", x, c"3"]] ~\Ue~
-%     lam x\ app [c"decision", uv 1 [x]]
+%   mlam x\ mapp[c"decision", mapp[c"nfact", x, c"3"]] ~\Ue~
+%     mlam x\ mapp [c"decision", uv 1 [x]]
 % \end{elpicode}
 
 % \noindent
-% The main difference is the replacement of the subterm \eI{app[uv 0, x]} of
+% The main difference is the replacement of the subterm \eI{mapp[uv 0, x]} of
 % the OL with the subterm \eI{uv 0 [x]}. Variable indexes are chosen by the
 % ML, that is, the index \eI{0} for that unification variable of the OL term
 % has not the sam meaning of the index \eI{0} in the ML. There exists two
 % different substitution mapping, one for the OL and one for the ML and the indexes
 % of variable point to the respective substitution.
 
-% decomp che mappa abs verso lam
+% decomp che mappa abs verso mlam
 % \noindent
 % \otext{An other example: \\
-%   \eI{lam x\ app[f, app[X, x]] = Y, (lam x\ x) = X.}}
+%   \eI{mlam x\ mapp[f, mapp[X, x]] = Y, (mlam x\ x) = X.}}
 
 % \section{Use of multivars}
 
 % Se il termine initziale è della forma
 
 % \begin{elpicode}
-%   app[con"xxx", (lam x\ lam y\ Y y x), (lam x\ f)]
+%   mapp[mcon"xxx", (mlam x\ mlam y\ Y y x), (mlam x\ f)]
 %   =
-%   app[con"xxx",X,X]
+%   mapp[mcon"xxx",X,X]
 % \end{elpicode}
 
 % allora se non uso due X diverse non ho modo di recuperare il quoziente che mi manca.
@@ -1505,8 +1506,8 @@ $$
 $$
 
 \noindent
-The reason is that <<\eI{lam x\ uva A [x]}>> and
-<<\eI{con"f"}>> start with different term constructors.
+The reason is that \eI{~\mlam~ x\ ~\muva~ A [x]} and
+\eI{~\mcon~"f"} start with different term constructors.
 
 In order to guarantee \cref{prop:simulation}, we detect
 lambda abstractions that can disappear by $\eta$-contraction
@@ -1705,10 +1706,10 @@ The following rule is inserted just before rule $r_\lambda$ in~\cref{fig:comp-fo
 \input{ho-for-free/img/comp_eta.tex}
 
 \noindent
-Whenever \eI{olam F} is detected to be in
-\maybeeta it is compiled to \eI{lam F1} and replaced by the fresh
+Whenever \eI{~\olam~ F} is detected to be in
+\maybeeta it is compiled to \eI{~\mlam~ F1} and replaced by the fresh
 variable \eI{A}. This variable sees all the names free in
-\eI{lam F1} and is connected to \eI{lam F1} via a \linketa.
+\eI{~\mlam~ F1} and is connected to \eI{~\mlam~ F1} via a \linketa.
 \Cref{inv:linklhs} holds for this link. Moreover:
 
 \begin{corollary}
@@ -1721,7 +1722,7 @@ variable \eI{A}. This variable sees all the names free in
   By contradiction, suppose that the rule above is applied and that
   the \rhs of the link is $\lambda x.\lambda y.t$, where $x$ and $y$ occur in $t$.
   If $\testmaybeeta{}~\lambda y.t$ holds then the recursive call to
-  \eI{comp} (made by \eI{comp-lam}) must have put a fresh variable
+  \eI{comp} (made by \eI{comp-mlam}) must have put a fresh variable
   in its place, so this case is impossible.
   Otherwise, if $\testmaybeeta{}~\lambda y.t$ does not hold, then also
   $\testmaybeeta{}~\lambda x.\lambda y.t$ does not hold either, contradicting
@@ -1927,17 +1928,17 @@ $X$ becomes rigid. Let $y\in\Gamma$. There are two cases:
   % finding a $\rho$ such that $\rho s1 \Eo \rho s2$ requires
   % rules~\cref{clause:eta1} and \cref{clause:eta2} at the top level,
   % and that is in exactly the cases in which T (from page 3) is
-  % not a lam (see 5.9.1) compensating for the missing rules in \Ue.
+  % not a mlam (see 5.9.1) compensating for the missing rules in \Ue.
   % 
   % 2) If $\fstep_i$ fails to unify $s1 \Uo s2$
   % it means that, after applying rules~\cref{clause:eta1} and \cref{clause:eta2}
-  % and the one olam-olam we find different terms.
+  % and the one \olam-\olam we find different terms.
   % (5.9.1) only adds lambdas that are forcibly consumed by
-  % lam-lam rule.
+  % mlam-mlam rule.
 \end{proof}
 
 % Note that \progressetadedup always unifies terms starting with exaclty one
-% lambda, hence lam-lma, so we can't fail due to that lambda or succed thanks
+% lambda, hence mlam-lma, so we can't fail due to that lambda or succed thanks
 % to that lambda. Hence it does not impact fidelity.
 
 \begin{corollary}[Properties of \Uo in $\wellb_{\beta\eta}$]\label{prop:unifetawb}
@@ -2058,7 +2059,7 @@ In order to grant fidelity, we add a new link progression for \linketa{}s.
 \begin{definition}[\progressetaright]\label{def:progressetaright} A link
 \linketaM{\Gamma}{X}{t} is removed from \linkStore when either 1)
 $\testmaybeeta~t$ does not hold (anymore) or 2) by $\eta$-contracting $t$ to
-$t'$ where $t'$ does not start with the \eI{lam} constructor. In the
+$t'$ where $t'$ does not start with the \eI{mlam} constructor. In the
 first case, $X$ is unified with $t$, and in the second one, $X$ is unified with
 $t'$ (under the context $\Gamma$).
 \end{definition}
@@ -2097,7 +2098,7 @@ $t'$ (under the context $\Gamma$).
   $t_1$ with $t_2$.
   %
   % Attenzione a questo caso:
-  %    A =𝜂 λx.(B x)   e    x |- B x =𝜂 λx.(C x)           (from a map dedup, where A e C, sono stessa variabile con diff arities)
+  %    A =𝜂 λx.(B x)   e    x |- B x =𝜂 λx.(C x)           (from a map dedup, where A e C, sono stessa variabile mcon diff arities)
   %  se (C x) è instanziato a (f (D x)) allora non c'è nessun progress:
   %  il rhs del secondo link diventa (λx.(f (D x))) che è un maybe-eta
   % 
@@ -2154,7 +2155,7 @@ If we take back the example given at the beginning of this section,
 Note that $\mapping{X}{C}{0}$ disappears from \mapStore
 in favour of the auxiliary \linketa \linketaM{}{C}{\lambda x.B_{x}}.
 The resolution of $\hoUnifPb_1$ assignes $a$ to $A$. This wakes up
-$\linkStore_2$ by \progressetaleft, assigning <<$f \appsep x$>> to $B_x$.
+$\linkStore_2$ by \progressetaleft, assigning $f \appsep x$ to $B_x$.
 The resolution of $\hoUnifPb_2$ instantiates $C$ to $\lambda x.a$, which, in
 turn triggers $\linkStore_1$ by \progressetaleft. In turn, this performs
 $\lambda x.a \Ue \lambda x.(f \appsep x)$ that fails as expected.
@@ -2280,12 +2281,12 @@ has the following property:
 \end{invariant}
 
 \noindent Note that the shape of such as \rhs is
-  <<\eI{app [uva X S | L]}>>, where
+  \eI{~\mapp~ [~\muva~ X S | L]}, where
   \eI{S} is \eI{[s~$_1$~, ~$\ldots$~, s~$_n$~]}
   and \eI{L} is  \eI{[t~$_1$~, ~$\ldots$~, t~$_m$~]}.
   
 % \linkbeta are put in \linkStore and activated when \rhs falls in \llambda. 
-% \noteE[inline]{un po' ridondante con 8.2, non so se serva}
+% \noteE[inline]{un po' ridondante mcon 8.2, non so se serva}
 
 % This property can be relaxed, to accept approximations: a dedicated
 % section is given in a future section
@@ -2308,7 +2309,7 @@ just before rule $r_@$ in \cref{fig:comp-fo}
 The list \eI{Ag} is split into two parts: 
 \eI{Pf} is in \llambda, and can be empty; 
 \eI{Extra} cannot be empty and is such that
-<<\eI{append Pf Extra Ag}>>.
+\eI{append Pf Extra Ag}.
 The \rhs of the \linkbeta is
 the application of a fresh variable \eI{C} having
 in scope all names in \eI{Pf1} (the compilation of \eI{Pf}).
@@ -2320,7 +2321,7 @@ This construction enforces \cref{inv:beta-rhs}.
 % In the following, we pose $X_{s_1\dots s_n}$ to represent a variable $X$ with
 % the list of distinct names $s_1\dots s_n$ as scope. Moreover, $X_{s_1\dots
 % s_n}\appsep t_1\dots t_m$ is the application of that variable to the list of
-% terms $t_1\dots t_m$. Note that \rhsBeta is equivalent to \eI{app[uva N S |
+% terms $t_1\dots t_m$. Note that \rhsBeta is equivalent to \eI{mapp[muva N S |
 % T]}.
 
 % \noteD{Si puo togliere se serve spazio}
@@ -2331,7 +2332,7 @@ This construction enforces \cref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   Assume we have a \linkbeta, by contradiction, if $m = 0$, then the original
-%   \Fo{} term has the shape \eI{oapp[ouva M | Ag]} where \eI{Ag} is a
+%   \Fo{} term has the shape \eI{\oapp[ouva M | Ag]} where \eI{Ag} is a
 %   list of distinct names (i.e. the list \eI{Extra} is empty). This case is
 %   however captured by rule~\cref{rule:complam} (from \cref{sec:compilation}) and
 %   no \linkbeta is produced which contradicts our initial assumption.
@@ -2347,7 +2348,7 @@ This construction enforces \cref{inv:beta-rhs}.
 % \begin{comment}
 % \begin{proof}[Proof sketch]
 %   By construction, the lists $s_1\dots s_n$ and $t_1\dots t_m$ are built by splitting
-%   the list \eI{Ag} from the original term \eI{oapp [ouva A|Ag]}.
+%   the list \eI{Ag} from the original term \eI{\oapp [ouva A|Ag]}.
 %   $s_1\dots s_n$ is the longest prefix of the compiled terms in \eI{Ag} which is
 %   in \llambda. Therefore, by definition of \llambda, $t_1$ must appear  
 %   in $s_1\dots s_n$, otherwise $s_1\dots s_n$ is not the longest prefix in
@@ -2403,7 +2404,7 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
   \label{def:progBetaLL}
   % % \noteE[inline]{non è chiaro. la sostituzione immagino sia la corrente, non se ne esiste una. Poi non è chiaro se otherwise si riferische a in this case. Usa un enumerate}
   % %\noteE[inline]{Is it clearer?}
-  % \noteE[inline]{l1 or t1? Forse è più chiaro dire che il ilnk beta viene raffinato con link beta cone meno argomenti, Se poi il numero di argomenti extra è 0 il tutto è in llambda e quindi viene buttato via. In questo modo la terminazione è ancora più chiara perchè si vede già che prima decresce la lista di argomenti e poi il numero di beta}
+  % \noteE[inline]{l1 or t1? Forse è più chiaro dire che il ilnk beta viene raffinato mcon link beta cone meno argomenti, Se poi il numero di argomenti extra è 0 il tutto è in llambda e quindi viene buttato via. In questo modo la terminazione è ancora più chiara perchè si vede già che prima decresce la lista di argomenti e poi il numero di beta}
   % \noteD{L'ho riformulato}
 \end{definition}
 
@@ -2448,7 +2449,7 @@ we introduce the following
 \begin{itemize}
   \item $\testmaybeeta~T$ does not hold (anymore), in this case $X$ is unified
         with $T$; or
-  \item $T$ $\eta$-contracts to a term $T'$ not starting with the \eI{lam}
+  \item $T$ $\eta$-contracts to a term $T'$ not starting with the \mlam
         constructor. In this case $X$ is unified with $T'$
 \end{itemize}
 \end{definition}
@@ -2693,12 +2694,12 @@ Similar rules are implemented for \linkbeta.
 \end{elpicode}
 
 In the snippet above, we illustrate the deduplication of \linketa. The syntax
-<<\eI{N ~$\triangleright$~ G ?- P}>> denotes a $\lambda$Prolog sequent, that is a 
+\eI{N ~$\triangleright$~ G ?- P} denotes a $\lambda$Prolog sequent, that is a 
 goal \eI{P} under a set \eI{G} of hypothetical rules (introduced
 by \eI{=>}) and where the program context binds (via the \eI{pi}
 operator) eigenvariables in \eI{N}. Sequents are presented to
 \chr with their higher-order unification variables replaced by
-``frozen constants'', that is $A_{xyz}$ becomes <<\eI{uvar ~$f_A$~ [x,y,z]}>>
+``frozen constants'', that is $A_{xyz}$ becomes \eI{uvar ~$f_A$~ [x,y,z]}
 for a fresh constant $f_A$. Frozen constants are ``defrost'' when
 they are part of a new goal (see \cite[section 4.3]{chr-elpi}).
 
@@ -2758,7 +2759,7 @@ without relying on introspection primitives such as Prolog's
 \texttt{functor/3} and \texttt{arg/3}. To avoid that constants 
 cannot be symbols of the meta language, but must rather
 live in
-an open world, akin to the \eI{string} data type used in the \eI{con}
+an open world, akin to the \eI{string} data type used in the \mcon
 constructor.
 
 In the literature we could find a related encoding of the Calculus of

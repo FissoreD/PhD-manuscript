@@ -61,17 +61,23 @@ TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow 
 
 TODO: minted.py for elpi with pred and infix notation
 
+TODO: minted: fix `type lamo` in fig 4.1  
+TODO: minted: fix `pred step_m` in sec 4.2.4
+
 Aggiungere ref : qi2009 e vink1989
 
- -/14/15/16/17  4
+Aprile
+ -/ -/ -/16/17  2
 20/21/22/23     4
 
+Maggio
 5/ 6/ 7         3
 18/19/20/21/22  5
 25/26/27/28/29  5
 
+Giugno
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 31
+TOT: 29
 
