@@ -1556,7 +1556,8 @@ in \cref{sec:etaprogress}
 by extending the \eI{progress1}
 predicate defined in \cref{sec:execution}.
 
-\subsection{Detection of \maybeeta}\label{sec:etadetection}
+\subsection{Detection of \maybeeta}
+\label{sec:etadetection}
 
 When compiling a term $t$, we need to determine if any
 subterm $s \in \subterm{t}$ that is of the form $\lambda x. r$
@@ -1814,7 +1815,7 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
 \end{definition}
 
 \begin{lemma}
-  Let $\lambda x.t$ be the \rhs of a \linketa, then $\wellb(t)$, enforcing \cref{inv:link-eta-right}.
+  Let $\lambda x.t$ be the \rhs of a \linketa, then $\wellb(t)$ holds.
   \label{lemma:unif-eta-aux}
 \end{lemma}
 
@@ -2408,7 +2409,6 @@ This construction enforces \cref{inv:beta-rhs}.
   By \cref{lem:w-enforcement-maybebeta,lem:w-enforcement-maybeeta} and the 
   rule above.
 \end{proof}
-S
 
 \paragraph*{Decompilation}
 All \linkbeta should be solved before decompilation.
