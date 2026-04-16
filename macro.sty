@@ -262,32 +262,32 @@
 \newcommand{\ctx}[1][]{\ensuremath{\Gamma#1}\xspace}
 
 \newcommand{\checkaInfix}{\ensuremath{\sststile{\text{\procfont a}}{}}}
-\newcommand{\caC}[6]{\ensuremath{#1,\ #2,\ #3 \checkaInfix #4 = #5,\ #6}}
-\newcommand{\checkc}{\texttt{check}\ensuremath{_\cdash}\xspace}
+\newcommand{\caC}[6]{\ensuremath{#1,\ #2,\ #3 \checkaInfix #4 \arr #5,\ #6}}
+\newcommand{\checkc}{\text{\procfont check rule}\xspace}
 \newcommand{\checkcInfix}{\ensuremath{\sststile{\text{\procfont r}}{}}}
 \newcommand{\ccC}[4]{\ensuremath{#1,\ #2 \checkcInfix #4}}
 
 \newcommand{\checkhi}{\text{\procfont assume head input}\xspace}
 \newcommand{\checkhiInfix}{\ensuremath{\sststile{\text{\procfont hd}}{\text{\procfont i}}}}
-\newcommand{\chiC}[4]{\ensuremath{#1 \checkhiInfix #2 = #3,\ #4}}
+\newcommand{\chiC}[4]{\ensuremath{#1 \checkhiInfix #2 \arr #3,\ #4}}
 
 \newcommand{\checkho}{\text{\procfont check head output}\xspace}
 \newcommand{\checka}{\text{\procfont check atom}\xspace}
-\newcommand{\checkai}{\text{\procfont{check input}}\xspace}
-\newcommand{\checkao}{\text{\procfont assume term output}\xspace}
-\newcommand{\assume}{\text{\procfont assume output}\xspace}
+\newcommand{\checkai}{\text{\procfont{check term input}}\xspace}
+\newcommand{\checkao}{\text{\procfont assume atom output}\xspace}
+\newcommand{\assume}{\text{\procfont assume term output}\xspace}
 
 \newcommand{\checkhoInfix}{\ensuremath{\sststile{\text{\procfont hd}}{\text{\procfont o}}}}
 \newcommand{\choC}[3]{\ensuremath{#1 \checkhoInfix #2 : #3}}
 
 \newcommand{\assumeInfix}{\ensuremath{\sststile{\text{\procfont tm}}{\text{\procfont o}}}}
-\newcommand{\aC}[4]{\ensuremath{#1 \assumeInfix #2 : #3 = #4}}
+\newcommand{\aC}[4]{\ensuremath{#1 \assumeInfix #2 : #3 \arr #4}}
 
-\newcommand{\checkaoInfix}{\ensuremath{\sststile{\text{\procfont ca}}{\text{\procfont o}}}}
-\newcommand{\caoC}[4]{\ensuremath{#1 \checkaoInfix #2 : #3 = #4}}
+\newcommand{\checkaoInfix}{\ensuremath{\sststile{\text{\procfont a}}{\text{\procfont o}}}}
+\newcommand{\caoC}[4]{\ensuremath{#1 \checkaoInfix #2 : #3 \arr #4}}
 
 \newcommand{\inferInfix}{\ensuremath{\sststile{\text{\procfont tm}}{\text{\procfont i}}}}
-\newcommand{\iC}[4]{\ensuremath{#1 \inferInfix #2 = #3,\ #4}}
+\newcommand{\iC}[4]{\ensuremath{#1 \inferInfix #2 \arr #3,\ #4}}
 
 
 \newcommand{\isdet}{\texttt{deterministic}\ensuremath{_\text{\procfont a}}\xspace}
