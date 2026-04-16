@@ -1411,11 +1411,11 @@ $$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
   \label{th:1}
 \end{theorem}
 
-The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant, for
-the first-order part and is available at
-\url{https://github.com/FissoreD/elpi-formalization}. We discuss of the
-first-order formalization in deterail at~\cref{chap:mechanization}.
-The mechanization for the higher-order part is ongoing.
+The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant for
+the first-order fragment, and is available at
+\url{https://github.com/FissoreD/elpi-formalization}. The first-order
+formalization is discussed in detail in~\cref{chap:mechanization}. The
+mechanization of the higher-order part is still ongoing.
 
 \section{Experience report}
 
@@ -1434,9 +1434,10 @@ to \efunc (\elpi, \rocq-\elpi, and \hb), and libraries that have been ported to 
 static analyzer.
 In particular, the latter class of libraries
 measures the minimal cost for adapting code to the changes we made to
-the \elpi and \rocq-\elpi standard libraries. The typical
-example of code requiring a fix is code that loads
-a local rule containing no cut, typically \eI{copy}.
+the \elpi and \rocq-\elpi standard libraries. A typical example of code 
+that requires a fix is one that loads a local rule
+without a cut, such as \eI{copy}.
+
 
 
 We summarize these results in \cref{tab:report}.
@@ -1520,11 +1521,11 @@ code, while in the private one they added 11 cuts over 7500 lines.
     \begin{tabular}{l|l|c|c|c|c}
                                   Authors  & System  & Mode analysis & Dynamic & H.O.        & Miscalls         \\
       \hline
-      \cite{warren1989} & SB-\prolog & required   & \xmark        & \xmark           & \xmark           \\
-      \cite{lopez2005} & Ciao & required   & \xmark        & \xmark           & \xmark           \\
-      \cite{king2011}   & Red Alert & required   & \xmark        & \xmark           & \xmark           \\
-      \cite{somogy1996} & Mercury & required   & \xmark        & \cmark$\ddagger$ & \xmark $\dagger$ \\
-      \cite{hanus2025}  & Curry & no need    & \xmark        & \cmark           & \cmark           \\
+      \cite{warren1989} & \sbprolog & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{lopez2005} & \ciao & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{king2011}   & \redalert & required   & \xmark        & \xmark           & \xmark           \\
+      \cite{somogy1996} & \mercury & required   & \xmark        & \cmark$\ddagger$ & \xmark $\dagger$ \\
+      \cite{hanus2025}  & \curry & no need    & \xmark        & \cmark           & \cmark           \\
       Fissore and Tassi & \elpi      & no need    & \cmark        & \cmark           & \cmark
       % Mixtus        & \cmark      & \xmark          & \nicefrac{1}{2} & \xmark  & \xmark \\
     \end{tabular}
@@ -1562,7 +1563,7 @@ Regarding modes, \elpi's matching procedure over input arguments allows us to
 dispense with explicit mode analysis -- an essential component in
 \cite{warren1989,lopez2005,somogy1996,king2011}.
 
-We differ from Red Alert~\cite{king2011} in that we pick an operational semantics that
+We differ from \redalert~\cite{king2011} in that we pick an operational semantics that
 explicitly represents choice points as a list of alternatives, and that
 hence is very close to the actual behavior of \elpi's runtime. They pick a
 denotational semantics over the super-homogeneous form
@@ -1570,17 +1571,20 @@ that in turn lets them  formulate
 the static analyzer as an abstract interpreter. It is unclear if a denotational
 semantics can be written without transforming the program in super-homogeneous form.
 
-Some of the higher-order features of the \elpi language are available in
-Mercury~\cite{somogy1996}, although in a more constrained way ($\ddagger$).
-For example
-\eI{once} from \cref{sec:HO-program} is considerably more useful
-if the input relation is allowed to be non-ground, e.g, \eI{once (map get_pdiv [6] L)}.
+Some higher-order features of \elpi are also present in \mercury~\cite{somogy1996},
+although in a more restricted form ($\ddagger$). In \mercury, input modes
+generally require terms to be ground (with some limited relaxation for data).
+However, the predicate \eI{once} in \elpi (see~\cref{sec:HO-program}) is much
+more useful when the input relation can be non-ground. For example,
+\eI{once (map get_pdiv [6] L)} is a valid use case in \elpi, but it cannot be
+encoded in \mercury.
 % Additionally, Elpi’s strong integration with an interactive theorem prover like
 % \rocq prevents us from relying on ground input terms.
+
 We allow higher-order predicates to
-be miscalled, while Mercury does not.
+be miscalled, while \mercury does not.
 Instead, it requires higher-order functions to be annotated with explicit
-mode and determinacy signatures for each possible behavior. As a result, Mercury
+mode and determinacy signatures for each possible behavior. As a result, \mercury
 ascribes
 \href{https://github.com/Mercury-Language/mercury/blob/5900de3e8c1bc1dcc75799b350b381ff9b9774f2/library/list.m#L1587C1-L1597C75}{$11$ signatures}
 to the \texttt{foldr} predicate
@@ -1589,7 +1593,8 @@ compilation failure ($\dagger$). % For instance, \textit{list.filter\_map\_corre
 % if the higher-order function is deterministic rather than semi-deterministic.
 \elpi targets less technically inclined users, more familiar with functional programming languages
 than logic ones, hence we strive for simplicity,
-defining only one determinacy class and immediately classifying wrong calls as
+defining only one determinacy class (in \mercury they are 
+$8$) and immediately classifying wrong calls as
 non-deterministic.
 As a result the signature for \eI{foldr} is just
 \eI{func foldr (func L, A ~$\to$~ A), list L, A ~$\to$~ A},
@@ -1599,8 +1604,8 @@ As a result the signature for \eI{foldr} is just
 % helping the compiler to produce
 % efficient, specialized, machine code.
 
-The ``determinism types'' of Curry~\cite{hanus2025} are much more similar to
-our signatures, and Curry supports miscalled functions as well.
+The ``determinism types'' of \curry~\cite{hanus2025} are much more similar to
+our signatures, and \curry supports miscalled functions as well.
 In the work of Hanus and Prott the \texttt{Any} type stands for non-determinism
 and like a black hole it absorbs the determinism
 of the surrounding sub-terms. This is a convenient way to capture all miscalls
@@ -1613,7 +1618,7 @@ intact. Although we do not analyze data in this chapter, our set of rules can be
 complemented to perform full type checking (in addition to determinacy
 checking) in one pass.
 
-In Curry the \texttt{allValues} builtin
+In \curry the \texttt{allValues} builtin
 can be used to turn a relation into a function. \prolog, and also \elpi,
 provide a similar \texttt{findall} builtin, but in addition to that they
 also let one commit to the first result by either using \eI{once},
@@ -1626,14 +1631,21 @@ The notion of \textit{functional context} in~\cite{warren1989}
 is closely related to this difficulty.
 
 % TODO: long version
-% Another difference from \cite{hanus2025} is that when a variable is the output
-% of a miscalled predicate, its signature can change over time. For instance, if
-% we have \eI{compose rel1 rel2 R, R = copy, R T1 T2}, where \eI{compose}
-% and \eI{copy} are taken respectively from \cref{sec:dynamic-prog,sec:meta-prog},
-% \eI{rel1} and \eI{rel2} are two relations. The miscalled predicate
-% \eI{compose} makes \eI{R} a relation. However, thanks to the assignment
-% \eI{R = copy}, we change our mind and declare \eI{R} as a function.
-% Therefore, the call \eI{R T1 T2} is considered a function.
+Another difference with~\cite{hanus2025} is that, when a variable appears as the
+output of a miscalled predicate, its signature may change over time. For
+example, consider 
+\begin{center}
+  \eI{compose rel1 rel2 R, R = copy, R T1 T2}
+\end{center}
+\noindent
+where \eI{compose} and \eI{copy} are defined in
+\cref{sec:dynamic-prog,sec:meta-prog}, and \eI{rel1} and \eI{rel2} are two
+relations.
+
+The miscall to \eI{compose} initially assigns a relational interpretation to
+\eI{R}. However, the subsequent assignment \eI{R = copy} refines this
+information and makes \eI{R} a function. As a result, the call
+\eI{R T1 T2} is treated as a function.
 
 Our experience report confirms most of the \elpi code out there is made
 of functional predicates and that the static analyzer accepts the vast
