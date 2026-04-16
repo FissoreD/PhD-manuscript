@@ -106,7 +106,7 @@ As for observers, solvers can be activated or deactivated by the user.
 
 Conceptually, a type-class goal can be translated into a query with two
 arguments: the goal itself and a concrete instance witnessing it. The
-search is expressed using the predicate \eI{pred tc term -> term}.
+search is expressed using the predicate \eI{pred tc term ~$\to$~ term}.
 
 By invariant, a query of the form \eI{tc T I} ensures that the term
 \eI{I} has type \eI{T}.
@@ -187,7 +187,7 @@ arguments.
 
 Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return a term
 of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive call
-to \eI{comp}. Since \eI{R} has type \eI{term -> prop} and abstracts the local
+to \eI{comp}. Since \eI{R} has type \eI{term ~$\to$~ prop} and abstracts the local
 variable \eI{x}, the compiler introduces a fresh variable \eI{y} to quantify
 over the corresponding argument. This ensures that the resulting rule is
 closed (ground), as required by the \eI{coq.elpi.accumulate} predicate.
@@ -901,7 +901,7 @@ following code:
 \begin{coqcode}
   Class Extens A := ...
   Instance Extens_f1 A1 A2: Extens (~$\forall$~ x1 : A1, A2 x1) := ...
-  Definition map A B := A -> option B.
+  Definition map A B := A ~$\to$~ option B.
 \end{coqcode}
 
 The \rocq solver can solve the goal \cI{Extens (map A B)} using the
@@ -915,7 +915,7 @@ unpredictable and harder to debug. Moreover, it may introduce performance
 issues~\cite{rocq-unif}.
 
 To address $\delta$-unification issues, the user has two options. First,
-one can declare \cI{map} as a notation for \cI{A -> option B}, since
+one can declare \cI{map} as a notation for \cI{A ~$\to$~ option B}, since
 notations are unfolded by the elaborator, creating no ambiguity in the
 unification algorithm. Alternatively, one can add an
 ad-hoc rule to the solver:
@@ -923,7 +923,7 @@ ad-hoc rule to the solver:
 \begin{coqcode}
   Elpi Accumulate TC.Solver lp:{{
     tc-Extens {{map lp:A lp:B}} R :-
-      tc-Extens {{lp:A -> option lp:B}} R.
+      tc-Extens {{lp:A ~$\to$~ option lp:B}} R.
   }}.
 \end{coqcode}
 

@@ -162,7 +162,7 @@ his lecture notes, Strachey~\cite{polymorphism} distinguishes between two main
 forms of polymorphism: parametric polymorphism and ad-hoc polymorphism.
 Parametric polymorphic functions are \emph{uniform}, meaning that their behavior
 does not depend on the specific type at which they are instantiated. For
-example, the function \emph{length}, with type \mlI{'a list -> int}, returns $7$
+example, the function \emph{length}, with type \mlI{'a list ~$\to$~ int}, returns $7$
 when applied to any list of seven elements. In other words, the compiler
 reuses the same implementation of \emph{length} for every call, regardless of
 the instantiation of \mlI{'a}.
@@ -546,8 +546,8 @@ is an equivalent notation following the convention of~\cite{miller2012}.
 \elpi\ provides a dedicated syntax for declaring predicates, which also
 allows the programmer to specify the modes of their arguments.
 
-The declaration \eI{pred p t1 -> t2}, where \eI{t1} and \eI{t2} are
-types, is equivalent to \eI{type p t1 -> t2 -> prop}. However, it also
+The declaration \eI{pred p t1 ~$\to$~ t2}, where \eI{t1} and \eI{t2} are
+types, is equivalent to \eI{type p t1 ~$\to$~ t2 ~$\to$~ prop}. However, it also
 defines the modes of the two arguments.
 
 Arguments placed before the arrow symbol in a \eI{pred} declaration
@@ -1067,7 +1067,7 @@ reference when discussing determinacy checking in \elpi (see
 implementation is shown below.
 %
 \begin{elpicode}
-pred map (pred A -> B), list A -> list B.
+pred map (pred A ~$\to$~ B), list A ~$\to$~ list B.
 map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
@@ -1082,7 +1082,7 @@ Another common higher-order construct in \elpi is the predicate
 \eI{once}, defined as follows.
 %
 \begin{elpicode}
-pred once (pred) ->.
+pred once (pred) $\to$.
 once P :- P, !.
 \end{elpicode}
 
@@ -1131,8 +1131,8 @@ the data type for $\lambda$-terms.
 %
 \begin{elpicode}
 kind tm type.                       % datatype of $\lambda$-terms in HOAS form
-type app tm -> tm -> tm.            %  - binary application
-type lam (tm -> tm) -> tm.          %  - $\lambda$-abstraction
+type app tm ~$\to$~ tm ~$\to$~ tm.            %  - binary application
+type lam (tm ~$\to$~ tm) ~$\to$~ tm.          %  - $\lambda$-abstraction
 \end{elpicode}
 %
 In the HOAS encoding of syntax with binders we do not find a node for variables:
@@ -1144,7 +1144,7 @@ A simple program manipulating higher-order data is the function
 performing a deep copy of a term:
 %
 \begin{elpicode}
-pred copy tm -> tm.
+pred copy tm ~$\to$~ tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
 copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
@@ -1178,7 +1178,7 @@ the application of a $\lambda$-abstraction
 to an argument and uses \eI{copy} to perform the substitution:
 
 \begin{elpicode}
-pred whd tm -> tm.
+pred whd tm ~$\to$~ tm.
 whd (app H A) R :- whd H (lam F), !,           % we fire the redex
   pi x\ copy x A => copy (F x) S, whd S R.     %   and we continue
 whd X X.                                       % or we stop

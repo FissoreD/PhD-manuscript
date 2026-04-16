@@ -31,9 +31,6 @@ TODO: dire della differenza che esiste fra la semantica del paper sulla det chec
       e quella della sezione 2.xx: le variabili possono apparire in testa alle
       regole
 
-TODO: in HO for free aggiungere la frase che dice della notazione quando non
-      siamo in verbatim mode
-
 TODO: aggiungere questo da qualche parte This selection strategy of logic
   programs may create two sources non-determinism:
   1) at least two rules can be used (successfully) to the \emph{same query}
@@ -56,14 +53,12 @@ TODO: dire che nella semantica elpi nella meccanizzazione passiamo un set di var
 
 TODO: correggere bib libro enrico
 
-TODO: nelle semantiche del capitolo sulla meccanizzazione, usare la squig arrow per
-      separare gli input dagli output
-
 TODO: minted.py for elpi with pred and infix notation
 
 TODO: minted: fix `type lamo` in fig 4.1  
 TODO: minted: fix `pred step_m` in sec 4.2.4  
-TODO: Continuare il capitolo sulla ho-for-free da pagina 60
+TODO: Continuare il capitolo sulla ho-for-free da pagina 60  
+TODO: Rivedere capitolo 2 con correzioni enrico
 
 Aggiungere ref : qi2009 e vink1989
 

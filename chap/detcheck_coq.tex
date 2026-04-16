@@ -68,7 +68,7 @@ Inductive Tm := Symb of S | Pred of P | Var of V | App of Tm & Tm.
 Inductive Atom := cut | call of Tm.
 Record R := mkR { head : Tm; premises : list Atom }.
 Record ~\ensuremath{\mathbb{P}}~ := { rules : seq R; sig : sigT }.
-Definition ~\ensuremath{\Sigma}~ := {fmap V -> Tm}.
+Definition ~\ensuremath{\Sigma}~ := {fmap V ~$\to$~ Tm}.
 \end{coqcode}
 \vspace{-1.4em}
   % \caption{Syntax of \elpi programs}
@@ -1359,7 +1359,7 @@ their types, and whether the predicate is deterministic. They indicate
 that \texttt{f} and \texttt{g} are expected to be functions, as specified
 by the \eI{~\PYG{k+kd}{func}~} keyword, whereas \eI{r} is a relation, as
 indicated by the \eI{~\PYG{k+kd}{pred}~} keyword. The
-\eI{~\PYG{k+kMode}{\PYGZhy{}\PYGZgt{}}~} symbol separates inputs from
+\eI{~$\to$~} symbol separates inputs from
 outputs; therefore, all three predicates are expected to take an
 \texttt{int} as input and return an \texttt{int} as output.
 

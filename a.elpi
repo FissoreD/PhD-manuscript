@@ -1,0 +1,5 @@
+func id int -> int.
+
+func isfunc (func int -> int) ->.
+isfunc id :- !.
+isfunc (x\ y \ y = 3).

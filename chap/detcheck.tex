@@ -43,32 +43,59 @@
 % and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis framework with industrial
 % applications at BlueRock systems.
 
+Over the years, \elpi has been adopted by many \rocq users. A commonly cited
+difficulty is the shift to a logic programming paradigm. While \rocq users are
+generally familiar with typed functional programming, they often have limited
+experience with backtracking and how to control it. When backtracking is not
+properly managed, it can lead to inefficient programs and make debugging more
+difficult.
 
-Over the years \elpi was put in the hands of quite a number of \rocq users
-and the most widely cited barrier to entry has been the paradigm shift to a
-logic programming one.
-\rocq users
-are comfortable with typed and functional programming but often lack
-experience with backtracking and its control. Uncontrolled
-backtracking can produce slower programs and complicate debugging.
+This issue also appears in type class search, and it is a concern for developers
+working with type classes in \rocq. In some cases, a type class is expected to
+behave deterministically: the search for instances of this class should produce
+at most one solution when it succeeds. However, since there is no mechanism to
+verify this property, an inexperienced user may encounter long debugging traces
+by unintended non-determinism.
 
-To lower this barrier we design a system of determinacy signatures that
-allows programmers to declare when a predicate behaves like a
-function: at most one result is produced and the runtime will not
-consider alternative results. This notion of determinism is
-called \emph{semidet} by
-Henderson et al.~\cite{henderson1996} and named \emph{operationally
-deterministic} by Nakamura~\cite{nakamura1986}. Alternative notions
-exist, for example Warren~\cite{warren1989} considers predicates
-\emph{observably deterministic} when they produce the same result
-multiple times or diverge.
-We chose operational determinacy since it matches
-the behavior of functions in mainstream functional languages.
+For instance, consider the following two instances of the same class:
+
+\begin{coqcode}
+Instance i1 A1 : Class1 A1 ~$\to$~ DetClass A1.
+Instance i2 A1 : Class2 A1 ~$\to$~ DetClass A1.
+\end{coqcode}
+
+If the class \cI{DetClass} is intended to be deterministic, these two instances
+break that assumption. Under certain conditions, both \cI{i1} and \cI{i2} may,
+in fact,
+provide valid solutions, so a query to \cI{DetClass} can return more than one
+result. A static checker could detect this situation and warn the user about the
+loss of determinism caused by the presence of multiple instances.
+
+Moreover, one may want to keep both instances, but ensure that if the first one
+succeeds, the second is not considered. Expressing this kind of control over the
+search is not possible in \rocq. In contrast, \elpi allows this behavior by
+introducing a \cut in the body of the first rule, which stops further
+backtracking and enforces the intended deterministic behavior.
+
+More generally, unintended non-determinism can lead to undesirable effects.
+To reduce this issue, we propose a system of determinacy signatures for \elpi. 
+This system
+allows programmers to specify when a predicate should behave like a function,
+that is, it produces at most one result.
+
+This notion of determinism is referred to as \emph{semidet} by
+Henderson et al.~\cite{henderson1996}, and as \emph{operationally
+deterministic} by Nakamura~\cite{nakamura1986}. Other notions also exist. For
+example, Warren~\cite{warren1989} defines predicates as \emph{observably
+deterministic} when they produce the same result multiple times or diverge. In
+this work, we adopt operational determinacy, as it closely matches the behavior
+of functions in mainstream functional programming languages.
 
 Our determinacy checker covers \elpi's
 higher-order features, including higher-order predicates (for
 example map and fold, see \cref{sec:HO-program}) and dynamic predicates that extend themselves at
-runtime (see \cref{sec:dynamic-prog}). %, and meta-programs that manipulate \elpi code.
+runtime (see \cref{sec:dynamic-prog}), and meta-programs that manipulate \elpi code
+(see \cref{sec:meta-prog}).
 
 We apply these signatures to a large portion of publicly available
 \elpi code in the \rocq ecosystem and report our experience. Our
@@ -149,7 +176,7 @@ all that, and simply declare that they expect \emph{their code} to
 compute functions.
 %
 \begin{elpicode}
-func main list int -> . % the signature for main
+func main list int ~$\to$~. % the signature for main
 \end{elpicode}
 %
 The signature starts by a keyword declaring the determinacy of
@@ -179,7 +206,7 @@ Note that the programmer may also write a functional membership test as
 follows, and use it in functional code with no additional safeguard. In this case
 the cut discards the second rule as soon as \eI{X = Y} succeeds.
 \begin{elpicode}
-func in int, list int -> .
+func in int, list int ~$\to$~.
 in X [Y|_ ] :- X = Y, !. % commit to this rule, discard the next one
 in X [_|YS] :- in X YS.
 
@@ -209,7 +236,7 @@ A notable higher-order program is the one turning relations into functions.
 % into a function.
 %
 \begin{elpicode}
-func once (pred) -> . % a function taking a fully applied predicate
+func once (pred) ~$\to$~. % a function taking a fully applied predicate
 once P :- P, !.       % the ! commits to the first success
 \end{elpicode}
 
@@ -222,7 +249,7 @@ the higher-order argument \eI{P}.
 An example of a \emph{conditional} function is
 the predicate to map over a list:
 \begin{elpicode}
-func map (func A -> B), list A -> list B.
+func map (func A ~$\to$~ B), list A ~$\to$~ list B.
 map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
@@ -236,7 +263,7 @@ that \eI{map} is \emph{miscalled}. In this case we weaken its signature to%
 \footnote{We explain in detail this weakining operation in \cref{sec:basic}}:
 %
 \begin{elpicode}
-pred map (func A -> B), list A -> list B.
+pred map (func A ~$\to$~ B), list A ~$\to$~ list B.
 \end{elpicode}
 %
 Our static analysis tracks miscalls to functions and treats them as
@@ -246,14 +273,14 @@ this with four scenarios involving correct calls and miscalls to \eI{map}.
 
 \begin{elpicode}
 % a function                      % a relation
-func incr int -> int.             pred get_pdiv int -> int.
+func incr int ~$\to$~ int.             pred get_pdiv int ~$\to$~ int.
 incr 1 2.                         get_pdiv 6 3. get_pdiv 6 2.
 
        % four predicates calling map or miscalling map
-func p list int -> list int.      pred q list int -> list int.
+func p list int ~$\to$~ list int.      pred q list int ~$\to$~ list int.
 p L R :- map incr L R. ~\PYG{c}{\PYGZpc{} OK}~       q L R :- map get_pdiv L R. % OK
 
-func r list int -> list int.      func r1 list int -> list int.
+func r list int ~$\to$~ list int.      func r1 list int ~$\to$~ list int.
 r L R :- map get_pdiv L R.        r1 L R :- map get_pdiv L R, !. % OK
            % ^^^^^^^^ error: non-deterministic atom
 \end{elpicode}
@@ -293,7 +320,7 @@ programming in a language like \elpi. In this paragraph, we point out why the
 predicate \eI{copy} can be considered as a deterministic predicate.
 %
 \begin{elpicode}
-func copy tm -> tm.
+func copy tm ~$\to$~ tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
 copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
@@ -335,10 +362,10 @@ also \eI{F} and \eI{G} must be; from that we have that
 
 \section{\elpi's abstract syntax and semantics}
 
-Any static analysis to rule out non-determinism must depend on the
-operational semantics of the language. In particular
-the order in which rules are applied and the order in which rule premises
-are executed directly impact the scope of the cut directive.
+Any static analysis aimed at ruling out non-determinism must take into account
+the operational semantics of the language. In particular, the order in which
+rules are applied, as well as the order in which their premises are executed,
+directly affects the scope of the cut directive.
 
 The \elpi syntax and semantics considered in this section are those presented
 in \cref{sec:elpi-syntax,sec:elpi-semantics}. To simplify the presentation, we
@@ -433,7 +460,7 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
     % $\forall r' = (k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$
       % there exists a $d \leq n$ s.t. $t_d$ and $u_d$ do not unify, or}\\
   (c) $r$ is a local rule
-      introduced via $\pi\ x\ r\ b$, 
+      introduced via \piImplCmd{x}{r}{b}, 
       $x$ is an input of $r$ and for all rules $r'$ in the program,
       the corresponding input is not a variable
       %$\exists d \leq n$ s.t.
@@ -453,14 +480,14 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
 \noindent
 \begin{minipage}{.33\textwidth}
 \begin{elpicode}
-pred p int -> int.
+pred p int ~$\to$~ int.
 p 1 3. 
 p 1 2.
 \end{elpicode}
 \end{minipage}
 \begin{minipage}{.33\textwidth}
 \begin{elpicode}
-func q int -> int.
+func q int ~$\to$~ int.
 q 1 3.
 q 2 4.
 \end{elpicode}
@@ -468,7 +495,7 @@ q 2 4.
 \noindent
 \begin{minipage}{.33\textwidth}
 \begin{elpicode}
-func r int -> int.
+func r int ~$\to$~ int.
 r X R :- p X R, !. 
 r X R :- q X R.
 \end{elpicode}
@@ -499,14 +526,14 @@ The predicates \eI{s} and \eI{s1} below illustrate the role of \pi.
 \mvspace
 \begin{minipage}{.5\textwidth}
 \begin{elpicode}
-func s int -> int.
+func s int ~$\to$~ int.
 s X R :- pi y\ q y 3 => q X R.
                          % error: mutxecl violated  ^^^^^
 \end{elpicode}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
 \begin{elpicode}
-func s1 int -> int.
+func s1 int ~$\to$~ int.
 s1 X R :- pi y\ q 1 5 => q X R. 
 ~ ~
 \end{elpicode}
@@ -525,7 +552,7 @@ Note that condition \textit{(c)} also rules out the following example,
 since the \pi-quantified symbol \eI{y} is not used in input position.
 
 \begin{elpicode}
-func s2 int -> int.
+func s2 int ~$\to$~ int.
 s2 1 R :- pi y\ q 3 5 => s2 2 R. 
 s2 2 R :- pi y\ q 3 6 => q 3 R. 
 %               ^^^^^ error: mutxecl violated
@@ -539,8 +566,7 @@ rules are mutually exclusive with the global rules in the program, but the query
 \subsection{Checking mutual exclusion: discrimination trees}
 
 This subsection briefly describes our implementation of mutual exclusion
-verification in \elpi. It is not required for understanding the rest of the
-chapter and can be skipped on a first reading.
+verification in \elpi.
 
 To support mutual exclusion checking in \elpi, we rely on the
 discrimination tree data structure~\cite{disc-tree}, a standard mechanism for
@@ -554,7 +580,14 @@ while leaves store buckets of objects. Tries represent dictionaries by sharing
 common prefixes of keys. A \emph{path} is defined as the sequence of labels
 encountered from the root to a leaf.
 
-Two basic operations are supported: insertion and retrieval. To insert an
+Two basic operations are supported: insertion and retrieval.
+%
+\begin{camlcode}
+  type retrive trie ~$\to$~ key ~$\to$~ option elt.
+  type insert  trie ~$\to$~ key ~$\to$~ elt ~$\to$~ unit.
+\end{camlcode}
+
+To insert an
 element $e$ with key $k$, the algorithm traverses the trie symbol by symbol,
 starting from the root. For each symbol, it follows the corresponding edge,
 creating a new node if necessary. Once all symbols have been consumed, the
@@ -570,12 +603,13 @@ $\qquad$\includegraphics{disc_tree_src.pdf}\\\phantom{xx}
 \begin{subfigure}{0.65\textwidth}
 \includegraphics{disc_tree.pdf}
 \end{subfigure}
-\caption{Example of a discrimination tree, from~\cite{disc-tree}}
+\caption{Example of a discrimination tree}
 \label{fig:disc-tree}
 \end{figure}
 
 In \prolog systems, the indexed objects are the rules of the database, and the
-head of each rule serves as its key. In \cref{fig:disc-tree}, the database
+head of each rule serves as its key. In \cref{fig:disc-tree}, taken from~\cite{disc-tree},
+the database
 (left) and its corresponding discrimination tree (right) are shown. Leaves are
 annotated with the rules stored in each bucket. The purpose of the tree is to
 enable fast clause retrieval.
@@ -583,7 +617,8 @@ enable fast clause retrieval.
 Variables are represented in an approximate way. In particular, they are encoded
 as generic symbols that match any term. For instance, in
 \cref{fig:disc-tree}, rules 1 and 2 share the same path and are stored in the
-same bucket. Retrieval must also take modes into account. For example, if the
+same bucket. Differently from \cite{disc-tree},
+retrieval must take modes into account. For example, if the
 predicate \eI{g} has one input and one output argument, the query \eI{g X Y}
 returns only rules 7 and 8. If both arguments are outputs, then rules 7, 8, and 9
 are returned.
@@ -599,13 +634,27 @@ of rules returned by the tree is a superset of the rules that actually match the
 query. A second phase applies the full \elpi unification to filter out
 non-applicable rules.
 
-We also optimize the encoding of query paths. In practice, query terms are often
-larger than the terms stored in the database, so encoding them entirely is not
-useful. Instead, we use a hit-map to decide which subterms should be encoded and
-at which depth. Furthermore, to avoid complex unification, terms headed by a
-$\lambda$-symbol are treated as variables. For example, \eI{x\ X x} may unify
-with \eI{id} or \eI{(x\ 3)}, but all such terms are encoded as variables in the
-tree.
+We also optimize the encoding of query paths. In practice, query terms are
+often larger than the terms stored in the database, so encoding them entirely
+is not useful. Instead, we use a hit map to decide which subterms should be
+encoded and at which depth.
+
+Moreover, to avoid complex unification, terms headed by a $\lambda$-symbol are
+treated as variables. For example, \eI{x\ X x} may unify with \eI{id} or with
+\eI{(x y\ true)}, but all such terms are encoded as variables in the tree. As a
+result, in our implementation of discrimination trees, the following program
+does not satisfy mutual exclusion:
+
+\begin{elpicode}
+func isfunc (func int ~$\to$~ int) ~$\to$~.
+isfunc id.
+isfunc (x y\ true).
+\end{elpicode}
+
+The argument of the second rule for the predicate \eI{isfunc} contains a
+$\lambda$-abstraction, so the whole argument is encoded as a variable in the
+discrimination tree. To make the checker accept this program, a \cut must be
+added to the body of the first rule.
 
 Discrimination trees are effective for indexing rules in the \elpi database,
 making retrieval faster in many cases. In this chapter, however, their main role is
@@ -664,7 +713,7 @@ predicates.
 Note that the grammar of \TYPE\ forces all input arguments to come first.
 We  reserve $d$ for instances of type \STAR, $\rho$ and $\tau$ for signatures and $\func$ for instances of \F.
 For example the signature
-\eI{func map (func A -> B), list A -> list B}
+\eI{func map (func A ~$\to$~ B), list A ~$\to$~ list B}
 corresponds to
 $(\star \toI \star \toO \detI) \toI \star \toI \star \toO \detI$.
 
@@ -813,6 +862,16 @@ that takes
 as input two functions \eI{F} and \eI{G}, and
 calls them in sequence, whereas \eI{compose} builds a new function
 from the two received in input.
+%
+\begin{elpicode}
+func comp (func int -> int), (func int -> int), int -> int.
+comp F G X Z :- F X Y, G Y Z.
+
+func compose (func int -> int), (func int -> int) -> (func int -> int).
+compose F G (comp F G).
+\end{elpicode}
+
+
 % We define $s_1 := (int \toI int \toO \detI)$ and $s_2 := (int \toI int \toO
 % \relI)$ The static checker verifies whether the body atoms behave
 % deterministically. To ensure this property, we start with a context \ctx\ in
@@ -843,7 +902,7 @@ We now move to an example that involes a miscall to a predicate, that is,
 a rule wih a non-deterministic body atom.
 
 \begin{elpicode}
-func r (func int -> int), (pred int -> int), int -> int.
+func r (func int ~$\to$~ int), (pred int ~$\to$~ int), int ~$\to$~ int.
 r F G X Y :- map G [X] [Z], !, compose F F H, H Z Y.
 \end{elpicode}
 %
@@ -851,7 +910,7 @@ After analyzing the head of the rule, the context asserts that \eI{F} (resp. \eI
 is a function (resp. a relation).
 In the body of \eI{r}, the first atom is non-deterministic,
 since \eI{G} violates the preconditions of \eI{map}. The signature of
-\eI{map G [X] [Z]} is hence \text{\auxfont weak}ened to \relI. Even if this atom 
+\eI{map G [X] [Z]} is hence \maximize{}ened to \relI. Even if this atom 
 could
 generate multiple alternatives, the \cut\ commits to the first one
 restoring the determinism of
@@ -1415,7 +1474,7 @@ by extending~\cref{def:mutExcl}, as in~\cite{lopez2005}, but the
 problem is, in general, undecidable. An example of this issue is given below:
 
 \begin{elpicode}
-  func fact int -> int.
+  func fact int ~$\to$~ int.
   fact 0 1.
   fact N R :- N > 0, N' is N - 1, fact N' R', R is N * R'.
 \end{elpicode}
@@ -1529,7 +1588,7 @@ than logic ones, hence we strive for simplicity,
 defining only one determinacy class and immediately classifying wrong calls as
 non-deterministic.
 As a result the signature for \eI{foldr} is just
-\eI{func foldr (func L, A -> A), list L, A -> A},
+\eI{func foldr (func L, A ~$\to$~ A), list L, A ~$\to$~ A},
  familiar to our audience.
 % Finally this design choice aligns
 % with our query of providing static guarantees on programs rather than
