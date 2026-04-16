@@ -2082,18 +2082,16 @@ $t'$ (under the context $\Gamma$).
   then \mapdeduplication guarantees \cref{prop:fidelity}
 \end{theorem}
 
-\def\chain{\ensuremath{\vec{c}}\xspace}
-
 \begin{proof}[Proof sketch]
   Let $X$ be a \Fo{}-variable appearing in two different subterms $s_1$ and $s_2$.
   In $s_1$ variable $X$ is applied to the list of terms $x_1\dots x_m$ while, in $s_2$,
   it is applied to $y_1\dots y_n$. Without loss of generality we take $m < n$.
   After \mapdeduplication we have two distinct \Ho{}-variables for $X$, say $A$ and $C$,
-  related by a chain \chain of \linketa{}s of length $n - m$. We prove that
+  related by a chain $\vec{c}$ of \linketa{}s of length $n - m$. We prove that
   if $A$ and $C$ are assigned respectively to the \wellb terms $\lambda x_1\dots
   x_p.t_1$ and $\lambda x_1\dots x_q.t_2$, then a failure occurs iff
   these terms do not unify. By \progressetaleft, the assignment of $A$
-  activates $p$ links of \chain. In particular, when $p \geq n$, then the entire
+  activates $p$ links of $\vec{c}$. In particular, when $p \geq n$, then the entire
   chain collapses and unification is performed between $\lambda x_n\dots
   x_p.t_1$ and $\lambda x_1\dots x_q.t_2$. By \cref{th:fidelity-beta} and since
   we work with \wellb terms, this unification succeeds iff it does in \Fo.
@@ -2103,7 +2101,7 @@ $t'$ (under the context $\Gamma$).
   would eventually cause a failure. 2) If $t_1$ is a
   unification variable then \eI{scope-check} guarantees that $t_2$ does not use
   $x_1\dots x_p$ as free variables, causing otherwise a unification failure.
-  After this check, $m - n - p$ links of \chain remain suspended, as we expect:
+  After this check, $m - n - p$ links of $\vec{c}$ remain suspended, as we expect:
   decompilation is charged to wake all links in \linkStore and eventually relate
   $t_1$ with $t_2$.
   %
