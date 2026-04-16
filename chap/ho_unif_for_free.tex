@@ -1736,7 +1736,7 @@ Moreover:
 \end{proof}
 
 \begin{lemma}[$\wellb$-partial-enforcement]\label{lem:w-enforcement-maybeeta}
-  $\forall s, \C{s}{t}{m}{l}$, if $\:\wellb_{\beta \eta}(s)$  then $\:\wellb(t)$.
+  $\forall s, \C{s}{t}{m}{l}$, if $\wellb_{\beta \eta}(s)$  then $\wellb(t)$.
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -2316,16 +2316,21 @@ just before rule $r_@$ in \cref{fig:comp-fo}
 \input{ho-for-free/img/comp_beta.tex}
 
 \noindent
-The list \eI{Ag} is split into two parts: 
-\eI{Pf} is in \llambda, and can be empty; 
-\eI{Extra} cannot be empty and is such that
-\eI{append Pf Extra Ag}.
-The \rhs of the \linkbeta is
-the application of a fresh variable \eI{C} having
-in scope all names in \eI{Pf1} (the compilation of \eI{Pf}).
-The variable \eI{B}, returned as the compiled term, is a fresh variable
-having in scope all the free variables occurring in \eI{Pf1} and
-\eI{Extra1} (the compilation of \eI{Extra}).
+The list \eI{Ag} is split into two parts: \eI{Pf}, which is the
+longest prefix of \eI{Ag} such that \eI{Pf} is a list of distinct
+names (it may be empty), and \eI{Extra}, which is non-empty and
+satisfies \eI{append Pf Extra Ag}.
+
+The right-hand side of \linkbeta\ is the application of a fresh
+variable \eI{C} whose scope includes all names in \eI{Pf1} (the
+compilation of \eI{Pf}).
+
+The variable \eI{B}, returned as the compiled term, is a fresh
+variable whose scope includes all free variables occurring in
+\eI{Pf1} and \eI{Extra1} (the compilation of \eI{Extra}). This scope
+is constructed by the \eI{get-scope} procedure, which returns the
+list of distinct names appearing in its first argument.
+
 This construction enforces \cref{inv:beta-rhs}.
 
 % In the following, we pose $X_{s_1\dots s_n}$ to represent a variable $X$ with
@@ -2378,8 +2383,16 @@ This construction enforces \cref{inv:beta-rhs}.
 \end{lemma}
 
 \begin{proof}[Proof sketch]
-  By \cref{lem:w-enforcement-maybebeta,lem:w-enforcement-maybeeta} and the 
-  rule above.
+  By \cref{lem:w-enforcement-maybeeta}, we already cover terms in
+  \maybebeta\ and \maybeeta. We now need to consider the case of a term
+  $s$ in the object language that is not in \notllambda. This category
+  of terms identifies variables that are applied to a list of
+  non-distinct names; that is, the pattern fragment from
+  \cref{def:pattern-fragment} is not respected.
+  The rule implemented above for the predicate \eI{comp} handles this
+  case by returning a variable in the meta-language whose scope is a
+  list of distinct names, as ensured by the specification of
+  \eI{get-scope}. Therefore, the compiled term $t$ is \wellb.
 \end{proof}
 
 \paragraph*{Decompilation}
