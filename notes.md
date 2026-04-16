@@ -60,7 +60,7 @@ TODO: minted: fix `pred step_m` in sec 4.2.4
 TODO: Continuare il capitolo sulla ho-for-free da pagina 60  
 TODO: Rivedere capitolo 2 con correzioni enrico
 
-Aggiungere ref : qi2009 e vink1989
+TODO: bib Aggiungere ref : qi2009 e vink1989 e sld
 
 Aprile
  -/ -/ -/16/17  2
