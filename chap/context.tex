@@ -431,12 +431,14 @@ be found in Tassi's ``habilitation à diriger les recherches''~\cite{hdr}.
 Here we briefly introduce the aspects of \elpi\ that are relevant to this
 document.
 
-Sections~\cref{sec:elpi-syntax,sec:elpi-semantics} describe the syntax and
-operational semantics of \elpi. Our presentation slightly differs
-from~\cite{hdr}, as it follows the conventions adopted later in
-\cref{chap:det-elpi,chap:mechanization}. In particular, the syntax and
-semantics presented here exclude the \chr\ component of \elpi; we discuss it
-informally in \cref{sec:chr}.
+Sections~\cref{sec:elpi-syntax,sec:elpi-semantics} present the syntax and the
+operational semantics of \elpi. A first formal description appeared in the
+appendix of our contribution~\cite{fissore2026}, and was later revised
+in~\cite{hdr}. In this thesis, we follow a slightly different presentation. The
+goal is to be consistent with the conventions used in
+\cref{chap:det-elpi,chap:mechanization}. We leave aside the syntax and semantics
+of the \chr\ component of \elpi. This part is discussed only informally in
+\cref{sec:chr}.
 
 In \cref{sec:elpi-execution-example,sec:example-ho-dyn-programs}, we first
 present an example of execution, highlighting the role of the \cut
@@ -444,7 +446,7 @@ operator in the \elpi language. We then discuss two main programming
 styles in \elpi, namely higher-order programming and dynamic
 programming, and explain how they interact with the \elpi semantics.
 
-Finally, in \cref{sec:chr,sec:elpi-rule-names}, we outline two key features of the
+Finally, in \cref{sec:chr,sec:elpi-rule-names}, we outline two features of the
 \elpi language: the constraint handling rules system, and rule naming
 and grafting. 
 % Finally, \cref{sec:ctx-elpi-related-words} reviews related
@@ -470,12 +472,12 @@ predicates~\PRED, unification variables~\UVAR, and
 nominal variables~\NVAR. Nominal variables represent binders
 introduced either by $\lambda$-abstractions or by $\pi$-quantification.
 
-A term~\TERM\ is either one of these basic constructs or an application. More
-precisely, terms are built by the binary application of a term to a
-$\lambda$-term~\LTERM. Lambda terms introduce abstractions; in the concrete
-\elpi\ syntax an abstraction is written \eI{x\ t}. Function application follows
-a curried style: unlike \prolog, \elpi does not use parentheses between the
-functor and its arguments.
+A term~\TERM\ is either a basic construct or an application. More precisely,
+terms are formed by applying a term to a $\lambda$-term~\LTERM.
+Lambda terms introduce abstractions; in the concrete \elpi\ syntax, an
+abstraction is written \eI{x\ t}. Function application follows a curried
+style. In contrast with \prolog, arguments are not passed within
+parentheses, which allows partial application.
 
 An atom~\ATOM\ represents an executable unit. It can be:
 \begin{enumerate}
@@ -499,7 +501,7 @@ abstract syntax, logical connectives such as negation and disjunction can be
 treated as first-class objects and implemented directly as \elpi rules.
 
 \begin{definition}[Atom polarity]
-  Polarity indicates whether a subformula appears in a \emph{positive} or
+  Polarity indicates whether an atom appears in a \emph{positive} or
   \emph{negative} position within a formula.
 \end{definition}
 
@@ -530,8 +532,8 @@ This notion of polarity will be used again in
 In \elpi, users can define the algebraic data types required by their
 development as well as the signatures of predicates. A new algebraic data type
 is declared with the \kind\ keyword, while constructors of that type are
-introduced using the \type\ keyword. A type is ether a definition is either a
-type declaration, a variable, or the application of a type to another in the
+introduced using the \type\ keyword. A type is ether a
+base type, a variable, or the application of a type to another in the
 case of parametric types. The arrow symbol is used to type function space and in
 \elpi it take an optional mode information. The mode, \Einput or
 \Eoutput, tells the runtime which unification algorithm to use when unifying the
@@ -568,9 +570,7 @@ defines the modes of the two arguments.
 
 Arguments placed before the arrow symbol in a \eI{pred} declaration
 are considered inputs, while those
-after the arrow are outputs. These modes are used at runtime to decide
-which unification strategy must be applied when matching the head of a
-rule with the current goal.
+after the arrow are outputs.
 
 % \paragraphTwo{Program type checking}
 
@@ -588,6 +588,14 @@ rule with the current goal.
   \caption{Operational semantics of \elpi}
   \label{fig:elpi-semantics}
 \end{figure}
+
+In thise section, we use the notation $\vecL{x}$ to represent an ordered list of
+$x$ elements. The binary operator $+$, when applied to partial mappings
+performs their disjoint union. The notation $t_1 + t_2$, when $t_1$ and $t_2$
+are types, represent an object bying of type either $t_1$ or $t_2$, the notation
+$t_1 + \mnone$ represent an object of type $t_1$ or a failure.
+The notation \eI{set ~S~} represent a set, that is an unordered duplicate-free
+collection of elements of type $S$.
 
 A substitution $\sigma$ of type $\Sigma$ is a partial mapping from
 unification variables \UVAR\ to terms \TERM. The empty substitution is denoted by
@@ -613,9 +621,11 @@ of variables that are assigned in $\sigma$.
   \label{def:deref}
 \end{definition}
 
+\begin{definition}[Typing environment]
+  A typing environment is a partial mapping from symbol names to their type.
+\end{definition}
 
-\noindent
-A typing environment $\env$ maps predicates \PRED\ to their signatures.
+We use the notation $\env$ to represent a typing environment.
 
 A program $\prog$ of type $\PROG$ is represented as a record with the
 following structure:
@@ -697,7 +707,7 @@ taking two terms and an initial substitution $\sigma$. They either fail
 an extension of $\sigma$.
 
 \begin{definition}[Pattern fragment]
-  A $\lambda$-term belongs to Miller's pattern frangment if in every subterm of
+  A $\lambda$-term belongs to Miller's pattern frangment~\cite{miller1991-pf} if in every subterm of
   the form $F\ t_1\ t_2 \dots t_n$, where $F$ is a higher-order unification
   variable, each term $t_i$ is a bound variable distinct from any $t_j$ (with $i
   \neq j$).
@@ -705,9 +715,10 @@ an extension of $\sigma$.
 \end{definition}
 
 The procedure \unify\ implements higher-order unification restricted to the
-pattern fragment~\cite{miller1991-pf} and is used for arguments in
-\Eoutput\ position. The procedure \matching, inspired by \bprolog's~
-``matching clauses''~\cite{zhou2012}, is used for arguments in \Einput\ position.
+pattern fragment, and is used for arguments in \Eoutput\ position. The
+procedure \matching, inspired by \bprolog's ``matching clauses''
+\cite{zhou2012}, is used for arguments in \Einput\ position. It also performs
+higher-order unification restricted to the pattern fragment.
 
 \begin{definition}[\unify]\label{def:unify}
 Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
@@ -737,12 +748,12 @@ Backchaining is defined by the function \backchain:
 \]
 \end{definition}
 
-Intuitively, \backchain selects the rules that can be applied to the current
+Intuitively, \backchain selects the rules from the program \PROG 
+that can be applied to the current
 query $q$ under a substitution $\sigma$. The variables occurring in the program
 rules are assumed to be disjoint from those in the current execution state. To
 guarantee this, the program is refreshed using the function \texttt{fresh},
-which renames its variables with respect to the set $V$ provided as input to
-\backchain.
+which renames its variables with respect to the set $V$.
 
 For each applicable rule, \backchain returns the substitution obtained by
 matching/unifying the rule head with $q$, together with the corresponding
@@ -990,8 +1001,8 @@ and
 $
   \sigma_2 \coloneq \{\eI{D} \mapsto \eI{0}, \eI{F} \mapsto \eI{R}\}
 $.
-For simplicity, we choose an example where variable refreshing plays no role,
-so we do not discuss the set \FV{} any further.
+For simplicity, we choose an example where variable refreshing plays no role/
+% , so we do not discuss the set \FV{} any further.
 
 Execution continues with the first premise of the first alternative, namely
 \eI{r A B} under $\sigma_1$, i.e. \eI{r 0 B}. The remaining alternatives are
@@ -1320,7 +1331,7 @@ specific positions in the database to respect the intended priority.
 
 
 % \section{\rocqelpi: \rocq and \elpi interleaving}
-\section{\rocqelpi: A Logical Framework for \rocq}
+\section{\rocqelpi: An \elpi plugin for \rocq}
 \label{sec:coq-elpi}
 
 The \rocqelpi language is a plugin for \rocq that enables the use of \elpi
@@ -1497,7 +1508,7 @@ store rules in order to improve search efficiency.}, the predicate
 name, and its specification (argument modes and types).
 
 The \eI{coq.elpi.accumulate} predicate adds a new clause to a database
-within a given scope. A clause is a specific type with a single
+within a given \rocq scope (e.g. module, section, file \dots). A clause is a specific type with a single
 constructor, which contains the clause name, its grafting with respect
 to the existing database, and the rule itself.
 
@@ -1584,7 +1595,8 @@ If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
 the list of goals \eI{L}, then the system attempts to solve each goal in
 \eI{L} individually using the predicate \eI{solve}. In this case, \eI{solve} is
 called on the content of the \eI{seal} constructor, meaning that all
-\eI{nabla}s have already been traversed.
+\eI{nabla}s have already been traversed, and the type of these nablas loaded in
+the context as local rules with \eI{=>}.
 %
 \begin{center}
   \eI{pred solve goal ~$\to$~ list sealed-goal.}
@@ -1598,9 +1610,9 @@ solved recursively. The \rocq tactics performing this task is called
 \eI{refine}.
 
 In \elpi{}, the \eI{refine} predicate exists and has the same behavior: it takes
-a proof term and a goal, it typechecks the proof agains its type and returns a
+a proof term and a goal, it typechecks the proof agains the goals and returns a
 list of subgoals on the for of a list of sealed-goals. It is customary for
-\elpi{} tactics to invoke \eI{refine} in order to produce the output list the
+\elpi{} tactics to invoke \eI{refine} in order to produce the output list for the
 \eI{solve} predicate.
 
 For performance reasons, \elpi{} also provides a variant, \eI{refine.no_check},
