@@ -58,7 +58,8 @@ TODO: minted.py for elpi with pred and infix notation
 TODO: minted: fix `type lamo` in fig 4.1  
 TODO: minted: fix `pred step_m` in sec 4.2.4  
 TODO: Continuare il capitolo sulla ho-for-free da pagina 60  
-TODO: Rivedere capitolo 2 con correzioni enrico
+TODO: Rivedere capitolo 2 con correzioni enrico  
+TODO: rivedere i type nella sintassi astratta di elpi
 
 TODO: bib Aggiungere ref : qi2009 e vink1989 e sld
 
