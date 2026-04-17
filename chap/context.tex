@@ -10,7 +10,7 @@ we consider the logic programming language \elpi.
 type theory and allows formal reasoning about mathematical statements
 and program specifications. In this setting, logical propositions are
 interpreted as types, and proofs are interpreted as programs (or terms) of
-these types. The underlying type theory of \rocq ensures that the coherence
+these types. The underlying type theory of \rocq~\cite{cc-Coquand} ensures that the coherence
 between a program and its type is rigorously checked, thus providing strong
 guarantees of correctness.
 Proof development in \rocq is carried out using a language of tactics, which
@@ -188,13 +188,16 @@ In
 general, a different symbol must be introduced for each type implementing a
 given mathematical operation.
 
-To address the need for a shared notation for operations (and
-properties in proof assistants) across types, Wadler and Blott introduced the notion of type classes
-in 1989~\cite{wadler1989-tc} and when implemented in
-\haskell~\cite{wadler1996-hs} they became soon a widely used 
-feature of the language. Then
-other languages, such as \rocq~\cite{sozeau2008-tc} also extended their
-type system to allow this kind of overloading.
+To answer the need of a common notation for operations and properties across
+different types, Wadler and Blott introduced type classes in 1989
+\cite{wadler1989-tc}. This idea was later implemented in Haskell
+\cite{wadler1996-hs}, where it quickly became an important and widely used
+feature of the language.
+
+After that, several other languages adopted similar mechanisms. For example,
+\cpp~\cite{cpp-tc}, \java~\cite{java-tc}, \rocq~\cite{sozeau2008-tc}, and
+\lean~\cite{lean-tc} extended their type systems to support this form of
+overloading.
 
 % \subsection{Ad-hoc polymorphism: Type classes}
 
@@ -210,7 +213,7 @@ definitions for all of its methods.
 
 Unlike parametric polymorphism, where a unique function is used for the
 execution of a call, type classes rely on instance resolution. Typeclasses and
-instances inhabit a database mapping classes to their instances. When compiling
+instances are stored in a database mapping classes to their instances. When solving
 a call to a type class method, the elaborator finds the right implementation by
 selecting the instance of the type class associated with the given type in the
 given database.
@@ -227,26 +230,36 @@ $\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
 where both the type parameter \cI{T} and the instance argument
 \cI{Add T} are implicit. The typechecking of the term
 \cI{plus 3 4} gives:
-
+%
 \begin{coqcode}
-  @plus nat ?Add 3 4 : bool
+  @plus nat ?Add 3 4 : nat
   where ?Add : [ |- Add nat]
 \end{coqcode}
 
 The term has type \cI{nat}, but the instance for \cI{Add nat} cannot be
-inferred, leaving a metavariable~\cI{?Add}, this is beacuse in the type-class
-database, there is no instance associated to \cI{Add}. To resolve this, we
-define the instance for natural numbers:
+inferred (the \cI{?Add} in the snippet above). This is beacuse in the type-class
+database, there is no instance associated to \cI{Add}. To resolve this,
+given the function \cI{Nat.add} of type \cI{nat ~$\to$~ nat ~$\to$~ nat} computing
+the sum between natural numbers, we
+define the instance:
 
 \mleft{code/plus_tc_anat.tex}
 
 The declaration \cI{addNat} has type \cI{Add nat} and provides an
 implementation of the method \cI{plus}. Registering this instance extends
 the instance database for \cI{Add} with an entry for the type \cI{nat}.
-Afterwards, the term \cI{plus 3 4} can be elaborated successfully, with
-\cI{?Add} instantiated to \cI{addNat}.
+Afterwards, the term \cI{plus 3 4} can be elaborated successfully: 
+%
+\begin{coqcode}  
+  @plus nat addNat 3 4 : nat
+\end{coqcode}
 
-Similarly, we may define an instance for booleans:
+\noindent
+Note how \cI{?Add} is now inferred to the instance \cI{addNat}.
+
+Similarly, given the function \cI{Rplus} of type \cI{R ~$\to$~ R ~$\to$~ R}
+computing the sum between real numbers, we can define an instance for
+reals:
 
 \mleft{code/plus_tc_ar.tex}
 
@@ -283,15 +296,16 @@ function \cI{plus} and a proof that \cI{plus} is associative. Then, if
 definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
 addition is associative over natural and real numbers and pairs.
 
-In order to better structure type classes, the system can be extended so that
-type classes can inherit properties of existing classes. In group theory this
-feature consist, for example, in defining an object called \cI{Magma} with an
-operation \cI{op}, and a second opject \eI{Semigroup} which extends \eI{Magma}s
-by postulating the associative property on \cI{op}.
+% In order to better structure type classes, the system can be extended so that
+% type classes can inherit properties of existing classes. In group theory this
+% feature consist, for example, in defining an object called \cI{Magma} with an
+% operation \cI{op}, and a second opject \cI{Semigroup} which extends \cI{Magma}s
+% by postulating the associative property on \cI{op}.
 
-This way for example, the \eI{Add} class, in some developments is formalized as:
+% This way for example, the \cI{Add} class, in some developments is formalized as:
 
-\input{code/magma.tex}
+% \input{code/magma.tex}
+
 \paragraphTwo{Search strategy}
 
 Type classes are used in several major \rocq libraries, such as \tlc,
@@ -558,12 +572,12 @@ after the arrow are outputs. These modes are used at runtime to decide
 which unification strategy must be applied when matching the head of a
 rule with the current goal.
 
-\paragraphTwo{Program type checking}
+% \paragraphTwo{Program type checking}
 
-\elpi\ is an (almost) strongly typed language. When a program is
-interpreted, the type checker verifies that it is well typed. Any type
-inconsistency is reported as an error, which typically helps identify
-and correct implementation bugs early.
+% \elpi\ is an (almost) strongly typed language. When a program is
+% interpreted, the type checker verifies that it is well typed. Any type
+% inconsistency is reported as an error, which typically helps identify
+% and correct implementation bugs early.
 
 \subsection{Operational semantics of \elpi\ (without \chr)}
 \label{sec:elpi-semantics}

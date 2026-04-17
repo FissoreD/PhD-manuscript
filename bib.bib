@@ -1378,3 +1378,69 @@
   location  = {Paris, France},
   series    = {POPL '97}
 }
+
+@article{cc-Coquand,
+  title   = {The calculus of constructions},
+  journal = {Information and Computation},
+  volume  = {76},
+  number  = {2},
+  pages   = {95-120},
+  year    = {1988},
+  issn    = {0890-5401},
+  doi     = {https://doi.org/10.1016/0890-5401(88)90005-3},
+  url     = {https://www.sciencedirect.com/science/article/pii/0890540188900053},
+  author  = {Thierry Coquand and Gérard Huet}
+}
+
+@inproceedings{cpp-tc,
+  author    = {Bernardy, Jean-Philippe and Jansson, Patrik and Zalewski, Marcin and Schupp, Sibylle and Priesnitz, Andreas},
+  title     = {A comparison of c++ concepts and haskell type classes},
+  year      = {2008},
+  isbn      = {9781605580609},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/1411318.1411324},
+  doi       = {10.1145/1411318.1411324},
+  abstract  = {Earlier studies have introduced a list of high-level evaluation criteria to assess how well a language supports generic programming. Since each language that meets all criteria is considered generic, those criteria are not fine-grained enough to differentiate between languages for generic programming. We refine these criteria into a taxonomy that captures differences between type classes in Haskell and concepts in C++, and discuss which differences are incidental and which ones are due to other language features. The taxonomy allows for an improved understanding of language support for generic programming, and the comparison is useful for the ongoing discussions among language designers and users of both languages.},
+  booktitle = {Proceedings of the ACM SIGPLAN Workshop on Generic Programming},
+  pages     = {37–48},
+  numpages  = {12},
+  keywords  = {type classes, specification-driven development, haskell, generic programming, concepts, c++},
+  location  = {Victoria, BC, Canada},
+  series    = {WGP '08}
+}
+
+@article{java-tc,
+  author     = {Oliveira, Bruno C.d.S. and Moors, Adriaan and Odersky, Martin},
+  title      = {Type classes as objects and implicits},
+  year       = {2010},
+  issue_date = {October 2010},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {45},
+  number     = {10},
+  issn       = {0362-1340},
+  url        = {https://doi.org/10.1145/1932682.1869489},
+  doi        = {10.1145/1932682.1869489},
+  abstract   = {Type classes were originally developed in Haskell as a disciplined alternative to ad-hoc polymorphism. Type classes have been shown to provide a type-safe solution to important challenges in software engineering and programming languages such as, for example, retroactive extension of programs. They are also recognized as a good mechanism for concept-based generic programming and, more recently, have evolved into a mechanism for type-level computation.This paper presents a lightweight approach to type classes in object-oriented (OO) languages with generics using the CONCEPT pattern and implicits (a type-directed implicit parameter passing mechanism). This paper also shows how Scala's type system conspires with implicits to enable, and even surpass, many common extensions of the Haskell type class system, making Scala ideally suited for generic programming in the large.},
+  journal    = {SIGPLAN Not.},
+  month      = oct,
+  pages      = {341–360},
+  numpages   = {20},
+  keywords   = {type classes, scala, c++ concepts, abstract datatypes}
+}
+
+@inproceedings{lean-tc,
+  author    = {Moura, Leonardo de
+               and Ullrich, Sebastian},
+  editor    = {Platzer, Andr{\'e}
+               and Sutcliffe, Geoff},
+  title     = {The Lean 4 Theorem Prover and Programming Language},
+  booktitle = {Automated Deduction -- CADE 28},
+  year      = {2021},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {625--635},
+  abstract  = {Lean 4 is a reimplementation of the Lean interactive theorem prover (ITP) in Lean itself. It addresses many shortcomings of the previous versions and contains many new features. Lean 4 is fully extensible: users can modify and extend the parser, elaborator, tactics, decision procedures, pretty printer, and code generator. The new system has a hygienic macro system custom-built for ITPs. It contains a new typeclass resolution procedure based on tabled resolution, addressing significant performance problems reported by the growing user base. Lean 4 is also an efficient functional programming language based on a novel programming paradigm called functional but in-place. Efficient code generation is crucial for Lean users because many write custom proof automation procedures in Lean itself.},
+  isbn      = {978-3-030-79876-5}
+}
