@@ -7,7 +7,7 @@
   \begin{array}{c}
     \begin{array}{r}
       \multirow{1}{*}{\rotatebox[origin=c]{90}{Program\hspace{-.5cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\null\\\null\\\end{array} \right. \\
-      \multirow{1}{*}{\rotatebox[origin=c]{90}{Types\hspace{-.22cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\end{array}\right.
+      \multirow{1}{*}{\rotatebox[origin=c]{90}{Types\hspace{-.22cm}}}~\left\{\begin{array}{@{}c@{}}\null\\\null\\\null\\\null\\\null\\\null\\\null\\\end{array}\right.
     \end{array}
     \begin{array}{rlr}
       \DATA        & ::= f, g, \ldots                                                          & \qquad \mathrm{datum}                 \\
@@ -21,11 +21,13 @@
       \RULE        & ::= \TERM\ \cdash\ \ATOM^*                                                & \qquad \mathrm{rule}                  \\
       % \CONSTRAINT  & ::= \vecL{\TERM}\ \backslash \vecL{\TERM} \shortmid \TERM \Leftrightarrow \vecL{\TERM}                     & \qquad \mathrm{constraint\ rule}      \\
       \KIND        & ::= \kind\ \DATA\ \TYPEARR                                                & \mathrm{type\ declaration}            \\
-      \TYPEARR     & ::= \type \mid \TYPEARR \to \TYPEARR                                      & \mathrm{type\ arity}                  \\
+      % \TYPENAME    & ::= bool, list, \dots                                                & \mathrm{type\ declaration}            \\
+      \TYPEK     & ::= true, false, nil, cons, \ldots                                      & \mathrm{constructor names}                  \\
+      \TYPEARR     & ::= \TYPE \mid \TYPEARR \to \TYPEARR                                      & \mathrm{type\ arity}                  \\
       \CONSTRUCTOR & ::= \type\ \DATA\ \TYPE \mid \type\ \PRED\ \TYPE                          & \mathrm{constructor\ declaration}     \\
-      \TYPEBASE    & ::= \DATA \mid \NVAR \mid \TYPEBASE\ \TYPE                                & \mathrm{type}                         \\
+      \TYPEBASE    & ::= \TYPEK \mid \UVAR \mid \TYPEBASE\ \TYPE                                & \mathrm{type}                         \\
       \TYPE        & ::= \TYPEARR \arrmode{?m} \TYPEARR \mid \TYPEBASE                         & \lambda\mathrm{-type}                 \\
-      m            & ::= \Einput \mid \Eoutput                                                   & \mathrm{mode}                         \\
+      \text{\procfont m}            & ::= \Einput \mid \Eoutput                                                   & \mathrm{mode}                         \\
     \end{array}
   \end{array}
 \]
