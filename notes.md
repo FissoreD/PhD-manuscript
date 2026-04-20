@@ -58,13 +58,13 @@ TODO: minted.py for elpi with pred and infix notation
 TODO: minted: fix `type lamo` in fig 4.1  
 TODO: minted: fix `pred step_m` in sec 4.2.4  
 TODO: rivedere i type nella sintassi astratta di elpi  
-TODO: rivedere search strategy in chap 2: shuffle
+TODO: rivedere search strategy in chap 2: shuffle  
 
-TODO: bib Aggiungere ref : qi2009 e vink1989 e sld
+
+TODO: bib Aggiungere ref : qi2009 e vink1989
 
 Aprile
- -/ -/ -/16/17  2
-20/21/22/23     4
+ -/21/22/23     3
 
 Maggio
 5/ 6/ 7         3
@@ -75,5 +75,5 @@ Giugno
  1/ 2/ 3/ 4/ 5  5
  8/ 9/10/11/12  5
 
-TOT: 29
+TOT: 26
 

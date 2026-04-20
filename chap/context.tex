@@ -56,7 +56,7 @@ behind the \rocqelpi plugin.
 
 As anticipated, the \rocq language is based of type theory~\cite{coq-huet}. At
 the heart of this research area, we have the pure $\lambda$-calculus, thoerized
-by Church~\cite{xx}.
+by Church~\cite{church} in 1932.
 It is a small language made of \emph{terms}, their abstract syntax is given below.
 %
 $$t := x\ |\ t\ t\ |\ \lambda x.t$$
@@ -110,7 +110,7 @@ it is in $\eta$-normal form.
 In the domain of type-thoery, pure $\lambda$-calculus is extended with a system
 of typing rules, imposing constraint about the \emph{type} that the argument of
 a function should have. This extension of the $\lambda$-calculus is called
-simply-typed $\lambda$-calculus~\cite{xx}.
+simply-typed $\lambda$-calculus~\cite{church-type}.
 %
 $$\tau := \alpha\ |\ \tau \to \tau$$
 
@@ -155,10 +155,10 @@ algorithm aiming to typecheck a term.
 The simply-typed lambda caluclus can be extended to encode 
 types depending on types, types depending on temrs
 and terms depending on tyeps. The set of these extensions is graphically presented
-by the Barendract cube~\cite{xx}. An expansion which is worth explaining in this
+by the Barendregt cube~\cite{cube}. An expansion which is worth explaining in this
 paragraph is the polymorphic $\lambda$-calculus. In this calculus, terms
 can depend on types, and allow to encode the so-called \emph{polymorphic
-$\lambda$-calculus}~\cite{xx} (also called \emph{System F}).
+$\lambda$-calculus}~\cite{systemf} (also called \emph{System F}).
 
 The symplest example, is the identity function, which, in pure $\lambda$-calculus
 is encoded $\lambda x.x$, it is a function returning its input. The type of the
@@ -176,7 +176,7 @@ $$\tau := \dots\ |\ \forall (x: \tau). \tau$$
 The new $\forall$-constructor allows for the quantification of types in another
 type $\tau$. This is the typing equivalent to the $\lambda$-abstractions over
 terms. In order to quantify types in terms, we use the shorcut, $\lambda (x:
-T).t$ to represent the quantification of a new type $T$ in the term $t$.
+T).t$ to represent the quantification of a type called $T$ in the term $t$.
 Now the identity function can be encoded $\lambda (x:T).\lambda (y:x).y$.
 
 In order to take into account the introduction of polymorphic
@@ -201,16 +201,14 @@ the identify function should be \texttt{nat}, simply by looking to the type of
 $3$. Therefore, a user of the language would like to write: $(\lambda (x :
 T). \lambda (y : x). y)\ \_\ 3$, leaving an underscore as missing information in
 term that is to be \emph{inferred} by the typechecker. This missing information
-is sometimes called a \emph{hole} and represent an existential variable (or
-evar) that should be instantiated by the typechecer.
+is sometimes called a \emph{hole} and represents an existential variable (or
+evar) that should be instantiated by the typechecker.
+In a system such as \rocq, the underscore can be avoided if the
+argument of the function is marked as implicit.
 
-% We could even go further, by a system of notation, allowing to write: $(\lambda
-% \{x : T\}. \lambda (y \{: x\}). \{nat\} y)\ 3$, where the curly brackets
-% represent an implicit argument, that is not passed by the user.
-
-This is a simple example, but in the real coding experience of users of this
-system take a lot of advantage from the possibility of leavining missing
-information in terms.
+This is a simple example, but the system can be instrumented with several rules
+allowing the user to take a lot of advantage from the possibility of leavining
+missing information in terms.
 
 \section{Elaboration in the \rocq proof assistant}
 % TODO: vedere dove è usata
@@ -223,7 +221,8 @@ information in terms.
 \end{figure}
 
 In this section, we focus on a more technical aspect that enables communication
-between the user and the \rocq system: the \emph{elaborator}. This component is
+between the user and the \rocq system: the \emph{elaborator}~\cite{elaboration}. 
+This component is
 part of all proof assistants. Its purpose is to give the user a certain amout of
 freedom about the possibility of entrering incomplete or ambiguous expressions,
 leaving the system to infer the missing information and resolve ambiguity.
@@ -257,7 +256,7 @@ of its argument and the costant for the $0$ natural number.
 
 \emph{Type inference}, as announced in the previous section,
 is a mechanisms made of a system of rules allowing to
-deduce the type of a term from a \emph{typing environment}.
+deduce missing information of a term from a typing environment.
 
 As an exapmle, we provide in the following table an example of
 typing environment, where the type of the constant used in the notation above
@@ -337,9 +336,9 @@ different types, Wadler and Blott introduced type classes in 1989
 feature of the language.
 
 After that, several other languages adopted similar mechanisms. For example,
-\cpp~\cite{cpp-tc}, \java~\cite{java-tc}, \rocq~\cite{sozeau2008-tc}, and
-\lean~\cite{lean-tc} extended their type systems to support this form of
-overloading.
+\cpp~\cite{cpp-tc}, \java~\cite{java-tc}, and even proof assistant such as
+\rocq~\cite{sozeau2008-tc}, and \lean~\cite{lean-tc}, extended their type
+systems to support this form of overloading.
 
 % \subsection{Ad-hoc polymorphism: Type classes}
 
@@ -373,10 +372,9 @@ where both the type parameter \cI{T} and the instance argument
 \cI{Add T} are implicit. The typechecking of the term
 \cI{plus 3 4} gives:
 %
-\begin{coqcode}
-  @plus nat ?Add 3 4 : nat
-  where ?Add : [ |- Add nat]
-\end{coqcode}
+\begin{center}
+  \cI{@plus nat ?Add 3 4 : nat where ?Add : [ |- Add nat]}
+\end{center}
 
 The term has type \cI{nat}, but the instance for \cI{Add nat} cannot be
 inferred (the \cI{?Add} in the snippet above). This is beacuse in the type-class
@@ -392,9 +390,9 @@ implementation of the method \cI{plus}. Registering this instance extends
 the instance database for \cI{Add} with an entry for the type \cI{nat}.
 Afterwards, the term \cI{plus 3 4} can be elaborated successfully: 
 %
-\begin{coqcode}  
-  @plus nat addNat 3 4 : nat
-\end{coqcode}
+\begin{center}  
+  \cI{@plus nat addNat 3 4 : nat}
+\end{center}
 
 \noindent
 Note how \cI{?Add} is now inferred to the instance \cI{addNat}.
@@ -425,12 +423,13 @@ is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\do
 
 The type class \cI{Add} can be defined in a similar style in
 \haskell, up to minor syntactic differences. In a proof assistant such as
-\rocq, however, type classes support not only function overloading but also
-\emph{theorem overloading}.
+\rocq, however, the same intuition behind symbol overloading
+can be reused not only to overload function by also to 
+overload but also theorems.
 
 For instance, one may enrich \cI{Add} with the associativity specification:
-
-\mcenter{code/plus_tc_add1.tex}
+%
+\input{code/plus_tc_add1.tex}
 
 An instance of this refined class must now provide both an implementation of the
 function \cI{plus} and a proof that \cI{plus} is associative. Then, if
@@ -450,30 +449,10 @@ addition is associative over natural and real numbers and pairs.
 
 \paragraphTwo{Search strategy}
 
-Type classes are used in several major \rocq libraries, such as \tlc~\cite{tlc},\marginpar{shuffe: DFS, explain, hence order is important, ex loop}
+Type classes are used in several major \rocq libraries, such as \tlc~\cite{tlc},
 \stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. They provide access to the type-class
 solver, which automatically infers instances by searching in a database of
-declared instances. This database is organized as an ordered list. Given a
-type-class goal, the solver tries to unify the goal with the conclusion of
-each instance. When unification succeeds, it then tries to solve the premises
-of that instance.
-
-As an example, consider the instances defined previously for the type class
-\cI{Add}. To solve the goal \cI{Add (nat * R)}, the solver first tries
-\cI{addNat}, which fails because its conclusion does not match the goal. The
-same happens with \cI{addR}. The instance \cI{addProd} can be applied if its
-premises, namely \cI{Add nat} and \cI{Add R}, can be solved. Since both are
-derivable, the resulting instance is \eI{addProd nat R addNat addR}. By
-default, the solver follows a \textit{depth-first search} (DFS): it explores
-the database deeply and backtracks when a branch fails.
-
-The order of instances in the database is important, since it may affect both
-performance and termination. For instance, the goal \cI{Add ?X}, where
-\cI{?X} is an existential variable, can lead to non-termination if
-\cI{addProd} has the highest priority. In such a case, the variable may be
-repeatedly instantiated with terms of the form
-$(((\dots * \cI{?X}_{n-2}) * \cI{?X}_{n-1}) * \cI{?X}_n)$, due to the recursive
-use of its first premise.
+declared instances. This database is organized as an ordered list. 
 
 The priority of an instance can be specified at the end of its declaration
 using \cI{| N}, where \cI{N} is an integer. The instance is then placed at
@@ -481,17 +460,41 @@ position \cI{N} in the database. A smaller value of \cI{N} means higher
 priority. If no priority is given, \rocq computes it automatically by
 assigning weight $1$ to each premise that is itself a type-class constraint.
 
+Given a type-class goal, the solver uses the instance in the database as a base
+of knowledge. It then exploit a DFS-like search strategy close to the \prolog
+SLD~\cite{sld} algorithm, where the conclusion of each instances is tried
+for unification with the current goal. In case of success, the hypotheses
+of the selected instance
+are tried. If every hypothesis of the instance succeeds, the selected instance
+is a solution for the given goal. Otherwise, in case of a failure, the
+search algorithm backtracks to the first non-explored goal in the search space.
+Until either, finding a solution or exausting every possibile alternative.
+As a consequence, the order of instances in the database is important, since it
+may affect both performance and termination.
+
+As an example, consider the instances defined previously for the type class
+\cI{Add}. We suppose that they ordered in as follows: \cI{addNat, addR,
+addProd}. To solve the goal \cI{Add (nat * R)}, the solver first tries
+\cI{addNat}, which fails because its conclusion does not unify with the goal. The
+same happens with \cI{addR}. The instance \cI{addProd} can be applied if its
+premises, namely \cI{Add nat} and \cI{Add R}, can be solved. Since both are
+derivable, the resulting instance is \eI{addProd nat R addNat addR}. 
+
+If the users (wrongly) gives the highest priority to the instance \cI{addProd},
+ang given a goal \cI{Add ?X}, where \cI{?X} is an existential variable. The
+resolution of such a goal in the type-class solver leads to non-termination. In
+such a case, the instance \cI{addProd} is used, assigning \cI{?X} to the pair
+\cI{?X1 * ?X2}. Then, the first premise of \cI{addProd} raise the recursive
+search for \cI{Add ?X1}. After using, again, the instance \cI{addProd}
+\cI{X1} is instanceated to \cI{?X3 * ?X4} and so on. This procedure loops
+indefinetly.
+
 Several mechanisms are available to guide the solver. One common tool is
 \emph{modes}, which enforce conditions on the shape of class arguments during
 search. There are three kinds of modes in \rocq. Informally, a mode is a list
 of symbols \texttt{+}, \texttt{!}, or \texttt{-}, indicating whether an
 argument is treated as an input, partially known (its head is fixed), or as
 an output.
-
-Modes can be declared in two ways. One can write \cI{~\#~[mode="+"] Add T.},
-which specifies that the first argument of \cI{Add} must be instantiated in
-goals. Alternatively, one can declare it afterwards using
-\cI{Hint Mode Add +}.
 
 A type class may have several modes. During instance search, these modes are
 checked dynamically: the search proceeds if at least one mode is satisfied by
@@ -513,8 +516,9 @@ practice.
 
 In \rocq, backtracking search of a class can be disabled using the flag
 \texttt{Typeclasses Unique Instances}. When a solution to the typeclass goal of
-this typeclass is found, we never backtrack on it, assuming that it is
+this typeclass is found, we never backtrack on it, the runtime assumes that it is
 canonical.
+
 % However,
 % this mechanism is not class-specific: once enabled, non-backtracking is applied
 % to all type classes involved in the search. In practice, a user may prefer a
@@ -624,10 +628,10 @@ abstraction is written \eI{x\ t}. Function application follows a curried
 style. In contrast with \prolog, arguments are not passed within
 parentheses, which allows partial application.
 
-An atom~\ATOM\ represents an executable unit. It can be:
+An formula~\ATOM\ represents an executable unit. It can be:
 \begin{enumerate}
   \item the cut operator (\eI{!} in the concrete syntax),
-  \item a predicate call,
+  \item a predicate call (called atom in the literature),
   \item a $\pi$-quantification, written \eI{pi x\ t} in the concrete syntax,
         which introduces a fresh nominal variable \eI{x} visible in \eI{t}, or
   \item the dynamic insertion of a rule~\RULE, written \eI{r => t}, which
@@ -641,23 +645,24 @@ For simplicity, we omit constraints from the syntax, since they
 do not play an immediate role in the presentation. They are briefly
 described in \cref{sec:chr}.
 
-The syntax we propose allows writing hereditary Harrop formulas. In this
-abstract syntax, logical connectives such as negation and disjunction can be
-treated as first-class objects and implemented directly as \elpi rules.
+% The syntax we propose allows writing hereditary Harrop formulas. 
+In this abstract syntax, logical connectives such as negation and disjunction,
+which are usually encoded as native feature of a logic programming-language,
+can be treated as first-class objects and implemented directly as \elpi rules.
 
 % \begin{definition}[Atom polarity]
-The a subformula in an atom appears either in a \emph{positive} or
-\emph{negative} position within a formula.\marginpar{?formula ?positivity}
+We say that a subformula appears either in a \emph{positive} or
+\emph{negative} position within a formula~\cite{miller2012}.
 
 \noindent
 \begin{minipage}{0.75\textwidth}
-A formula at the top level
-is in positive position. When crossing an implication ($\Rightarrow$), the
-left-hand side flips its positivity, while the right-hand side keeps the
-polarity of the original formula.
+A formula at the top level is in positive position. If a formula $f_1
+\Rightarrow f_2$ is positive (resp. negative), then when crossing the
+implication, the left-hand side is negative (resp. positive), while the
+right-hand side is positive (resp. negative).
 
-In the example on the right we explicitly annotate the polarity of each
-subformula.
+In the example on the right we explicitly annotate the positive/negative
+occurrences of each subformula.
 \end{minipage}
 \begin{minipage}{0.25\textwidth}
 \[
@@ -769,21 +774,19 @@ of variables that are assigned in $\sigma$.
 %   A typing environment is a partial mapping from symbol names to their type.
 % \end{definition}
 
-We use the notation $\env$ to represent a typing environment.
+We use the notation $\env$ to represent a typing environment, it
+maps symbol names to their type.
 
-A program $\prog$ of type $\PROG$ is represented as a record with the
-following structure:
+A program $\prog$ of type $\PROG$ is made by a triple
+$(\vecL{\RULE}, \vecL{\NVAR}, \env)$
 
-{
-\mvspace
-\centering
-\txtI{~$\PROG$~ := {index: list ~$\RULE$~; nvar: set ~$\NVAR$~; sig: ~\env~}}\par
-\mvspace
-}
-
-The field \txtI{index} is an ordered list of rules representing the rule
-database. The field \txtI{nvar} contains the set of nominal variables that have
-already been introduced, and \txtI{sig} is the signature environment.
+The first element represent the ordered list of rules characterising the
+program, we use the notation $\PROG.\cI{index}$ to get this projection from a
+program \prog. The second eleemnt of the triple contains the set of nominal
+variables that have already been introduced, we use the notation
+$\prog.\cI{nvar}$ to get this projection for the program \prog. Finally, the
+last projection of the triple contain the typing environment, we use the
+notation $\prog.\cI{sig}$ to get this projection from \prog.
 
 We write $x \# \prog$ to denote that the nominal variable $x$ is fresh with
 respect to $\prog.\txtI{nvar}$. The notation $x +_\forall \prog$ denotes the
