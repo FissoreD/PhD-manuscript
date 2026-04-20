@@ -421,11 +421,19 @@ is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\do
 
 % \paragraphTwo{Theory overloading}
 
-The type class \cI{Add} can be defined in a similar style in
-\haskell, up to minor syntactic differences. In a proof assistant such as
-\rocq, however, the same intuition behind symbol overloading
-can be reused not only to overload function by also to 
-overload but also theorems.
+The type class \cI{Add} can be defined in a similar style in \haskell, up to
+minor syntactic differences. In contrast, the \ocaml module system as not
+overloaded symbols. The most similar implementation we can provide to the
+\cI{Add} typeclass is by passing using modules: we define the interface via a
+\mlI{module type} with a function \cI{plus}. Then we implement the three
+concrete instance for the type \cI{int}, \cI{float} and \cI{pair}. However,
+there is not overloaded symbol for \cI{plus} there are three definition of
+\cI{plus}, defined inside the three modules that should be accessed to get the
+wanted implementation.
+
+In a proof assistant such as \rocq, the type class mechanism reuses the same
+intuition behind symbol overloading so that not only function can be overload
+but also theorems.
 
 For instance, one may enrich \cI{Add} with the associativity specification:
 %
@@ -591,9 +599,10 @@ of the \chr\ component of \elpi. This part is discussed only informally in
 
 In \cref{sec:elpi-execution-example,sec:example-ho-dyn-programs}, we first
 present an example of execution, highlighting the role of the \cut
-operator in the \elpi language. We then discuss two main programming
-styles in \elpi, namely higher-order programming and dynamic
-programming, and explain how they interact with the \elpi semantics.
+operator in the \elpi language. 
+% We then discuss two main programming
+% styles in \elpi, namely higher-order programming and dynamic
+% programming, and explain how they interact with the \elpi semantics.
 
 Finally, in \cref{sec:chr,sec:elpi-rule-names}, we outline two features of the
 \elpi language: the constraint handling rules system, and rule naming
@@ -936,15 +945,17 @@ $\sigma'$; otherwise it returns $\mnone$.
   [(\prog, q, a) \mid q \in b] \atsign g
 )
 \ \bigg|\ 
-(\sigma', b) \in \backchain(\prog, \mathrm{get\_fv}\ (t,g::a,\sigma), t, \sigma)
+(\sigma', b) \in \backchain(\prog, F_v(t) \cup F_v(g::a) \cup F_v(\sigma), t, \sigma)
 \bigg].
 \]
 \end{definition}
 
 The function \backchainE, used by rule \runE[\backchain] in
 \cref{fig:elpi-semantics}, builds a new list of alternatives from the result of
-\backchain (get\_fv is the function retrieving the list of free variables in 
-the term $t$, the list of alternatives $g::a$ and the substitution $\sigma$).
+\backchain ($F_v$ is the function retrieving the set of free variables in 
+the term $t$, we lift the definition over list of terms, and substitution%
+\footnote{$F_v(\sigma)$ is made by the domain of $\sigma$ and the free variables
+in all terms appearing in the codomain in $\sigma$}).
 For each filtered rule, the atoms in the rule body become new
 goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
@@ -994,7 +1005,7 @@ substitution associated with each alternative is the one returned by
 In the previous subsections, we presented the \elpi language, including its
 syntax and semantics. This formalization has been
 developed in collaboration with Enrico Tassi. A comprehensive description of
-\elpi can be found in his work \emph{hdr}~\cite{hdr}.
+\elpi can be found in his work~\cite{hdr}.
 
 We highlight here the main differences between his presentation and the one
 adopted in this section. First, in the syntax, we use binary application for
@@ -1419,7 +1430,7 @@ search.
 We do not enter into the details of the syntax or the implementation of
 \chr, since they play only a minor role in this manuscript. A more
 complete presentation can be found in \cite[Sec.~4.3]{chr-elpi} and
-\cite[Sec.~2.4]{hdr}.
+\cite[Sec.~2.4]{hdr}. \marginpar{TODO: wip this section}
 
 % In \elpi, \chr rules are considered in a given order and the
 % execution commits to the first rule that matches and fires. This choice
@@ -1456,7 +1467,7 @@ In \elpi, inserting a rule before or after an existing one is called
 
 \begin{elpicode}
   :name "nth-fail"
-  nth _ _ :- error "The list is too short".
+  nth _ _ _ :- error "List is to short".
 \end{elpicode}
 
 The definition of \eI{nth} above is a catch-all rule, since it applies to
@@ -1465,10 +1476,11 @@ When defining additional rules for \eI{nth}, one can write:
 
 \begin{elpicode}
   :before "nth-fail"
-  nth 0 [X|_] X.
+  nth N [] _ :- N < 0, error "Index is negative".
 \end{elpicode}
 
-This declaration places the new rule just before the catch-all rule. A
+This declaration places the new rule just before the catch-all rule,
+giving a more precise error in the case of negative index. A
 similar syntax can be used with \eI{:after} to insert a rule after an
 existing one.
 
@@ -1540,6 +1552,7 @@ binder, and an \elpi higher-order object of type
 variable in the term.
 
 \begin{table}
+  \centering
 \begin{tabular}{lll}
   \rocq terms & \elpi HOAS & description\\
   \hline
@@ -1611,15 +1624,16 @@ the \rocq unification algorithm. When \elpi{coq.unify-eq} is called, the
 HOAS representation of the terms is translated into \rocq terms before
 performing the unification.
 
-% Other predicates allow extending the \rocq system with new definitions,
-% modules, modes, and more.
-% %
-% \begin{center}
-%   \eI{pred coq.TC.declare-class gref ~$\to$~.}
-% \end{center}
+Other predicates allow extending the \rocq system with new definitions,
+modules, modes, and more.
+%
+\begin{center}
+  \eI{pred coq.typecheck term ~$\to$~ term, diagnostic}
+\end{center}
 
-% For example, the predicate above allows declaring a type class from a
-% global reference in \rocq directly within \rocqelpi.
+For example, the predicate above calls the \rocq typechecker of a term $t$.
+typechecking returns the type of $t$ if $t$ can be typechecked, otherwise it
+returns a dignostic of the type-error in its last argument.
 
 \subsection{Declaring Databases in \rocqelpi}
 
@@ -1641,7 +1655,7 @@ kind clause type.
 type clause string ~$\to$~ grafting ~$\to$~ prop ~$\to$~ clause.
 
 %                           DB name  Indexing  PName
-pred coq.elpi.add-predicate string, string, string,
+pred coq.elpi.add-predicate string,  string,   string,
                                   list (pair argument_mode string) ~$\to$~.
 %                        Scope    DB name   Clause
 pred coq.elpi.accumulate scope, string, clause ~$\to$~.
@@ -1713,9 +1727,8 @@ type nabla (term ~$\to$~ sealed-goal) ~$\to$~ sealed-goal.
 type seal  goal ~$\to$~ sealed-goal.
 
 typeabbrev goal-ctx (list prop).
-%          Context    RS     Ty      Sol     Arguments
-type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~
-           list argument ~$\to$~ goal.
+%          Context     RS     Ty      Sol     Arguments
+type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~ list argument ~$\to$~ goal.
 \end{elpicode}
 \vspace{-1.5em}
 \caption{Representation of goals and sealed goals in \rocqelpi}
@@ -1731,12 +1744,20 @@ Under a spine of \eI{nabla} abstractions, the \eI{seal} constructor contains a
 goal. A goal is a tuple with five components: a context $C$, a raw solution
 $S_r$, a type $T_y$, a final solution $S$, and a list of arguments $L$.
 
-The context $C$ maps quantified variables to their types. The term $S_r$ is a trigger:
-when it is instantiated, it is elaborated against the type $T_y$. The type $T_y$
-is the type of the \rocq goal to be solved. The term $S$ is the final solution,
-which must have type $T_y$. The list $L$ contains arguments that control the
-behavior of the resolution process. In this work, we mainly use two projections
-of goals, namely the context and the goal type.
+The context $C$ maps quantified variables to their types. The type $T_y$ is the
+type of the \rocq goal to be solved. The terms $S_r$ and $S$ are two \elpi
+unification variables mapped to a \rocq existential variable. The two variables
+are related to $T_y$ via typing constraints. 
+
+The instantiation of $S_r$ triggers the elaboration of $S_r$ against $T_y$. In
+constrast, the instantiation of $S$ triggers the typechecking of $S$ against
+$T_y$. The main difference between the two is that, elaboration (as in
+\cref{sec:rocq-intro}) is allowed to modify the input term -- for example, by
+adding coercions -- while the second only check that the type of $S_r$ is $T_y$.
+
+The list $L$ contains arguments that
+control the behavior of the resolution process. In this work, we mainly use two
+projections of goals, namely the context and the goal type.
 
 If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
 the list of goals \eI{L}, then the system attempts to solve each goal in
