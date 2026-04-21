@@ -3,33 +3,33 @@
 In computer science, an undoubtly feature of most programming language relyes on
 the facilities the user has when it communicates with the interpreter or the
 compiler of the language it-self. Computers tals about binary
-expressions~\cite{xx}, but we, as human being, cannot spend too much effort in
+expression, but we, as human being, cannot spend too much effort in
 writing a tcode which is too far from our way of thinking.
 
 In modern languages, the set of tools the user has in his hands to improve his
 coding experience is extremely vary, we can account for syntactic
-sugar~\cite{xx}, which allows the writing of a code which is more natural for
-the user then the real syntax. We have static checkers that verifies that some
-properties of the code adheres to some expected properties, among them we can
-account for type safety~\cite{xx}, code quality~\cite{linting},
-security~\cite{xx}, dependency checker~\cite{xx}. We dispose of compiling
-options allowing to build more efficient executable code~\cite{xx}. And so on.
+sugar~\cite{synt-sugar}, which allows the writing of a code which is more
+natural for the user then the real syntax. We have static checkers that verifies
+that some properties of the code adheres to some expected properties, among them
+we can account for type safety~\cite{type-safety}, code quality~\cite{linter},
+dependency checker. We dispose of compiling options allowing to build more
+efficient executable code~\cite{opt-flags}. And so on.
 
-We can group all of these components in some kind of automation~\cite{xx}
+We can group all of these components in some kind of automation
 which is a field in computer science where a lot of effort is spent in order
 to increase more and more the user experience. A major piece of technology
 that nowaday is surely taking the most investment is artificial intelligence,
 where the art of human coding is almost entirely delegated to machines which
-answers to a given prompt~\cite{xx}.
+answers to a given prompt~\cite{ia-prompt}.
 
 A research area where automation has had a great impact is the domain of
 mathematics, where the process of proving mathematical theorem using a
 pen-and-paper strategy, has been little by little replaced by the so called
-proof assistants~\cite{xx}. Based on the curry-howoard~\cite{xx} correspondance,
+proof assistant. Based on the curry-howoard correspondance,
 a \underline{proof} of a \uuline{theorem} can be seen as a implementing a
 \underline{program} for given \uuline{type}.
 
-Based on type thoery~\cite{xx}, a proof assistant is delegated to ensure that
+Based on type theory~\cite{russell}, a proof assistant is delegated to ensure that
 every configuration of the studied program has been taken into account and that
 each of them satisfy the expected specification. Formal reasonement in a proof
 assistant, ask the user to write a program which is extremely detailed, in the
@@ -54,8 +54,8 @@ the $+$ symbol if used in this context, $1 + 2$ or in this context, $[\pig, e]
 to the addition over natural numbers, and in the latter usage to the addition
 over vectors of real numbers. In computer scinece this idea of reausing
 the same symbol with different implementation dependidng on the context it
-is used is called symbol overloading~\cite{xx} and has been introduced
-by the notion of type classes~\cite{xx}.
+is used is called symbol overloading and has been introduced
+by the notion of type classes~\cite{wadler1989-tc}.
 
 Since several implementations exist for the same symbol, the role of the type
 class solver is to find the correct implementaiton.
@@ -64,12 +64,12 @@ logic program where goals are solved by searching for
 instances in a database, potentially backtracking in the search tree if a failure
 is incountered.
 
-The \rocq proof assistant can be extended by so called meta-languages~\cite{xx},
+The \rocq proof assistant can be extended by so called meta-languages,
 the idea is that the \rocq system delegates some task to the meta-language which
 computes a result and send it back to the \rocq system. One of the languages
 extending \rocq is the \elpi language~\cite{dunchev15}, a dialect of
 \lprolog~\cite{miller1988}, via the \rocqelpi plugin~\cite{tassi2018}. In
-meta-programmig~\cite{xx:girard?}, we distinguish between the object language,
+meta-programmig, we distinguish between the object language,
 which is the language being studies and described and the meta-language, which
 is langauge in which some of the routines of the object languages are delagated,
 in our case, \elpi is the meta-language and \rocq is the object language.
