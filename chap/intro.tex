@@ -1,40 +1,101 @@
 \chapter{Introduction}
 
-Automation is a central component of modern proof assistants such
-as \rocq. Mechanisms like the elaborator allow the system
-to infer implicit piece of information by following a system of
-inference rules stored in a knowledge base.
-Type-class resolution is one of the elaborator's tasks, they are
-used for symbol overloading: the same symbol has several different
-meaning depending to the context in which it is used. The solver
-is charged in finding the right implementation.
+In computer science, an undoubtly feature of most programming language relyes on
+the facilities the user has when it communicates with the interpreter or the
+compiler of the language it-self. Computers tals about binary
+expressions~\cite{xx}, but we, as human being, cannot spend too much effort in
+writing a tcode which is too far from our way of thinking.
 
-Operationally, this process can be seen as a form of
-logic programming, where goals are solved by searching for
+In modern languages, the set of tools the user has in his hands to improve his
+coding experience is extremely vary, we can account for syntactic
+sugar~\cite{xx}, which allows the writing of a code which is more natural for
+the user then the real syntax. We have static checkers that verifies that some
+properties of the code adheres to some expected properties, among them we can
+account for type safety~\cite{xx}, code quality~\cite{linting},
+security~\cite{xx}, dependency checker~\cite{xx}. We dispose of compiling
+options allowing to build more efficient executable code~\cite{xx}. And so on.
+
+We can group all of these components in some kind of automation~\cite{xx}
+which is a field in computer science where a lot of effort is spent in order
+to increase more and more the user experience. A major piece of technology
+that nowaday is surely taking the most investment is artificial intelligence,
+where the art of human coding is almost entirely delegated to machines which
+answers to a given prompt~\cite{xx}.
+
+A research area where automation has had a great impact is the domain of
+mathematics, where the process of proving mathematical theorem using a
+pen-and-paper strategy, has been little by little replaced by the so called
+proof assistants~\cite{xx}. Based on the curry-howoard~\cite{xx} correspondance,
+a \underline{proof} of a \uuline{theorem} can be seen as a implementing a
+\underline{program} for given \uuline{type}.
+
+Based on type thoery~\cite{xx}, a proof assistant is delegated to ensure that
+every configuration of the studied program has been taken into account and that
+each of them satisfy the expected specification. Formal reasonement in a proof
+assistant, ask the user to write a program which is extremely detailed, in the
+sense that the proof term does not contains any ambiguity or any omitted
+information. Writing these proof term become very verbose even for enough simple
+theorems, it is here that automation comes back into the game to assist the
+proving phase.
+
+One of the mainstream proof assistant is \rocq~\cite{coqart}, formerly known as
+\coq. It provides the user a powerful mechanism called
+elaborator~\cite{elaboration}. This tool is made by a collection of rules
+allowing the user to write terms that are syntactically close to their
+mathematical representation. This is possible thanks to an elaborator capable of
+disambiguating notations and infer implicit piece of information by following a
+system of inference rules stored in a knowledge base. 
+
+An aspect which is surely accepted for a well-informed reader in the
+mathematical field is the possibility to reuse the same symbol in different
+contexts. Typically, a well informed reader, reader finds no ambiguity in understaint the meaning of
+the $+$ symbol if used in this context, $1 + 2$ or in this context, $[\pig, e]
++ [\sqrt{2}, \frac{1}{3}]$. Our mind intuitively associate the formar usage of $+$
+to the addition over natural numbers, and in the latter usage to the addition
+over vectors of real numbers. In computer scinece this idea of reausing
+the same symbol with different implementation dependidng on the context it
+is used is called symbol overloading~\cite{xx} and has been introduced
+by the notion of type classes~\cite{xx}.
+
+Since several implementations exist for the same symbol, the role of the type
+class solver is to find the correct implementaiton.
+Operationally, in \rocq~\cite{sozeau2008-tc}, this process can be seen as a form of
+logic program where goals are solved by searching for
 instances in a database, potentially backtracking in the search tree if a failure
-is incountered. It seems quite natural to investigate how this same approach
-can be delegated to a meta-language based on logic programming where
-this inference model is natively handled by the interpreter of the language.
+is incountered.
 
-In this work, we study the integration of the \rocq proof assistant
-with an alternative type-class solver written in the meta-programming
-language \elpi. This language follows a \prolog-like execution model,
-based on higher-order unification, backtracking, and control
-operators such as cut. These features make it well suited for our
-goal.
+The \rocq proof assistant can be extended by so called meta-languages~\cite{xx},
+the idea is that the \rocq system delegates some task to the meta-language which
+computes a result and send it back to the \rocq system. One of the languages
+extending \rocq is the \elpi language~\cite{dunchev15}, a dialect of
+\lprolog~\cite{miller1988}, via the \rocqelpi plugin~\cite{tassi2018}. In
+meta-programmig~\cite{xx:girard?}, we distinguish between the object language,
+which is the language being studies and described and the meta-language, which
+is langauge in which some of the routines of the object languages are delagated,
+in our case, \elpi is the meta-language and \rocq is the object language.
 
-A first point we emphasize is the simplicity of this approach.
-A basic compiler for type classes can be written in only a few
-lines, while the solver directly relies on the existing
-interpreter. We then extend this basic translation to support more
-complex instances as found in practice, and evaluate the resulting
-solver against the native one of \rocq.
+Since type-class resolution uses a \prolog-like search~\cite[Chap. 9]{sld}, and
+since \elpi uses this resolution strategy by default in its interpreter, a
+research question could be to see how to reuse the \elpi interpreter as a
+type-class solver for \rocq.
+
+In this work, we study the integration of the \rocq proof assistant with an
+alternative type-class solver written in the meta-programming language \elpi. In
+order to use the \elpi interpreter we need to translate the type classes and
+instance of the \rocq language in an \elpi databse. This translation needs
+therefore a compiler. We show in \cref{sec:simple-instance-compiler} and we
+emphasize the simplicity of this approach: a basic compiler for type classes can
+be written in only a few lines, while the solver directly relies on the existing
+interpreter. We then extend this basic translation to support more complex
+instances as found in practice, and evaluate the resulting solver against the
+native one of \rocq~\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}.
 
 However, this approach also has limitations. A difficulty comes from
 the mismatch between the object language and the meta-language.
-Although both support higher-order unification and
+Although both support higher-order unification~\cite{miller1991-pf} and
 $\beta\eta$-conversion, the higher-order abstract syntax used to
-represent \rocq terms in \elpi encodes $\lambda$-abstractions and
+represent \rocq terms in \elpi (called HOAS~\cite{pfenning1988}) 
+encodes $\lambda$-abstractions and
 applications using rigid constructors. This introduces additional
 unification constraints that the \elpi algorithm cannot handle in
 general.
@@ -43,24 +104,31 @@ As a result, some terms that unify in \rocq may fail to unify in
 \elpi after translation. Therefore, a direct reuse of meta-level
 unification is not sufficient.
 
-To overcome this issue, we have studied a compilation scheme that
+To overcome this issue, we have studied a compilation scheme~\ref{chap:ho-for-free}
+that
 preserves most of the structure of compiled terms while isolating
 problematic subterms. These subterms are replaced only when needed
 and recorded as \emph{links}, which represent delayed constraints.
 They are checked during execution, allowing us to recover the
 intended behavior without reimplementing unification.
 
-This design is also motivated by efficiency. Since most of the term
+This compilation with links is also motivated by efficiency. 
+Since most of the term
 structure is preserved, we can still exploit features of the \elpi
 language such as indexing and mode-directed unification. This is
 particularly important for type-class resolution, where the search
 space can be large.
 
 An additional contribution of this work is a determinacy analysis
-for \elpi programs. Determinacy aims to ensure that certain
+for \elpi programs~\cref{chap:det-elpi}. Determinacy aims to ensure that certain
 predicates do not introduce choice points and produce at most one
 solution. This property is useful to understand and control the
-behavior of logic programs. 
+behavior of logic programs. Implementing a determinacy checker in \elpi
+as a direct impact in the type-class solver for \rocq written in \elpi:
+type classes can be seen as \prolog-like predicates, and instances as
+\prolog-like rules for these predicates. If a \rocq class is declared 
+``deterministic'', then the checker ensures that all rules implementing
+it does repspect this property.
 
 We present an analysis that guarantees determinacy by inspecting
 clauses and tracking argument modes. The algorithm is designed to
@@ -71,7 +139,7 @@ deterministic behavior but interacts in subtle ways with the
 logical reading of programs.
 
 We have started formalizing the expected properties of the static
-checker in the \rocq proof assistant by encoding the \elpi interpreter.
+checker in the \rocq proof assistant by encoding the \elpi interpreter~\ref{chap:mechanization}.
 To support this development, we restrict the model to a first-order
 fragment of the language, where terms do not contain higher-order
 variables. In this setting, the absence of propositional variables
@@ -85,7 +153,7 @@ behavior and increases confidence in the approach.
 
 \section{Contributions and structure of the thesis}
 
-The remainder of this thesis is organized as follows. We first present the
+This thesis is organized as follows. We first present the
 context of the work (\cref{chap:context}). In particular, we describe the
 type-class resolution mechanism implemented in \rocq, together with its main
 options. Then, we introduce the \elpi language and give a formal description of
