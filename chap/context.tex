@@ -269,7 +269,7 @@ elaborated version:
 types. If a function of type $t_1 \to t_2$ is declared as a coercion,
 it can be inserted automatically when a term of type $t_1$ is used
 where a $t_2$ is expected. For example, assume that
-\cI{nat\_to\_bool} maps \cI{0} to \cI{false} and any other natural
+\cI{nat_to_bool} maps \cI{0} to \cI{false} and any other natural
 number to \cI{true}, and is declared as a coercion from \cI{nat} to
 \cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects a boolean,
 is elaborated into \cI{negb (nat_to_bool O)}.
@@ -367,7 +367,7 @@ For example, the instance for product types:
 \input{code/plus_tc_add_prod.tex}
 
 This instance defines \cI{Add (T1 * T2)} provided that \cI{Add T1} and \cI{Add
-T2} are available.Aaddition on pairs is derived from addition on their
+T2} are available. Addition on pairs is derived from addition on their
 components, that is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with
 $(7, (e, 0))$~\dots
 
@@ -420,7 +420,7 @@ Only then the addition can be performed:
 
 This becomes cumbersome when many combinations are needed. For example, withboth
 integers and floating-point numbers, all combinations of pairs require separate
-modules. Type classes avoid  his duplication by resolving instances
+modules. Type classes avoid this duplication by resolving instances
 automatically.
 
 In a proof assistant such as \rocq, the type class
@@ -436,6 +436,14 @@ function \cI{plus} and a proof that \cI{plus} is associative. Then, if
 definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
 addition is associative over natural and real numbers and pairs.
 
+As an example, the specification:
+%
+$$(3, \pig) + \big((3, e) + (3, \sqrt{2})\big) = \big((3, \pig) + (3, e)\big) + (3, \sqrt{2}).$$
+
+\noindent
+can be proved by using the overload theorem \cI{assoc}, and the type-class solver
+will be charged of finding an instance for the type \cI{nat * R}.
+
 % In order to better structure type classes, the system can be extended so that
 % type classes can inherit properties of existing classes. In group theory this
 % feature consist, for example, in defining an object called \cI{Magma} with an
@@ -449,8 +457,8 @@ addition is associative over natural and real numbers and pairs.
 \paragraphTwo{Search strategy}
 
 Type classes are widely used in several major \rocq{} libraries, including
-\tlc~\cite{tlc}, \stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. They give
-access to a type-class solver that automatically infers instances by searching
+\tlc~\cite{tlc}, \stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. The
+type-class solver automatically infers instances by searching
 in a database of declared instances. This database is organized as an ordered
 list.
 
@@ -946,7 +954,7 @@ goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
 \backchain.
 
-\paragraphTwo{Comparison with Tassi's hdr}
+\paragraphTwo{Comparison with Tassi's presentation}
 
 \begin{table}
     \begin{subtable}{0.48\textwidth}
@@ -994,7 +1002,7 @@ developed in collaboration with Enrico Tassi. A comprehensive description of
 
 We highlight here the main differences between his presentation and the one
 adopted in this section. First, in the syntax, we use binary application for
-terms, instead of the $n$-ary application used in \emph{hdr}. Second, in the
+terms, instead of the $n$-ary application used in \cite{hdr}. Second, in the
 semantics, programs carry not only the list of rules and nominal variables, but
 also the signature of declared predicates. We also omit the formal treatment of
 constraints, as it is not required for the remainder of this manuscript; a brief
