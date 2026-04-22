@@ -694,8 +694,8 @@ case of parametric types. The arrow symbol is used to type function space and in
 arguments of two terms, we dealy this discussion in the next paragraph. By
 default, no mode information is compiled to \Eoutput.
 
-For example, the following declarations define Church naturals and
-polymorphic lists.
+For example, the constructors for natural numbers and polymorphic lists,
+introduced in \cref{sec:rocq-intro}, can be defined in \elpi as follows:
 
 \mvspace
 \begin{minipage}{0.45\textwidth}
@@ -743,13 +743,16 @@ after the arrow are outputs.
   \label{fig:elpi-semantics}
 \end{figure}
 
-In thise section, we use the notation $\vecL{x}$ to represent an ordered list of
-$x$ elements. The binary operator $+$, when applied to partial mappings
-performs their disjoint union. The notation $t_1 + t_2$, when $t_1$ and $t_2$
-are types, represent an object bying of type either $t_1$ or $t_2$, the notation
-$t_1 + \mnone$ represent an object of type $t_1$ or a failure.
-The notation \eI{set ~S~} represent a set, that is an unordered duplicate-free
-collection of elements of type $S$.
+In this section, we use the notation $\vecL{x}$ to denote an ordered list
+containing $x$ elements. The binary operator $+$, when applied to partial
+mappings, denotes their disjoint union.
+
+When $+$ is used on types, the expression $\tau_1 + \tau_2$ denotes a value
+that can be of type $\tau_1$ or $\tau_2$. In particular, the notation
+$\tau_1 + \mnone$ represents a value of type $\tau_1$ or a failure.
+
+Finally, the notation \eI{set ~S~} denotes a set, that is, an unordered
+collection of elements of type $S$ without duplicates.
 
 A substitution $\sigma$ of type $\Sigma$ is a partial mapping from
 unification variables \UVAR\ to terms \TERM. The empty substitution is denoted by
