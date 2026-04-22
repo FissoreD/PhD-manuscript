@@ -206,51 +206,48 @@ them automatically.
 \label{fig:elaboration}
 \end{figure}
 
-In this section, we focus on a more technical aspect that enables communication
-between the user and the \rocq system: the \emph{elaborator}~\cite{elaboration}. 
-This component is
-part of all proof assistants. Its purpose is to give the user a certain amout of
-freedom about the possibility of entrering incomplete or ambiguous expressions,
-leaving the system to infer the missing information and resolve ambiguity.
+In this section, we study a technical component that mediates the
+interaction between the user and the \rocq system: the
+\emph{elaborator}~\cite{elaboration}. This component is present in all
+proof assistants. Its role is to accept expressions that may be
+incomplete or ambiguous, and to reconstruct the missing information
+automatically.
 
-Figure~\ref{fig:elaboration}, taken from~\cite{elaboration}, summarizes the main
-steps of the elaboration process. Starting from a raw input string, the system
-parses it into a \rocq term that may still be incomplete, and then elaborates it
-into a fully elaborated term. This final term is passed to the kernel of the
-language, which
-typechecks it. If the check succeeds, the term is a valid inhabitant of its
-type, or in other words a proof of the given statement. The whole
-elaboration process includes
-several key tasks: notation resolution, type inference, coercion insertion, and
-inference of overloaded symbols.
+Figure~\ref{fig:elaboration}, adapted from~\cite{elaboration}, outlines
+the main steps of this process. Starting from a raw input string, the
+system first parses it into a \rocq term, which can still contain
+implicit parts. This term is then elaborated into a fully explicit one.
+The resulting term is passed to the kernel, which typechecks it. If the
+check succeeds, the term is a valid inhabitant of its type, that is, a
+proof of the corresponding statement.
 
-\emph{Notation resolution} removes syntactic ambiguities by replacing
-user-defined notations with their corresponding logical symbols in the abstract
-syntax tree. The resulting term is unambiguous but may still contain holes,
-which are then filled during later stages of the elaborator. For example the
-term \cI{[1, 0]}, which uses standard mathematical syntax to represent an
-ordered collection of elements, contains notations to represent natural numbers
-and lists. The (partially) elaborated term becomes:
+Elaboration performs several tasks, including notation resolution,
+type inference, insertion of coercions, and resolution of overloaded
+symbols.
+
+\emph{Notation resolution} removes syntactic ambiguity by replacing
+user-defined notations with their underlying constructors in the
+abstract syntax tree. The obtained term is unambiguous, although it may
+still contain holes. For example, the term \cI{[1, 0]} uses common
+mathematical notation for lists and natural numbers. After this step,
+it becomes:
 %
 \begin{center}
   \cI{@cons _ (S O) (@cons _ O (@nil _))}
 \end{center}
 
 \noindent
-where \cI{cons} and \cI{nil} are term constructor representing respectively the
-function inserting in head position of a list an element, and the empty list.
-And \cI{S} and \cI{O} represent respectively a function returning the successor
-of its argument and the costant for the $0$ natural number.
+Here, \cI{cons} and \cI{nil} are constructors for lists, representing
+respectively insertion at the head and the empty list. The symbols
+\cI{S} and \cI{O} denote the successor function and the constant $0$.
 
-\emph{Type inference}, as announced in the previous section,
-is a mechanisms made of a system of rules allowing to
-deduce missing information of a term from a typing environment.
+\emph{Type inference} fills in the missing information using the typing
+environment. It relies on a set of rules that propagate type
+constraints through the term.
 
-As an exapmle, in the following table we provide a typing environment
-where the type of the symbols used above
-are explicitely given.
+As an example, consider the following typing environment:
 %
-\begin{center}  
+\begin{center}
 \begin{tabular}{ccc}
   Symbol & & Type \\
   \hline
@@ -261,27 +258,26 @@ are explicitely given.
 \end{tabular}
 \end{center}
 
-The execution of the typechecker on the term above returns,
-the elaborated term:
+Running the typechecker on the previous term produces the fully
+elaborated version:
 %
 \begin{center}
 \cI{@cons nat (S O) (@cons nat O (@nil nat))}
 \end{center}
 
-\textit{Coercions} are a mechanism~\cite{barthe95}
-to implicitly convert a term of type $t_1$ into a term of
-type $t_2$ by inserting a function of type $t_1 \to t_2$.
-For instance, suppose that \cI{nat_to_bool} maps \cI{0} to \cI{false} and any
-other natural number to \cI{true}, and is declared as a coercion from
-\cI{nat} to \cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects an
-argument of type \cI{bool}, is automatically elaborated into
-\cI{negb (nat_to_bool O)}.
+\emph{Coercions}~\cite{barthe95} allow implicit conversion between
+types. If a function of type $t_1 \to t_2$ is declared as a coercion,
+it can be inserted automatically when a term of type $t_1$ is used
+where a $t_2$ is expected. For example, assume that
+\cI{nat\_to\_bool} maps \cI{0} to \cI{false} and any other natural
+number to \cI{true}, and is declared as a coercion from \cI{nat} to
+\cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects a boolean,
+is elaborated into \cI{negb (nat_to_bool O)}.
 
-Beyond type inference and coercions, a key feature of elaboration is support for
-overloading. This allows the same symbol to be reused at different types. Since
-ad-hoc polymorphism plays an important role in this manuscript, we will examine
-this mechanism in more detail in the following subsection.
-
+Finally, elaboration also supports overloading, allowing a symbol to be
+used with different types. Since ad-hoc polymorphism is important for
+this work, we study this mechanism in more detail in the next
+subsection.
 
 \subsection{Ad-hoc polymorphism}
 \label{sec:ad-hoc-poly}
@@ -393,7 +389,7 @@ minor syntactic differences.
     \input{code/add_pr_module.tex}
   \end{subfigure}
   \vspace{-10pt}
-  \caption{The \cI{Add} type-class in \ocaml}
+  \caption{The \cI{Add} type-class with modules in \ocaml}
   \label{fig:add-module}
 \end{figure}
 
@@ -429,8 +425,7 @@ automatically.
 
 In a proof assistant such as \rocq, the type class
 mechanism reuses the same intuition behind symbol overloading so that not only
-function can be overload but also theorems.
-
+function can be overload but also theorem symbol.
 For instance, one may enrich \cI{Add} with the associativity specification:
 %
 \input{code/plus_tc_add1.tex}
@@ -1730,24 +1725,25 @@ returns an updated list of sealed goals. The type \eI{sealed-goal}, shown in
 \cref{fig:goals-type}, represents goals that may contain abstractions. These
 abstractions are encoded using the \eI{nabla} constructor.
 
-Under a spine of \eI{nabla} abstractions, the \eI{seal} constructor contains a
-goal. A goal is a tuple with five components: a context $C$, a raw solution
-$S_r$, a type $T_y$, a final solution $S$, and a list of arguments $L$.
+Under a spine of \eI{nabla} abstractions, the \eI{seal} constructor
+encodes a goal. A goal is a tuple with five components: a context $C$,
+a raw solution $S_r$, a type $T_y$, a final solution $S$, and a list of
+arguments $L$.
 
-The context $C$ maps quantified variables to their types. The type $T_y$ is the
-type of the \rocq goal to be solved. The terms $S_r$ and $S$ are two \elpi
-unification variables mapped to a \rocq existential variable. The two variables
-are related to $T_y$ via typing constraints. 
+The context $C$ assigns types to the quantified variables. The type
+$T_y$ represents the type of the \rocq goal to solve. The terms $S_r$
+and $S$ are \elpi unification variables associated with the same
+\rocq existential variable, and both are constrained by $T_y$.
 
-The instantiation of $S_r$ triggers the elaboration of $S_r$ against $T_y$. In
-constrast, the instantiation of $S$ triggers the typechecking of $S$ against
-$T_y$. The main difference between the two is that, elaboration (as in
-\cref{sec:rocq-intro}) is allowed to modify the input term -- for example, by
-adding coercions -- while the second only check that the type of $S_r$ is $T_y$.
+Instantiating $S_r$ triggers its elaboration with respect to $T_y$.
+By contrast, instantiating $S$ triggers typechecking against $T_y$.
+The difference is that elaboration (see \cref{sec:rocq-intro}) may
+transform the input term, for example by inserting coercions, while
+typechecking only verifies that the term has the expected type.
 
-The list $L$ contains arguments that
-control the behavior of the resolution process. In this work, we mainly use two
-projections of goals, namely the context and the goal type.
+The list $L$ contains additional arguments that guide the resolution
+process. In this work, we mainly use two projections of a goal: the
+context and the goal type.
 
 If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
 the list of goals \eI{L}, then the system attempts to solve each goal in
