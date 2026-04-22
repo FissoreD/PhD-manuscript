@@ -247,8 +247,9 @@ simplified implementation has some limitations it is worth to point out.
   \item The compiler does not handle instances of the form
         $(c_1 \to c_2) \to c_3$, where the implementation of $c_3$ requires a
         proof of $c_2$ in a context extended with a local instance of $c_1$.
-        Supporting such cases requires generating hereditary Harrop
-        formulas and therefore tracking the polarity (see~\cref{sec:elpi-syntax}) of the instance being
+        Supporting such cases requires generating 
+        complex formulas and therefore tracking the positive/negative
+        position (see~\cref{sec:elpi-syntax}) of the instance being
         compiled. This problem is addressed in
         \cref{sec:instance-encoding}.
   \item The \eI{solve} rule of the solver ignores the context of the goal. As
@@ -434,8 +435,9 @@ The premises of the clause are stored in the accumulator \eI{P}. As with the
 instance arguments, they are reversed before constructing the final rule.
 
 Finally, the predicate \eI{build-rule} assembles the rule according to the
-current polarity. With positive polarity, it produces a standard clause
-\eI{Head :- Prems}. With negative polarity, it produces the implication
+current position tag: positive or nagative. In the former
+case, it produces a standard clause
+\eI{Head :- Prems}. Otherwise, it produces the implication
 \eI{Prems => Head}.
 
 \begin{figure}

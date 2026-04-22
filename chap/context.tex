@@ -628,7 +628,8 @@ terms are formed by applying a term to a $\lambda$-term~\LTERM.
 Lambda terms introduce abstractions; in the concrete \elpi\ syntax, an
 abstraction is written \eI{x\ t}. Function application follows a curried
 style. In contrast with \prolog, arguments are not passed within
-parentheses, which allows partial application.
+parentheses, which allows partial application. We write, for example,
+\eI{p 1 X}, instead of \eI{p(1, X)}.
 
 An formula~\ATOM\ represents an executable unit. It can be:
 \begin{enumerate}
@@ -637,11 +638,11 @@ An formula~\ATOM\ represents an executable unit. It can be:
   \item a $\pi$-quantification, written \eI{pi x\ t} in the concrete syntax,
         which introduces a fresh nominal variable \eI{x} visible in \eI{t}, or
   \item the dynamic insertion of a rule~\RULE, written \eI{r => t}, which
-        makes the rule \eI{r} locally available while solving \eI{t}.
+        makes the rule \eI{r} locally available in the scope of \eI{t}.
 \end{enumerate}
 
 A rule~\RULE\ consists of a head and a (possibly empty) body, which is a
-list of atoms. The atoms in the body are called the premises of the rule.
+list of atoms. The atoms in the body are called the \emph{premises} of the rule.
 
 For simplicity, we omit constraints from the syntax, since they
 do not play an immediate role in the presentation. They are briefly
@@ -653,15 +654,17 @@ which are usually encoded as native feature of a logic programming-language,
 can be treated as first-class objects and implemented directly as \elpi rules.
 
 % \begin{definition}[Atom polarity]
-We say that a subformula appears either in a \emph{positive} or
+We say that a subformula occurs either in a \emph{positive} or
 \emph{negative} position within a formula~\cite{miller2012}.
 
 \noindent
 \begin{minipage}{0.75\textwidth}
-A formula at the top level is in positive position. If a formula $f_1
-\Rightarrow f_2$ is positive (resp. negative), then when crossing the
-implication, the left-hand side is negative (resp. positive), while the
-right-hand side is positive (resp. negative).
+A formula at the top level is in positive position. For an implication
+$f_1 \Rightarrow f_2$, the position tag is reversed on the left-hand side
+and preserved on the right-hand side. More precisely, if the whole
+implication is in positive (resp.\ negative) position, then $f_1$ is in
+negative (resp.\ positive) position, while $f_2$ is in positive
+(resp.\ negative) position.
 
 In the example on the right we explicitly annotate the positive/negative
 occurrences of each subformula.
@@ -675,7 +678,7 @@ occurrences of each subformula.
 \phantom{aa}
 \end{minipage}
 
-This notion of polarity will be used again in
+This notion of positive/negative position of a term will be used again in
 \cref{sec:instance-encoding} when discussing the encoding of instances.
 
 \paragraphTwo{Syntax of \elpi\ types}
