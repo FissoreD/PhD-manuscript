@@ -57,169 +57,144 @@ behind the \rocqelpi plugin.
 % TODO: vedere dove è usata
 \label{sec:rocq-intro-lam-calc}
 
-As anticipated, the \rocq language is based of type theory~\cite{coq-huet}. At
-the heart of this research area, we have the pure $\lambda$-calculus, thoerized
-by Church~\cite{church} in 1932.
-It is a small language made of \emph{terms}, their abstract syntax is given below.
+As anticipated, the \rocq language is based on type theory~\cite{coq-huet}.
+At its core lies the pure $\lambda$-calculus, introduced by Church
+in 1932~\cite{church}. This is a minimal language whose syntax is defined
+by \emph{terms}:
 %
 $$t := x\ |\ t\ t\ |\ \lambda x.t$$
 
-The smallest term is a variable $x$; term applications is noted $t\ t$, we call
-the first term the head of the application and the second the argument; a
-function, abstracts a variable $x$ in a term $t$, and it is noted $\lambda x.
-t$. We say that the term is binding $x$ in $t$, equivalently, we say that the
-variable $x$ is \emph{bound} in $t$, a variable that does not occur under a
-$\lambda$-abstraction is said to be \emph{free}. A \emph{subterm} is a term
-appearing inside a term $t$.
+A term can be a variable $x$, an application $t\ t$, or an abstraction
+$\lambda x.t$. In an application, the first term is called the
+\emph{head} and the second the \emph{argument}. An abstraction
+$\lambda x.t$ binds the variable $x$ in $t$. A variable is said to be
+\emph{bound} if it appears under a $\lambda$-abstraction; otherwise, it is
+\emph{free}. A \emph{subterm} is any term occurring inside another term.
 
-For example the term $\lambda x. \lambda y. x$, also called the \texttt{fst}
-function, has two bound variables $x$ and $y$. The term $\lambda y. x$ is a
-subterm of \texttt{fst} and it has a free variable $x$.
+For instance, the term $\lambda x.\lambda y.x$ (often called
+\texttt{fst}) contains two bound variables, $x$ and $y$. The term
+$\lambda y.x$ is a subterm of \texttt{fst}, and $x$ is free in it.
 
-The evaluation of a $\lambda$-term is performed by a set of \emph{reduction}
-rules. If two terms reduce to the same term then, they are equivalent.
-The interesting reductions rules for this manuscript are:
+Evaluation of $\lambda$-terms is defined by \emph{reduction} rules. Two
+terms are considered equivalent if they reduce to the same term. The
+main rules used here are:
 %
 \begin{center}
   \begin{bprooftree}
     \AxiomC{$~$}
-    % \AxiomC{$t_1\ [x\backslash t_2] \triangleright t_3$}
     \RightLabel{\rulelabel{$\beta$-rule}}
-    \UnaryInfC{$(\lambda x. t_1)\ t_2 =_\beta t_1[x\backslash t_2]$}
+    \UnaryInfC{$(\lambda x.t_1)\ t_2 =_\beta t_1[x\backslash t_2]$}
   \end{bprooftree}
   \begin{bprooftree}
-    % \AxiomC{$\lambda x. t\ x \triangleright t \quad x \text{ is not free in t}$}
-    \AxiomC{$x \text{ is not free in t}$}
+    \AxiomC{$x \text{ is not free in } t$}
     \RightLabel{\rulelabel{$\eta$-rule}}
-    \UnaryInfC{$\lambda x. t\ x =_\eta t$}
+    \UnaryInfC{$\lambda x.t\ x =_\eta t$}
   \end{bprooftree}
 \end{center}
 
-The $\beta$-rule deals with terms application when the head contains a
-$\lambda$-abstraction. This application evaluates to the head where all
-free occurrences of the abstraction $x$ are replaced by the argument of the
-application. We say
-that a term on which the $\beta$-rule can be used is a $\beta$-redex. A term
-that can not be $\beta$-reduced, is in $\beta$-normal form. For example, the
-application $((\lambda x. \lambda y. x)\ 1)\ 2$ is a $\beta$-redex: its
-reduction produces the term $(\lambda y. 1)\ 2$. This term is stil a
-$\beta$-redex and can be further reduced to $1$. 
+The $\beta$-rule describes function application: when the head is an
+abstraction, the argument replaces all free occurrences of $x$ in $t_1$.
+A term where this rule applies is called a $\beta$-redex. A term with no
+such reductions is in $\beta$-normal form. For example,
+$((\lambda x.\lambda y.x)\ 1)\ 2$ reduces first to
+$(\lambda y.1)\ 2$, and then to $1$.
 
-The $\eta$-rule deals with the abstraction of a variable $x$ over term
-application $t\ x$ where $x$ is not used free $t$. Similarly to the
-$\beta$-rule, a term that can be $\eta$-reduced is a $\eta$-redex otherwise
-it is in $\eta$-normal form.
+The $\eta$-rule expresses a form of extensionality: if $x$ does not occur
+free in $t$, then $\lambda x.t\ x$ is equivalent to $t$. Terms where this
+rule applies are called $\eta$-redexes.
 
-In the domain of type-theory, pure $\lambda$-calculus is extended with a system
-of typing rules, imposing constraints about the \emph{type} that the argument of
-a term application should have. This extension of the $\lambda$-calculus is called
-simply-typed $\lambda$-calculus~\cite{church-type}.
+In type theory, the pure $\lambda$-calculus is extended with typing
+rules. These constrain how terms can be formed by assigning a
+\emph{type} to each term. This extension is known as the
+simply-typed $\lambda$-calculus~\cite{church-type}:
 %
 $$\tau := \alpha\ |\ \tau \to \tau$$
 
-The syntax of types is given above. A type belongs either to a finite set of
-base types, noted $\alpha$, or to the function space, noted $\tau \to \tau$,
-where the first $\tau$ represents the domain of the function and the second
-$\tau$ represents the codomain.
-In this calculus, we annotate $\lambda$-abstractions with their type,
-therefore, terms become: 
+Types are either base types $\alpha$ or function types
+$\tau \to \tau$, where the first component is the domain and the second
+the codomain. Term abstractions are annotated accordingly:
 %
-$$t := x\ |\ t\ t\ |\ \lambda (x : \tau).t$$
+$$t := x\ |\ t\ t\ |\ \lambda (x:\tau).t$$
 
-A \emph{typing environment}, usually noted $\Gamma$, is a partial mapping
-from variables to their type. We use the notation $\Gamma + (x:\tau)$ for the
-insertion of a new variable $x$ with type $\tau$ in the environment $\Gamma$.
-The typing rules are the following:
-
+A \emph{typing environment} $\Gamma$ maps variables to types. We write
+$\Gamma + (x:\tau)$ for the extension of $\Gamma$ with a new binding.
+The typing rules are:
+%
 \begin{center}
   \begin{bprooftree}
-    \AxiomC{$x : \tau \in \Gamma$}
+    \AxiomC{$x:\tau \in \Gamma$}
     \RightLabel{\rulelabel{$T_x$}}
-    \UnaryInfC{$\Gamma \vdash x : \tau$}
+    \UnaryInfC{$\Gamma \vdash x:\tau$}
   \end{bprooftree}
   \begin{bprooftree}
-    \AxiomC{$\Gamma \vdash t_1 : \tau_1 \to \tau_2 \quad \Gamma \vdash t_2 : \tau_1$}
+    \AxiomC{$\Gamma \vdash t_1:\tau_1 \to \tau_2 \quad
+             \Gamma \vdash t_2:\tau_1$}
     \RightLabel{\rulelabel{$T_@$}}
-    \UnaryInfC{$\Gamma \vdash t_1\ t_2 : \tau_2$}
+    \UnaryInfC{$\Gamma \vdash t_1\ t_2:\tau_2$}
   \end{bprooftree}
   \begin{bprooftree}
-    \AxiomC{$\Gamma + (x : \tau) \vdash t : \tau'$}
+    \AxiomC{$\Gamma + (x:\tau) \vdash t:\tau'$}
     \RightLabel{\rulelabel{$T_\lambda$}}
-    \UnaryInfC{$\Gamma \vdash \lambda (x: \tau). t : \tau \to \tau'$}
+    \UnaryInfC{$\Gamma \vdash \lambda (x:\tau).t:\tau \to \tau'$}
   \end{bprooftree}
 \end{center}
 
-These typing rules are used to determine the type of a term $t$, in particular,
-the notation $\Gamma \vdash t : \tau$ stands for a term $t$, with type $\tau$ in
-a typing environment $\Gamma$. If it is possible to derive a type from a term,
-we say that $t$ \emph{typechecks}. The \emph{typechecker} is the name of the
-algorithm implementing the typing rules.
+The judgment $\Gamma \vdash t:\tau$ means that $t$ has type $\tau$ under
+$\Gamma$. If such a derivation exists, the term is said to
+\emph{typecheck}. The algorithm implementing these rules is called the
+\emph{typechecker}.
 
-The simply-typed lambda caluclus is sometimes not enough
-powerful to give the user high level of abstractions.
-Therefre, several extensions can be introduced into this calculus to encode 
-types depending on types, types depending on terms
-and terms depending on types. The set of these extensions is graphically presented
-by the Barendregt cube~\cite{cube}. An expansion which is worth explaining in this
-paragraph is the polymorphic $\lambda$-calculus. In this calculus, terms
-can depend on types, and allow to encode the so-called \emph{polymorphic
-$\lambda$-calculus}~\cite{systemf} (also called \emph{System F}).
+However, the simply-typed $\lambda$-calculus can be too restrictive for
+expressing more abstract constructions. Several extensions exist, as
+illustrated by the Barendregt cube~\cite{cube}. One important extension
+is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
+terms may depend on types.
 
-The simplest example, is the identity function, which, in pure
-$\lambda$-calculus is encoded $\lambda x.x$, it is a function returning its
-input. The type of the codomain depends on the type of its input. In the
-simply-typed $\lambda$-calculus, we should give a unique type to the
-abstraction, for example \texttt{bool}eans, but the same implementation could also
-be given for the \texttt{nat}ural numbers, imposing therefore to provide two
-distinct implementations $\lambda (x: \texttt{bool}).x$ and $\lambda (x:
-\texttt{nat}).x$.
+Consider the identity function $\lambda x.x$. In the simply-typed
+setting, it must be assigned a fixed type, for example
+$\lambda (x:\texttt{bool}).x$. A separate definition would be needed for
+each type, such as $\texttt{nat}$. This duplication can be avoided in the
+polymorphic calculus.
 
-The polymorphic $\lambda$-calculus gives the possibility of
-quantifying types in function definition, and having the possibility
-to quantify types on which its implementation should depend.
-We extend the term and typing syntax to account for this new change:
+Polymorphism allows quantification over types. The syntax is extended as
+follows:
 %
-$$t := \dots\ |\ \tau$$
-$$\tau := \dots\ |\ \forall (x: T). \tau$$
+$$t := \dots\ |\ \tau \qquad
+  \tau := \dots\ |\ \forall (x:T).\tau$$
 
-The new $\forall$-constructor allows for the quantification of types on which
-the type $\tau$ could depend. 
-This is the typing equivalent to the $\lambda$-abstractions over
-terms. In order to quantify types in terms, we use the shorcut, $\lambda (x:
-T).t$ to represent the quantification of a type called $T$ in the term $t$.
-Now the identity function can be encoded $\lambda (x:T).\lambda (y:x).y$.
+The constructor $\forall$ expresses that a type may depend on another
+type. At the term level, we write $\lambda (x:T).t$ to abstract over a
+type. With this, the identity function can be written as
+$\lambda (x:T).\lambda (y:x).y$.
 
-In order to take into account the introduction of polymorphic
-$\lambda$-calculus, we extends the typing system with the following typing rules:
+The typing system is extended with:
 %
 \begin{center}
   \begin{bprooftree}
-    \AxiomC{$T \text{ not in } \Gamma \quad \Gamma + (x : T) \vdash t : \tau$}
+    \AxiomC{$T \notin \Gamma \quad \Gamma + (x:T) \vdash t:\tau$}
     \RightLabel{\rulelabel{$T_\forall$}}
-    \UnaryInfC{$\Gamma \vdash \lambda (x:T).t : \forall (x: T). \tau$}
+    \UnaryInfC{$\Gamma \vdash \lambda (x:T).t:\forall (x:T).\tau$}
   \end{bprooftree}
 \end{center}
 
-Now we can use the polymorphic definition of the identify function as follows:
-$(\lambda (x : T). \lambda (y : x). y)\ \texttt{nat}\ 3$. The $\beta$-reduction
-steps on this term produce: $(\lambda (y : \texttt{nat}). y)\ 3$ and then $3$.
+Using this definition, the identity function can be applied as
+$(\lambda (x:T).\lambda (y:x).y)\ \texttt{nat}\ 3$, which reduces to $3$
+by successive $\beta$-steps.
 
-In this previous example, we have explicitly passed the type \texttt{nat} as the
-first argument of the identity function, however, in a typing environment where
-$3$ is mapped to the type \texttt{nat}, we can deduce that the first argument of
-the identify function should be \texttt{nat}, simply by looking to the type of
-$3$. Therefore, a user of the language would like to write: $(\lambda (x :
-T). \lambda (y : x). y)\ \_\ 3$, leaving an underscore as missing information in
-term that is to be \emph{inferred} by the typechecker. This missing information
-is sometimes called a \emph{hole} and represents an existential variable (or
-evar) that should be instantiated by the typechecker.
-In a system such as \rocq, the underscore can be avoided if the
-argument of the function is marked as implicit.
+In practice, explicitly passing types can be inconvenient. If the typing
+environment already assigns $3$ the type \texttt{nat}, the system can
+infer that the first argument should be \texttt{nat}. One may then write
+$(\lambda (x:T).\lambda (y:x).y)\ \_\ 3$, where the underscore denotes
+missing information to be inferred.
 
-This simple example show how the user can benefit from some kind of automation
-for automatic type infernce. The system can be instrumented with several rules
-allowing the user to take further advantage from the possibility of leavining
-missing information in terms.
+Such placeholders, often called \emph{holes}, correspond to existential
+variables that the typechecker must instantiate. In systems like \rocq,
+these arguments can often be omitted entirely when they are declared
+implicit.
+
+This illustrates how type inference improves usability, allowing the
+user to leave parts of a term unspecified while the system reconstructs
+them automatically.
 
 \section{Elaboration in the \rocq proof assistant}
 % TODO: vedere dove è usata
