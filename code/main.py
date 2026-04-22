@@ -40,6 +40,7 @@ codes = {
     "hs": ["--", "", "hs", "hsI", "hs"],
     "elpi": ["%", "", "elpi", "eI", "elpi"],
     "elpi1": ["/*", "*/", "elpi", "eI", "elpi"],
+    "ml": ["(*", "*)", "caml", "mlI", "caml"],
 }
 
 def extension(fname): return fname.split(".")[-1]

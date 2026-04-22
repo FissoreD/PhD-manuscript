@@ -1,7 +1,7 @@
 \chapter{Context: languages and tools}
 \label{chap:context}
 
-At the core of this manuscript, there are two important pieces of software. 
+At the core of this manuscript, there are two important pieces of software.
 On the one hand, we
 consider the \rocq proof assistant (formerly known as \coq); on the other hand,
 we consider the logic programming language \elpi.
@@ -19,7 +19,7 @@ allows the user to construct proofs interactively.
 On the other hand, \elpi~\cite{dunchev15} is a language from the field of logic
 programming. In particular, it is a dialect of \lprolog~\cite{miller1988} which features
 backtracking, higher-order programming and unification, backtracking control
-though the \cut operator, unification control throuh predicates modes. 
+through the \cut operator, unification control through predicates modes. 
 A plugin, called \rocqelpi~\cite{tassi2018}, allows one to extend \rocq
 with new commands and tactics~\cite{krebbers2025,maas2024,tassi2023}.
 
@@ -107,12 +107,12 @@ $\beta$-redex and can be further reduced to $1$.
 
 The $\eta$-rule deals with the abstraction of a variable $x$ over term
 application $t\ x$ where $x$ is not used free $t$. Similarly to the
-$\beta$-rules, a term that can be $\eta$-reduce is a $\eta$-redex otherwise
+$\beta$-rule, a term that can be $\eta$-reduced is a $\eta$-redex otherwise
 it is in $\eta$-normal form.
 
-In the domain of type-thoery, pure $\lambda$-calculus is extended with a system
-of typing rules, imposing constraint about the \emph{type} that the argument of
-a function should have. This extension of the $\lambda$-calculus is called
+In the domain of type-theory, pure $\lambda$-calculus is extended with a system
+of typing rules, imposing constraints about the \emph{type} that the argument of
+a term application should have. This extension of the $\lambda$-calculus is called
 simply-typed $\lambda$-calculus~\cite{church-type}.
 %
 $$\tau := \alpha\ |\ \tau \to \tau$$
@@ -153,31 +153,38 @@ These typing rules are used to determine the type of a term $t$, in particular,
 the notation $\Gamma \vdash t : \tau$ stands for a term $t$, with type $\tau$ in
 a typing environment $\Gamma$. If it is possible to derive a type from a term,
 we say that $t$ \emph{typechecks}. The \emph{typechecker} is the name of the
-algorithm aiming to typecheck a term.
+algorithm implementing the typing rules.
 
-The simply-typed lambda caluclus can be extended to encode 
-types depending on types, types depending on temrs
-and terms depending on tyeps. The set of these extensions is graphically presented
+The simply-typed lambda caluclus is sometimes not enough
+powerful to give the user high level of abstractions.
+Therefre, several extensions can be introduced into this calculus to encode 
+types depending on types, types depending on terms
+and terms depending on types. The set of these extensions is graphically presented
 by the Barendregt cube~\cite{cube}. An expansion which is worth explaining in this
 paragraph is the polymorphic $\lambda$-calculus. In this calculus, terms
 can depend on types, and allow to encode the so-called \emph{polymorphic
 $\lambda$-calculus}~\cite{systemf} (also called \emph{System F}).
 
-The symplest example, is the identity function, which, in pure $\lambda$-calculus
-is encoded $\lambda x.x$, it is a function returning its input. The type of the
-codomain depends on the type of its input. In the simply-typed
-$\lambda$-calculus, we should give a unique type to the abstraction, for example
-\cI{boolean}, but this function could also work on \cI{nat} numbers.
+The simplest example, is the identity function, which, in pure
+$\lambda$-calculus is encoded $\lambda x.x$, it is a function returning its
+input. The type of the codomain depends on the type of its input. In the
+simply-typed $\lambda$-calculus, we should give a unique type to the
+abstraction, for example \texttt{bool}eans, but the same implementation could also
+be given for the \texttt{nat}ural numbers, imposing therefore to provide two
+distinct implementations $\lambda (x: \texttt{bool}).x$ and $\lambda (x:
+\texttt{nat}).x$.
 
 The polymorphic $\lambda$-calculus gives the possibility of
-quantifying types in functions, and having types depending on types.
+quantifying types in function definition, and having the possibility
+to quantify types on which its implementation should depend.
 We extend the term and typing syntax to account for this new change:
 %
 $$t := \dots\ |\ \tau$$
-$$\tau := \dots\ |\ \forall (x: \tau). \tau$$
+$$\tau := \dots\ |\ \forall (x: T). \tau$$
 
-The new $\forall$-constructor allows for the quantification of types in another
-type $\tau$. This is the typing equivalent to the $\lambda$-abstractions over
+The new $\forall$-constructor allows for the quantification of types on which
+the type $\tau$ could depend. 
+This is the typing equivalent to the $\lambda$-abstractions over
 terms. In order to quantify types in terms, we use the shorcut, $\lambda (x:
 T).t$ to represent the quantification of a type called $T$ in the term $t$.
 Now the identity function can be encoded $\lambda (x:T).\lambda (y:x).y$.
@@ -209,8 +216,9 @@ evar) that should be instantiated by the typechecker.
 In a system such as \rocq, the underscore can be avoided if the
 argument of the function is marked as implicit.
 
-This is a simple example, but the system can be instrumented with several rules
-allowing the user to take a lot of advantage from the possibility of leavining
+This simple example show how the user can benefit from some kind of automation
+for automatic type infernce. The system can be instrumented with several rules
+allowing the user to take further advantage from the possibility of leavining
 missing information in terms.
 
 \section{Elaboration in the \rocq proof assistant}
@@ -233,19 +241,21 @@ leaving the system to infer the missing information and resolve ambiguity.
 Figure~\ref{fig:elaboration}, taken from~\cite{elaboration}, summarizes the main
 steps of the elaboration process. Starting from a raw input string, the system
 parses it into a \rocq term that may still be incomplete, and then elaborates it
-into a fully specified term. This final term is passed to the kernel, which
+into a fully elaborated term. This final term is passed to the kernel of the
+language, which
 typechecks it. If the check succeeds, the term is a valid inhabitant of its
-type, or in other words a proof of the given statement. This process includes
+type, or in other words a proof of the given statement. The whole
+elaboration process includes
 several key tasks: notation resolution, type inference, coercion insertion, and
 inference of overloaded symbols.
 
-\emph{Notation} resolution removes syntactic ambiguities by replacing
+\emph{Notation resolution} removes syntactic ambiguities by replacing
 user-defined notations with their corresponding logical symbols in the abstract
 syntax tree. The resulting term is unambiguous but may still contain holes,
 which are then filled during later stages of the elaborator. For example the
 term \cI{[1, 0]}, which uses standard mathematical syntax to represent an
 ordered collection of elements, contains notations to represent natural numbers
-and lists. The elaborated term becomes:
+and lists. The (partially) elaborated term becomes:
 %
 \begin{center}
   \cI{@cons _ (S O) (@cons _ O (@nil _))}
@@ -253,7 +263,7 @@ and lists. The elaborated term becomes:
 
 \noindent
 where \cI{cons} and \cI{nil} are term constructor representing respectively the
-function inserting in head position of a list an eleemnt, and the empty list.
+function inserting in head position of a list an element, and the empty list.
 And \cI{S} and \cI{O} represent respectively a function returning the successor
 of its argument and the costant for the $0$ natural number.
 
@@ -261,8 +271,8 @@ of its argument and the costant for the $0$ natural number.
 is a mechanisms made of a system of rules allowing to
 deduce missing information of a term from a typing environment.
 
-As an exapmle, we provide in the following table an example of
-typing environment, where the type of the constant used in the notation above
+As an exapmle, in the following table we provide a typing environment
+where the type of the symbols used above
 are explicitely given.
 %
 \begin{center}  
@@ -301,142 +311,150 @@ this mechanism in more detail in the following subsection.
 \subsection{Ad-hoc polymorphism}
 \label{sec:ad-hoc-poly}
 
-Polymorphism is a fundamental feature of functional programming languages. In
-his lecture notes, Strachey~\cite{polymorphism} distinguishes between two main
-forms of polymorphism: parametric polymorphism and ad-hoc polymorphism.
-Parametric polymorphic functions are \emph{uniform}, meaning that their behavior
-does not depend on the specific type at which they are instantiated. For
-example, the function \texttt{length}, with type \cI{list A ~$\to$~ int}, 
-returns $2$
-when applied to both lists \cI{[1, 0]} and \cI{["foo", "bar"]}.
-In other words, the compiler
-reuses the same implementation of \texttt{length} for every call, regardless of
-the instantiation of \cI{A}.
+Polymorphism is a central feature of functional programming languages. In his
+lecture notes, Strachey~\cite{polymorphism} distinguishes two main forms:
+parametric polymorphism and ad-hoc polymorphism. Parametric polymorphic
+functions are \emph{uniform}, meaning that their behavior does not depend on the
+specific type at which they are instantiated. For example, the function
+\texttt{length}, with type \cI{list A ~$\to$~ int}, returns $2$ when applied to
+both \cI{[1, 0]} and \cI{["foo", "bar"]}. The same implementation is reused for
+every instantiation of~\cI{A}.
 
-Parametric polymorphism is widely used in functional programming, but it is
-not well suited to model overloading as it appears in mathematics. In
-mathematical notation, a symbol such as $+$ has a consistent and intuitive
-meaning, and no ambiguity arises for the reader. For example, in $1 + 2$ the
-symbol denotes addition over integers, while in $\pi + e$ it denotes addition
-over real numbers. The same symbol is used for operations that share common
-algebraic properties.
+Although parametric polymorphism is widely used, it is not well suited to model
+overloading as it appears in mathematics. In mathematical notation, a symbol
+such as $+$ has a stable meaning and no ambiguity for the reader. For instance,
+in $1 + 2$ it denotes addition on integers, while in $\pig + e$ it denotes
+addition on real numbers. The same symbol is reused for operations that share
+common algebraic properties.
 
-In contrast, parametric polymorphism does not allow to
-have multiple different type-dependent interpretations. This limitation appears in
-languages such as \ocaml, where integer and floating-point additions
-are represented by distinct operators, $+$ and $+.$, respectively. Thus, one
-writes $1 + 2$ for integers and $\pig +\!.\ e$
-% \footnote{In \ocaml, $\pig$ is \mintinline{ocaml}{Float.pi} and $e$ is \mintinline{ocaml}{Float.exp 1.0}}
-for floating-point numbers.
-In
-general, a different symbol must be introduced for each type implementing a
-given mathematical operation.
+In contrast, parametric polymorphism does not support multiple
+type-dependent implementations of the same symbol. This limitation appears in
+languages such as \ocaml, where integer and floating-point additions are
+represented by different operators, $+$ and $+.$. One writes $1 + 2$ for integers
+and $\pig +\!.\ e$ for floating-point numbers. In general, a new symbol must be
+introduced for each type implementing the same mathematical operation.
 
-To answer the need of a common notation for operations and properties across
-different types, Wadler and Blott introduced type classes in 1989
-\cite{wadler1989-tc}. This idea was later implemented in Haskell
-\cite{wadler1996-hs}, where it quickly became an important and widely used
-feature of the language.
-
-After that, several other languages adopted similar mechanisms. For example,
-\cpp~\cite{cpp-tc}, \java~\cite{java-tc}, and even proof assistant such as
-\rocq~\cite{sozeau2008-tc}, and \lean~\cite{lean-tc}, extended their type
-systems to support this form of overloading.
-
-% \subsection{Ad-hoc polymorphism: Type classes}
+To address this issue, Wadler and Blott introduced type classes
+in~1989~\cite{wadler1989-tc}. The idea was later implemented in
+Haskell~\cite{wadler1996-hs}, where it became a core feature. Similar mechanisms
+were then adopted in other languages such as \cpp~\cite{cpp-tc},
+\java~\cite{java-tc}, and proof assistants like \rocq~\cite{sozeau2008-tc} and
+\lean~\cite{lean-tc}.
 
 \paragraphTwo{Symbol overloading}
-Type classes provide a principled form of ad-hoc polymorphism, enabling
-a single symbol to be associated with multiple type-specific implementations
-while preserving static type safety.
-They provide structure parameterized by one or more types~$t$ and
-declare the signatures of a set of functions, called methods, whose
-types may depend on~$t$. An instance of a type class provides a concrete
-implementation of the type class for a specific choice of~$t$, providing
-definitions for all of its methods.
+Type classes provide a principled form of ad-hoc polymorphism. They allow a
+single symbol to be associated with different implementations while preserving
+static type safety. A type class is parameterized by one or more types~$t$ and
+declares a set of functions, called methods, whose types may depend on~$t$. An
+instance of a type class gives a concrete implementation for a specific type.
 
-Unlike parametric polymorphism, where a unique function is used for the
-execution of a call, type classes rely on instance resolution. Typeclasses and
-instances are stored in a database mapping classes to their instances. When solving
-a call to a type class method, the elaborator finds the right implementation by
-selecting the instance of the type class associated with the given type in the
-given database.
+Unlike parametric polymorphism, where a single function is used, type classes
+rely on instance resolution. Instances are stored in a database. When a method
+is used, the elaborator selects the appropriate implementation by searching for
+an instance matching the required type.
 
-As an example, consider the type class \cI{Add}, parameterized by a
-type \cI{T} and equipped with a method \cI{plus} to perform addition between
-two elements of type \cI{T}. In \rocq, the definition of \cI{Add} is given
-below.
+As an example, consider the type class \cI{Add}, parameterized by a type
+\cI{T}, with a method \cI{plus} for addition. In \rocq, it is defined as
+follows.
 
 \mcenter{code/plus_tc_add.tex}
 
-The type of the method \cI{plus} is
-$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
-where both the type parameter \cI{T} and the instance argument
-\cI{Add T} are implicit. The typechecking of the term
+The method \cI{plus} has type
+$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$, where both the
+type parameter and the instance argument are implicit. Typechecking the term
 \cI{plus 3 4} gives:
 %
 \begin{center}
   \cI{@plus nat ?Add 3 4 : nat where ?Add : [ |- Add nat]}
 \end{center}
 
-The term has type \cI{nat}, but the instance for \cI{Add nat} cannot be
-inferred (the \cI{?Add} in the snippet above). This is beacuse in the type-class
-database, there is no instance associated to \cI{Add}. To resolve this,
-given the function \cI{Nat.add} of type \cI{nat ~$\to$~ nat ~$\to$~ nat} computing
-the sum between natural numbers, we
-define the instance:
+The instance for \cI{Add nat} cannot be inferred because no instance is
+registered yet. Using the function \cI{Nat.add}, of type \cI{nat ~$\to$~ nat
+~$\to$~ nat} computing the sum between \cI{nat}ural numbers, we define:
 
 \mleft{code/plus_tc_anat.tex}
 
-The declaration \cI{addNat} has type \cI{Add nat} and provides an
-implementation of the method \cI{plus}. Registering this instance extends
-the instance database for \cI{Add} with an entry for the type \cI{nat}.
-Afterwards, the term \cI{plus 3 4} can be elaborated successfully: 
+The declaration \cI{addNat : Add nat} provides an implementation of
+\cI{plus}. After registering it, the term \cI{plus 3 4} is elaborated as:
 %
-\begin{center}  
+\begin{center}
   \cI{@plus nat addNat 3 4 : nat}
 \end{center}
 
-\noindent
-Note how \cI{?Add} is now inferred to the instance \cI{addNat}.
-
-Similarly, given the function \cI{Rplus} of type \cI{R ~$\to$~ R ~$\to$~ R}
-computing the sum between real numbers, we can define an instance for
-reals:
+Similarly, using \cI{Rplus}, computing addition over \cI{R}eal numbers,
+we define the instance for real numbers:
 
 \mleft{code/plus_tc_ar.tex}
 
-The same symbol \cI{plus} can then be applied to values of type \cI{nat} or
-\cI{R}. Therefore, extending the notation system, we are now allowed to write $1
-  + 2$ and $\pig + e$ knowing that the elaborator automatically selects the
-appropriate instance, \cI{addNat} or \cI{addR}.
+The same symbol \cI{plus} can now be used for both \cI{nat} and \cI{R}. Using
+the notation $+$ for the symbol \cI{plus}, we can write $1 + 2$ and $\pig + e$,
+and the system selects the correct instance automatically.
 
-A key feature of type classes is the ability to define \emph{conditional}
-instances, whose availability depends on other instances. An example
-is the instance for the product type.
+A key feature of type classes is the support for \emph{conditional} instances.
+For example, the instance for product types:
 
 \input{code/plus_tc_add_prod.tex}
 
-The type of the instance \cI{addProd} states that it implements \cI{Add (T1 *
-  T2)} provided that instances of \cI{Add T1} and \cI{Add T2} are available. In
-this way, addition on pairs is derived from addition on their components, that
-is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with $(7, (e, 0))$~\dots
+This instance defines \cI{Add (T1 * T2)} provided that \cI{Add T1} and \cI{Add
+T2} are available.Aaddition on pairs is derived from addition on their
+components, that is, we can add $(\pig, 3)$ with $(e, 4)$, $(3,(\pig, 4))$ with
+$(7, (e, 0))$~\dots
 
-% \paragraphTwo{Theory overloading}
+The type class \cI{Add} can be expressed in a similar way in \haskell, with
+minor syntactic differences.
 
-The type class \cI{Add} can be defined in a similar style in \haskell, up to
-minor syntactic differences. In contrast, the \ocaml module system as not
-overloaded symbols. The most similar implementation we can provide to the
-\cI{Add} typeclass is by passing using modules: we define the interface via a
-\mlI{module type} with a function \cI{plus}. Then we implement the three
-concrete instance for the type \cI{int}, \cI{float} and \cI{pair}. However,
-there is not overloaded symbol for \cI{plus} there are three definition of
-\cI{plus}, defined inside the three modules that should be accessed to get the
-wanted implementation.
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.45\textwidth}
+    \centering
+    \input{code/add_module.tex}
+  \end{subfigure}
+  \begin{subfigure}{0.45\textwidth}
+    \input{code/add_nat_module.tex}
+  \end{subfigure}
+  \vspace{5pt}
 
-In a proof assistant such as \rocq, the type class mechanism reuses the same
-intuition behind symbol overloading so that not only function can be overload
-but also theorems.
+  \begin{subfigure}{0.6\textwidth}
+    \input{code/add_pr_module.tex}
+  \end{subfigure}
+  \vspace{-10pt}
+  \caption{The \cI{Add} type-class in \ocaml}
+  \label{fig:add-module}
+\end{figure}
+
+It is useful to compare this with the \ocaml module system. Module types in
+\ocaml play a similar role, as they specify an interface implemented by
+modules. In~\cref{fig:add-module}, the interface requires a type \mlI{t} and a
+function \mlI{plus}. The module \mlI{AddNat} implements this interface for
+integers, while \mlI{AddProd} is a functor building an implementation for
+pairs from two modules.
+
+However, the two approaches differ in practice. In \rocq, instance resolution
+automatically selects the correct implementation of \cI{plus}. In \ocaml, the
+programmer must explicitly specify which implementation to use. For instance, in
+\mlI{AddProd}, the first component uses \mlI{T1.plus} and the second uses
+\mlI{T2.plus}, instead of calling an overloaded symbol \mlI{plus}.
+
+Moreover, using modules requires defining specific instances in advance. To
+compute $(1,2) + (4,5)$, one must first define a module for pairs of integers:
+
+\begin{center}
+  \input{code/add_pr_nn_module}
+\end{center}
+
+Only then the addition can be performed:
+\begin{center}
+  \input{code/add_module_test.tex}
+\end{center}
+
+This becomes cumbersome when many combinations are needed. For example, withboth
+integers and floating-point numbers, all combinations of pairs require separate
+modules. Type classes avoid  his duplication by resolving instances
+automatically.
+
+In a proof assistant such as \rocq, the type class
+mechanism reuses the same intuition behind symbol overloading so that not only
+function can be overload but also theorems.
 
 For instance, one may enrich \cI{Add} with the associativity specification:
 %
@@ -460,75 +478,69 @@ addition is associative over natural and real numbers and pairs.
 
 \paragraphTwo{Search strategy}
 
-Type classes are used in several major \rocq libraries, such as \tlc~\cite{tlc},
-\stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. They provide access to the type-class
-solver, which automatically infers instances by searching in a database of
-declared instances. This database is organized as an ordered list. 
+Type classes are widely used in several major \rocq{} libraries, including
+\tlc~\cite{tlc}, \stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. They give
+access to a type-class solver that automatically infers instances by searching
+in a database of declared instances. This database is organized as an ordered
+list.
 
-The priority of an instance can be specified at the end of its declaration
-using \cI{| N}, where \cI{N} is an integer. The instance is then placed at
-position \cI{N} in the database. A smaller value of \cI{N} means higher
-priority. If no priority is given, \rocq computes it automatically by
-assigning weight $1$ to each premise that is itself a type-class constraint.
+Each instance can be assigned a priority at the end of its declaration using
+\cI{| N}, where \cI{N} is an integer. Smaller values correspond to higher
+priority, so instances with lower \cI{N} are tried first. When no priority is
+specified, \rocq{} computes one automatically by assigning weight $1$ to each
+premise that is itself a type-class constraint.
 
-Given a type-class goal, the solver uses the instance in the database as a base
-of knowledge. It then exploit a DFS-like search strategy close to the \prolog
-SLD~\cite{sld} algorithm, where the conclusion of each instances is tried
-for unification with the current goal. In case of success, the hypotheses
-of the selected instance
-are tried. If every hypothesis of the instance succeeds, the selected instance
-is a solution for the given goal. Otherwise, in case of a failure, the
-search algorithm backtracks to the first non-explored goal in the search space.
-Until either, finding a solution or exausting every possibile alternative.
-As a consequence, the order of instances in the database is important, since it
-may affect both performance and termination.
+The search strategy is similar to depth-first search, close to
+the \prolog{} SLD~\cite{sld} resolution algorithm. The solver attempts to unify
+the conclusion of each instance of the database 
+with the current goal. When unification
+succeeds, the premises of that instance become new subgoals. If all premises are
+successfully solved, the instance provides a solution. Otherwise, the solver
+backtracks to explore other alternatives, continuing until a solution is found
+or all possibilities are exhausted. For this reason, the order of instances in
+the database is important, as it can influence both performance and termination.
 
-As an example, consider the instances defined previously for the type class
-\cI{Add}. We suppose that they ordered in as follows: \cI{addNat, addR,
-addProd}. To solve the goal \cI{Add (nat * R)}, the solver first tries
-\cI{addNat}, which fails because its conclusion does not unify with the goal. The
-same happens with \cI{addR}. The instance \cI{addProd} can be applied if its
-premises, namely \cI{Add nat} and \cI{Add R}, can be solved. Since both are
-derivable, the resulting instance is \eI{addProd nat R addNat addR}. 
+As an example, consider the instances defined for the type class \cI{Add},
+ordered as follows: \cI{addNat}, \cI{addR}, and \cI{addProd}. To solve the goal
+\cI{Add (nat * R)}, the solver first tries \cI{addNat} and \cI{addR}, but both
+fail since their conclusions do not match the goal. The instance
+\cI{addProd} applies if its premises, \cI{Add nat} and \cI{Add R}, can be
+solved. Since both hold, the solver constructs the solution
+\eI{addProd nat R addNat addR}.
 
-If the users (wrongly) gives the highest priority to the instance \cI{addProd},
-ang given a goal \cI{Add ?X}, where \cI{?X} is an existential variable. The
-resolution of such a goal in the type-class solver leads to non-termination. In
-such a case, the instance \cI{addProd} is used, assigning \cI{?X} to the pair
-\cI{?X1 * ?X2}. Then, the first premise of \cI{addProd} raise the recursive
-search for \cI{Add ?X1}. After using, again, the instance \cI{addProd}
-\cI{X1} is instanceated to \cI{?X3 * ?X4} and so on. This procedure loops
-indefinetly.
+However, a poor choice of priorities may lead to non-termination. Suppose
+\cI{addProd} is given the highest priority and consider the goal
+\cI{Add ?X}, where \cI{?X} is an existential variable. The solver applies
+\cI{addProd}, instantiating \cI{?X} as \cI{?X1 * ?X2}. This generates the
+subgoal \cI{Add ?X1}. The same instance is then applied again, producing
+\cI{?X1 = ?X3 * ?X4}, and so on. This process repeats indefinitely.
 
-Several mechanisms are available to guide the solver. One common tool is
-\emph{modes}, which enforce conditions on the shape of class arguments during
-search. There are three kinds of modes in \rocq. Informally, a mode is a list
-of symbols \texttt{+}, \texttt{!}, or \texttt{-}, indicating whether an
-argument is treated as an input, partially known (its head is fixed), or as
-an output.
+To control the search, several mechanisms are available. A common one is the use
+of \emph{modes}, which restrict the shape of class arguments during resolution.
+In \rocq{}, modes are lists of symbols \texttt{+}, \texttt{!}, and \texttt{-},
+indicating respectively ground terms, terms with rigid head symbol, and
+arguments with no constraints on their shape.
 
-A type class may have several modes. During instance search, these modes are
-checked dynamically: the search proceeds if at least one mode is satisfied by
-the current goal.
+A type class may have multiple modes. During search, these modes are checked
+dynamically, and the solver proceeds only if at least one mode matches the
+current goal.
 
-A characteristic of type classes is that several instances may match the same
-goal. This requires backtracking in the solver. In some libraries, such as
-\stdpp, this behavior is exploited to mimic logic programming. For example,
-the type class \cI{SetUnfold} is used to transform set expressions into
-logical properties. For instance, an inclusion $X \subseteq Y$ can be turned
-into a statement of the form $\forall x, P\ x \to Q\ x$, under suitable
-assumptions on $X$ and $Y$. If no transformation applies, the default instance
-\cI{set_unfold_default P : SetUnfold P P} is used, leaving the goal unchanged.
+Another important aspect is that multiple instances may match the same goal,
+which requires backtracking. Some libraries, such as \stdpp{}, exploit this
+behavior to emulate logic programming. For example, the type class
+\cI{SetUnfold} is used to rewrite set expressions into logical statements. An
+inclusion $X \subseteq Y$ can be transformed into a formula of the form
+$\forall x, P\ x \to Q\ x$, under suitable assumptions on $X$ and $Y$. When no
+specific rule applies, the default instance
+\cI{set_unfold_default P : SetUnfold P P} leaves the goal unchanged.
+This default instance acts as a catch-all rule, since it applies to any goal.
 
-This default instance serves as a catch-all rule, as it applies to any goal.
-Although backtracking can be useful in such patterns, it may introduce
-ambiguities and lead to unexpected behavior that is difficult to control in
-practice.
+While backtracking is useful in such patterns, it can introduce ambiguities and
+lead to behavior that is difficult to predict in practice.
 
-In \rocq, backtracking search of a class can be disabled using the flag
-\texttt{Typeclasses Unique Instances}. When a solution to the typeclass goal of
-this typeclass is found, we never backtrack on it, the runtime assumes that it is
-canonical.
+In \rocq{}, backtracking for a given type class can be disabled using the flag
+\texttt{Typeclasses Unique Instances}. When enabled, once a solution is found,
+the solver does not backtrack, assuming that the solution is canonical.
 
 % However,
 % this mechanism is not class-specific: once enabled, non-backtracking is applied

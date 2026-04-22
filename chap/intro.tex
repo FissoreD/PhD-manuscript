@@ -1,7 +1,9 @@
 \chapter{Introduction}
 In computer science, an essential feature of most programming languages
-is the way users interact with the interpreter or compiler. Computers
-operate on binary expressions, but humans cannot easily write programs
+is to simplify at most
+the way users interact with it. Computers
+operate on binary expressions, but writing binary codes
+is not a choice: humans cannot easily write programs
 that are too far from their natural way of thinking.
 
 Modern languages provide many tools to improve the coding experience.
@@ -9,14 +11,12 @@ For instance, syntactic sugar~\cite{synt-sugar} allows programmers to
 write code in a form that is closer to natural reasoning rather than
 the underlying core syntax. Static checkers verify that programs satisfy
 expected properties, such as type safety~\cite{type-safety}, code quality
-via linters~\cite{linter}, and correct dependencies. Compilers also offer
-optimization options that produce more efficient executable
-code~\cite{opt-flags}.
+via linters~\cite{linter}, and correct dependencies\dots
 
 These features can be seen as forms of automation, a central topic in
 computer science aimed at improving developer productivity. A major
 recent development is artificial intelligence, where part of the coding
-process is delegated to systems that generate programs from a given
+process can be delegated to systems that generate programs from a given
 prompt~\cite{ia-prompt}.
 
 Automation has also deeply influenced mathematics. The traditional
@@ -26,7 +26,7 @@ Curry--Howard correspondence, a \underline{proof} of a \uuline{theorem}
 can be interpreted as the implementation of a \underline{program} of a
 given \uuline{type}.
 
-In type theory~\cite{russell}, a proof assistant ensures that all cases
+In type theory~\cite{russell}, a proof assistant ensures that all configurations
 of a program are covered and satisfy a given specification. Formal
 reasoning requires writing very detailed proof terms, with no ambiguity
 or omitted steps. Even simple theorems can lead to verbose proofs, which
@@ -42,9 +42,10 @@ base.
 In mathematics, it is common to reuse the same symbol in different
 contexts. For example, the symbol $+$ may denote addition over natural
 numbers in $1 + 2$, or vector addition in
-$[\pi, e] + [\sqrt{2}, \frac{1}{3}]$. A reader can usually infer the
-correct meaning from the context. In computer science, this idea is
-called symbol overloading and is formalized using type
+$[\pi, e] + [\sqrt{2}, \frac{1}{3}]$. An informed reader can easily infer the
+correct meaning of the symbol $+$ from the context where
+it is used. In computer science, this idea is
+called symbol overloading and is implemented using type
 classes~\cite{wadler1989-tc}.
 
 Since multiple implementations may exist for the same symbol, a type
@@ -63,7 +64,7 @@ language is the one being studied (here \rocq), while the meta-language
 
 Since type-class resolution follows a \prolog-like
 strategy~\cite[Chap.~9]{sld}, and \elpi uses a similar resolution
-mechanism, it is natural to investigate whether the \elpi interpreter can
+mechanism, it seems natural to investigate whether the \elpi interpreter can
 serve as a type-class solver for \rocq.
 
 In this work, we study the integration of \rocq with an alternative
@@ -103,9 +104,9 @@ indexing and mode-directed unification. This is important in type-class
 resolution, where the search space can be large.
 
 Another contribution of this work is a determinacy analysis for \elpi
-programs~\cref{chap:det-elpi}. Determinacy ensures that selected
+programs~(\ref{chap:det-elpi}). Determinacy ensures that selected
 predicates produce at most one solution and do not introduce unnecessary
-choice points. This property helps control the behavior of logic
+choice points for any call to it. This property helps control the behavior of logic
 programs. In our setting, type classes correspond to predicates, and
 instances to rules. If a class is declared deterministic, the analysis
 ensures that all its instances satisfy this property.
@@ -118,7 +119,7 @@ ways with logical semantics.
 
 We have started formalizing the expected properties of the static checker in the
 \rocq proof assistant by encoding the \elpi
-interpreter~\ref{chap:mechanization}. To support this development, we restrict
+interpreter~(\ref{chap:mechanization}). To support this development, we restrict
 the model to a first-order fragment of the language, where terms do not contain
 higher-order variables. In this setting, the absence of propositional variables
 simplifies the formalization and allows us to produce a fully mechanized proof.
@@ -140,7 +141,7 @@ This thesis contains four main contributions, organized as follows:
 
 \begin{description}
   \item[\Cref{chap:tc}] We study the implementation of a type-class solver
-                        written in \elpi for \rocq. We present the core part of
+                        written in \elpi for \rocq~\cite{fissore2023}. We present the core part of
                         the compiler that translates \rocq classes and
                         instances into an \elpi database. This database is then
                         used by the interpreter to search for inhabitants of
