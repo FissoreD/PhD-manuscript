@@ -2688,7 +2688,7 @@ In the following snippet, we show how \linketa is either suspended or
 allowed to make \progress.
 
 \begin{elpicode}
-L ~$=_\eta$~ R :- not (var L), !, eta-progress-lhs L R.
+L ~$=_\eta$~ R :- not (var L),       !, eta-progress-lhs L R.
 L ~$=_\eta$~ R :- not (maybe-eta R), !, eta-progress-rhs L R.
 L ~$=_\eta$~ R :- declare_constraint (L ~$=_\eta$~ R) [L,R].
 \end{elpicode}
