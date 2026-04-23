@@ -291,13 +291,13 @@ provide an explicit mode declaration, \eI{S} is the empty string.
 
 Predicates can be created dynamically in \elpi using the API
 \eI{coq.elpi.add-predicate}. This primitive takes four arguments: the database
-in which the predicate will be stored (in our case \eI{tc.db}), the indexing
+in which the predicate will be stored (in our case \eI{tc.db}), the (optional) indexing
 strategy, the predicate name \eI{N}, and a list \eI{M} of values of type
-\eI{mode-type}. Each element of \eI{M} specifies the mode and the type of one
+\eI{mode-type}. Each element of \eI{M} is a pair specifying the mode and the type of one
 argument of the predicate. The predicate name is constructed from the global
-reference of the class using the predicate \eI{gref->pred-name}. The list of
+reference of the class using the predicate \eI{gref~$\to$~pred-name}. The list of
 modes \eI{M} is obtained by processing the string \eI{S} with the predicate
-\eI{str->modes}.
+\eI{str~$\to$~modes}.
 
 Two cases must be distinguished depending on whether the string \eI{S} is
 empty. If \eI{S} is empty, the compiler derives the modes from the type of the
@@ -308,7 +308,7 @@ argument corresponding to the instance is added, again represented by the pair
 
 As an example, consider the declaration of the class \cI{Add}
 (cf.~\cref{fig:add-class-full}). When this class is declared, the \elpi class
-compiler is triggered and receives the \rocq symbol \eI{indt «Add»} as input.
+compiler is triggered and receives the \rocq symbol \eI{«Add»} as input.
 Since no mode attribute is provided, the compiler receives the empty string.
 
 From the symbol \cI{Add} the compiler retrieves its type and determines the
@@ -358,16 +358,15 @@ rework the implementation of the \cI{Add} type class.
 %
 \input{code/add_dummy.tex}
 
-Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is a meta-variable (evar in
-\rocq jargon). With the \rocq mode system, this goal has no solution because the
+Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is a existential
+variable. With the \rocq mode system, this goal has no solution because the
 argument of the class is a non-ground term and therefore does not satisfy the
 mode constraint. In contrast, under the \elpi mode interpretation the instance
 \cI{addDummy} is a valid solution.
 
-The instance \cI{addDummy} is considered as a catchall:
+In \elpi, the instance \cI{addDummy} acts as a catchall:
 the first argument of the \cI{Add} class is a variable, i.e a pattern that can
-be used a on any goal for \cI{Add}. It means that \cI{addDummy} can be used as a
-solution for $g$.
+be used a on any goal for \cI{Add}.
 
 \section{Instance compilation}
 \label{sec:instance-encoding}
@@ -381,24 +380,23 @@ solution for $g$.
 As explained in \cref{sec:interface-rocq-elpi}, instance compilation is triggered immediately after an instance
 declaration. \Cref{fig:simple-elpi-compiler} shows an instance compiler
 implemented in \elpi where we take into account the type of dependent
-quantification and the polarity of the instance being compiled is an essential
-ingridient for compiling deep hereditary Harrop formulas.
+quantification and the positive/negative positition of the term 
+being compiled.
 
 Similarly to \cref{fig:simple-elpi-compiler-tc}, we define a \eI{compile}
 predicate which calls the \eI{comp} auxiliary function. \eI{comp} this time
-takes one more argument which is a boolean and tells the polarity of the
-term being compiled.
+takes one more boolean argument.
 
 The compilation proceeds by analyzing the structure of the instance type.
-There are three relevant cases. Rules \eI{~\PYG{c}{r1}~} and
-\eI{~\PYG{c}{r2}~} handle quantifications, while rule
-\eI{~\PYG{c}{r3}~} is the base case that constructs the final \elpi rule
+There are three relevant cases. Rules \eI{~\PYG{c}{r$\to$}~} and
+\eI{~\PYG{c}{r$\forall$}~} handle quantifications, while rule
+\eI{~\PYG{c}{rB}~} is the base case that constructs the final \elpi rule
 from the information accumulated during the recursive traversal.
 
 When the current type has the form $\forall \eI{x}: \eI{Ty}, \eI{Bo x}$, the
 abstraction binds a variable of type \eI{Ty} in the body \eI{Bo}. The test
 \eI{is-class? Ty} checks whether \eI{Ty} has the shape $\forall x_1 \dots x_n,
-  T$ (possibly with zero quantifiers), where \eI{T} is a term whose applicative
+  T$ (possibly with zero quantifiers), where $T$ is a term whose applicative
 head is a type class.
 
 If this condition holds, we are compiling a conditional instance and rule
@@ -406,7 +404,7 @@ If this condition holds, we are compiling a conditional instance and rule
 \eI{x} representing both the abstracted variable in \eI{Bo} and the local
 instance with type \eI{Ty}. To construct the premise
 corresponding to \eI{x}, the compiler recursively invokes \eI{comp} on \eI{x}
-while switching the polarity of the rule. This recursive call produces the
+while switching the boolean in the recursive call. This recursive call produces the
 premise \eI{M}, which abstracts \eI{x}. Compilation then continues on
 \eI{Bo x}, while extending the accumulators with the new instance argument
 \eI{x} and the new premise \eI{M x}.
@@ -414,7 +412,7 @@ premise \eI{M}, which abstracts \eI{x}. Compilation then continues on
 Rule \eI{~\PYG{c}{r$\forall$}~} handles the case where the quantified type is
 not a type class. In this situation, the compiler behaves exactly as rule
 \eI{~\PYG{c}{r$\forall$}~} in \cref{fig:simple-elpi-compiler-tc}: it simply
-consumes under the abstraction, leaving the list of premises \eI{P} unchanged
+consumes the abstraction, leaving the list of premises \eI{P} unchanged
 and adding the variable \eI{x} to the list of instance arguments.
 
 As in \cref{fig:simple-elpi-compiler-tc}, the base case of \eI{comp} is reached
@@ -440,12 +438,6 @@ case, it produces a standard clause
 \eI{Head :- Prems}. Otherwise, it produces the implication
 \eI{Prems => Head}.
 
-\begin{figure}
-  \input{code/HORN1.tex}
-  \caption{Example with simple logic}
-  \label{fig:h-clause}
-\end{figure}
-
 Given the instance in \cref{fig:add-class-full}, this version of the
 compiler produces the following rules:
 
@@ -462,8 +454,15 @@ These rules are similar to those produced by the compiler in
 \cref{sec:simple-instance-compiler}, except for the specialization of the
 predicate \eI{tc-Add} for the \cI{Add} class.
 
-An interesting example of compilation, where polarities play a
-central role (and are incorrectly handled by the compiler in
+\begin{figure}
+  \input{code/HORN1.tex}
+  \caption{Example with simple logic}
+  \label{fig:h-clause}
+\end{figure}
+
+An interesting example of compilation, where the posititive/negative
+position of a subterm in the compilation phase plays a
+central role (and is incorrectly handled by the compiler in
 \cref{sec:simple-instance-compiler}), is shown in
 \cref{fig:h-clause}. The code illustrates an encoding of a fragment of
 propositional logic using the \rocq{} typeclass mechanism as a proof
@@ -495,7 +494,7 @@ introduction: if \texttt{F1} and \texttt{F2} are provable, then
 Similarly, the instance \texttt{Pimpl} captures implication
 introduction. It states that to prove \texttt{impl F1 F2}, it
 suffices to show that \texttt{F2} is provable under the assumption
-\texttt{F1}, represented as \texttt{fact F1}.
+\texttt{F1}.
 
 The instance \cI{Pand} is compiled into:
 
@@ -516,7 +515,7 @@ since it involves a higher-order hypothesis. Its type is:
 $$
   \forall \cI{F1 F2},
   \underbrace{
-    (\underbrace{\cI{Provable (fact F1)}}_{positive} \to
+    (\underbrace{\cI{Provable F1}}_{positive} \to
     \underbrace{\cI{Provable F2}}_{negative})
   }_{negative}
   \to
@@ -528,7 +527,7 @@ The compiled rule is:
 \begin{elpicode}
   pi F B Q \
     tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
-      pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
+      pi p \ tc-Provable F p => tc-Provable B {{lp:Q lp:p}}.
 \end{elpicode}
 
 The structure of this rule matches the intended semantics: the head
@@ -575,8 +574,7 @@ hypotheses that correspond to type classes, and compile them using the
 \eI{comp} procedure. This produces a list of local rules \eI{H}, which
 are added to the program during resolution.
 
-Next, we compile the goal type \eI{Ty}. As in hereditary Harrop formulas,
-a goal corresponds to an atom in negative position. Therefore, the
+Next, we compile the goal type \eI{Ty}. The
 compilation is performed with polarity \eI{ff}. Concretely,
 %
 \begin{center}
@@ -584,11 +582,11 @@ compilation is performed with polarity \eI{ff}. Concretely,
 \end{center}
 
 \noindent
-constructs an atom in negative position. Here, \eI{P} is a unification
+constructs a formula in negative position. Here, \eI{P} is a unification
 variable representing the proof term, \eI{Ty} is the goal to be compiled,
 the list of instance parameters is empty, and \eI{H} provides the
 premises extracted from the context. The result of the compilation is an
-atom \eI{R} of the form \eI{H => Q}, where \eI{Q} is a query corresponding
+formula \eI{R} of the form \eI{H => Q}, where \eI{Q} is a query corresponding
 to a type class whose proof argument is \eI{P}.
 
 Evaluating \eI{R} instantiates the proof term \eI{P}, which is then used
@@ -623,7 +621,7 @@ to the \cI{Hint} system, that allows to tweak somehow the search engine, for
 example the \cI{Hint Extern} command allows to apply a list of tactics on goal
 matching a particular pattern. This approach, however, asks the user to write
 ad-hoc rules in a language which is not the same of the \rocq solver, and which,
-is some case as not the power of expressivness of \elpi.
+is some case as not the expressivness power of \elpi.
 
 \section{Experimental results}
 \label{sec:exp-res}
@@ -645,11 +643,11 @@ As a first benchmark, we consider a set of classes and instances from
 \stdpp. We focus on the \cI{Inj} type class, defined as follows:
 
 \begin{coqcode}
-Class Inj A B (f : A ~$\to$~ B) :=
+Class Inj {A B} (f : A ~$\to$~ B) :=
   inj x y : f x = f y ~$\to$~ x = y.
 \end{coqcode}
 
-The type class \cI{Inj} expresses that a function is injective. A
+The type class \cI{Inj} expresses that a
 function $f$ is injective if, for all $x$ and $y$, $f\ x = f\ y$
 implies $x = y$.
 
@@ -696,7 +694,7 @@ $$
   \caption{Benchmarks of \elpi solver}
 \end{figure}
 
-For a given $n$, we submit the goal \cI{Inj eq eq ~$g_n$~} to the
+For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the\marginpar{TODO: colore plot}
 solver. The size of this goal grows exponentially with $n$.
 \Cref{fig:bench-1} shows the resolution time for $n$ from $0$ to $15$.
 The $x$-axis is the number of nodes (logarithmic scale), and the
@@ -728,7 +726,7 @@ Second, we can skip typechecking of the produced proof.
 
 The first approach also produces smaller proof terms, which are
 faster to check. As explained in
-\cref{sec:user-defined-rules}, memory sharing can reduce the
+\cref{sec:user-defined-rules}, memory sharing can reduce time and space
 complexity from exponential to linear. This effect is shown in
 \cref{fig:bench-2}: smaller terms give faster typechecking and
 faster translation from \elpi to \rocq. However, this solution is
@@ -739,7 +737,7 @@ the proof refinement to the goal by about a factor of $5$, as shown in
 \cref{fig:bench-3}. In most cases, this does not cause problems. The
 proof term should be correct, because the rules in the database are
 compiled in a context where they already typecheck. The main problem
-comes from universe constraints.
+comes from universe constraints~\cite{universes}.
 
 In the \elpi solver, universes are removed from the compiled clauses to simplify
 unification. For example, the \rocq term \cI{Type@{i}} corresponds to
@@ -768,10 +766,9 @@ The class is parametrized by two types, \cI{A} and \cI{M}, representing
 respectively the type of keys and the type of collections. The mode
 declaration requires \cI{M} to have a rigid applicative head, while no
 constraint is imposed on \cI{A}. The class provides the overloadable
-symbol \cI{union}, which computes the union of two collections. In case
-of ambiguity, a higher-order function $f$ is used to select between
-conflicting elements. A typical example arises with dictionaries: when a
-key appears in both inputs, $f$ determines which value to retain.
+symbol \cI{union}, which computes the union of two collections. During
+the union operation, the higher-order function is used to determine which
+element to keep if a key appers in both collections.
 
 We now consider an instance of \cI{Union} from \stdpp, together with a
 lemma that relies on it.
@@ -782,13 +779,15 @@ lemma that relies on it.
 \input{code/UNION_LEMMA.tex}
 \mvspace{}
 
-In this instance, \cI{union} behaves as follows: it returns \cI{None} if
-both arguments are \cI{None}; it returns \cI{f x y} if the arguments are
+The \cI{ounion} instance implement the class \cI{Union} for the type
+option, the \cI{union} function behaves as follows: it returns \cI{None} if
+both arguments are \cI{None}; it uses the higher-order function
+to determine which element to keep if the arguments are
 \cI{Some x} and \cI{Some y}; otherwise, it returns the non-\cI{None}
 argument.
 
-In the lemma, an implicit type-class constraint must be resolved. The
-goal is \cI{Union A (option ?X)}, where \cI{?X} is a unification variable
+In the lemma \cI{union_Nr}, an implicit type-class constraint must be resolved. The
+goal is \cI{Union A (option ?X)}, where \cI{?X} is an existential variable
 corresponding to the implicit argument of the \cI{None} constructor. At
 this point, the typechecker lacks sufficient information to instantiate
 \cI{?X}. The expected behavior is that type-class resolution both
@@ -856,7 +855,7 @@ function}, where \cI{?F} is a unification variable. In \rocq, this succeeds
 by instantiating \cI{?F} with \cI{fun x y => map y x}. In contrast, \elpi
 represents these terms as HOAS expressions, namely
 \eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and
-\eI{global (const «map»)}. Since these terms have different rigid heads,
+\eI{global «map»}. Since these terms have different rigid heads,
 unification fails.
 
 This behavior is expected from the \elpi unification algorithm, but it is
@@ -876,16 +875,16 @@ $\beta\eta$-unification issues.
 A concrete example of $\beta\eta$-unification failure in the \elpi solver
 arises from the compiled rule for the instance \cI{Pimpl}, introduced at
 the end of \cref{sec:instance-encoding}. Consider the goal
-\cI{Provable (impl a (fact a))} for some proposition \cI{a}. This goal has
-the solution \cI{Pimp a (fact a) (fun x => x)}. However, the compiled rule
+\cI{Provable (impl (atom a) (atom a))} for some atom \cI{a}. This goal has
+the solution \cI{Pimp (atom a) (atom a) (fun x => x)}. However, the compiled rule
 fails to find this solution due to $\beta\eta$-unification.
 
 After applying the rule for \cI{Pimpl}, the sub-query becomes
 
-\begin{center}\eI{tc-Provable {{fact a}} {{lp:Q lp:p}}}\end{center}
+\begin{center}\eI{tc-Provable {{atom a}} {{lp:Q lp:p}}}\end{center}
 
 \noindent in a context extended with the
-hypothesis $h = \eI{tc-Provable {{fact a}} p}$. Solving the sub-query
+hypothesis $h = \eI{tc-Provable {{atom a}} p}$. Solving the sub-query
 requires unifying it with $h$. However, the HOAS term corresponding to
 \eI{{{lp:Q lp:p}}} is \eI{app[Q, p]}, which cannot be unified with \eI{p},
 whose HOAS representation is simply \eI{p}.
@@ -893,12 +892,12 @@ whose HOAS representation is simply \eI{p}.
 The second class of issues concerns $\delta$-unification, which is not
 handled by the \elpi unification mechanism. In \rocq, definitions can be
 unfolded during unification. For example, the function $id$ unifies with
-\cI{fun x => x} after unfolding its definition. In contrast, \elpi -- and
+\cI{fun x => x} after unfolding its definition. In contrast, \elpi{} -- and
 more generally \prolog-like systems -- does not support definitional
 unfolding during unification.
 
 An example of failure due to missing $\delta$-unification is given by the
-following code:
+following code, from the library \tlc:
 
 \begin{coqcode}
   Class Extens A := ...

@@ -253,6 +253,8 @@ Module Logic1.
   Elpi Compiler NewInstance Pand.
   Elpi Compiler NewInstance Pimpl.
 
+  Elpi Print Compiler "elpi/homlogic".
+
   Fail Elpi Query Solver lp:{{
     /*SNIP: HORN_Q */
     tc-Provable {{impl False (fact False)}} R.
@@ -261,7 +263,7 @@ Module Logic1.
 
   (* This failes due to absence of links *)
   Goal Provable (impl (atom p) (atom p)).
-  Proof. Fail elpi Solver. now apply (Pimpl _ _ (fun x => x)). Abort.
+  Proof. Fail elpi Solver. now apply (Pimpl (atom p) (atom p) (fun x => x)). Abort.
 
   Section test.
     Goal forall a, Provable a -> Provable (and a a).

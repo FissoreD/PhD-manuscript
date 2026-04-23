@@ -17,17 +17,17 @@ $\beta\eta$-unification problem is due to the instance \cI{Pimpl}.
 
 \begin{elpicode}
   tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
-    pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B {{lp:Q lp:p}}.
+    pi p \ tc-Provable F p => tc-Provable B {{lp:Q lp:p}}.
 \end{elpicode}
 
 The variable \eI{Q} in \rocq is an object living in the function space, while in
 the HOAS representation of \elpi \eI{Q} is a first-order variable of type
 \eI{term}. As shown in \cref{sec:unif-problems}, the \rocq statement
-\cI{Provable (impl a (fact a))} can be solved by the \rocq type-class solver
+\cI{Provable (impl (atom a) (atom a))} can be solved by the \rocq type-class solver
 using the instance \cI{Pimpl}. On the contrary, \elpi fails: the rule above
-would be used on the query \eI{tc-Provable {{impl a (fact a)}} S} but the
-sub-query \eI{tc-Provable {{fact a}} {{lp:(Q p)}}} will fails since not
-unifying with the local rule \eI{tc-Provable {{fact a}} p}.
+would be used on the query \eI{tc-Provable {{impl (atom a) (atom a)}} S} but the
+sub-query \eI{tc-Provable {{atom a}} {{lp:Q lp:p}}} will fails since not
+unifying with the local rule \eI{tc-Provable {{atom a}} p}.
 
 The root cause of the problems we outlined in this example
 is a mismatch between the equational theories of the meta language
@@ -127,7 +127,7 @@ would reshape the compiled rule for \cI{Pimpl} as follows:
 \begin{elpicode}
 tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :- 
   link Qm Q, % a constraint relating the local variable Qm with Q
-  pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B (Qm p).
+  pi p \ tc-Provable F p => tc-Provable B (Qm p).
 \end{elpicode}
 
 In the body of the rule, we have added a new higher-order \elpi variable \eI{Qm}
@@ -139,7 +139,7 @@ get a solution, namely, \eI{Qm = x\ x}.
 The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
 to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
 \eI{Q} is assigned to the HOAS term \cI{fun _ _ x => x}. With this encoding, the
-query \eI{tc-Provable {{imp a (fact a)}} S} has a solution.
+query \eI{tc-Provable {{imp (atom a) (atom a)}} S} has a solution.
 
 % \noindent
 % Once the head of rule \emph{r3'} unifies with the goal,
