@@ -1409,7 +1409,7 @@ Our target theorem \cI{det_check_call} is a corollary of \cI{det_check_tree}.
 
 We studied a \prolog semantics in which input arguments are \emph{matched},
 rather than unified, against rule heads. This choice agrees with the \elpi
-interpreter, which is in turn inspired by B-Prolog's
+interpreter, which is in turn inspired by \bprolog's
 ``matching-clauses''~\cite{ait1991-wam,zhou2012}. The two semantics we presented (and
 proved equivalent) also apply to standard \prolog if one forces all predicate
 signatures to have only output arguments.
@@ -1425,7 +1425,7 @@ hence, starting from an initial query with ground inputs, well-moded
 programs behave exactly as if input arguments were matched. Therefore,
 the proofs in \cref{sec:determinacy} still apply.
 
-The only mechanization of Prolog's semantics
+The only mechanization of \prolog's semantics
 we could find is the one by Pusch in \isabelle~\cite{isabelle}
 that is based on the model of Debray and Mishra~\cite[Sec.~4.3]{debray1988}.
 Their work starts from that semantics and refines it by
@@ -1458,7 +1458,7 @@ the same strategy in the proof of \cref{th:elpitotree}.
 
 \section{Conclusion}
 
-This chapter describes two operational semantics for Prolog with cut. The first
+This chapter describes two operational semantics for \prolog with cut. The first
 semantics is based on And--Or trees: it is well suited to graphically
 illustrating the scope of cut, and to proving lemmas about the impact of its
 evaluation when reasoning about disjunctions. The second semantics is based on

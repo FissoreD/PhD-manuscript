@@ -1264,7 +1264,7 @@ map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
 
-This is a Prolog-style definition. The predicate takes a
+This is a \prolog-style definition. The predicate takes a
 higher-order argument \eI{F}, which is applied to each element of the input
 list. In the base case, the empty list is mapped to the empty list. In the
 recursive case, the head \eI{X} is transformed into \eI{Y} using \eI{F}, and the
