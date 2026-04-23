@@ -21,8 +21,6 @@ Per il jury?
 
 ================================================================================
 
-TODO: classes in haskell? 
-
 TODO: Canonical structures  
 
 TODO: ENRICO: fix true | fig 3.2
