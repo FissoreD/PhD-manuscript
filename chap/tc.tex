@@ -7,8 +7,8 @@ they allow the same symbol to be reused in
 different contexts, and in a proof assistant like \rocq,
 instances of a type class preserve the same mathematical properties. From a
 \prolog-like perspective, a type-class goal of \rocq corresponds to resolving a query
-to a predicate that associates its inputs with an instance solving the
-type-class constraint. In \rocq, instances act as rules stored in a database,
+to a predicate that associates its inputs to the argument of the class. 
+In \rocq, instances act as rules stored in a database,
 which are used to backchain and resolve type-class queries.
 
 A meta-language integration for type-class resolution must provide two components:
@@ -35,9 +35,7 @@ search mechanism. In \cref{sec:simple-instance-compiler}, we present a minimal
 instance compiler, showing how a basic type-class solver can be implemented with
 few lines of code. While simple, this approach lacks important features required
 for handling complex instances. We therefore introduce a more powerful
-compiler in \cref{sec:class-encoding,sec:instance-encoding}.
-
-Next, in \cref{sec:rule-prio,sec:goal-encoding,sec:user-defined-rules}, we
+compiler in \cref{sec:class-encoding,sec:instance-encoding}, where we
 discuss how rule priorities influence database construction, how \rocq goals are
 encoded as \elpi queries, and how users can extend the database with custom
 rules to tailor the solver's behavior.
@@ -60,9 +58,9 @@ following APIs (simplified here for clarity):
 
 \begin{camlcode}
 (* API for Compiler *)
-val register_observer : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
-val activate_observer : string ~$\to$~ unit
-val deactivate_observer : string ~$\to$~ unit
+val register_compiler : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
+val activate_compiler : string ~$\to$~ unit
+val deactivate_compiler : string ~$\to$~ unit
 
 (* API for Solver *)
 val register_solver : string ~$\to$~ tc_solver ~$\to$~ condition ~$\to$~ unit
@@ -70,32 +68,32 @@ val activate_solver : string ~$\to$~ unit
 val deactivate_solver : string ~$\to$~ unit
 \end{camlcode}
 
-This APIs allow one to declare new compilers and new solvers inside the
-\rocq system. 
+These APIs allow one to declare new compilers and solvers inside the
+\rocq\ system.
 
-A compiler is implemented as an observer, which is
-triggered whenever a new class or instance is declared.
-To define a new \mlI{observer}, one provides a name and an event handler
-to \mlI{register_observer}. The observer is stored in a table mapping
-names to handlers. The handler is a higher-order function, invoked each
-time an event occurs. Its role is to process the received information
-and update its internal database.
+A compiler is implemented as an observer, which is triggered whenever a
+new class or instance is declared. To define a compiler, one provides a
+name and an event handler to \mlI{register_compiler}. Observers are
+stored in a table that maps names to their handlers. The handler is a
+higher-order function, invoked each time an event occurs. Each event
+contains the class or instance currently being defined in \rocq. The
+handler processes this information and updates its internal database.
 Observers can be activated or deactivated when needed.
 
-A type-class solver is registered via \mlI{register_solver}, which takes
-a name, a value of type \mlI{tc_solver}, and a condition. The
-\mlI{tc_solver} is a higher-order function that receives a \rocq context
-and a list of goals, and returns an updated environment where some
-type-class goals may be solved. The condition explains if the current solved
-is meant to solve the current list of type-class goals. This is useful, for
-example, if the aim of a solver is meant to be used on particular type-class
-goals.
+A type-class solver is registered using \mlI{register_solver}, which
+takes a name, a value of type \mlI{tc_solver}, and a condition. The
+\mlI{tc_solver} is a higher-order function that receives a \rocq
+context together with a list of goals, and returns an updated environment
+where some type-class goals may be solved. The condition specifies
+whether the solver should be applied to the current list of goals. This
+is useful, for instance, when a solver is intended only for specific
+type-class problems.
 
-Solvers are also stored in a table indexed by their name. During resolution, the
-\rocq type-class mechanism scans the registered solvers and selects the first
-active one that satisfies its condition. If the condition does not hold, the
-next solver is considered.
-As for observers, solvers can be activated or deactivated by the user.
+Solvers are stored in a table indexed by their name. During resolution,
+the \rocq\ type-class mechanism scans the registered solvers and selects
+the first active one whose condition holds. If the condition is not
+satisfied, the next solver is considered. As for observers, solvers can
+be activated or deactivated by the user.
 
 \section{Simple instance compiler}
 \label{sec:simple-instance-compiler}
