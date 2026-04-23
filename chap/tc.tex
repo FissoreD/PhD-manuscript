@@ -58,13 +58,13 @@ following APIs (simplified here for clarity):
 
 \begin{camlcode}
 (* API for Compiler *)
-val register_compiler : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
-val activate_compiler : string ~$\to$~ unit
+val register_compiler   : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
+val activate_compiler   : string ~$\to$~ unit
 val deactivate_compiler : string ~$\to$~ unit
 
 (* API for Solver *)
-val register_solver : string ~$\to$~ tc_solver ~$\to$~ condition ~$\to$~ unit
-val activate_solver : string ~$\to$~ unit
+val register_solver   : string ~$\to$~ tc_solver ~$\to$~ condition ~$\to$~ unit
+val activate_solver   : string ~$\to$~ unit
 val deactivate_solver : string ~$\to$~ unit
 \end{camlcode}
 
@@ -109,15 +109,17 @@ search is expressed using the predicate \eI{pred tc term ~$\to$~ term}.
 By invariant, a query of the form \eI{tc T I} ensures that the term
 \eI{I} has type \eI{T}.
 
+
+\begin{figure}
+  \input{code/plus_tc_add_inst.tex}
+  \caption{The \cI{Add} type class and its instances}
+  \label{fig:add-class-full}
+\end{figure}%
+
 As an example, consider the \cI{Add} type-class introduced in
 \cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
 its instances is reproduced in \cref{fig:add-class-full}.
-%
-\begin{figure}
-  \input{code/plus_tc_add_inst.tex}
-  \caption{Add class and its instances}
-  \label{fig:add-class-full}
-\end{figure}
+
 \begin{figure}
   \input{code/toy_compiler_tc.tex}
   \caption{Simple \elpi compiler}
@@ -221,8 +223,8 @@ backchaining step on \eI{tc Ty P} to obtain a proof \eI{P}, and refines the goal
 \eI{G} with \eI{P}. The refinement produces a list of subgoals \eI{S}, which are
 returned to \rocq.
 
-The full code, together with a working example, can be found in
-\cref{app:full-simpl-compiler}.
+% The full code, together with a working example, can be found in
+% \cref{app:full-simpl-compiler}.
 
 The implementation presented in this section illustrates the expressive power of
 the \elpi language: the core of the compiler fits in roughly eight lines of
