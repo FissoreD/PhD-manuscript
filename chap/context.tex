@@ -1419,45 +1419,43 @@ interaction between constraints, rather than on their independent
 resolution. For this reason, \chr naturally supports a more global view
 of computation.
 
-In \elpi, \chr is integrated as an extension of the underlying \lprolog engine.
-The motivation for this integration comes from the need to combine and refine
-suspended constraints generated during proof search. This model offers a
-way to explain the system how to handle the store of constraints,
-the main operations are simplification, propagation, and their combination,
-known as simpagation. In the following three paragraph, the notation $\vecL{h},
-\vecL{g}, \vecL{b}$ and $\vecL{k}$ are list of atoms.
+In \elpi, \chr\ is integrated as an extension of the underlying
+\lprolog\ engine. The motivation for this integration is the need to
+combine and refine suspended constraints that arise during proof search.
+This model explains how the system manages the constraint store. The
+main operations are simplification, propagation, and their combination,
+called simpagation.
+In the following, the notation $\vecL{h}, \vecL{g}, \vecL{b}$, and
+$\vecL{k}$ denotes lists of atoms.
 
-\emph{Simplification}, noted $\vecL{h}\ \iff \vecL{g}\ |\ \vecL{b}$, is
-activated when the set of constraints $\vecL{h}$ are in the store and the guards
-$\vecL{g}$ are satisfied. If this is the case, $\vecL{h}$ is removed, and the
-body $\vecL{b}$ is executed, declaring, possibly, new constraints.
+\emph{Simplification}, written
+$\vecL{h}\ \iff \vecL{g}\ |\ \vecL{b}$, is triggered when the constraints
+$\vecL{h}$ are present in the store and the guards $\vecL{g}$ hold. In
+this case, $\vecL{h}$ is removed, and the body $\vecL{b}$ is executed,
+possibly introducing new constraints.
 
-\emph{Propagation}, noted $\vecL{k}\ \if \vecL{g}\ |\ \vecL{b}$, performs
-similarly to simplification, it is activated if the constraint $\vecL{k}$ are in
-the store, and the guards $\vecL{g}$ are satisfied. Then the body $\vecL{b}$ is
-run. The difference is that the constraints $\vecL{k}$ are kept in the store
-after the exectution of the propagation step.
+\emph{Propagation}, written $\vecL{k}\ \if \vecL{g}\ |\ \vecL{b}$, is
+triggered under the same conditions, namely when $\vecL{k}$ is in the
+store and $\vecL{g}$ holds. The body $\vecL{b}$ is then executed, but in
+contrast to simplification, the constraints $\vecL{k}$ remain in the
+store.
 
-\emph{Simpagation}, noted $\vecL{k}\ \backslash \vecL{h} \iff \vecL{g}\ |\
-\vecL{b}$, is the compination of simplification and propagation: it is activated
-if both $\vecL{k}$ and $\vecL{h}$ are in the store. If the guards $\vecL{g}$ are
-satisfied, then the the constraint $\vecL{h}$ are removed, and the body
-$\vecL{b}$ is run.
+\emph{Simpagation}, written
+$\vecL{k}\ \backslash \vecL{h} \iff \vecL{g}\ |\ \vecL{b}$, combines the
+previous two mechanisms. It is triggered when both $\vecL{k}$ and
+$\vecL{h}$ are present in the store and the guards $\vecL{g}$ hold. Then
+$\vecL{h}$ is removed, while $\vecL{k}$ is retained, and the body
+$\vecL{b}$ is executed.
 
-In \elpi, the concrete syntax for declaring handling rules for the store of
-constraints reflects the mathematical notation given above. A constraint is
-declared via the predicate \eI{declare_constraint} which takes two arguments.
-The first is a constraint, i.e. an atom, the second a list of variable on which
-the atom is suspended.
-
-When one of the variables in the list is assigned, the \chr is awaken and
-traverses the constraint handler to check if one of the rules can be
-launched.
-
-A more complete presentation can be found in \cite[Sec.~4.3]{chr-elpi} and
-\cite[Sec.~2.4]{hdr}. 
-
-
+In \elpi, the concrete syntax for defining rules that handle the
+constraint store closely follows the mathematical notation above. A
+constraint is declared using the predicate
+\eI{declare_constraint}, which takes two arguments: the constraint
+itself (an atom) and a list of variables on which the constraint is
+suspended. When one of these variables is instantiated, \chr\ is
+awakened and traverses the constraint handler to check whether a rule
+can be applied. A more complete presentation can be found in
+\cite[Sec.~4.3]{chr-elpi} and \cite[Sec.~2.4]{hdr}.
 
 \subsection{Rule names and insertion}
 \label{sec:elpi-rule-names}
