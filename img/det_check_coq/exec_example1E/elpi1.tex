@@ -2,27 +2,28 @@
 
 % \usepackage{tikz}
 \usetikzlibrary{matrix,calc,positioning}
+\usepackage{../../mminted}
 
 \begin{document}
 
 \begin{tikzpicture}[baseline]
 
 \matrix (outer) [matrix of nodes,
-                 nodes={draw, minimum width=0.5cm, minimum height=1cm, anchor=center},
+                 nodes={draw, minimum width=0.5cm, minimum height=.8cm, anchor=center},
                  column sep=0.3cm, row sep=0.3cm] {
-\phantom{AAAAAAAAAAAAAA} & \phantom{AAAAAAAAAAA} &  \node[draw=none] (A) {\phantom{!}};\\
+\phantom{AAAAAAAAAAA} & \phantom{AAAAAAAA} &  \node[draw=none] (A) {\phantom{!}};\\
 };
 
 \matrix (inner) [matrix of nodes,
                  nodes={minimum size=0.6cm},
                  column sep=0.1cm, row sep=0.1cm] at (outer-1-1.center) {
-r A B, & f B C, & ! \\
+\eI{r A B}, & \eI{f B C}, & \eI{!} \\
 };
 
 \matrix (inner1) [matrix of nodes,
                  nodes={minimum size=0.6cm},
                  column sep=0.1cm, row sep=0.1cm] at (outer-1-2.center) {
-f D E, & f E F \\
+\eI{f D E}, & \eI{f E F} \\
 };
 
 

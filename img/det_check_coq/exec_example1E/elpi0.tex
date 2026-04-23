@@ -2,15 +2,16 @@
 
 % \usepackage{tikz}
 \usetikzlibrary{matrix,calc,positioning}
+\usepackage{../../mminted}
 
 \begin{document}
 
 \begin{tikzpicture}[baseline]
 
 \matrix (outer) [matrix of nodes,
-                 nodes={draw, minimum width=0.5cm, minimum height=1cm, anchor=center},
+                 nodes={draw, minimum width=0.5cm, minimum height=.8cm, anchor=center},
                  column sep=0.3cm, row sep=0.3cm] {
-g 0 R\\
+\eI{g 0 R}\\
 };
 
 \end{tikzpicture}
