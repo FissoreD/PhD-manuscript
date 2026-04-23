@@ -2675,7 +2675,7 @@ plays the role of \Ho{} as well.
 The main difference is that we cannot implement \hrun since it is
 the runtime of the programming language. In particular the runtime iterates
 \Ue, but \hstep also needs to check links for \progress. Luckily \elpi extends
-$\lambda$Prolog with constraints (suspended goals) and
+\lprolog with constraints (suspended goals) and
 Constraint Handling Rules (\chr) to operate on them~\cref{sec:chr}.
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
 suspended on a list of variables that is resumed \emph{as soon as one of these variable
@@ -2688,9 +2688,9 @@ In the following snippet, we show how \linketa is either suspended or
 allowed to make \progress.
 
 \begin{elpicode}
-link-eta L R :- not (var L), !, eta-progress-lhs L R.
-link-eta L R :- not (maybe-eta R), !, eta-progress-rhs L R.
-link-eta L R :- declare_constraint (link-eta L R) [L,R].
+L ~$=_\eta$~ R :- not (var L), !, eta-progress-lhs L R.
+L ~$=_\eta$~ R :- not (maybe-eta R), !, eta-progress-rhs L R.
+L ~$=_\eta$~ R :- declare_constraint (L ~$=_\eta$~ R) [L,R].
 \end{elpicode}
 
 The first two clauses describe when \progress can occur. If \eI{L} is no longer
@@ -2703,18 +2703,15 @@ If neither condition holds, no \progress is possible, and the constraint is
 suspended again.
 Similar rules are implemented for \linkbeta.
 
-% \noindent
-% HERE
-
 \begin{elpicode}
-  rule (N1 ~$\triangleright$~ G1 ?- link-eta (uvar X LX1) T1)   % match
-    /  (N2 ~$\triangleright$~ G2 ?- link-eta (uvar X LX2) T2)   % remove
-    |  (relocate LX1 LX2 T2 T2')               % condition
+  rule (N1 ~$\triangleright$~ G1 ?- uvar X LX1 ~$=_\eta$~ T1)           % match
+    /  (N2 ~$\triangleright$~ G2 ?- uvar X LX2 ~$=_\eta$~ T2)           % remove
+    |  (relocate LX1 LX2 T2 T2')           ~$\;$~    % condition
    <=> (N1 ~$\triangleright$~ G1 ?- T1 = T2').                  % new goal
 \end{elpicode}
 
 In the snippet above, we illustrate the deduplication of \linketa. The syntax
-\eI{N ~$\triangleright$~ G ?- P} denotes a $\lambda$Prolog sequent, that is a 
+\eI{N ~$\triangleright$~ G ?- P} denotes a \lprolog sequent, that is a 
 goal \eI{P} under a set \eI{G} of hypothetical rules (introduced
 by \eI{=>}) and where the program context binds (via the \eI{pi}
 operator) eigenvariables in \eI{N}. Sequents are presented to
@@ -2785,7 +2782,7 @@ constructor.
 In the literature we could find a related encoding of the Calculus of
 Constructions (CC)~\cite{felty93}. The goal of that work is to exhibit
 a logic program performing proof checking for CC and hence relate the
-proof system of intuitionistic higher-order logic (that animates $\lambda$Prolog
+proof system of intuitionistic higher-order logic (that animates \lprolog
 programs) with the one of CC. The encoding is hence tailored
 toward a different goal, for example it utilizes three relations to represent the
 equational theory of CC, and that choice alone makes things harder for us.
