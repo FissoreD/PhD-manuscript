@@ -229,7 +229,7 @@ for the rule \eI{tc-Provable}. The term \eI{(Qm p)} is represented as
 \eI{~\muva~ [Qm, p]}, while the term 
 \eI{~{\PYGZob{}\PYGZob{}}\PYG{l+m}{lp:}\PYG{n+nv}{Q}\PYG{+w}{ }\PYG{l+m}{lp:}\PYG{n+nv}{p}\PYG{p}{\PYGZcb{}\PYGZcb{}}~}
 is encoded as
-\eI{~\mapp~ [Q, p]}.
+\eI{~\mapp~ [Q, p]}.\marginpar{TODO: syntax coloring \ref{code:common-terms}}
 
 % This encoding is implemented and tested in an \elpi development available at
 % \githubUrl.
@@ -318,10 +318,10 @@ equal to themselves.
 
 The main point in showing these equality tests is to remark how
 weaker \Ee is, and to identify the four rules that need special
-treatment in the simpulation of \Uo in \Ho.
-For brevity, we omit the code of \eI{beta}:
-it is sufficient to know that \eI{beta F L R} computes in \eI{R} the
-weak-head normal form of \eI{~\oapp~ [F | L]}.
+treatment in the simulation of \Uo in \Ho.
+The implementation of the predicate \eI{beta} essentially computes the
+weak-head normal form of a term, its implementation is similar to
+the rule for the predicate \eI{whd} in \cref{sec:example-ho-dyn-programs}.
 
 \paragraph*{Substitution: \texorpdfstring{$\rho s$}{rho s} and \texorpdfstring{$\sigma t$}{sigma t}}
 
@@ -444,7 +444,7 @@ $$
 
 \noindent
 In order to simulate the execution of \frun in \Ho, we start by converting
-each \Fo{}-term $s \in \foUnifPb$ is translated to a \Ho{}-term $t \in \hoUnifPb$.
+each \Fo{}-term $s \in \foUnifPb$ to a corresponding \Ho{}-term $t \in \hoUnifPb$.
 We write this translation as $\C{s}{t}{m}{l}$. The implementation of the compiler
 is detailed in \cref{sec:simulation,sec:eta,sec:beta}, here we just point
 out that it additionally produces a variable map $m$ and a list of links $l$.
@@ -661,32 +661,32 @@ We claim our compiler validates the following properties:
   $$
 \end{proposition}
 
-\begin{lemma}\label{prop:xxx}
+In other words, \cref{prop:w-enforcing} states that any term $s$ in \Fo is
+compiled into a term $t$ in \Ho that satisfies \wellb, even when $s$ itself
+does not satisfy \wellb.
+
+\begin{proposition}\label{prop:xxx}
   Given two terms $s_1$ and $s_2$, if $\;\exists \rho, \rho s_1 \Eo \rho s_2$,
   then 
   $$
     \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \to
     t_1 \Ue t_2 \arr \sigma \label{prop:compilation-w}
   $$
-\end{lemma}
-
-In other words, \cref{prop:w-enforcing} states that any term $s$ in \Fo is
-compiled into a term $t$ in \Ho that satisfies \wellb, even when $s$ itself
-does not satisfy \wellb.
+\end{proposition}
 
 % TODO: ENRICO check
-\begin{proof}[Proof sketch]
-By \cref{prop:w-enforcing} and the (still high-level) definition of term
-compilation, we know that $t_1$ and $t_2$ belong to $\wellb(t)$. This means
-that $t_1$ and $t_2$ are the HOAS representations of the source language
-terms $s_1$ and $s_2$, where problematic subterms are replaced by fresh
-variables.
-By hypothesis, there exists a substitution that makes $s_1$ and $s_2$
-equal. It follows that their compiled forms, $t_1$ and $t_2$, must unify.
-\end{proof}
+% \begin{proof}[Proof sketch]
+% By \cref{prop:w-enforcing} and the (still high-level) definition of term
+% compilation, we know that $t_1$ and $t_2$ belong to $\wellb(t)$. This means
+% that $t_1$ and $t_2$ are the HOAS representations of the source language
+% terms $s_1$ and $s_2$, where problematic subterms are replaced by fresh
+% variables.
+% By hypothesis, there exists a substitution that makes $s_1$ and $s_2$
+% equal. It follows that their compiled forms, $t_1$ and $t_2$, must unify.
+% \end{proof}
 
 \noindent
-This theorem states that if two terms can be unified in the source language,
+This last property states that if two terms can be unified in the source language,
 then their compiled forms can also be unified in the target language. Note that
 a compiler that maps every term to a unification variable would satisfy
 \cref{prop:xxx}, but would clearly fail to meet \cref{prop:fidelity}.
@@ -939,7 +939,7 @@ kind of \eI{baselink}. For example $\linkbetaM{x}{A_x}{F_x~a}$ corresponds to:
   \begin{subfigure}{1\textwidth}    
     \input{ho-for-free/img/comp_base.tex}%
     \vspace{-15pt}
-    \caption{Recursive compilation on terms}
+    \caption{Recursive compilation of terms}
     \label{fig:comp-fo}
   \end{subfigure}
 
@@ -1050,7 +1050,7 @@ In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
 Sections \cref{sec:eta} and \cref{sec:beta} add rules to \eI{progress1}
 and explain why they do not hinder termination.
-% For brevity we omit the code
+% For brevity we omit the code\marginpar{TODO}
 % that applies the substitution \eI{S1} to all terms in \linkStore.
 
 \paragraph*{Occur check}\label{sec:oc}
@@ -1167,8 +1167,8 @@ terms can be made equal by a substitution $\rho$,
 we can produce this $\rho$ by finding
 a $\sigma$ via \Ue{} on the corresponding \Ho terms and by decompiling it.
 If we look at the syntax of \Fo{}, the only interesting case is
-\eI{~\ouva~ X ~\Uo~s}. In this case, after compilation, we have
-\eI{~\muva~ Y [] ~\Ue~t}
+\eI{~\ouva~ X ~\Uo~ s}. In this case, after compilation, we have
+\eI{~\muva~ Y [] ~\Ue~ t}
 that succeeds with $\sigma = \{ Y \mapsto t\}$ and
 $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \end{proof}
@@ -1278,7 +1278,7 @@ $A \appsep x$ and $x$, which is equivalent to \eI{~\mapp~ [~\muva~ A [], x]}
 versus \eI{x}.
 In order to exploit the higher-order unification algorithm of the meta language,
 we %need to 
-compile the \Fo{} term $X\appsep x$ into the \Ho term $A_x$.
+compile the \Fo-term $X\appsep x$ into the \Ho-term $A_x$.
 %,which is \eI{muva A [x]}.
 
 % \subsection{Compilation and decompilation}
@@ -1323,7 +1323,7 @@ No change to \eI{progress} since no link is added.
 
 \begin{proof}[Proof sketch]
   If we look at the \Fo{} terms, there is one more interesting case,
-  namely \eI{~\oapp~ [~\ouva~ X|W] ~\Uo~s} when \eI{W}
+  namely \eI{~\oapp~ [~\ouva~ X|W] ~\Uo~ s} when \eI{W}
   is a list of distinct names compiled to $\vec{w}$. In this case
   the \Ho problem is $Y_{\vec{w}} \Ue t$ that succeeds with
    $\sigma = \{ Y_{\vec{y}} \mapsto t[\vec{w}/\vec{y}]\}$, which in turn
@@ -1473,7 +1473,8 @@ In other words the compiler eliminates all subterms that are in \maybebeta.
 % sequenza)
 
 \section{Handling of \maybeeta}\label{sec:eta}
-A term 
+
+From \cref{sec:rocq-intro-lam-calc}, a term 
 $\lambda x. t \appsep x$ is said to be the $\eta$-redex of $t$ if
 $x$ does not occur free in $t$, and conversely we say that $t$ is the $\eta$-contraction of
 $\lambda x. t \appsep x$. The equational theory of \Fo{} identifies these terms,
@@ -1520,7 +1521,7 @@ while the right-hand side is a term in \maybeeta that has the following property
 \end{invariant}
 
 Each \linketa is kept in the link store \linkStore during execution
-and is activated under specific conditions, in particular, whern \cref{inv:linklhs}
+and is activated under specific conditions, in particular, when \cref{inv:linklhs}
 or \cref{inv:link-eta-right} are no more true, or the rhs is for sure a term 
 that cannot be $\eta$-contracted.
 Activation is implemented
@@ -1532,7 +1533,7 @@ predicate defined in \cref{sec:execution}.
 \label{sec:etadetection}
 
 When compiling a term $t$, we need to determine if any
-subterm $s \in \subterm{t}$ that is of the form $\lambda x. r$
+subterm $s$ of $t$ that is of the form $\lambda x. r$
 can be an $\eta$-redex, i.e. if
 there exists a substitution $\rho$ such that $\rho (\lambda x.r) \Eo s$.
 The detection of lambda abstractions that can ``disappear''

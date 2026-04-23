@@ -663,10 +663,14 @@ complements \step with respect to failed, successful, and incomplete trees.
 %   \label{fig:na}
 % \end{figure}
 
-\subsection{The \runT relation and its properties}\label{sec:runT}
+\subsection{The \texorpdfstring{\runT}{runT} relation and its properties}
+\label{sec:runT}
 
-The inductive relation \runT relates four inputs to three outputs. The inputs
-are a program, a set of variables, an initial substitution $\sigma$, and a
+The inductive relation \runT has the following type:
+%
+$$\runT : \PROG \times \vecL{\UVAR} \times \Sigma \times \mathbb{T} \to ((\Sigma, \mathbb{T} + \mnone) + \mnone, \mathbb{B}, \vecL{\UVAR})$$
+
+It takes a program, a set of variables, an initial substitution $\sigma$, and a
 tree $t$. The outputs are an optional result $r$, a boolean $b$, and an updated set of variable
 names.
 
@@ -678,15 +682,14 @@ superficial cut was evaluated during execution.
 % , and the updated variable set tracks freshly generated names.
 
 The \runT predicate has four cases, depicted as inference rules in \cref{fig:run-rules}.
-(\stopt) If \pathend\ $t$ is a success, then the substitution
+Rule \stopt is used when the tree contain a successful path, then the substitution
 $\sigma'$ is extracted from $t$ (starting from $\sigma$) and the input tree is
-cleaned of its successful path. (\stept) If \pathend\ $t$ is an atom,
+cleaned of its success. Rule \stept is used when the tree $t$ is incomplete,
 then \step is invoked to evaluate $t$, and \runT is called recursively on the
-updated tree. (\backt) If \pathend\ $t$ is a failure, then \na is
+updated tree. Rule \backt is used when the three contains failure, then \na is
 called to clear the failed path; if the resulting cleaned tree exists, \runT is
-called recursively on it. Finally, (\failt) accounts for trees with no
+called recursively on it. Finally, rule \failt accounts for trees with no
 solutions.
-
 
 \begin{figure}
 
@@ -722,9 +725,14 @@ solutions.
 
 The set of rules defining \runT is deterministic.
 
-\input{formalization/theorem/runT_det.tex}
+% \input{formalization/theorem/runT_det.tex}
+\begin{lemma}[runT\_det]
+  $$\forall p\ v_0\ \sigma\ t\ r\ b\ v\ r',\ \runT\ p\ v_0\ \sigma\ t \arr r \to
+    \runT\ p\ v_0\ \sigma\ t\ \arr r' \to r' = r$$
+  \label{th:runTdet}
+\end{lemma}
 
-
+\begin{proof}[Proof sketch]
 The proof is by induction on the first \runT derivation and is immediate,
 because the rules are selected based on \pathend\ $t$. In particular, the
 hypotheses \success $t$, \incomplete $t$, and \failed $t$ are
@@ -732,32 +740,38 @@ mutually exclusive. Moreover, by \cref{th:pruneNone}, the hypothesis of
 \failt implies that $t$ \emph{failed}; hence \failt is exclusive
 with \stopt and \stept, and it is also exclusive with
 \backt since they impose different requirements on the output of \na.
+\end{proof}
 
 The boolean output of \runT allows us to state interesting properties about the
 \orC node in the presence of cut. Here we report only a selection of those we
 proved.
-% We have proven several
-% properties that are avalable at
-% \href{https://github.com/FissoreD/elpi-formalization/blob/ho-check-ffun/theories/tree_prop_hard.v}{\emph{this}}
-% link. Below we show two of these lemmas.
 
-% \begin{lemma}[\texttt{runSST\_or}] $\forall p\ v_0\ v_1\ s_0\ s_1\ t_0\ t_0'\ s_m\ t_1$,
-%   $$\texttt{\runT p}\ v_0\ s_0\ t_0\ \boxed{s_1, \boxed{t_0'}}\ \top\ v_1 \to%
-%     \texttt{\runT p}\ v_0\ s_0\ (\texttt{Or}\ \boxed{t_0}\ s_m\ t_1)\ %
-%     \boxed{s_1, \boxed{\texttt{Or }\boxed{t_0'}\ s_m\texttt{ KO}}}\ \bot\ v_1$$
-% \end{lemma}
+% \input{formalization/theorem/runSST_or.tex}
+\begin{lemma}[runSST\_or] \label{th:runSSTor}
+  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ A\ A'\ \sigma_1\ B,$
+  $$\runT\ p\ v\ \sigma\ A\ \arr (\msome(\sigma', \msome A'), \top, v') \to
+   \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1})\ \arr (\msome(\sigma', \msome (\msome A' \lor \cI{KO}_{\sigma_1})), \bot, v')$$
+\end{lemma}
 
-% \begin{lemma}
-%   $$
-%   \runT\ p\ v_0\ s_0\ (Or \boxed{t_0}\ s_m\ t_1) (Some\ (s_1, (Or\ \boxed{t_0'}\ s_m\ t_1')))\ \bot\ v_2\ \to
-%     \exists b, \runT\ p\ v_0\ s_0\ t_0\ (Some (s_1, \boxed{t_0'}))\ b\ v_2\ \land t_1' = \text{ if } b \text{ then \koC else } t_1.
-%   $$
-% \end{lemma}
+% \input{formalization/theorem/runNT_or.tex}
+\begin{lemma}[runNT\_or]\label{th:runNTor}
+  $\forall\ p\ v\ v'\ \sigma\ A\ \sigma_1\ B,$
+  $$\runT\ p\ v\ \sigma\ A\ \arr (\mnone, \top, v') \to
+   \runT\ p\ v\ \sigma\ (\msome A\ \lor B_{\sigma_1}) \arr (\mnone, \bot, v')$$
+\end{lemma}
 
-\input{formalization/theorem/runSST_or.tex}
-\input{formalization/theorem/runNT_or.tex}
-\input{formalization/theorem/runNF_or.tex}
-% $$$$
+% \input{formalization/theorem/runNF_or.tex}
+\begin{lemma}[runNF\_or]\label{th:runNFor}
+  $\forall\ p\ v_0\ v_1\ v_2\ \sigma\ A\ \sigma_1\ \sigma_2\ B\ B'\ b$
+% \begin{coqcode}
+    % $$
+    \begin{align*}    
+    \runT\ p\ v_0\ \sigma\ A \arr (\square, \bot, v_1) \to \runT\ p\ v_1 \sigma_1\ B \arr (\msome(\sigma_2, B'), b, v_2) \to\\
+      \runT\ p\ v_0\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma_2,\cI{omap}\ (\lambda x. \square \lor x_{\sigma_1})\ B'), \bot, v_2)
+    \end{align*}
+    % $$
+% \end{coqcode}
+\end{lemma}
 
 \Cref{th:runSSTor,th:runNTor,th:runNFor} correspond to the introduction rules
 for disjunction. If $A$ executes a cut, one \emph{cannot} obtain $A \lor B$ from
@@ -768,8 +782,7 @@ lemma is connected to the depth-first exploration of the tree: proving a
 disjunction from its right-hand side can only occur after the left-hand side
 has been disproved.
 Depicted as rules:
-
-% TODO: externalize in standalone
+%
 $$
 \begin{bprooftree}
   \AxiomC{$A \quad (A ~\mathrm{cuts})$}
@@ -794,8 +807,24 @@ $$
 \Cref{th:runorSST,th:runorSNT} are elimination
 rules for disjunction. 
 
-\input{formalization/theorem/run_orSST.tex}
-\input{formalization/theorem/run_orSNT.tex}
+% \input{formalization/theorem/run_orSST.tex}
+\begin{lemma}[run\_orSST]\label{th:runorSST}
+  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ A'\ B\ B'$
+    \begin{align*}
+    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr \msome(\sigma', \msome(\msome A' \lor B'_{\sigma_1}))\ \bot\ v' \to \\
+      \exists\ b, \runT\ p\ v\ \sigma\ A \arr \msome(\sigma', \msome A')\ b\ v'\ \land B' = \cI{if}\ b\ \cI{then}\ \cI{KO}\ \eI{~\PYG{k}{else}~}\ B
+    \end{align*}
+\end{lemma}
+
+% \input{formalization/theorem/run_orSNT.tex}
+\begin{lemma}[run\_orSNT]\label{th:runorSNT}
+  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ B\ B',$
+  \begin{align*}  
+    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma', \msome(\square \lor B'_{\sigma_1})), \bot, v') \to \\
+      (\exists b, \runT\ p\ v\ \sigma\ A \arr (\msome(\sigma', \square), b, v') \land \cI{if}\ b\ \cI{then}\ B' = \cI{KO else prune}\ \bot\ B \arr \msome B')\\
+      \lor\ (\exists v_2\ b, \runT\ p\ v\ \sigma\ A \arr (\square, \bot, v_2) \land \runT\ p\ v_2\ \sigma_1\ B \arr (\msome(\sigma', \msome B'), b, v'))
+  \end{align*}
+\end{lemma}
 
 
 
@@ -880,25 +909,28 @@ as pointers to lower levels of the stack itself. This datum is used to implement
 % points. The backtracking operation is simpler: it is the tail function.
 % The cutr and cutl operations disappears: the alternatives are stored 
 % directly in the cutE terminal.
+\noindent
+The stack-based semantics is described by the \runS inductive
+predicates.
+
+% \mvspace{}
+% \deftypes[type:nur]{tex_code/nur_type.tex}
+% \mvspace{}
+% \begin{center}
+% \cI{Inductive runS (p: ~\ensuremath{\mathbb{P}}~) : ~\ensuremath{\FV}~ ~\ensuremath{\to}~ alts ~\ensuremath{\to}~ option (~\ensuremath{\Sigma}~ * alts) ~\ensuremath{\to}~ Prop }
+% \end{center}
+
+$$\runS : \vecL{\UVAR} \times \cI{alts} \to (\Sigma \times \cI{alts}) + \mnone$$
+
+\noindent
+The \runS\ predicate relates a set of variables and a list of
+alternatives to an optional result. The value \mnone\ denotes failure,
+that is, no solution is found. In contrast, $\msome(\sigma, a)$ denotes
+success, where $\sigma$ is the computed solution and $a$ is the list of
+alternatives that are not yet explored.
+
 \begin{figure}
-
-%   \begin{minipage}{0.52\textwidth}
-%   \begin{coqcode}
-%   Definition save_gs ~$a$~ ~$g$~ ~$b$~ := 
-%     [seq (x, ~$a$~) | x <- ~$b$~] ~\mappend~ ~$g$~.
-
-%   Definition save_as ~$a$~ ~$g$~ ~$b$~ := 
-%     [seq (x.1, save_gs ~$a$~ ~$g$~ x.2) | x <- ~$b$~].
-%   \end{coqcode}
-%   \end{minipage}
-%   \begin{minipage}{0.38\textwidth}    
-% \begin{coqcode}
-% Definition stepS p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{\coloneq}~
-%   let (~\ensuremath{v'}~, ~\ensuremath{r}~) ~\ensuremath{\coloneq}~ backchain p ~\ensuremath{v}~ ~\ensuremath{t}~ ~\ensuremath{\sigma}~ in
-%   (~\ensuremath{v'}~, save_as ~\ensuremath{a}~ ~\ensuremath{g}~ ~\ensuremath{r}~).
-% \end{coqcode}
-%   \end{minipage}
-  \[
+   \[
   \backchainS(\prog, v, t, \sigma, a, g) =
   \bigg[
   \sigma',
@@ -916,37 +948,19 @@ as pointers to lower levels of the stack itself. This datum is used to implement
   \label{fig:nur-rules}
 \end{figure}
 
-\noindent
-The stack-based semantics is described by the \runS inductive
-predicates.
-
-% \mvspace{}
-% \deftypes[type:nur]{tex_code/nur_type.tex}
-% \mvspace{}
-\begin{center}
-\cI{Inductive runS (p: ~\ensuremath{\mathbb{P}}~) : ~\ensuremath{\FV}~ ~\ensuremath{\to}~ alts ~\ensuremath{\to}~ option (~\ensuremath{\Sigma}~ * alts) ~\ensuremath{\to}~ Prop }
-\end{center}
-
-\noindent
-The \runS predicates relates a set of variables and a
-list of alternatives to optional result. \mnone stands for failure,
-i.e., no solution, whereas $\msome(\sigma, a)$ represent success with $\sigma$ begin the solution and $a$ as the list of non-yet-explored
-alternatives.
-
 The rule system for \runS is given in \cref{fig:nur-rules} and is made by $4$
-cases. We distinguish two main cases. If we run out of alternatives
-we fail: (\fails) stops the execution and return $\mnone$.
-If the list of alternatives is $(\sigma_0, h) :: a$, then
-we look at the list of goals $h$ (under the substitution $\sigma_0$). If $h$ is empty, (\stops) stops the execution with a success $\sigma_0$
-leaving $a$ as the unexplored alternatives.
-If $h$ is not empty we look at its head goal $(t, ca)$ where $t$ is the atom and $ca$ is its
-cut-to alternatives. If $t$ is a cut rule
-(\cuts) continues to evaluate the tail of $h$ under with alternatives $ca$. Finally, when $t$ is a call, rule (\calls) backchains:
-for each rule it pairs each premise with the current stack of
-alternatives, and prepends the obtained goals to the tail of $h$.
-Note that if backchain returns the empty list, (\calls) second
-premise amounts to exploring the next item in the current
-stack.
+cases. We distinguish two main cases. If we run out of alternatives we fail:
+rule \fails stops the execution and return $\mnone$. If the list of alternatives
+is $(\sigma_0, h) :: a$, then we look at the list of goals $h$ (under the
+substitution $\sigma_0$). If $h$ is empty, rule \stops stops the execution with
+a success $\sigma_0$ leaving $a$ as the unexplored alternatives. If $h$ is not
+empty we look at its head goal $(t, ca)$ where $t$ is the atom and $ca$ is its
+cut-to alternatives. If $t$ is a cut rule \cuts continues to evaluate the tail
+of $h$ under with alternatives $ca$. Finally, when $t$ is a call, rule \calls
+backchains: for each rule it pairs each premise with the current stack of
+alternatives, and prepends the obtained goals to the tail of $h$. Note that if
+backchain returns the empty list, the second premise of rule \calls amounts to
+exploring the next item in the current stack.
 
 \subsection{Inadequacy of the stack-based semantics for formal reasoning}
 
@@ -1190,7 +1204,10 @@ we hide it behind existentials.
 
 % The definition we use is the following:
 
-\input{formalization/theorem/runt1.tex}
+% \input{formalization/theorem/runt1.tex}
+\begin{definition}[\cI{runT'}]\label{th:runT'} 
+  \cI{runT' p v ~$\sigma$~ t ~$\arr$~ r := ~$\exists$~ b v', runT p v ~$\sigma$~ t ~$\arr$~ (r, b, v').}
+\end{definition}
 
 From \cref{tree-ex,ex-elpi}, we observe that, upon backtracking, \runT may perform
 more steps than \runS before returning a solution or a failure.
