@@ -54,7 +54,7 @@ This issue also appears in type class search, and it is a concern for developers
 working with type classes in \rocq. In some cases, a type class is expected to
 behave deterministically: the search for instances of this class should produce
 at most one solution when it succeeds. However, since there is no mechanism to
-verify this property, an inexperienced user may encounter long debugging traces
+verify statically this property, an inexperienced user may encounter long debugging traces
 by unintended non-determinism.
 
 For instance, consider the following two instances of the same class:
@@ -237,7 +237,7 @@ A notable higher-order program is the one turning relations into functions.
 %
 \begin{elpicode}
 func once (pred) ~$\to$~. % a function taking a fully applied predicate
-once P :- P, !.       % the ! commits to the first success
+once P :- P, !.    ~$\;$~ % the ! commits to the first success
 \end{elpicode}
 
 
@@ -322,7 +322,7 @@ predicate \eI{copy} can be considered as a deterministic predicate.
 \begin{elpicode}
 func copy tm ~$\to$~ tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
-copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
+copy (lam F)   (lam G)   :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
 %
 

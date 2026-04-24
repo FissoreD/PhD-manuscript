@@ -1338,7 +1338,7 @@ performing a deep copy of a term:
 \begin{elpicode}
 pred copy tm ~$\to$~ tm.
 copy (app A B) (app C D) :- copy A C, copy B D.
-copy (lam F) (lam G)     :- pi x\ copy x x => copy (F x) (G x).
+copy (lam F)   (lam G)   :- pi x\ copy x x => copy (F x) (G x).
 \end{elpicode}
 %
 The copy of an application is built from the copies of the subterms. What is
