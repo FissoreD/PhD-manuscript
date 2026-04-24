@@ -665,12 +665,12 @@ In other words, \cref{prop:w-enforcing} states that any term $s$ in \Fo is
 compiled into a term $t$ in \Ho that satisfies \wellb, even when $s$ itself
 does not satisfy \wellb.
 
-\begin{proposition}\label{prop:xxx}
+\begin{proposition}\label{prop:xxx}\label{prop:compilation-w}
   Given two terms $s_1$ and $s_2$, if $\;\exists \rho, \rho s_1 \Eo \rho s_2$,
   then 
   $$
     \C{s_1}{t_1}{m_1}{l_1} \land \C{s_2}{t_2}{m_2}{l_2} \to
-    t_1 \Ue t_2 \arr \sigma \label{prop:compilation-w}
+    t_1 \Ue t_2 \arr \sigma 
   $$
 \end{proposition}
 
@@ -1173,8 +1173,8 @@ that succeeds with $\sigma = \{ Y \mapsto t\}$ and
 $\sigma$ is decompiled to $\rho = \{ X \mapsto s\}$ by \cref{prop:comprt}.
 \end{proof}
 
-\begin{theorem}[Fidelity in \wellb] \Cref{prop:simulation} and
-\cref{prop:fidelity} hold if $\;\wellb{(\foUnifPb)}$. \label{thm:fidfow}
+\begin{theorem}[Fidelity in \wellb]\label{thm:fidfow}
+  \Cref{prop:simulation} and \cref{prop:fidelity} hold if $\wellb{(\foUnifPb)}$. 
 \end{theorem}
 \begin{proof}[Proof sketch]
 Since \eI{progress1} is a no-op, \fstep and \hstep coincide. By
@@ -1346,9 +1346,8 @@ No change to \eI{progress} since no link is added.
 
 In other words the compiler eliminates all subterms that are in \maybebeta.
 
-\begin{theorem}[Fidelity in $\wellb_\beta$] \Cref{prop:simulation} and
-\cref{prop:fidelity} hold if $\;\wellb_\beta(\foUnifPb)$.
-\label{th:fidelity-beta}
+\begin{theorem}[Fidelity in $\wellb_\beta$] \label{th:fidelity-beta}
+  \Cref{prop:simulation} and \cref{prop:fidelity} hold if $\wellb_\beta(\foUnifPb)$.
 \end{theorem}
 \begin{proof}[Proof sketch] Thanks to \cref{lem:w-enforcement-maybebeta},
   \Ue is as powerful as \Uo in $\wellb_\beta$, as well as in \wellb by
@@ -1512,12 +1511,11 @@ of the problem \foUnifPb above is refined to:
 As per \cref{inv:linklhs} the \linketa left-hand side is a variable
 while the right-hand side is a term in \maybeeta that has the following property:
 
-\begin{invariant}[\linketa \rhs]
+\begin{invariant}[\linketa \rhs] \label{inv:link-eta-right}
   The \rhs of any \linketa %in \linkStore 
   has the shape $\lambda x.t$
   and $t$ is in \wellb. 
   %where $t_x$ is a \maybeeta term and $x$ is free in $t$.
-  \label{inv:link-eta-right}
 \end{invariant}
 
 Each \linketa is kept in the link store \linkStore during execution
@@ -1719,10 +1717,9 @@ variable \eI{A}. This variable sees all names that are free in
 \linketa. The invariant \cref{inv:linklhs} is satisfied for this link. 
 Moreover:
 
-\begin{corollary}
+\begin{corollary} \label{cor:rhs-eta-onelamb}
   The \rhs of any \linketa has exactly one lambda abstraction, hence
   the rule above respects \cref{inv:link-eta-right}.
-  \label{cor:rhs-eta-onelamb}
 \end{corollary}
 
 \begin{proof}[Proof sketch]
@@ -1787,9 +1784,8 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
   We then run $T \Ue{} T''$ (under the context $\Gamma$).
 \end{definition}
 
-\begin{lemma}
+\begin{lemma} \label{lemma:unif-eta-aux}
   Let $\lambda x.t$ be the \rhs of a \linketa, then $\wellb(t)$ holds.
-  \label{lemma:unif-eta-aux}
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -1798,10 +1794,9 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
 
 % \noteD[inline]{Below the proof of \cref{prop:w-preservation}, ho usato 3 lemmi ausiliari,
 % forse si può compattare in una prova più piccola?}
-\begin{lemma}
+\begin{lemma} \label{lemma:unif-eta-1}
   Given a \linketa \linketaM{\Gamma}{X}{\lambda x.t}, the unification done by \progressetaleft is between
   terms in \wellb.
-  \label{lemma:unif-eta-1}
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -1827,10 +1822,9 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
 %   In both cases, unifications are between \wellb terms.
 % \end{proof}
 
-\begin{lemma}
+\begin{lemma} \label{lemma:unif-eta-3}
   The unification done by \progressetadedup is between
   terms in \wellb.
-  \label{lemma:unif-eta-3}
 \end{lemma}
 
 \begin{proof}
@@ -1841,9 +1835,8 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
   \wellb.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma} \label{lemma:unif-wellb}
   The progress of \linketa guarantees \cref{prop:w-preservation}
-  \label{lemma:unif-wellb}
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -1852,9 +1845,8 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
   terms in \wellb.
 \end{proof}
 
-\begin{lemma}
+\begin{lemma} \label{lemma:prog-eta-terminates}
   \eI{progress} terminates.
-  \label{lemma:prog-eta-terminates}
 \end{lemma}
 
 \begin{proof}[Proof sketch]
@@ -1878,7 +1870,7 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
   % terminates.
 \end{proof}  
 
-\begin{theorem}[Fidelity in $\wellb_{\beta \eta}$]
+\begin{theorem}[Fidelity in $\wellb_{\beta \eta}$] \label{lemma:fidelity-maybeeta}
   % F x = z, F x y = z y
   Given a list of unification problems \foUnifPb such that
   $\wellb_{\beta \eta}(\foUnifPb)$, if the 
@@ -1886,7 +1878,6 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
   the introduction 
   of \linketa guarantees \cref{prop:fidelity}.
   %\footnote{The bijective property of \mapStore is proved in \cref{sec:invariant1}}
-  \label{lemma:fidelity-maybeeta}
 \end{theorem}
 
 \begin{proof}[Proof sketch] %\todo{to reformulate}
@@ -2280,13 +2271,12 @@ has the following property:
 % \noteE[inline]{Io direi $X_{s_1\ldots s_n}\appsep l_1\ldots l_m$
 % ... where S = [s1 .. sn] e L = [l1 .. lm]}
 
-\begin{invariant}[\linkbeta \rhs]
+\begin{invariant}[\linkbeta \rhs] \label{inv:beta-rhs}
   The \rhs of any \linkbeta has the shape $X_{s_1\ldots s_n}\appsep t_1\dots t_m$
   where $X$ is a unification variable in \llambda (with scope $s_1\dots s_n$)
   and $t_1\dots t_m$ is a list of terms such that $m>0$ and
   $t_1$ is either a variable occurring in $s_1\dots s_n$ or
   a term other than a variable.
-  \label{inv:beta-rhs}
 \end{invariant}
 
 \noindent Note that the shape of such as \rhs is
@@ -2404,7 +2394,7 @@ If any \linkbeta remains in \linkStore, decompilation fails.
 We add the followins rules to \eI{progress1}.
 Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 
-\begin{definition}[\progBetaLL]
+\begin{definition}[\progBetaLL] \label{def:progBetaLL}
   Let $\sigma$ be a substitution such that $\sigma t_1$ is a name $s$
   not occurring in $s_1\dots s_n$. If $m = 1$, then $l$ is removed and
   the \lhs is
@@ -2422,18 +2412,16 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
   % \linkStore, and 1) if $m = 1$ then $Y_{s_1\dots s_n, t}$ is unified with $T$,
   % 2) otherwise, the refined \linkbeta, \linkbetaM{\Gamma}{T}{M_{s_1\dots
   % s_n,t}\appsep t_2\dots t_m}, is added to \linkStore.
-  \label{def:progBetaLL}
   % % \noteE[inline]{non è chiaro. la sostituzione immagino sia la corrente, non se ne esiste una. Poi non è chiaro se otherwise si riferische a in this case. Usa un enumerate}
   % %\noteE[inline]{Is it clearer?}
   % \noteE[inline]{l1 or t1? Forse è più chiaro dire che il ilnk beta viene raffinato mcon link beta cone meno argomenti, Se poi il numero di argomenti extra è 0 il tutto è in llambda e quindi viene buttato via. In questo modo la terminazione è ancora più chiara perchè si vede già che prima decresce la lista di argomenti e poi il numero di beta}
   % \noteD{L'ho riformulato}
 \end{definition}
 
-\begin{definition}[\progBetaRH]
+\begin{definition}[\progBetaRH] \label{def:progBetaRH}
   Link $l$ is removed from
   \linkStore if \rhsBetaHead is instantiated to a term $t$ and
   $t \appsep t_1 \ldots t_m$ $\beta$-reduces to a $t' \in \llambda$.
-  \label{def:progBetaRH}
 \end{definition}
 % Example of this `X a = Y a'
 % \begin{definition}[\progBetaDedup]
@@ -2443,7 +2431,7 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 %   \label{def:progBetaDedup}
 % \end{definition}
 
-\begin{definition}[\progBetaFail]
+\begin{definition}[\progBetaFail] \label{def:progBetaFail}
   \progress fails when either
   \begin{itemize}
   \item
@@ -2451,7 +2439,6 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
   \item the \lhs of $l$
   become rigid.
   \end{itemize}
-  \label{def:progBetaFail}
 \end{definition}
 \noindent
 We relax this condition and accommodate for
