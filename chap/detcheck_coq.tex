@@ -747,21 +747,21 @@ The boolean output of \runT allows us to state interesting properties about the
 proved.
 
 % \input{formalization/theorem/runSST_or.tex}
-\begin{lemma}[runSST\_or] \label{th:runSSTor}
+\begin{lemma} \label{th:runSSTor}
   $\forall\ p\ v\ v'\ \sigma\ \sigma'\ A\ A'\ \sigma_1\ B,$
   $$\runT\ p\ v\ \sigma\ A\ \arr (\msome(\sigma', \msome A'), \top, v') \to
    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1})\ \arr (\msome(\sigma', \msome (\msome A' \lor \cI{KO}_{\sigma_1})), \bot, v')$$
 \end{lemma}
 
 % \input{formalization/theorem/runNT_or.tex}
-\begin{lemma}[runNT\_or]\label{th:runNTor}
+\begin{lemma}\label{th:runNTor}
   $\forall\ p\ v\ v'\ \sigma\ A\ \sigma_1\ B,$
   $$\runT\ p\ v\ \sigma\ A\ \arr (\mnone, \top, v') \to
    \runT\ p\ v\ \sigma\ (\msome A\ \lor B_{\sigma_1}) \arr (\mnone, \bot, v')$$
 \end{lemma}
 
 % \input{formalization/theorem/runNF_or.tex}
-\begin{lemma}[runNF\_or]\label{th:runNFor}
+\begin{lemma}\label{th:runNFor}
   $\forall\ p\ v_0\ v_1\ v_2\ \sigma\ A\ \sigma_1\ \sigma_2\ B\ B'\ b$
 % \begin{coqcode}
     % $$
@@ -808,7 +808,7 @@ $$
 rules for disjunction. 
 
 % \input{formalization/theorem/run_orSST.tex}
-\begin{lemma}[run\_orSST]\label{th:runorSST}
+\begin{lemma}\label{th:runorSST}
   $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ A'\ B\ B'$
     \begin{align*}
     \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr \msome(\sigma', \msome(\msome A' \lor B'_{\sigma_1}))\ \bot\ v' \to \\
@@ -817,7 +817,7 @@ rules for disjunction.
 \end{lemma}
 
 % \input{formalization/theorem/run_orSNT.tex}
-\begin{lemma}[run\_orSNT]\label{th:runorSNT}
+\begin{lemma}\label{th:runorSNT}
   $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ B\ B',$
   \begin{align*}  
     \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma', \msome(\mnone \lor B'_{\sigma_1})), \bot, v') \to \\
