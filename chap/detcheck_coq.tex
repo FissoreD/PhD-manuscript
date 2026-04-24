@@ -766,8 +766,8 @@ proved.
 % \begin{coqcode}
     % $$
     \begin{align*}    
-    \runT\ p\ v_0\ \sigma\ A \arr (\square, \bot, v_1) \to \runT\ p\ v_1 \sigma_1\ B \arr (\msome(\sigma_2, B'), b, v_2) \to\\
-      \runT\ p\ v_0\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma_2,\cI{omap}\ (\lambda x. \square \lor x_{\sigma_1})\ B'), \bot, v_2)
+    \runT\ p\ v_0\ \sigma\ A \arr (\mnone, \bot, v_1) \to \runT\ p\ v_1 \sigma_1\ B \arr (\msome(\sigma_2, B'), b, v_2) \to\\
+      \runT\ p\ v_0\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma_2,\cI{omap}\ (\lambda x. \mnone \lor x_{\sigma_1})\ B'), \bot, v_2)
     \end{align*}
     % $$
 % \end{coqcode}
@@ -820,9 +820,9 @@ rules for disjunction.
 \begin{lemma}[run\_orSNT]\label{th:runorSNT}
   $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ B\ B',$
   \begin{align*}  
-    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma', \msome(\square \lor B'_{\sigma_1})), \bot, v') \to \\
-      (\exists b, \runT\ p\ v\ \sigma\ A \arr (\msome(\sigma', \square), b, v') \land \cI{if}\ b\ \cI{then}\ B' = \cI{KO else prune}\ \bot\ B \arr \msome B')\\
-      \lor\ (\exists v_2\ b, \runT\ p\ v\ \sigma\ A \arr (\square, \bot, v_2) \land \runT\ p\ v_2\ \sigma_1\ B \arr (\msome(\sigma', \msome B'), b, v'))
+    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma', \msome(\mnone \lor B'_{\sigma_1})), \bot, v') \to \\
+      (\exists b, \runT\ p\ v\ \sigma\ A \arr (\msome(\sigma', \mnone), b, v') \land \cI{if}\ b\ \cI{then}\ B' = \cI{KO else prune}\ \bot\ B \arr \msome B')\\
+      \lor\ (\exists v_2\ b, \runT\ p\ v\ \sigma\ A \arr (\mnone, \bot, v_2) \land \runT\ p\ v_2\ \sigma_1\ B \arr (\msome(\sigma', \msome B'), b, v'))
   \end{align*}
 \end{lemma}
 
@@ -1237,7 +1237,7 @@ a tree correspond to those returned as a stack.
       runT' p ~\ensuremath{v}~ ~\ensuremath{\sigma}~ ~\ensuremath{t}~ ~\ensuremath{r}~ ~\ensuremath{\to}~ 
         let ~\ensuremath{a}~ := t2l ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\mnil~ in
         let ~\ensuremath{r'}~ :=  if ~\ensuremath{r}~ is ~\msome~(~\ensuremath{\sigma'}~, ~\ensuremath{t}~) then  ~\msome~(~\ensuremath{\sigma'}~, t2l (odflt KO ~\ensuremath{t}~) ~\ensuremath{\sigma}~ ~\mnil~)
-                   else ~\ensuremath{\square}~ in
+                   else ~\ensuremath{\mnone}~ in
         runS p ~\ensuremath{v}~ ~\ensuremath{a}~ ~\ensuremath{r'}~.
 \end{coqcode}
 \end{theorem}
@@ -1332,24 +1332,34 @@ $\sigma'$ that does not assign any variable in the query.
 The function \matching has the following property:
 
 % \input{tex_code/matchdisj.tex}
-\begin{axiom}[matching\_disj]\label{th:matchingdisj}\cI{~\ensuremath{\forall}~ ~\ensuremath{\sigma}~ ~\ensuremath{\sigma'}~ ~\ensuremath{t_1}~ ~\ensuremath{t_2}~, vars ~\ensuremath{t_1}~ ~\ensuremath{\#}~ domf ~\ensuremath{\sigma}~ ~\ensuremath{\to}~ vars ~\ensuremath{t_1}~ ~\ensuremath{\#}~ vars ~\ensuremath{t_2}~ ~\ensuremath{\to}~}~
-\begin{coqcode}
-    matching ~\ensuremath{t_1}~ ~\ensuremath{t_2}~ ~\ensuremath{\sigma}~ = ~\msome~~\ensuremath{\sigma'}~ ~\ensuremath{\to}~ ~\ensuremath{\exists}~ e, domf ~\ensuremath{\sigma'}~ = domf ~\ensuremath{\sigma}~ ~\ensuremath{\cup}~ e ~\ensuremath{\;\land\;}~ e ~\ensuremath{\subseteq}~ vars ~\ensuremath{t_2}~.
-\end{coqcode}
+\begin{axiom}[matching\_disj]
+  \label{th:matchingdisj}
+  $\forall\ \sigma\ \sigma'\ t_1\ t_2, F_v(t_1)\ \#\ \dom\ \sigma \to F_v(t_1)\ \#\ F_v(t_2) \to$
+    $$\matching\ t_1\ t_2\ \sigma \arr \msome\sigma' \to \exists\ e, \dom\ \sigma' = \dom\ \sigma \cup e \land e \subseteq F_v(t_2)$$
 \end{axiom}
 
-If the variables (\cI{vars}) of two terms are disjoint ($\#$) and the variables in the support of $\sigma$ are
+If the free variables ($F_v$) of two terms are disjoint ($\#$) and the variables in the support of $\sigma$ are
 disjoint from the variables in $t_1$, then, if matching succeeds, only the
 variables in $t_2$ are assigned; that is, $t_1 = \sigma'~t_2$, and the
 variables in $t_1$ are not assigned in $\sigma'$.
 
 
-The \eI{backchain} function uses \eI{matching} or \eI{unify} on the arguments $q$
+The \backchainS function uses \eI{matching} or \eI{unify} on the arguments $q$
 depending if the argument is in \emph{input} or \emph{output} mode.
 We assume two important properties of our unification routines.
 
-\input{formalization/theorem/unif_trans.tex}
-\input{formalization/theorem/matchunif.tex}
+% \input{formalization/theorem/unif_trans.tex}
+\begin{axiom}[unif\_trans]
+  \label{th:uniftrans}
+  $$\forall\ t_1\ t_2\ t_3\ \sigma, \unify\ t_1\ t_2\ \sigma \to \unify\ t_2\ t_3\ \sigma \to \unify\ t_1\ t_3\ \sigma$$
+\end{axiom}
+
+% \input{formalization/theorem/matchunif.tex}
+\begin{axiom}[match\_unif]
+  \label{th:matchunif}
+  $$\forall\ t_1\ t_2\ \sigma, \matching\ t_1\ t_2\ \sigma \to \unify\ t_1\ t_2\ \sigma$$
+\end{axiom}
+
 
 We also assume that refreshing variables does not affect unification.
  In
@@ -1370,8 +1380,20 @@ unification also succeeds. In other words, this theorem accounts for
 $\alpha$-equivalence of terms and the unification of terms with disjoint
 variables.
 
-\input{formalization/theorem/refresh_for.tex}
-\input{formalization/theorem/unif_ren.tex}
+% \input{formalization/theorem/refresh_for.tex}
+\begin{definition}[\cI{refresh_for}]\label{th:refreshfor}
+  $$\cI{refresh_for}\ x\ t := F_v(t) \subseteq \dom\ x \land \cI{injective}\ x \land (\dom\ x\ \#\ \mathrm{codom}\ x)$$
+\end{definition}
+
+% \input{formalization/theorem/unif_ren.tex}
+\begin{axiom}[unif\_ren]\label{th:unifren}
+  $\forall\ x\ y\ z\ w\ t_1\ t_2$
+  \begin{align*}
+   \cI{refresh_for}\ w\ t_1 \to \cI{refresh_for}\ y\ t_2 \to \cI{refresh_for}\ z\ t_1 \to \cI{refresh_for}\ x\ t_2 \to\\
+    \mathrm{codomf}\ w\ \#\ F_v (\txtI{rename}\ y\ t_2) \to \mathrm{codomf}\ z\ \#\ F_v(\txtI{rename}\ x\ t_2) \to\\
+    \unify\ (\txtI{rename}\ w\ t_1)\ (\txtI{rename}\ y\ t_2) \epsilon \to \unify\ (\txtI{rename}\ z\ t_1)\ (\txtI{rename}\ x\ t_2) \epsilon
+  \end{align*}
+\end{axiom}
 
 In \cref{fig:progx}, the rules of the program are equipped with three
 signatures, one per predicate. Besides the arity of each predicate, a
@@ -1395,11 +1417,20 @@ fails or, if it succeeds, the resulting tree of alternatives is $\mnone$.
 % Below, we define \texttt{is\_det}.
 
 
-\input{formalization/theorem/is_det.tex}
+% \input{formalization/theorem/is_det.tex}
+\begin{definition}[\cI{is_det}]\label{th:isdet}
+  $$\cI{is_det}\ p\ \sigma\ v\ t\ := \forall\ r,\ \runT'\ p\ v\ \sigma\ t \arr r \to r = \mnone \lor \exists \sigma, r = \msome(\sigma, \mnone)$$
+\end{definition}
+
 
 The theorem we want to prove is the following one:
 
-\input{formalization/theorem/det_check_call.tex}
+% \input{formalization/theorem/det_check_call.tex}
+\begin{theorem}[det\_check\_call]
+  \label{th:detcheckcall}
+  $$\forall\ p\ \sigma\ t\ v,
+      \cI{check_}{\mathbb{P}}\ p \to \cI{tm_is_det}\ p.(sig)\ t\ \to \cI{is_det}\ p\ \sigma\ v\ (\cI{Todo}\ (\cI{call} t))$$
+\end{theorem}
 
 Here, \cI{check_~$\mathbb{P}$~} denotes the function that checks the program
 with respect to mutual exclusion and rule checking, and \cI{tm_is_det}
@@ -1416,7 +1447,12 @@ To address this issue, we introduce the notion of deterministic trees
 (\cI{det_tree}), show that a tree satisfying this condition enjoys the
 desired properties, and then prove the following more general theorem:
 
-\input{formalization/theorem/det_check_tree.tex}
+% \input{formalization/theorem/det_check_tree.tex}
+\begin{lemma}[\cI{det_check_tree}]
+  \label{th:detchecktree}
+  $$\forall\ \sigma\ v\ p\ t,\ \cI{check_}\mathbb{P}\ p\ \to \cI{det_tree}\ p.(sig)\ t\ \to\ \cI{is_det}\ p\ \sigma\ v\ t$$
+\end{lemma}
+
 
 Our target theorem \cI{det_check_call} is a corollary of \cI{det_check_tree}.
 
