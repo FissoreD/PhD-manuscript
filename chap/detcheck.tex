@@ -441,7 +441,7 @@ i.e., rules that are part of the program \prog, and local rules that
 are loaded via the \pi operator. For example, the \eI{copy} predicate
 from \cref{sec:dynamic-prog} has two global rules and one local rule.
 
-\begin{definition}[Mutual exclusion ($\mutExclAll~\PROG~\RULE$)]
+\begin{definition}[Mutual exclusion ($\mutExclAll~\PROG~\RULE$)] \label{def:mutExcl}
   Given a program \prog and a rule $r$, such that $r\notin \prog$,
   % $r = (k~t_1\ldots t_n~t_{n+1}\dots t_m ~\cdash~ b_1 \ldots b_r) $
   % with
@@ -467,7 +467,6 @@ from \cref{sec:dynamic-prog} has two global rules and one local rule.
       % $t_d = x$ and
     % forall rules $(k~u_1\ldots u_n \ldots ~\cdash~ \ldots) \in \prog$ we have that
     % $u_d$ is not a variable (not in \VAR).
-  \label{def:mutExcl}
 \end{definition}
 %
 % These two conditions are sufficient to avoid the creation of choice points
@@ -1403,12 +1402,11 @@ $$\caC{\emptyset}{\ctx}{\detI}{b}{\detI}{\_}$$
 
 
 
-\begin{theorem}[Static analysis]
+\begin{theorem}[Static analysis] \label{th:1}
   Given program \prog, a context of signatures \ctx and a query atom $b$,
   $
   \isdetp~\ctx~\prog \land \isdetq~\ctx~b \Rightarrow \isdet~\prog~b
   $.
-  \label{th:1}
 \end{theorem}
 
 The proof of~\cref{th:1} has been mechanized in the \rocq proof assistant for
