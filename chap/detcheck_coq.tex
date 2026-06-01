@@ -359,8 +359,6 @@ mark with a black arrow the result of \pathend.
 Inductive tag ~$\coloneq$~ Expanded | CutBrothers | Failed | Success.
 Definition step : ~$\mathbb{P}$~ ~$\to$~ ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ (~$\FV$~ * tag * tree)
 Definition prune : ~$\mathbb{B}$~ ~$\to$~ tree ~$\to$~ option tree
-Inductive runT : ~$\mathbb{P}$~ ~$\to$~  ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ 
-                           option (~$\Sigma$~ * option tree) ~$\to$~ ~$\mathbb{B}$~ ~$\to$~ ~$\FV$~ ~$\to$~ Prop
 \end{coqcode}
 
 Since all functions must terminate in \rocq, we define the transitive closure
