@@ -73,14 +73,15 @@ handle in a traditional pen-and-paper proof.
 
 In general, formal proofs developed in a proof assistant must be extremely
 detailed and are often difficult for humans to read. To reduce the effort
-required during proof development, modern proof assistants provide various forms
-of automation that allow users to write incomplete proof terms, leaving some
-information to be inferred automatically by the system.
+required during proof development, modern proof assistants, such as the
+\rocq~\cite{coqart} proof assistant, provide various forms of automation that
+allow users to write incomplete proof terms, leaving some information to be
+inferred automatically by the system.
 
-Beyond proof automation, proof assistants provide a number of mechanisms that
-simplify the interaction between the user and the system. These mechanisms are
+These mechanisms are
 collectively referred to as the \emph{elaborator}~\cite{elaboration}. Their
-purpose is to ease the user's proof experience by allowing incomplete proof
+purpose is to simplify the interaction between the user and the system
+by allowing incomplete proof
 terms to be submitted and automatically completed by the system. In some
 situations, ambiguities may even be left intentionally in the source code, with
 the elaborator responsible for resolving them using information available in the
@@ -112,7 +113,7 @@ current types. The task of the type-class solver is to infer this implementation
 automatically.
 
 As observed in~\cite{elaboration}, elaboration mechanisms are often based on
-inference rules that closely are reminiscent of logic programming. In this work, we
+inference rules that are reminiscent of logic programming. In this work, we
 investigate an alternative implementation of type-class resolution based on a
 logic programming language. This approach offers an immediate advantage: the
 possibility of reusing an existing logic-programming engine instead of
@@ -158,7 +159,7 @@ unification.
 
 As a consequence, terms that are unifiable in \rocq may fail to unify after
 translation into \elpi. Simply delegating unification to the meta-language is
-therefore insufficient. This motivates the second contribution of this thesis: a
+therefore insufficient. This motivates another contribution of this thesis: a
 compilation scheme that preserves the benefits of the translation while
 recovering the intended unification behavior.
 
@@ -191,7 +192,7 @@ higher-order predicates, dynamic clauses, and the cut operator. Handling
 cut is important, as it can enforce determinism but interacts in subtle
 ways with logical semantics.
 
-We have started formalizing the expected properties of the static checker in the
+We have formalized the expected properties of the static checker in the
 \rocq proof assistant by encoding the \elpi
 interpreter~(\ref{chap:mechanization}). To support this development, we restrict
 the model to a first-order fragment of the language, where terms do not contain
@@ -211,7 +212,7 @@ options. Then, we introduce the \elpi language and give a formal description of
 its syntax and semantics. Finally, we present the \rocqelpi plugin, which enables
 the interaction between \elpi and \rocq.
 
-This thesis contains four main contributions, organized as follows:
+This thesis contains five main contributions, organized as follows:
 
 \begin{description}
   \item [\Cref{sec:elpi-syntax,sec:elpi-semantics}] We present a formalization
