@@ -25,7 +25,8 @@
     "**/*.vos": true,
     "**/*.glob": true,
     // "code/*.tex": true,
-    "**/__pycache__": true
+    "**/__pycache__": true,
+    "code/*.tex": true,
   },
   "latex-workshop.latex.tools": [
     {

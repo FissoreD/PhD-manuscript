@@ -4,6 +4,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepgfplotslibrary{fillbetween}
+\usetikzlibrary{patterns}
 
 \def\a{share.csv}
 
@@ -32,16 +33,16 @@
     }
 
     % Invisible paths for fillbetween
-    \addplot[name path=TC, opacity=0] table [x=HEIGHT, y=TC, col sep=comma] {\a};
-    \addplot[name path=BUILD, opacity=0] table [x=HEIGHT, y=BUILD, col sep=comma] {\a};
-    \addplot[name path=OVERHEAD, opacity=0] table [x=HEIGHT, y=OVERHEAD, col sep=comma] {\a};
-    \addplot[name path=REFINE, opacity=0] table [x=HEIGHT, y=REFINE, col sep=comma] {\a};
+    \addplot[name path=TC, opacity=1] table [x=HEIGHT, y=TC, col sep=comma] {\a};
+    \addplot[name path=BUILD, opacity=1] table [x=HEIGHT, y=BUILD, col sep=comma] {\a};
+    \addplot[name path=OVERHEAD, opacity=1] table [x=HEIGHT, y=OVERHEAD, col sep=comma] {\a};
+    \addplot[name path=REFINE, opacity=1] table [x=HEIGHT, y=REFINE, col sep=comma] {\a};
 
     % Filled areas (do NOT create legend entries automatically)
-    \addplot[red, opacity=0.6] fill between [of=axis and TC];
-    \addplot[yellow, opacity=0.6] fill between [of=TC and BUILD];
-    \addplot[green, opacity=0.6] fill between [of=OVERHEAD and BUILD];
-    \addplot[cyan, opacity=0.6] fill between [of=OVERHEAD and REFINE];
+    \addplot[fill=black!50, opacity=1] fill between [of=axis and TC];
+    \addplot[fill=black!30, opacity=1] fill between [of=TC and BUILD];
+    \addplot[fill=black!10, opacity=1] fill between [of=OVERHEAD and BUILD];
+    \addplot[pattern=dots, opacity=1] fill between [of=OVERHEAD and REFINE];
 
     % SINGLE legend (order matters!)
     \legend{\elpi, \rocq,,,,, TC Search, Build Query, Overhead, Typecheck}

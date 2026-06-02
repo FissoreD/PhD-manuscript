@@ -33,9 +33,8 @@ mechanizations such as the Odd Order and Four Color theorems
 \cite{gonthier2013,gonthier2023}.
 
 \emph{Tactics} extend the proof system of \rocq{} by allowing additional
-forms of automation during proof development. They are implemented on top of
-the \elpi{} interpreter.
-The \trocq~\cite{enzo2023,enzo2024} library provides an \elpi-based tactic for
+forms of automation during proof development.
+As an example, the \trocq~\cite{enzo2023,enzo2024} library provides an \elpi-based tactic for
 automatic reasoning using proof transfer techniques. The \algtac~\cite{algtac}
 library instead offers \elpi-based tactics to reason about computational
 reflection for algebraic structures such as rings and lattices.
@@ -43,7 +42,8 @@ reflection for algebraic structures such as rings and lattices.
 In the following sections, we introduce the key concepts that form the
 foundation of \cref{chap:tc,chap:ho-for-free,chap:det-elpi,chap:mechanization}.
 In particular, in \cref{sec:rocq-intro-lam-calc}, we briefly introduce
-the base of the \rocq proof assistant, so that we can provide a very simple
+the notion of parametric polymorphism (also called system F~\cite{systemf}), 
+so that we can provide a very simple
 intuition about the role of the elaboration. Elaboration is treated in
 \cref{sec:rocq-intro}, where we focus
 about type-classes, a central component
@@ -53,7 +53,7 @@ including its syntax and semantics, which are necessary to understand its
 execution model. Finally, in \cref{sec:coq-elpi}, we describe the main ideas
 behind the \rocqelpi plugin.
 
-\section{The bases of the \rocq proof assistant}
+\section{Parametric polymorphism: first steps into elaboration}
 % TODO: vedere dove è usata
 \label{sec:rocq-intro-lam-calc}
 
@@ -64,12 +64,14 @@ by \emph{terms}:
 %
 $$t := x\ |\ t\ t\ |\ \lambda x.t$$
 
-A term can be a variable $x$, an application $t\ t$, or an abstraction
-$\lambda x.t$. In an application, the first term is called the
-\emph{head} and the second the \emph{argument}. An abstraction
-$\lambda x.t$ binds the variable $x$ in $t$. A variable is said to be
-\emph{bound} if it appears under a $\lambda$-abstraction; otherwise, it is
-\emph{free}. A \emph{subterm} is any term occurring inside another term.
+A term can be a variable $x$, an application $t\ t$, or an abstraction $\lambda
+x.t$. A \emph{subterm} is any term occurring inside another term. In an
+application, the first (sub)term is called the \emph{head} and the second the
+\emph{argument}. An abstraction $\lambda x.t$ binds the variable $x$ in it's
+abstraction scope $t$. A variable that is declared by a lambda abstraction and
+whose occurrences lie within that abstraction's scope is called \emph{bound}
+variable, whereas, a variable that occurs in an expression but is not bound by
+any enclosing lambda abstraction is called \emph{free}.
 
 For instance, the term $\lambda x.\lambda y.x$ (often called
 \texttt{fst}) contains two bound variables, $x$ and $y$. The term
@@ -164,14 +166,14 @@ $$t := \dots\ |\ \tau \qquad
 
 The constructor $\forall$ expresses that a type may depend on another
 type. At the term level, we write $\lambda (x:T).t$ to abstract over a
-type. With this, the identity function can be written as
+type. With this, the polymorphic identity function can be written as
 $\lambda (x:T).\lambda (y:x).y$.
 
 The typing system is extended with:
 %
 \begin{center}
   \begin{bprooftree}
-    \AxiomC{$T \notin \Gamma \quad \Gamma + (x:T) \vdash t:\tau$}
+    \AxiomC{$\Gamma + (x:T) \vdash t:\tau$}
     \RightLabel{\rulelabel{$T_\forall$}}
     \UnaryInfC{$\Gamma \vdash \lambda (x:T).t:\forall (x:T).\tau$}
   \end{bprooftree}
@@ -265,14 +267,14 @@ elaborated version:
 \cI{@cons nat (S O) (@cons nat O (@nil nat))}
 \end{center}
 
-\emph{Coercions}~\cite{barthe95} allow implicit conversion between
-types. If a function of type $t_1 \to t_2$ is declared as a coercion,
-it can be inserted automatically when a term of type $t_1$ is used
-where a $t_2$ is expected. For example, assume that
-\cI{nat_to_bool} maps \cI{0} to \cI{false} and any other natural
-number to \cI{true}, and is declared as a coercion from \cI{nat} to
-\cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects a boolean,
-is elaborated into \cI{negb (nat_to_bool O)}.
+% \emph{Coercions}~\cite{barthe95} allow implicit conversion between
+% types. If a function of type $t_1 \to t_2$ is declared as a coercion,
+% it can be inserted automatically when a term of type $t_1$ is used
+% where a $t_2$ is expected. For example, assume that
+% \cI{nat_to_bool} maps \cI{0} to \cI{false} and any other natural
+% number to \cI{true}, and is declared as a coercion from \cI{nat} to
+% \cI{bool}. Then the term \cI{negb 0}, where \cI{negb} expects a boolean,
+% is elaborated into \cI{negb (nat_to_bool O)}.
 
 Finally, elaboration also supports overloading, allowing a symbol to be
 used with different types. Since ad-hoc polymorphism is important for
@@ -319,7 +321,8 @@ static type safety. A type class is parameterized by one or more types~$t$ and
 declares a set of functions, called methods, whose types may depend on~$t$. An
 instance of a type class gives a concrete implementation for a specific type.
 
-Unlike parametric polymorphism, where a single function is used, type classes
+Unlike parametric polymorphism, where it exists only one function implementing
+each symbol, type classes
 rely on instance resolution. Instances are stored in a database. When a method
 is used, the elaborator selects the appropriate implementation by searching for
 an instance matching the required type.
@@ -330,10 +333,12 @@ follows.
 
 \mcenter{code/plus_tc_add.tex}
 
-The method \cI{plus} has type
-$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$, where both the
-type parameter and the instance argument are implicit. Typechecking the term
-\cI{plus 3 4} gives:
+The method \cI{plus} has the following implementation \cI{fun T (f :
+Add T) => f.(plus)} where \cI{f.(plus)} is the syntax for
+retrieve the method plus inside the instance \cI{f}. The type of \cI{plus} is
+$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
+where both the type parameter and the instance argument are implicit.
+Typechecking the term \cI{plus 3 4} gives:
 %
 \begin{center}
   \cI{@plus nat ?Add 3 4 : nat where ?Add : [ |- Add nat]}
@@ -347,10 +352,8 @@ registered yet. Using the function \cI{Nat.add}, of type \cI{nat ~$\to$~ nat
 
 The declaration \cI{addNat : Add nat} provides an implementation of
 \cI{plus}. After registering it, the term \cI{plus 3 4} is elaborated as:
-%
-\begin{center}
-  \cI{@plus nat addNat 3 4 : nat}
-\end{center}
+\cI{@plus nat addNat 3 4 : nat} which is equivalent by $\beta$-reduction
+to \cI{Nat.add 3 4 : nat}.
 
 Similarly, using \cI{Rplus}, computing addition over \cI{R}eal numbers,
 we define the instance for real numbers:
@@ -407,7 +410,7 @@ programmer must explicitly specify which implementation to use. For instance, in
 \mlI{T2.plus}, instead of calling an overloaded symbol \mlI{plus}.
 
 Moreover, using modules requires defining specific instances in advance. To
-compute $(1,2) + (4,5)$, one must first define a module for pairs of integers:
+compute the sum between $(1,2)$ and $(4,5)$, one must first define a module for pairs of integers:
 
 \begin{center}
   \input{code/add_pr_nn_module}
@@ -422,6 +425,9 @@ This becomes cumbersome when many combinations are needed. For example, withboth
 integers and floating-point numbers, all combinations of pairs require separate
 modules. Type classes avoid this duplication by resolving instances
 automatically.
+
+\subsection{Overriding theorem symbols}
+\label{sec:th-overloading}
 
 In a proof assistant such as \rocq, the type class
 mechanism reuses the same intuition behind symbol overloading so that not only
@@ -454,44 +460,59 @@ will be charged of finding an instance for the type \cI{nat * R}.
 
 % \input{code/magma.tex}
 
-\paragraphTwo{Search strategy}
+\paragraphTwo{Instance search}
 
 Type classes are widely used in several major \rocq{} libraries, including
 \tlc~\cite{tlc}, \stdpp~\cite{stdpp}, and \iris~\cite{iris-junk}. The
-type-class solver automatically infers instances by searching
-in a database of declared instances. This database is organized as an ordered
-list.
+type-class solver automatically infers instances by searching a database
+of declared instances. This database is organized as an ordered list.
 
-Each instance can be assigned a priority at the end of its declaration using
-\cI{| N}, where \cI{N} is an integer. Smaller values correspond to higher
-priority, so instances with lower \cI{N} are tried first. When no priority is
-specified, \rocq{} computes one automatically by assigning weight $1$ to each
-premise that is itself a type-class constraint.
+The position of an instance in this list is determined by its priority.
+A priority can be assigned explicitly at the end of the declaration
+using \cI{| N}, where \cI{N} is an integer. When no priority is
+specified, \rocq{} computes one automatically by assigning a weight of
+$1$ to each premise that is itself a type-class constraint.
 
-The search strategy is similar to depth-first search, close to
-the \prolog{} SLD~\cite{sld} resolution algorithm. The solver attempts to unify
-the conclusion of each instance of the database 
-with the current goal. When unification
-succeeds, the premises of that instance become new subgoals. If all premises are
-successfully solved, the instance provides a solution. Otherwise, the solver
-backtracks to explore other alternatives, continuing until a solution is found
-or all possibilities are exhausted. For this reason, the order of instances in
-the database is important, as it can influence both performance and termination.
+Instances with lower priorities are placed earlier in the list. When two instances
+have the same priority, their relative order is determined by their
+declaration order in the source code: the instance declared first is
+placed before the other.
 
-As an example, consider the instances defined for the type class \cI{Add},
-ordered as follows: \cI{addNat}, \cI{addR}, and \cI{addProd}. To solve the goal
-\cI{Add (nat * R)}, the solver first tries \cI{addNat} and \cI{addR}, but both
-fail since their conclusions do not match the goal. The instance
-\cI{addProd} applies if its premises, \cI{Add nat} and \cI{Add R}, can be
-solved. Since both hold, the solver constructs the solution
+The search procedure is similar to a depth-first search and closely
+resembles the \prolog{} SLD-resolution
+algorithm~\cite{sld}. To solve a goal, the type-class solver traverses
+the instance database in order and attempts to unify the conclusion of
+each instance with the current goal.
+
+When unification succeeds, the premises of the selected instance become
+new subgoals. These subgoals are solved recursively using the same
+procedure. If all premises can be resolved, the instance provides a
+solution to the original goal. Otherwise, the solver backtracks and
+continues the search with the next matching instance.
+
+Because instances are explored according to their position in the
+database, the ordering of the database can have a significant impact on
+the search process. In particular, it may affect both the performance of
+instance resolution and its termination behavior.
+
+As an example, consider the instances defined for the type class
+\cI{Add}, ordered as follows: \cI{addNat}, \cI{addR}, and
+\cI{addProd}. To solve the goal \cI{Add (nat * R)}, the solver examines
+the instances in that order. The first two instances are discarded
+because their conclusions do not match the goal. The instance
+\cI{addProd} matches and generates the subgoals \cI{Add nat} and
+\cI{Add R}. These subgoals are solved by \cI{addNat} and \cI{addR},
+respectively, yielding the solution
 \eI{addProd nat R addNat addR}.
 
-However, a poor choice of priorities may lead to non-termination. Suppose
-\cI{addProd} is given the highest priority and consider the goal
-\cI{Add ?X}, where \cI{?X} is an existential variable. The solver applies
-\cI{addProd}, instantiating \cI{?X} as \cI{?X1 * ?X2}. This generates the
-subgoal \cI{Add ?X1}. The same instance is then applied again, producing
-\cI{?X1 = ?X3 * ?X4}, and so on. This process repeats indefinitely.
+The ordering of the database is also important for termination. Consider
+the same set of instances, but assume that \cI{addProd} has the highest
+priority. When solving the goal \cI{Add ?X}, where \cI{?X} is an
+existential variable, \cI{addProd} matches by instantiating \cI{?X} as
+\cI{?X1 * ?X2}. This produces the subgoal \cI{Add ?X1}. Since
+\cI{addProd} is considered first, it matches again and instantiates
+\cI{?X1} as \cI{?X3 * ?X4}, generating a new subgoal \cI{Add ?X3}. The
+same situation repeats indefinitely, leading to a non-terminating search.
 
 To control the search, several mechanisms are available. A common one is the use
 of \emph{modes}, which restrict the shape of class arguments during resolution.
@@ -789,12 +810,12 @@ A program $\prog$ of type $\PROG$ is made by a triple
 $(\vecL{\RULE}, \vecL{\NVAR}, \env)$
 
 The first element represent the ordered list of rules characterising the
-program, we use the notation $\PROG.\cI{index}$ to get this projection from a
+program, we use the notation $\prog.\cI{index}$ to get this element from a
 program \prog. The second eleemnt of the triple contains the set of nominal
 variables that have already been introduced, we use the notation
-$\prog.\cI{nvar}$ to get this projection for the program \prog. Finally, the
-last projection of the triple contain the typing environment, we use the
-notation $\prog.\cI{sig}$ to get this projection from \prog.
+$\prog.\cI{nvar}$ to get this element for the program \prog. Finally, the
+last element of the triple contain the typing environment, we use the
+notation $\prog.\cI{sig}$ to get this element.
 
 We write $x \# \prog$ to denote that the nominal variable $x$ is fresh with
 respect to $\prog.\txtI{nvar}$. The notation $x +_\forall \prog$ denotes the
@@ -962,45 +983,6 @@ substitution associated with each alternative is the one returned by
 
 \paragraphTwo{Comparison with Tassi's presentation}
 
-\begin{table}
-    \begin{subtable}{0.48\textwidth}
-    \centering
-    \begin{tabular}{ll}
-      \runE rules & \texttt{run} rules\\
-      \hline
-      \runE[\top]        & $\texttt{run}_\top$ \\
-      \runE[\bot]        & unreachable case \\
-      \runE[\backchain]  & $\texttt{run}_{\circlearrowleft,\bot,\sigma,@}$ + IH \\
-      \runE[!]           & $\texttt{run}_!$ and IH \\
-      \runE[\forall]     & $\texttt{run}_\forall$ + IH \\
-      \runE[\Rightarrow] & $\texttt{run}_\Rightarrow$ + IH \\
-    \end{tabular} \\
-    \vspace{10pt}
-    \phantom{aa}\\
-    \caption{$\runE \to \texttt{run}$}
-    \label{table:run-run-proof-t1}
-  \end{subtable}
-  \begin{subtable}{0.48\textwidth}
-    \centering
-    \begin{tabular}{ll}
-      \texttt{run} rules & \runE rules\\
-      \hline
-      $\texttt{run}_\top$             & \runE[\top] \\
-      $\texttt{run}_\bot$             & \runE[\backchain] and \runE[\bot] \\
-      $\texttt{run}_\circlearrowleft$ & \runE[\backchain] and IH \\
-      $\texttt{run}_@$                & \runE[\backchain] and IH \\
-      $\texttt{run}_\sigma$           & \runE[\backchain] and IH \\
-      $\texttt{run}_!$                & \runE[!] and IH \\
-      $\texttt{run}_\forall$          & \runE[\forall] and IH \\
-      $\texttt{run}_\Rightarrow$      & \runE[\Rightarrow] and IH \\
-    \end{tabular}
-    \caption{$\texttt{run} \to \runE$}
-    \label{table:run-run-proof-t2}
-  \end{subtable}
-  \caption{High-level proof schema of~\cref{th:run-run-equiv}}
-  \label{table:run-run-proof}
-\end{table}
-
 In the previous subsections, we presented the \elpi language, including its
 syntax and semantics. This formalization has been
 developed in collaboration with Enrico Tassi. A comprehensive description of
@@ -1030,34 +1012,74 @@ absence of constraints, which is forced to the empty list in the \texttt{run}
 semantic (this is performed by the \txtI{map}ping of one list to the other
 and putting the empty set, i.e. $\emptyset$, of constraints).
 
-\begin{theorem}
-  \begin{equation*}
-    \begin{split}
-      \forall\ a_0\ a_s\ r\ \sigma,\ & \txtI{let}\ (a_0', a_s') := \txtI{map}\ (\lambda x. (\emptyset, x))\ (a_0 :: a_s) \txtI{ in} \\ 
-                             & \txtI{let}\ r' := \txtI{map}\ (\lambda x. (\emptyset, x))\ r \txtI{ in} \\
-                             & \runE\ (a_0 :: a_s) \arr (\sigma, r') \leftrightarrow \texttt{run}\ a_0'\ a_s' \arr (\emptyset, \sigma, r')
-    \end{split}
-  \end{equation*}
-  \label{th:run-run-equiv}
-\end{theorem}
+% \begin{table}
+%     \begin{subtable}{0.48\textwidth}
+%     \centering
+%     \begin{tabular}{ll}
+%       \runE rules & \texttt{run} rules\\
+%       \hline
+%       \runE[\top]        & $\texttt{run}_\top$ \\
+%       \runE[\bot]        & unreachable case \\
+%       \runE[\backchain]  & $\texttt{run}_{\circlearrowleft,\bot,\sigma,@}$ + IH \\
+%       \runE[!]           & $\texttt{run}_!$ and IH \\
+%       \runE[\forall]     & $\texttt{run}_\forall$ + IH \\
+%       \runE[\Rightarrow] & $\texttt{run}_\Rightarrow$ + IH \\
+%     \end{tabular} \\
+%     \vspace{10pt}
+%     \phantom{aa}\\
+%     \caption{$\runE \to \texttt{run}$}
+%     \label{table:run-run-proof-t1}
+%   \end{subtable}
+%   \begin{subtable}{0.48\textwidth}
+%     \centering
+%     \begin{tabular}{ll}
+%       \texttt{run} rules & \runE rules\\
+%       \hline
+%       $\texttt{run}_\top$             & \runE[\top] \\
+%       $\texttt{run}_\bot$             & \runE[\backchain] and \runE[\bot] \\
+%       $\texttt{run}_\circlearrowleft$ & \runE[\backchain] and IH \\
+%       $\texttt{run}_@$                & \runE[\backchain] and IH \\
+%       $\texttt{run}_\sigma$           & \runE[\backchain] and IH \\
+%       $\texttt{run}_!$                & \runE[!] and IH \\
+%       $\texttt{run}_\forall$          & \runE[\forall] and IH \\
+%       $\texttt{run}_\Rightarrow$      & \runE[\Rightarrow] and IH \\
+%     \end{tabular}
+%     \caption{$\texttt{run} \to \runE$}
+%     \label{table:run-run-proof-t2}
+%   \end{subtable}
+%   \caption{High-level proof schema of~\cref{th:run-run-equiv}}
+%   \label{table:run-run-proof}
+% \end{table}
 
-\begin{proof}
-  The proof is relatively simple. It is based on two inductions, one for each
-  direction of the $\leftrightarrow$ operator, respectively on \runE and
-  \texttt{run}. The intuition is illustrated in
-  \cref{table:run-run-proof}, where IH denotes the induction hypothesis.
 
-  The first subtable corresponds to the left-hand side of the implication, while
-  the second one corresponds to the right-hand side. In both cases, the goal is
-  to relate the constructors of the two semantics.
+% \begin{theorem}
+%   \begin{equation*}
+%     \begin{split}
+%       \forall\ a_0\ a_s\ r\ \sigma,\ & \txtI{let}\ (a_0', a_s') := \txtI{map}\ (\lambda x. (\emptyset, x))\ (a_0 :: a_s) \txtI{ in} \\ 
+%                              & \txtI{let}\ r' := \txtI{map}\ (\lambda x. (\emptyset, x))\ r \txtI{ in} \\
+%                              & \runE\ (a_0 :: a_s) \arr (\sigma, r') \leftrightarrow \texttt{run}\ a_0'\ a_s' \arr (\emptyset, \sigma, r')
+%     \end{split}
+%   \end{equation*}
+%   \label{th:run-run-equiv}
+% \end{theorem}
 
-  More precisely, we match each constructor of one semantics with the
-  corresponding constructors of the other, and, since our semantics has fewer
-  constructors, depending on the considered case, several constructors of
-  \texttt{run} may be used on a single constructor of \runE. We also point out,
-  that the \runE[\bot] case in \ref{table:run-run-proof-t1}, is unreachable
-  since we start from an non-empty list of goals.
-\end{proof}
+% \begin{proof}
+%   The proof is relatively simple. It is based on two inductions, one for each
+%   direction of the $\leftrightarrow$ operator, respectively on \runE and
+%   \texttt{run}. The intuition is illustrated in
+%   \cref{table:run-run-proof}, where IH denotes the induction hypothesis.
+
+%   The first subtable corresponds to the left-hand side of the implication, while
+%   the second one corresponds to the right-hand side. In both cases, the goal is
+%   to relate the constructors of the two semantics.
+
+%   More precisely, we match each constructor of one semantics with the
+%   corresponding constructors of the other, and, since our semantics has fewer
+%   constructors, depending on the considered case, several constructors of
+%   \texttt{run} may be used on a single constructor of \runE. We also point out,
+%   that the \runE[\bot] case in \ref{table:run-run-proof-t1}, is unreachable
+%   since we start from an non-empty list of goals.
+% \end{proof}
 
 \subsection{Example of program execution in \elpi with \cut}
 \label{sec:elpi-execution-example}
@@ -1422,14 +1444,15 @@ From a conceptual point of view, \chr can be seen as a rewriting system
 over constraints, where rules describe how local configurations evolve.
 In contrast to standard logic programming rules, which operate on a
 single goal, \chr rules may inspect and rewrite several constraints at
-once. This aspect is important when correctness depends on the
-interaction between constraints, rather than on their independent
-resolution. For this reason, \chr naturally supports a more global view
-of computation.
+once. 
+% This aspect is important when correctness depends on the
+% interaction between constraints, rather than on their independent
+% resolution. For this reason, \chr naturally supports a more global view
+% of computation.
 
 In \elpi, \chr\ is integrated as an extension of the underlying
 \lprolog\ engine. The motivation for this integration is the need to
-combine and refine suspended constraints that arise during proof search.
+combine and refine goal (seen as suspended constraints) that arise during proof search.
 This model explains how the system manages the constraint store. The
 main operations are simplification, propagation, and their combination,
 called simpagation.
@@ -1442,7 +1465,7 @@ $\vecL{h}$ are present in the store and the guards $\vecL{g}$ hold. In
 this case, $\vecL{h}$ is removed, and the body $\vecL{b}$ is executed,
 possibly introducing new constraints.
 
-\emph{Propagation}, written $\vecL{k}\ \if \vecL{g}\ |\ \vecL{b}$, is
+\emph{Propagation}, written $\vecL{k}\ \iff \vecL{g}\ |\ \vecL{b}$, is
 triggered under the same conditions, namely when $\vecL{k}$ is in the
 store and $\vecL{g}$ holds. The body $\vecL{b}$ is then executed, but in
 contrast to simplification, the constraints $\vecL{k}$ remain in the
@@ -1460,9 +1483,9 @@ constraint store closely follows the mathematical notation above. A
 constraint is declared using the predicate
 \eI{declare_constraint}, which takes two arguments: the constraint
 itself (an atom) and a list of variables on which the constraint is
-suspended. When one of these variables is instantiated, \chr\ is
-awakened and traverses the constraint handler to check whether a rule
-can be applied. A more complete presentation can be found in
+suspended.
+When a variable is assigned, the constraint is resumed within the
+constraint store. A more complete presentation can be found in
 \cite[Sec.~4.3]{chr-elpi} and \cite[Sec.~2.4]{hdr}.
 
 \subsection{Rule names and insertion}
@@ -1499,7 +1522,7 @@ similar syntax can be used with \eI{:after} to insert a rule after an
 existing one.
 
 The usefulness of grafting becomes clearer in
-\cref{sec:rule-prio}, where typeclass instances must be inserted at
+\cref{sec:rule-prio}, where type-class instances must be inserted at
 specific positions in the database to respect the intended priority.
 
 
@@ -1571,8 +1594,8 @@ variable in the term.
   \rocq terms & \elpi HOAS & description\\
   \hline
   \cI{plus 0}             & \eI{app [~<<~plus~>>~, ~<<0>>~]} & term application\\
-  \cI{fun x => ?F a}       & \eI{fun `x` ~<<int>>~ y\ app [G, ~<<a>>~]} & $\lambda$-abstraction\\
-  \cI{~$\forall$~ x, p x} & \eI{prod `x` ~<<bool>>~ z\ app [~<<p>>~, z]} & $\forall$-quantif and binding
+  \cI{fun x: int => ?F a}       & \eI{fun `x` ~<<int>>~ y\ app [F, ~<<a>>~]} & $\lambda$-abstraction\\
+  \cI{~$\forall$~ x: bool, p x} & \eI{prod `x` ~<<bool>>~ z\ app [~<<p>>~, z]} & $\forall$-quantif and binding
 \end{tabular}
 \caption{Examples of \rocq terms encoded in \elpi using HOAS}
 \label{tab:rocq-to-elpi-hoas}
@@ -1588,7 +1611,7 @@ The second and third rows illustrate how binders are handled for
 $\lambda$-abstraction and $\forall$-quantification. The original binder
 name from \rocq is stored in the \eI{fun} and \eI{prod} constructors,
 while the name of the bound variable in \elpi is not relevant. In the third row,
-the \elpi binder (called \eI{z}) is reused to represent the abstraction
+the \elpi abstracted variable \eI{z} is reused to represent the abstraction
 of the object language when applied to the predicate \eI{p}.
 
 The second row shows a \rocq unification variable \cI{?F}. It is
@@ -1751,8 +1774,21 @@ type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~ list argument
 
 The \eI{msolve} predicate takes as input a list of \rocq sealed goals and
 returns an updated list of sealed goals. The type \eI{sealed-goal}, shown in
-\cref{fig:goals-type}, represents goals that may contain abstractions. These
-abstractions are encoded using the \eI{nabla} constructor.
+\cref{fig:goals-type}, represents goals that may contain abstractions (typically
+the context in which the goal leaves). These abstractions are encoded using the
+\eI{nabla} constructor.
+
+For example, consider the \rocq{} goal
+\begin{prooftree}
+  \AxiomC{$h : t$}
+  \UnaryInfC{$?s : t$}
+\end{prooftree}
+where $?s$ denotes the proof term to be constructed for the conclusion
+$t$ in a context containing the hypothesis $h : t$. In \elpi{}, this
+goal is represented as \eI{nabla x\ t'}, where the variable $x$
+corresponds to the abstraction of the local hypothesis $h$ in the term
+$t'$. The term $t'$ is the \elpi{} encoding of the \rocq{} conclusion
+$t$.
 
 Under a spine of \eI{nabla} abstractions, the \eI{seal} constructor
 encodes a goal. A goal is a tuple with five components: a context $C$,
@@ -1773,6 +1809,17 @@ typechecking only verifies that the term has the expected type.
 The list $L$ contains additional arguments that guide the resolution
 process. In this work, we mainly use two projections of a goal: the
 context and the goal type.
+
+We can now define more precisely the shape of the translation of
+\begin{prooftree}
+  \AxiomC{$h : t$}
+  \UnaryInfC{$?s : t$}
+\end{prooftree}
+which is represented in \elpi{} as \eI{nabla x.(goal [decl x ~<<t>>~] (X x)
+~<<t>>~ (Y x) [])}. The context \eI{[decl x ~<<t>>~]} records that \cI{x} has
+type \eI{t}. The two higher-order variables \cI{X} and \cI{Y} are associated
+with the \rocq{} existential variable \cI{?s}.
+
 
 If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
 the list of goals \eI{L}, then the system attempts to solve each goal in

@@ -2,14 +2,24 @@
 \label{chap:tc}
 
 Type classes provide an elegant mechanism for implementing ad-hoc
-polymorphism~\cite{wadler1989}. As explained in~\cref{sec:ad-hoc-poly},
-they allow the same symbol to be reused in
-different contexts, and in a proof assistant like \rocq,
-instances of a type class preserve the same mathematical properties. From a
-\prolog-like perspective, a type-class goal of \rocq corresponds to resolving a query
-to a predicate that associates its inputs to the argument of the class. 
-In \rocq, instances act as rules stored in a database,
-which are used to backchain and resolve type-class queries.
+polymorphism~\cite{wadler1989}. As discussed in
+\cref{sec:ad-hoc-poly}, they allow the same symbol to be reused in
+different contexts. Moreover, as explained in
+\cref{sec:th-overloading}, in a proof assistant such as \rocq{},
+instances of a type class may contain theorem symbols, making theorem
+overloading possible.
+
+Using the type-class solver for overloaded theorems provides a form of
+automatic proof search. Given a theorem statement represented as a
+type-class goal, the solver searches the instance database for a
+suitable theorem instance and automatically constructs the corresponding
+proof.
+
+This mechanism is closely related to query resolution in \prolog{}. A
+type-class goal can be viewed as a query to a predicate whose arguments
+correspond to the parameters of the class. Type-class instances play the
+role of rules stored in a database, and the solver resolves goals by
+backchaining on these rules until a proof is found.
 
 A meta-language integration for type-class resolution must provide two components:
 (1) a compiler that translates \rocq class and instance declarations into the
@@ -57,12 +67,12 @@ To address type-class unification problems, we extend \rocq with the
 following APIs (simplified here for clarity):
 
 \begin{camlcode}
-(* API for Compiler *)
+(* API for Type-Class Compiler *)
 val register_compiler   : string ~$\to$~ (event ~$\to$~ unit) ~$\to$~ unit
 val activate_compiler   : string ~$\to$~ unit
 val deactivate_compiler : string ~$\to$~ unit
 
-(* API for Solver *)
+(* API for Type-Class Solver *)
 val register_solver   : string ~$\to$~ tc_solver ~$\to$~ condition ~$\to$~ unit
 val activate_solver   : string ~$\to$~ unit
 val deactivate_solver : string ~$\to$~ unit
@@ -126,7 +136,7 @@ its instances is reproduced in \cref{fig:add-class-full}.
   \label{fig:simple-elpi-compiler-tc}
 \end{figure}
 
-After an instance is declared, an observer triggers the instance compiler
+After an instance is declared, a trigger activates the instance compiler
 shown in \cref{fig:simple-elpi-compiler-tc}. The compiler is similar to the
 example presented in \cite[Sec.~4.5]{hdr}.
 
@@ -188,8 +198,8 @@ arguments.
 Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return a term
 of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive call
 to \eI{comp}. Since \eI{R} has type \eI{term ~$\to$~ prop} and abstracts the local
-variable \eI{x}, the compiler introduces a fresh variable \eI{y} to quantify
-over the corresponding argument. This ensures that the resulting rule is
+variable \eI{x}, the compiler abstracts $x$
+in the result \eI{pi y\ R y}. This ensures that the resulting rule is
 closed (ground), as required by the \eI{coq.elpi.accumulate} predicate.
 
 As an example, consider the instance \eI{addProd}, whose type is
@@ -211,8 +221,14 @@ Compiling this instance yields the following \elpi rule:
 This rule provides a proof for \eI{Add (x * y)} provided that the two premises
 \eI{Add x} and \eI{Add y} can be solved.
 
-To also solve type-class goals, we define an \elpi tactic containing the
-following rule:
+As explained in \cref{sec:elpi-commands-tactics}, a \rocq{} goal can be
+passed to an \elpi{} tactic responsible for solving it. Type-class goals
+are translated in the same way and can therefore be handled directly by
+\elpi{}.
+
+To perform type-class resolution, we define an \elpi{} tactic whose entry point
+is captured by the following rule:
+
 
 \begin{center}
   \input{code/toy_compiler_tc_solver.tex}
@@ -332,7 +348,7 @@ mode.
 \subsection{\rocq and \elpi mode discrepancies}
 \label{sec:tc-mode-and-determinacy}
 
-Our typeclass solver is not intended to replicate the \rocq solver. Instead, it
+Our type-class solver is not intended to replicate the \rocq solver. Instead, it
 aims to exploit, whenever possible, the features of the \elpi language. A
 natural claim is that mapping two \rocq mode to only one in \elpi is that the
 \rocq and \elpi type-class solvers will have different runtime behaviors.
@@ -465,7 +481,7 @@ position of a subterm in the compilation phase plays a
 central role (and is incorrectly handled by the compiler in
 \cref{sec:simple-instance-compiler}), is shown in
 \cref{fig:h-clause}. The code illustrates an encoding of a fragment of
-propositional logic using the \rocq{} typeclass mechanism as a proof
+propositional logic using the \rocq{} type-class mechanism as a proof
 search engine.
 
 We define an inductive type \texttt{mlogic} representing a restricted
@@ -481,12 +497,12 @@ interpretation is compositional: an atom evaluates to a proposition using
 the \cI{to_prop} function, a conjunction is interpreted as a logical conjunction,
 and an implication as a function type.
 
-Automatic reasoning is expressed via the typeclass
+Automatic reasoning is expressed via the type-class
 \texttt{Provable T}, which packages a proof of \texttt{interp T}.
-This allows \rocq{}'s typeclass resolution mechanism to act as a
+This allows \rocq{}'s type-class resolution mechanism to act as a
 proof search procedure.
 
-The inference rules of the logic are encoded as typeclass
+The inference rules of the logic are encoded as type-class
 instances. The instance \texttt{Pand} corresponds to conjunction
 introduction: if \texttt{F1} and \texttt{F2} are provable, then
 \texttt{and F1 F2} is also provable.
@@ -675,26 +691,29 @@ $$
 
 \begin{figure}
   \centering
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.7\textwidth]{img/bench/elpi_stat_check.pdf}
+  \begin{subfigure}{.75\textwidth}
+    \centering
+    \includegraphics{img/bench/elpi_stat_check.pdf}
     \caption{With typechecking}
     \label{fig:bench-1}
   \end{subfigure}
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.7\textwidth]{img/bench/share.pdf}
+  \begin{subfigure}{.75\textwidth}
+    \centering
+    \includegraphics{img/bench/share.pdf}
     \caption{With memory sharing}
     \label{fig:bench-2}
   \end{subfigure}
 
-  \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=0.7\textwidth]{img/bench/elpi_stat_no_check.pdf}
+  \begin{subfigure}{.75\textwidth}
+    \centering
+    \includegraphics{img/bench/elpi_stat_no_check.pdf}
     \caption{Without typechecking}
     \label{fig:bench-3}
   \end{subfigure}
   \caption{Benchmarks of \elpi solver}
 \end{figure}
 
-For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the\marginpar{TODO: colore plot}
+For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the
 solver. The size of this goal grows exponentially with $n$.
 \Cref{fig:bench-1} shows the resolution time for $n$ from $0$ to $15$.
 The $x$-axis is the number of nodes (logarithmic scale), and the

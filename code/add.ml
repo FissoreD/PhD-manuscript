@@ -32,10 +32,10 @@ end
 (*ENDSNIP: add_pr_module *)
 
 (*SNIP: add_pr_nn_module *)
-module AddProdNN = AddProd (AddNat) (AddNat)
+module NN = AddProd (AddNat) (AddNat)
 (*ENDSNIP: add_pr_nn *)
 
 let _ =   
 (*SNIP: add_module_test *)
-  AddProdNN.plus (1,2) (3,4)
+  NN.plus (1,2) (3,4)
 (*ENDSNIP: add_module_test *)
