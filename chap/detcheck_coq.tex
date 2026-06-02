@@ -1,14 +1,6 @@
 \chapter{A Mechanized First-Order Static Determinacy Checker}
 \label{chap:mechanization}
 
-% \elpi is a dialect of \lprolog (see \cite{miller1991-pf,miller2012,dunchev15,chr-elpi})
-% used as an extension language for the \rocq prover (formerly the \coq proof
-% assistant). \elpi has become an important infrastructure component: several
-% projects and libraries depend on it~\cite{krebbers2025,enzo2023,enzo2024,maas2024,fissore2023,fissore2024}.
-% Other remarkable libraries include the Hierarchy-Builder library-structuring tool~\cite{hb}
-% and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
-% framework with industrial applications at SkyLabs AI.
-
 In the previous chapter we have explained the implementation of the determinacy
 checker algorithm that we have implementated in \elpi, 
 starting from version 3. 
@@ -18,114 +10,188 @@ should be considered deterministic and then the checker verifies that these pred
 behave like functions, i.e., they commit to their first solution, leaving
 no \emph{choice points}.
 
-This chapter reports our first steps towards a mechanization, in the \rocq
-prover, of the determinacy analysis from~\cite{fissore2026}.
-We focus on the control operator \emph{cut}, which is useful to restrict
-backtracking but makes the semantics depart from a pure logical reading.
+In this chapter we introduce a semantics based on And-Or trees,
+in which the history of the computation is represented in a structured way:
+given a goal, each applicable rule generates an Or-branch, which is in turn
+followed by an And-branch for each premise. This enables an explicit
+characterization of the cut operator as a function that prunes selected
+branches of the tree. The tree-based semantics allows us to formulate
+introduction and elimination rules for disjunction in the presence of cut,
+which, as expected, differ from those of classical logic. For example,
+$q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$, since $q_2$ may be cut
+away by $q_1$.
 
-We formalize two operational semantics for \prolog with cut. The first is a
-stack-based semantics that closely models a sublanguage of \elpi: we exclude
-from the semantics the interpretation for the \pi and \eI{=>} operators.
-This implementation is
-similar to the semantics mechanized by Pusch in \isabelle~\cite{isabelle}
-and to the model of Debray and Mishra~\cite[Sec.~4.3]{debray1988}.
-This stack-based semantics is a good starting point to study further
-optimizations used by standard \prolog abstract machines~\cite{warren1983,ait1991-wam},
-but it makes reasoning about the scope of the cut operator difficult. To address
-this limitation we introduce a tree-based semantics in which the branches
-pruned by \cut are explicit and we prove the two semantics equivalent.
-Using the tree-based semantics, we then prove some properties about the
-impact of evaluating the cut in disjunctive queries. For example, unlike in
-classical logic, $q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$,
-since $q_2$ may be cut-away by $q_1$.
+Finally, we use the tree-based semantics to prove the correctness of the
+determinacy analysis from~\cite{fissore2026}. In Rocq, we prove that any
+terminating call to a predicate identified as deterministic introduces no
+additional Or-branches into the tree. Combined with the equivalence
+between the two semantics, this result implies that any call to a
+deterministic predicate leaves no choice points on the stack used by
+actual \prolog implementations, including the
+\elpi~\cite{dunchev15} $\lambda$\prolog interpreter, for which the
+static analysis of~\cite{fissore2026} was originally developed. \elpi
+serves as an extension language for the \rocq prover and has become an
+important component of the Rocq ecosystem~\cite{krebbers2025,enzo2023,maas2024,fissore2023,fissore2024,hb,enzo2024,tassi2018,tassi2019,tassi2023};
+our result therefore further strengthens confidence in its
+implementation.
 
-Finally, we use the formal semantics to prove the correctness of a static
-determinacy analysis~\cref{chap:det-elpi}. Intuitively,
-nondeterminism arises when a computation can be completed by applying two
-different rules. We exclude this situation in two ways. Firstly, at
-most one rule should be used on a given query. This condition is
-satisfied if (i) the rules have non-overlapping heads: 
-if two heads do not overlap in the inputs they
-accept, then no query can unify with both, or if (ii) we account for the
-presence of cut in rule premises: once
-a rule whose premises contain a cut succeeds, all remaining rules are discarded.
-Secondly, each rule of a deterministic predicate should (i) either call functions,
-this ensure that no choice point is left after the execution of the premises
-of the chosen rule, (ii) or
-call relations provided that they are followed by the cut operator, so that
-any allocated choice points preceding the cut are discarded.
+Our mechanization is axiom-free and is available at
+\url{https://github.com/FissoreD/elpi-formalization}.
+(joined as supplementary material).
 
-We show that if every rule defining a deterministic predicate passes this analysis, 
-then any call to that predicate leaves no choice points.
+\begin{comment}
+\section{Introduction}
 
+
+\elpi is a dialect of \lprologP (see \cite{miller1991-pf,miller2012,dunchev15,TASSI_2019})
+used as an extension language for the \rocq prover (formerly the \coqP proof
+assistant). \elpi has become an important infrastructure component: several
+projects and libraries depend on it~\cite{krebbers2025,enzo2023,maas2024,fissore2023,fissore2024}.
+Other notable Rocq libraries based on \elpi
+include the Hierarchy-Builder library-structuring tool~\cite{hb};
+the Trocq proof-transfer tool~\cite{Trocq,TrocqJ}
+and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
+framework with industrial applications at SkyLabs AI.
+
+Starting with version 3, \elpi is equipped with a static analysis for
+determinacy~\cite{fissore2026} to help users control backtracking.
+\rocq{} users are familiar with functional programming, but not necessarily
+with logic programming; in particular, uncontrolled backtracking is a common
+source of inefficiency and makes debugging harder. The determinacy checker
+allows users to specify which predicates should be considered deterministic
+and then verifies that these predicates behave like functions, i.e., that
+they commit to their first solution and leave no \emph{choice points}
+(places where backtracking could resume). A choice point corresponds to a
+suspended, \emph{alternative}, computation. In the following, we
+use \emph{choice point} and \emph{alternative} as synonyms.
+
+Intuitively, nondeterminism arises when a computation can be completed using
+two different rules. The static analysis in~\cite{fissore2026} excludes this
+situation in two steps. The first step, called \emph{mutual exclusion},
+checks that at most one rule can apply to a given query. This condition is
+satisfied if either (i) no two rules have overlapping heads, so that no
+query can unify with both, or (ii) the analysis accounts for the presence of
+cut in rule premises, so that once the cut is executed all remaining rules
+are discarded. The second step, called \emph{rule checking}, verifies that
+each rule either (i) calls only functions, ensuring that no choice point
+remains after the premises of the chosen rule have been executed, or (ii)
+executes a cut after calling relations, in which case any choice points left
+by the call are discarded.
+
+The static analysis introduced in~\cite{fissore2026} is supported by
+benchmarks that demonstrate its usefulness, but it is not accompanied by a
+proof of soundness. This paper reports our first steps toward mechanizing
+the soundness of this analysis. In particular, we focus on the control
+operator \emph{cut}, which is pervasively used to write deterministic code
+and causes the semantics to depart from a purely logical reading.
+
+We mechanize two operational semantics for \prolog with cut. The first is a
+stack-based semantics that closely models \elpi's implementation and is
+essentially the semantics given by Debray and
+Mishra~\cite[Sec.~4.3]{debray1988}, which underlies standard \prolog
+abstract machines~\cite{warren1983,ait1991-wam,pusch1996}.
+This semantics admits efficient implementations, but it makes reasoning
+about the scope of cut difficult: alternatives are stored in a stack, in
+chronological order, and the cut operator is represented as a pointer to a
+shorter stack. The relation between the rule being cut and the affected
+stack frames is therefore not immediately visible.
+
+To address this limitation, we introduce a semantics based on And-Or trees,
+in which the history of the computation is represented in a structured way:
+given a goal, each applicable rule generates an Or-branch, which is in turn
+followed by an And-branch for each premise.
+This enables an explicit characterization of the cut operator as a function
+that prunes selected branches of the tree. The tree-based semantics allows
+us to formulate introduction and elimination rules for disjunction in the
+presence of cut, which, as expected, differ from those of classical logic.
+For example, $q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$,
+since $q_2$ may be cut away by $q_1$.
+
+Finally, we use the tree-based semantics to prove the correctness of the
+static determinacy analysis from~\cite{fissore2026}. We prove in Rocq that
+any call to a predicate identified as deterministic leaves no additional
+Or-branches in the tree when it terminates. By composing this result with
+the equivalence between the two semantics, we obtain that any call to a
+deterministic predicate leaves no choice points on the stack used by the
+\elpi interpreter.
+
+Our mechanization is axiom-free and is available at 
+% \url{https://github.com/FissoreD/elpi-formalization}.
+\url{ANONYMEZED_FOR_BLINDNESS}
+\end{comment}
 % questa deve stare vicino all'intro perchè aiuta a capire la det
 
-\section{Preliminaries}
+\section{Preliminaries: syntax}
 \label{sec:preliminaries}
-\begin{figure}
-\begin{coqcode}
-Inductive Tm := Symb of S | Pred of P | Var of V | App of Tm & Tm.
-Inductive Atom := cut | call of Tm.
-Record R := mkR { head : Tm; premises : list Atom }.
-Record ~\ensuremath{\mathbb{P}}~ := { rules : seq R; sig : sigT }.
-Definition ~\ensuremath{\Sigma}~ := {fmap V ~$\to$~ Tm}.
-\end{coqcode}
-\vspace{-1.4em}
-  % \caption{Syntax of \elpi programs}
-  % \end{minipage}
-  % \begin{minipage}{.45\textwidth}    
-  % \input{tex_code/atom_type.tex}\\
-  % \input{tex_code/R_type.tex}\\
-  % \input{tex_code/program_type.tex}\\
-  % \input{tex_code/sigma_type.tex}
-\caption{Definition of term, rule, program and substitution}
-  \label{type:atom}
-  \label{type:r}
-  \label{type:prog}
-  \label{type:sigma}
-  \label{fig:basex}
-% \end{minipage}
+% \begin{figure}[b]
+% \begin{coqcode}
+% Inductive Tm := Symb of S | Pred of P | Var of V | App of Tm & Tm.
+% Inductive Atom := cut | call of Tm.
+% Record R := mkR { head : Tm; premises : list Atom }.
+% Record ~\ensuremath{\mathbb{P}}~ := { rules : seq R; sig : sigT }.
+% Definition ~\ensuremath{\Sigma}~ := {fmap V -> Tm}.
+% \end{coqcode}
+% \vspace{-1.4em}
+%   % \caption{Syntax of \elpi programs}
+%   % \end{minipage}
+%   % \begin{minipage}{.45\textwidth}    
+%   % \input{./formalization/img/atom_type.tex}\\
+%   % \input{./formalization/img/R_type.tex}\\
+%   % \input{./formalization/img/program_type.tex}\\
+%   % \input{./formalization/img/sigma_type.tex}
+% \caption{Definition of term, rule, program and substitution}
+%   \label{type:atom}
+%   \label{type:r}
+%   \label{type:prog}
+%   \label{type:sigma}
+%   \label{fig:basex}
+% % \end{minipage}
 
-\end{figure}
+% \end{figure}
 
-In this chapter we use \cref{fig:progx} as our running example, and
+In the entire paper we use \Cref{fig:progx} as our running example, and
 we start by describing how we represent a program like that one.
-% In the concrete syntax, variables are written with capital letters, and
-% predicate application follows the $\lambda$-calculus style (no
-% parentheses).
+In the concrete syntax, variables are written with capital letters, and
+predicate application follows the $\lambda$-calculus style (no
+parentheses).
 
-The description of a program is given by the record $\mathbb{P}$ (in \cref{type:atom}) and
-is shared by both semantics. A program consists of a list of
-rules \cI{R} together with a signature environment \cI{sig}.
+The description of a program is given by a a pair $\PROG := (\mathrm{list}\ \mathbb{R} \times \mathrm{sigT})$
+and is shared by both semantics. A program consists of a list of
+rules together with a signature environment $\mathrm{sig}$.
 We delay the discussion of signatures to \cref{sec:determinacy} where we
-describe the static analysis that concerns them. The order in which rules appear
-in the list represent their priorities: rules coming first have higher priority.
+describe the static analysis that concerns them.
 
-A rule consists of a head term \cI{Tm} and a list of premises. Each
-premise is an \cI{Atom}, i.e. either the cut operator or a predicate
-call. Terms \cI{Tm} include predicate symbols, data symbols, variables, and term application.
+A rule is a pair $\RULE := (\TERM \times \mathrm{list}\ \ATOM)$, where
+the first element represents its head and the second its list of premises. Each
+premise is an atom, i.e. either the cut operator or a term
+call. Terms include predicate symbols, data symbols, variables, and term application.
+The concrete definition of these two algebraic types is given below:
+%
+\begin{align*}
+  \TERM & := \mathrm{Symb}\ \mathbb{N} \mid \mathrm{Pred}\ \mathbb{N} \mid \mathrm{Var}\ \mathbb{N} \mid \mathrm{App}\ \TERM\ \TERM\\
+  \ATOM & := \mathrm{cut} \mid \mathrm{call}\ \TERM
+\end{align*}
+
 The syntax tree allows variables to be applied and predicates to be mixed with data.
-These higher-order features play no role in the current chapter that focuses on
-first-order logic programming, but allows future extensions to full \lprolog
+These higher-order features play no role in the current paper that focuses on
+first order logic programming, but allows future extensions to full $\lambda$\prolog
 to be based on the same mechanization.
 
-The set of variables \cI{V}, predicates \cI{P} and data symbols \cI{S}
-are countable. We represent substitutions
-$\Sigma$ as finitely supported maps from variables to terms, using the
+
+Variables, predicates and data symbols
+are identified by natural numbers. We represent substitutions
+(of type $\Sigma$) as finitely supported maps from variables to terms, using the
 finmap library~\cite{finmap}.
 The empty substitution is written $\epsilon$,
 while the composition of two substitutions $\sigma_1$ and $\sigma_2$ with
 disjoint supports as $\sigma_1 + \sigma_2$. %\marginpar{usiamo + ?}
  
 The backchaining operation applies all rules to a query term; it is
-central to both semantics. Its implementation is very similar to the function
-\backchain from \cref{sec:elpi-semantics}.
+central to both semantics and it has the following type:
+%\input{./formalization/img/bc_type.tex}
+%
+$$\mathrm{backchain} : \mathbb{P} \to \FV \to \TERM \to \Sigma \to (\FV \times \mathrm{list}\ (\Sigma \times \mathrm{list}\ \ATOM)) $$
 
-%\input{tex_code/bc_type.tex}
-\begin{center}\cI{Definition backchain : ~\ensuremath{\mathbb{P}}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ ~\ensuremath{\to}~ Tm ~\ensuremath{\to}~ ~\ensuremath{\Sigma}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ * list (~\ensuremath{\Sigma}~ * list Atom) }
-\end{center}
-% \cI{Definition backchain : ~\ensuremath{\mathbb{P}}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ ~\ensuremath{\to}~ Tm ~\ensuremath{\to}~ ~\ensuremath{\Sigma}~ ~\ensuremath{\to}~ ~\ensuremath{\FV}~ * list (~\ensuremath{\Sigma}~ * list Atom) ~\ensuremath{\coloneq}~ ...}
-%\noindent
 Since a rule may be applied multiple times, its variables must be
 freshened before each application. Accordingly, the backchain function
 takes a program, the set of variable names used so far (\FV), a
@@ -135,31 +201,21 @@ rules that apply. More precisely, for each applicable rule it returns the
 rule premises together with an updated substitution obtained by unifying
 the rule head with the query term.
 
-In our mechanization, we abstract over the unifier and its properties.
-The function \eI{unify} takes two terms $t_1$ and $t_2$, together with a
+The function \emph{unify} takes two terms $t_1$ and $t_2$, together with a
 substitution $\sigma$, as input, and optionally returns a substitution
-$\sigma'$ that extends $\sigma$. The expected behavior of \eI{unify} is
-the standard one (see for example~\cite[section 2.5]{dowek2001}), % or \cite{miller1991-pf}),
-limited to the first order.
-Therefore, if $t_1$ and $t_2$ unify
+$\sigma'$ that extends $\sigma$. Therefore, if $t_1$ and $t_2$ unify
 under $\sigma$, then $\sigma'~t_1 = \sigma'~t_2$, where
 $\sigma~t$ denotes substitution application and $=$ denotes 
 syntactic equality.
 
-\paragraph*{Notational conventions}
-In the following section we note $\mathbb{B}$ for the boolean type, and $\top$
-and $\bot$ for \cI{true} and \cI{false}. The constructors of the option type are written
-$\msome{t}$ for \cI{Some}$~t$ and $\mnone$ for \cI{None}. 
-Following the Mathematical Components library, on which we depend,
-we use \cI{x.1} and \cI{x.2} to denote the first and second projection
-applied to the pair \cI{x}. List concatenation is the infix \cI{++},
-while list comprehension (i.e. mapping a function on a list) is written
-\cI{[seq f x | x <- l]}. The function \cI{odflt d o}
-extracts the value from the option \cI{o} and returns the default \cI{d}
-if \cI{o} is $\mnone$.
+To keep the mechanization axiom-free, we implement a unification
+algorithm, which we briefly describe in~\cref{sec:determinacy} and prove
+sound and complete.
+Since the two semantics and the static analysis use the same
+unification algorithm, the equivalence proof is completely agnostic to
+the particular implementation chosen for that algorithm.
 
-
-% \input{tex_code/unif_type.tex}
+% \input{./formalization/img/unif_type.tex}
 % TODO: state axioms and explain matching; cite Dale's unification results.
 % In this paper we assume the reader is familiar with first-order
 % unification.
@@ -171,15 +227,15 @@ if \cI{o} is $\mnone$.
 
 
 % \begin{figure}
-%   \input{tex_code/base_type.tex}
+%   \input{./formalization/img/base_type.tex}
 
 %   \begin{minipage}{0.49\textwidth}
-%     \input{tex_code/tm_type.tex}
+%     \input{./formalization/img/tm_type.tex}
 %     \caption{Tm types}
 %     \label{fig:tm-type}
 %   \end{minipage}
 %   \begin{minipage}{0.45\textwidth}
-%     \input{tex_code/unif_type.tex}
+%     \input{./formalization/img/unif_type.tex}
 %     \caption{Unif type}
 %     \label{fig:unif-type}
 %   \end{minipage}
@@ -194,24 +250,24 @@ if \cI{o} is $\mnone$.
 % a datum, a variable or the binary application of two terms.
 
 % \begin{definition}[Atoms]
-%   \input{tex_code/atom_type.tex}
+%   \input{./formalization/img/atom_type.tex}
 %   \label{type:atom}
 % \end{definition}
 % \begin{definition}[Rule]
-%   \input{tex_code/R_type.tex}
+%   \input{./formalization/img/R_type.tex}
 %   \label{type:r}
 % \end{definition}
 % \begin{definition}[Program]
-%   \input{tex_code/program_type.tex}
+%   \input{./formalization/img/program_type.tex}
 %   \label{type:prog}
 % \end{definition}
 % \begin{definition}[Substitution]
-%   \input{tex_code/sigma_type.tex}
+%   \input{./formalization/img/sigma_type.tex}
 %   \label{type:sigma}
 % \end{definition}
 % \begin{definition}[Backchaining]
 %   \leavevmode\\
-%   \phantom{AAAA}\input{tex_code/bc_type.tex}
+%   \phantom{AAAA}\input{./formalization/img/bc_type.tex}
 %   \label{type:backchain}
 % \end{definition}
 
@@ -257,43 +313,148 @@ if \cI{o} is $\mnone$.
 % for each rule filtered rules $r$, it returnes a pair containing the extension of
 % $\sigma$ making the head of $r$ and $q$ unify and the list of premises of $r$.
 
+\vspace{10pt}
+\textit{Notational conventions}
+In the following section we note $\mathbb{B}$ for the boolean type. 
+Following the Mathematical Components library, on which we depend,
+we use \cI{x.1} and \cI{x.2} to denote the first and second projection
+applied to the pair \cI{x}.
+% List concatenation is the infix \mappend,
+% while mapping a function \cI{f} on a list \cI{l} is written
+% \cI{[seq f x | x <- l]}.
+% \marginpar{spiegare notation for list}
+% $\epsilon$ is the empty substitution.
+
+\section{Stack-based semantics}
+\label{stack-sem}
+
+The stack-based semantics we present is very close to what is
+implemented by the \elpi interpreter. This semantics is 
+similar to the one proposed by Pusch in
+\cite{pusch1996}, which is in turn closely related to the
+semantics given by Debray and Mishra in
+\cite[Section~4.3]{debray1988}. Pusch mechanized this
+semantics in Isabelle/HOL, together with several optimizations that are
+also present in the Warren Abstract Machine
+\cite{warren1983,ait1991-wam}.
+
+The execution state is a stack of alternatives.
+Each alternative is a list of goals. Intuitively it amounts to
+a disjunctive normal form: each stack item is a self contained
+computation, coupling a substitution with all the goals to be
+solved.
+
+Goals pair an atom with a list of the \emph{cut-to} alternatives, 
+making the two datatypes mutually recursive, but these alternatives
+have a very different role. They have to be understood
+as pointers to lower levels of the stack itself.
+They are used to implement the cut, i.e. to prune the stack of alternatives.
+$$\mathrm{alts} := \mathrm{list}\ (\Sigma \times \mathrm{goals})  \qquad \mathrm{goals} := \mathrm{list}\ (\ATOM \times \mathrm{alts})$$
+
+% We are completely loosing the tree structure. There are no clean reset
+% points. The backtracking operation is simpler: it is the tail function.
+% The cutr and cutl operations disappears: the alternatives are stored 
+% directly in the cutE terminal.
+%\noindent
+The stack-based semantics is described by the \runS inductive
+predicates.
+% %
+% % \mvspace{}
+% % \deftypes[type:runS]{tex_code/nur_type.tex}
+% % \mvspace{}
+% % \input{./formalization/img/elpi_def.tex}
+% \begin{center}
+% \begin{coqcode}
+% ~\ensuremath{\qquad\qquad}~ Inductive alts  := nilA | consA of (~\ensuremath{\Sigma}~ * goals)  & alts
+% ~\ensuremath{\qquad\qquad}~ with      goals := nilG | consG of (Atom * alts) & goals 
+% \end{coqcode}
+% \end{center}
+
+$$\mathrm{\runS} : \vecL{\FV} \to \mathrm{alts} \to \mathrm{option}\ (\Sigma \times \mathrm{alts}) \to \cI{Prop}$$
+
+\noindent
+The \runS predicates relates a set of variables and a
+list of alternatives to optional result. None stands for failure,
+i.e., no solution, whereas Some $(\sigma, a)$ represents success with $\sigma$
+being the solution and $a$ as the list of not-yet-explored
+alternatives.
+\begin{figure}
+   \begin{align*}
+  \backchainS\ p\ v\ t\ \sigma\ a\ g =\ &
+  \mathrm{let}\ (v', rs) := \mathrm{backchain}\ p\ v\ t\ \sigma\ \mathrm{in}\\
+  &\bigg(v', \bigg[
+  \sigma',
+  (
+    [(p, q, a) \mid q \in b] \mappend g
+  )
+  \ \bigg|\ 
+  (\sigma', b) \in rs
+  \bigg]\bigg)
+  \end{align*}
+
+  \input{formalization/img/nurbp.tex}
+
+  \caption{Rule system for \runS}
+  \label{fig:nur-rules}
+\end{figure}
+
+
+The rule system for \runS is given in \cref{fig:nur-rules} and is made by $4$
+cases. We distinguish two main cases. If we run out of alternatives
+we fail: rule \fails stops the execution and return None.
+If the list of alternatives is $(\sigma_0, h) :: a$, then
+we look at the list of goals $h$ (under the substitution $\sigma_0$). If $h$ is empty, rule \stops stops the execution with a success $\sigma_0$
+leaving $a$ as the unexplored alternatives.
+If $h$ is not empty we look at its head goal $(t, ca)$ where $t$ is the atom and $ca$ is its
+cut-to alternatives. If $t$ is a cut, rule
+\cuts continues to evaluate the tail of $h$ under with alternatives $ca$. Finally, when $t$ is a call, rule \calls backchains:
+for each rule it pairs each premise with the current stack of
+alternatives, and prepends the obtained goals to the tail of $h$.
+Note that if backchain returns the empty list, the second
+premise of rule \calls amounts to exploring the next item in the current
+stack.
 
 \section{And-Or Tree semantics}
 \label{tree-sem}
+% \begin{figure}[b]
+%     % \input{./formalization/img/tree_def.tex}
+% %     \begin{coqcode}
+% % Inductive tree ~$\coloneq$~
+% %   | KO | OK                            (* failure and success *)
+% %   | Todo of Atom                       (* unexplored branch *)
+% %   | Or   of option tree & ~$\Sigma$~ & tree ~$\!$~    (* $A \lor B_\sigma$ *) 
+% %   | And  of tree & list Atom & tree.   (* $A \land_{B_0} B$ *)
+% % \end{coqcode}
+%   $$\TREE := \mathrm{KO} \mid \mathrm{OK} \mid \mathrm{Todo}\ \ATOM \mid \mathrm{Or}\ (\mathrm{option}\ \TREE)\ \Sigma\ \TREE \mid \mathrm{And}\ \TREE\ (\mathrm{list}\ \ATOM)\ \TREE$$
+% \caption{Definition of And-Or tree}
+% \label{fig:tree-ty}
+% \end{figure}
 
-\begin{figure}
-    % \input{tex_code/tree_def.tex}
-    \begin{coqcode}
-Inductive tree ~$\coloneq$~
-  | KO | OK                            (* failure and success *)
-  | Todo of Atom                       (* unexplored branch *)
-  | Or   of option tree & ~$\Sigma$~ & tree ~$\!$~    (* $A \lor B_\sigma$ *) 
-  | And  of tree & list Atom & tree.   (* $A \land_{B_0} B$ *)
-\end{coqcode}
-\caption{Definition of And-Or tree}
-\label{fig:tree-ty}
-\end{figure}
+An And-Or tree is a stratified, variable-width tree, defined as follows:
+%
+$$\TREE := \mathrm{KO} \mid \mathrm{OK} \mid \mathrm{Unexplored}\ \ATOM \mid \mathrm{Or}\ (\mathrm{option}\ \TREE)\ \Sigma\ \TREE \mid \mathrm{And}\ \TREE\ (\mathrm{list}\ \ATOM)\ \TREE$$
 
-An And-Or tree is a stratified, variable-width tree, defined in
-\rocq as in \cref{fig:tree-ty}.
-It consists of two kinds %\marginpar{corner case: prog2.elpi}
+It consists of two kinds
 of layers that alternate: a disjunctive layer is followed by a conjunctive
 layer and vice versa. At the root (a query), the tree records a list of
 alternatives (an Or-layer); for each alternative, it records a list of
 subqueries to be solved (an And-layer). Intuitively, solving a query requires
-solving one alternative in the Or-layer, and all subqueries in the
-corresponding And-layer.
+solving one alternative in the Or-layer, but all subqueries in the
+corresponding And-layer. These invariants about the \TREE data type
+are precisely debscribed in \cref{sec:validtree} where we introduce the
+\vast predicate.
 
-The tree is built incrementally. The \cI{Todo} node
-represents an unexplored branch (an \cI{Atom}). When the atom is a
-\cI{call}, we use the backchaining procedure from
+
+The tree is built incrementally. The \emph{Unexplored} node
+represents an unexplored branch (an atom). When the atom is a
+call, we use the backchaining procedure from
 \cref{sec:preliminaries} to compute the two layers to attach to the tree:
 alternatives form the Or-layer, and the premises of each applicable rule form
 the corresponding And-layer. This expansion step is performed by the
-\cI{step} procedure described in \cref{sec:step}.
+\emph{step} procedure described in \cref{sec:step}.
 
 In
-addition to the \cI{Todo} node we have two distinguished nodes, \koC and
+addition to the Unexplored node we have two distinguished nodes, \koC and
 \okC, which represent respectively the smallest failed and successful tree.
 
 The \orC node, written \(A \lor B_\sigma\), represents the addition of an
@@ -316,13 +477,13 @@ element of an \orC list, while \okC is the terminating element of an \andC
 list.
 
 % \begin{figure}
-%   \input{tex_code/step_tag.tex}
-%   \input{tex_code/step.tex}
+%   \input{./formalization/img/step_tag.tex}
+%   \input{./formalization/img/step.tex}
 % \caption{Step for tree semantics}
 % \end{figure}
 
 % \begin{figure}
-%   \input{tex_code/next_alt.tex}
+%   \input{./formalization/img/next_alt.tex}
 % \caption{backtracking operation}
 % \end{figure}
 
@@ -330,7 +491,7 @@ list.
 
 \subsection{The semantics}
 % \begin{figure}
-%     % \input{tex_code/tree_def.tex}
+%     % \input{./formalization/img/tree_def.tex}
 % \begin{coqcode}
 % Inductive tag ~$\coloneq$~ Expanded | CutBrothers | Failed | Success.
 % Definition step : ~$\mathbb{P}$~ ~$\to$~ ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ (~$\FV$~ * tag * tree)
@@ -341,7 +502,7 @@ list.
 % \caption{Signatures of the tree-based semantics
 % \label{type:steptag}
 % \label{type:stepT}
-% \label{type:naT}
+% \label{type:naT}a 
 % \label{type:runT}
 % \label{fig:signaturesT}
 % }
@@ -349,24 +510,28 @@ list.
 
 The tree is constructed incrementally by two recursive
 functions, \step and \na. Both traverse the tree depth-first, left-to-right.
-The node to be explored in a tree is retrieved thanks to the \pathend (in~\cref{fig:getend}).
+The node to be explored in a tree is retrieved thanks to \pathend (in~\cref{fig:getend}).
 When this node is \okC we say the entire tree is a \emph{success}, when it
 is \koC we say the tree \emph{failed}, otherwise the tree is \emph{incomplete}.
-In \cref{tree-ex}, we provide some graphic representations of trees and
-mark with a black arrow the result of \pathend.
+In \cref{tree-ex} we mark with a black arrow the result of \pathend.
+The type of these two functions is given below.
+%
+\begin{align*}
+  \mathrm{step}  & : \mathbb{P} \to \FV \to \Sigma \to \TREE \to (\FV\times\mathrm{tag}\times\TREE)\\
+  \mathrm{prune} & : \mathbb{B} \to \TREE \to \mathrm{option}\ \TREE
+\end{align*}
+% $$\mathrm{step} : (\mathbb{P}\times\FV\times\Sigma\times\mathrm{tree}) \to (\FV\times\mathrm{tag}\times\mathrm{tree})$$
+% $$\mathrm{prune} : (\mathbb{B}\times\mathrm{tree}) \to \mathrm{option\ tree}$$
 
-\begin{coqcode}
-Inductive tag ~$\coloneq$~ Expanded | CutBrothers | Failed | Success.
-Definition step : ~$\mathbb{P}$~ ~$\to$~ ~$\FV$~ ~$\to$~ ~$\Sigma$~ ~$\to$~ tree ~$\to$~ (~$\FV$~ * tag * tree)
-Definition prune : ~$\mathbb{B}$~ ~$\to$~ tree ~$\to$~ option tree
-\end{coqcode}
+The step routine, among its outputs, also returns a \emph{tag}, whose definition
+is described in the very following section.
 
-Since all functions must terminate in \rocq, we define the transitive closure
+To avoid the constraint that all functions must terminate in Rocq, we define the transitive closure
 of \step and \na as the inductive relation \runT.
 More precisely \runT iterates calls to \step on incomplete trees to expand
-\cI{Todo} nodes. When a tree fails it calls \na to find
+Unexplored nodes. When a tree fails it calls \na to find
 the next alternative and continues from there, if one exists.
-% We detail \step, \na, and \runT in \cref{sec:step,sec:next_alt,sec:runT}.
+% We detail \step, \na, and \run in \cref{sec:step,sec:next_alt,sec:runT}.
 
 
 % In \cref{type:stepT,type:naT,type:runT} we give the types
@@ -385,26 +550,21 @@ the next alternative and continues from there, if one exists.
 % since the interpreter can run $B$ only if $A$ is non-dead.
 
 \begin{figure}
-  \begin{subfigure}{0.45\textwidth}
-    \input{formalization/img/next.tex}
+    \input{./formalization/img/next.tex}
     % \caption{Defintion of \getend}
     % \label{fig:getend}
-  \end{subfigure}
-  \begin{subfigure}{0.45\textwidth}
-      % \input{formalization/img/get_subst.tex}
-      % \input{formalization/img/path_end.tex}
-      % \input{formalization/img/succ_path.tex}
-      % \input{formalization/img/failed_path.tex}
-      % \input{formalization/img/path_atom.tex}
-    \input{formalization/img/next_aux.tex}
-    \vspace{20pt}
+      % \input{./formalization/img/get_subst.tex}
+      % \input{./formalization/img/path_end.tex}
+      % \input{./formalization/img/succ_path.tex}
+      % \input{./formalization/img/failed_path.tex}
+      % \input{./formalization/img/path_atom.tex}
+    \input{./formalization/img/next_aux.tex}
+    % \vspace{20pt}
       % \caption{Functions from \getend}
       % \label{fig:geten/d-aux}
-  \end{subfigure}
-  \caption{\getend and derived functions}
+  \caption{\getend routine and derived functions}
   \label{fig:getend}
 \end{figure}
-
 
 % To support incremental construction, the semantics uses helper functions based
 % on \getend{}. Given a tree, \getend{} returns the branch on which
@@ -424,30 +584,30 @@ the next alternative and continues from there, if one exists.
 \begin{figure}
   \begin{subfigure}{0.99\textwidth}
     \centering
-    \includegraphics[width=0.05\textwidth, keepaspectratio]{det_check_coq/exec_example1/step1.pdf}
+    \includegraphics[width=0.05\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step1.pdf}
     \caption{Initial query}
     \label{tree-ex0} 
   \end{subfigure}
   ~\\~\\
   \begin{subfigure}{0.4\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step2.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step2.pdf}
     \caption{Tree after \step on \eI{g 0 R}}
     \label{tree-ex1} 
   \end{subfigure}~~
   \begin{subfigure}{0.5\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step3.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step3.pdf}
     \caption{\step on \cref{tree-ex1}}
     \label{tree-ex2} 
   \end{subfigure}
   ~\\~\\
   \begin{subfigure}{0.5\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step4.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step4.pdf}
     \renewcommand\thesubfigure{d.1}
     \caption{\step on \cref{tree-ex2}}
     \label{tree-ex3} 
   \end{subfigure}
   \begin{subfigure}{0.5\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step5.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step5.pdf}
     \renewcommand\thesubfigure{d.2}
     \caption{\na on \cref{tree-ex3}}
     \label{tree-ex4} 
@@ -455,12 +615,12 @@ the next alternative and continues from there, if one exists.
   ~\\~\\
   \setcounter{subfigure}{4}
   \begin{subfigure}{0.55\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step6.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step6.pdf}
     \caption{\step on \cref{tree-ex4}}
     \label{tree-ex5} 
   \end{subfigure}~~
   \begin{subfigure}{0.45\textwidth}
-    \includegraphics[width=\textwidth, keepaspectratio]{det_check_coq/exec_example1/step7.pdf}
+    \includegraphics[width=\textwidth, keepaspectratio]{./img/det_check_coq/exec_example1/step7.pdf}
     \caption{\step on \cref{tree-ex5}}
     \label{tree-ex6} 
   \end{subfigure}
@@ -468,63 +628,98 @@ the next alternative and continues from there, if one exists.
 \caption{Execution in the tree semantics.
 %\footnotemark}
 % \footnotetext{
-  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}.
+  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:cut-op}.
   $R_1,R_2$, and $R_3$ are reset points and correspond respectively to the
   lists of atoms $[\eI{f Y Z, !}]$, $[\eI{!}]$, and $[\eI{f Y Z}]$.
   }
   \label{tree-ex}
-\end{figure}
+  \end{figure}
 
 \subsection{The \step procedure}\label{sec:step}
+\begin{figure}
+  \begin{coqcode}
+  Definition step p v s A :=
+    match A with
+    | OK                  => (v, Success, OK)
+    | KO                  => (v, Failed, A)
+    | Unexplored cut      => (v, CutBrothers, OK)
+    | Unexplored (call t) => 
+        let: (v, l) := backchain u p v t s in
+        (v, Expanded,
+        if l is ((s, r) :: xs) then Or None s (big_or r xs) else KO)
+    | Or A sB B =>
+        if A is Some A then 
+          let: (v, tA, rA) := step p v s A in
+          (v, if is_cb tA then Expanded else tA, 
+           Or (Some rA) sB (if is_cb tA then KO else B))
+        else
+          let: (v, tB, rB) := step p v sB B in
+          (v, if is_cb tB then Expanded else tB, Or A sB rB)
+    | And A B0 B =>
+        if success A then 
+          let: (v, tB, rB) := step p v (next_subst s A) B in
+          (v, tB, And (if is_cb tB then cutl A else A) B0 rB)
+        else
+          let: (v, tA, rA) := step p v s A in (v, tA, And rA B0 B)
+    end.
+  \end{coqcode}
+  \caption{The \step procedure}
+\end{figure}
 
 The \step procedure takes as input a program, a set of variables, a
 substitution, and a tree, and returns an updated set of variables, a
-\steptag, and an updated tree.  
+\steptag, and an updated tree.
 
 The set of variables is assumed to contain all variables occurring in the
 tree. It is passed to backchain so that rules can be refreshed correctly.
 % This guarantees that any call
 % to \emph{backchain} returns a list of atoms whose variables are disjoint from
-% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:elpi-execution-example}}
+% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:cut-op}}
 
-The \steptag indicates which kind of step was
-performed.  \cI{Failure} and \cI{Success} are returned for trees that satisfy,
+The \steptag is implemented as follows: 
+%
+% \begin{coqcode}
+$$\mathrm{tag} := \mathrm{Expanded} \mid \mathrm{CutBrothers} \mid \mathrm{Failed} \mid \mathrm{Success}$$
+% \end{coqcode}
+
+It indicates which kind of step was
+performed.  Failure and Success are returned for trees that satisfy,
 respectively, the \failed and \success tests. 
-\cI{CutBrothers}
+CutBrothers
 indicates the interpretation of a superficial cut: \step was called on an 
-And-layer and its \pathend is the cut atom. Finally, \cI{Expanded}
+And-layer and its \pathend is the cut atom. Finally, Expanded
 accounts for the interpretation of predicate calls and non-superficial cuts.
 
 The \step procedure evaluates atoms. In particular, it leaves the tree
 unchanged when the tree is \emph{success} or \emph{failed}.
 
-\input{formalization/theorem/success_step.tex}
-\input{formalization/theorem/failed_step.tex}
+\input{./formalization/theorem/success_step.tex}
+\input{./formalization/theorem/failed_step.tex}
 
-The \step procedure expands \cI{Todo} nodes by calling \cI{backchain}, which returns a list
+The \step procedure expands Unexplored nodes by calling backchain, which returns a list
 $l$ of alternatives. If $l$ is empty, then the current call atom is replaced by
 \koC. Otherwise, it is replaced by a right-skewed tree of \orC nodes, where
 each leaf corresponds to a list of atoms $e \in l$. If $e$ is empty, the leaf
 is \okC; otherwise, it is a right-skewed tree of \andC nodes.
 
 \Cref{tree-ex} depicts the tree corresponding to the running example
-(\cref{sec:elpi-execution-example}) as it undergoes calls to \step and \na.
+(\cref{sec:cut-op}) as it undergoes calls to \step and \na.
 % , we provide a graphical representation a call to \step on the query
 %\marginpar{sottolineare le sostituzioni}
 We run query \eI{q 0 R} against the program $P$ in \cref{fig:progx}. Let $c_0$, $c_1$, and $c_2$
-be the children of the root. By construction, $c_0$ is the \mnone tree, while
+be the children of the root. By construction, $c_0$ is None, while
 $c_1$ and $c_2$ correspond respectively to the premises of rules $r_1$ and
 $r_2$ in $P$. 
 % We need the initial \mnone subtree so that we can attach a substitution to $c_1$. 
 Note that $c_1$ (resp. $c_2$) is associated with
 substitution $\sigma_1$ (resp. $\sigma_2$), whose values are the same as in
-\cref{sec:elpi-execution-example}. Reset points are defines as follows: %are marked with the $R$ symbol:
+\cref{sec:cut-op}. Reset points are defined as follows: %are marked with the $R$ symbol:
 $R_1 \coloneq [\eI{f Y Z, !}]$, $R_2 \coloneq [\eI{!}]$, and
 $R_3 \coloneq \eI{f Y Z}$. Intuitively, they record the lists of atoms used to
 generate the corresponding subtree. Other examples of \step performing a
 tree expansion via backchain appear in \cref{tree-ex2,tree-ex3,tree-ex5}.
 
-\paragraphTwo{The interpretation of a cut}
+\subsubsection{The interpretation of a cut}
 
 The step corresponding to a cut performs two actions: (i) the cut node is
 replaced by \okC; and (ii) the subtrees in the scope of \cutC are pruned. More
@@ -556,12 +751,36 @@ the evaluation of a cut keeps the path leading to the cut node unchanged, in
 the sense that substitution $\sigma_4$ is preserved, while the path under
 substitution $\sigma_5$ (which also succeeds) is replaced by \koC. This
 amounts to discarding the third rule of predicate \eI{r}.
-% (see \cref{sec:elpi-execution-example}).
+% (see \cref{sec:cut-op}).
 
 \subsection{The \na procedure}\label{sec:next_alt}
 \label{sec:na}
 
-When \cI{backchain} returns an empty list, \step produces a tree that \emph{failed}
+\begin{figure}
+  \begin{coqcode}
+  Definition omap f o := match o with Some b => Some (f b) | _ => o end.
+  Definition prune b A : option tree :=
+    match A with
+    | KO => None
+    | OK => if b then None else Some OK
+    | Unexplored _ => Some A
+    | And A B0 B =>
+        let build_B0 b := omap (~$\lambda$~x. And x B0 (big_and B0)) (prune b A) in
+        if success A then
+          if prune b B is Some B' then Some (And A B0 B')
+          else build_B0 true
+        else if failed A then build_B0 false
+        else Some (And A B0 B)
+    | Or None sB B => omap (~$\lambda$~x. Or None sB x) (prune b B)
+    | Or (Some A) sB B =>
+        if prune b A is Some A' then Some (Or (Some A') sB B)
+        else omap (~$\lambda$~x. Or None sB x) (prune false B)
+  end.
+  \end{coqcode}
+  \caption{The \na function}
+\end{figure}
+
+When backchain returns an empty list, \step produces a tree that \emph{failed}
 and the computation must backtrack. The \na procedure is
 responsible for producing the new tree from which the computation can
 continue.
@@ -582,11 +801,11 @@ reset point $R_1$. This restores the call \eI{f B C}, which can then be
 reconsidered under substitution $\sigma_4$.
 
 Furthermore, \na serves another important purpose. Its behavior depends on the
-boolean flag it receives as input: \na\emph{$\bot$\ $t$} recursively removes
-all failures (if any) from $t$, whereas \na\emph{$\top$\ $t$} removes the
+boolean flag it receives as input: \na false $t$ recursively removes
+all failures (if any) from $t$, whereas \na true $t$ removes the
 first success in $t$. For example, the tree in \cref{tree-ex6} contains a
 successful path that maps \eI{R} to \eI{2}. Calling \na\ on this tree returns
-\mnone, since there are no alternatives in the tree after the success.
+None, since there are no alternatives in the tree after the success.
 
 
 % The interpreter should return this sucess, but, due to
@@ -641,9 +860,25 @@ successful path that maps \eI{R} to \eI{2}. Calling \na\ on this tree returns
 Some interesting properties of \na are shown below; they illustrate how \na
 complements \step with respect to failed, successful, and incomplete trees.
 
-\input{formalization/theorem/incomplete_prune_id.tex}
-\input{formalization/theorem/na_failed.tex}
-\input{formalization/theorem/naNfail.tex}
+% \mvspace{}
+% \begin{lemma}[incomplete\_prune\_id]\label{th:incompletepruneid}
+%   $\forall b\ t, \mathrm{incomplete}\ t \to \mathrm{prune}\ b\ t = t$
+%   % \mathrm{~\}nsuremath{\forall}~ ~\ensuremath{b}~ ~\ensuremath{t}~, incomplete ~\ensuremath{t}~ ~\ensuremath{\to}~ prune ~\ensuremath{b}~ ~\ensuremath{t}~ = ~\msome~~\ensuremath{t}~.}
+% \end{lemma}
+
+% \begin{lemma}[prune\_Some]\label{th:pruneSome}
+%   $\forall b\ t\ t', \mathrm{prune}\ b\ t = t \to \mathrm{failed}\ t' = \bot$
+% \end{lemma}
+
+% \begin{lemma}[prune\_None]\label{th:pruneNone}
+%   $\forall t\ t', \mathrm{prune}\ \bot\ t = \bot \to \mathrm{failed}\ t' = \top$
+% \end{lemma}
+
+
+\input{./formalization/theorem/incpl_prune.tex}
+\input{./formalization/theorem/na_failed.tex}
+\input{./formalization/theorem/naNfail.tex}
+% \mvspace{}
 
 
 % For example, in \cref{tree-ex1-exp} the step procedure has created a failed
@@ -656,122 +891,108 @@ complements \step with respect to failed, successful, and incomplete trees.
 % allowing \step to proceed on r X Z.
 
 % \begin{figure}
-%   \input{tex_code/next_alt_code.tex}
+%   \input{./formalization/img/next_alt_code.tex}
 %   \caption{\na implementation}
 %   \label{fig:na}
 % \end{figure}
 
-\subsection{The \texorpdfstring{\runT}{runT} relation and its properties}
-\label{sec:runT}
+\subsection{The \runT relation and its properties}\label{sec:runT}
 
 The inductive relation \runT has the following type:
 %
-$$\runT : \PROG \times \vecL{\UVAR} \times \Sigma \times \mathbb{T} \to ((\Sigma, \mathbb{T} + \mnone) + \mnone, \mathbb{B}, \vecL{\UVAR})$$
+$$\mathrm{\runT} : \mathbb{P} \to \vec{\FV} \to \Sigma \to \mathbb{T} \to \mathrm{sol} \to \mathbb{B} \to \vec{\FV} \to \cI{Prop}$$
 
-It takes a program, a set of variables, an initial substitution $\sigma$, and a
-tree $t$. The outputs are an optional result $r$, a boolean $b$, and an updated set of variable
-names.
+It associates a program, a set of variables, an initial substitution $\sigma$, and a
+tree $t$ with a solution $r$, a boolean $b$, and an updated set of variable
+names $v'$.
 
-The main result $r$ is $\mnone$ when the execution fails; otherwise
-when $r = \msome(\sigma', t')$ the execution succeeded and produced the solution
-$\sigma'$; $t'$ represents the remaining, not-yet-explored alternatives. 
-The boolean $b$ records whether a
-superficial cut was evaluated during execution.
-% , and the updated variable set tracks freshly generated names.
+The type of sol is defined as follows:
+%
+$$\mathrm{sol} := \mathrm{Zero} \mid \mathrm{One}\ \Sigma \mid \mathrm{Many}\ \Sigma\ \TREE$$
 
-The \runT predicate has four cases, depicted as inference rules in \cref{fig:run-rules}.
-Rule \stopt is used when the tree contain a successful path, then the substitution
-$\sigma'$ is extracted from $t$ (starting from $\sigma$) and the input tree is
-cleaned of its success. Rule \stept is used when the tree $t$ is incomplete,
+Zero represents a failing execution. One\ $\sigma$ represents an interpretation
+producing exactly one solution, i.e. no backtracking is possible from the given
+state. It also carries the substitution $\sigma$ that makes the interpretation
+succeed. Finally, Many $\sigma\ t$ represents an execution in which the
+original state produces the solution $\sigma$, while $t$ represents the
+remaining unexplored alternatives.
+
+The boolean $b$ records whether a superficial cut was evaluated during execution,
+and $v'$ is the updated set of variables tracking freshly generated names.
+
+The \runT predicate has five cases, depicted as inference rules in \cref{fig:run-rules}.
+% where we separate the first four arguments and the last one with a squiggle arrow,
+% evocative of the fact that the given set of rules is deterministic (\cref{th:runTdet}).
+
+
+Rules \stopot and \stopt say that if the tree $t$ is success, then the substitution
+$\sigma'$ is extracted from $t$ (starting from $\sigma$), depending
+on the result of \na true $t$ -- aiming to clean the tree from its successful
+path -- we return One or Many, if there exist alternatives
+to be explored. Rule \stept applies when \pathend\ $t$ is an atom,
 then \step is invoked to evaluate $t$, and \runT is called recursively on the
-updated tree. Rule \backt is used when the three contains failure, then \na is
-called to clear the failed path; if the resulting cleaned tree exists, \runT is
+updated tree. When \pathend\ $t$ is a failure, rule \backt calls \na
+to clear the failed path; if the resulting cleaned tree exists, \runT is
 called recursively on it. Finally, rule \failt accounts for trees with no
 solutions.
 
+
 \begin{figure}
 
-  \input{runbp.tex}
+  \input{./formalization/img/runbp.tex}
   % \begin{prooftree}
   %   \AxiomC{$\success\ A$}
-  %   \RightLabel{$\runT\_done$}
-  %   \UnaryInfC{$\runT\ fv\ s_1\ A\ (\getsubst\ s_1\ A)\ (\na\ \top\ A)$}
+  %   \RightLabel{$\run\_done$}
+  %   \UnaryInfC{$\run\ fv\ s_1\ A\ (\getsubst\ s_1\ A)\ (\na\ \top\ A)$}
   % \end{prooftree}
 
   % \begin{prooftree}
   %   \AxiomC{$\incomplete\ A$}
   %   \AxiomC{$\step\ u\ p\ fv_0\ s_1\ A\ = (fv_1,\ st,\ B)$}
-  %   \AxiomC{$\runT\ fv_1\ s_1\ B\ s_2\ r$}
-  %   \RightLabel{$\runT\_step$}
-  %   \TrinaryInfC{$\runT\ fv_0\ s_1\ A\ s_2\ r$}
+  %   \AxiomC{$\run\ fv_1\ s_1\ B\ s_2\ r$}
+  %   \RightLabel{$\run\_step$}
+  %   \TrinaryInfC{$\run\ fv_0\ s_1\ A\ s_2\ r$}
   % \end{prooftree}
 
   % \begin{prooftree}
   %   \AxiomC{$\failed\ A$}
   %   \AxiomC{$\na\ \bot\ A = \mathrm{Some}\ B$}
-  %   \AxiomC{$\runT\ fv_0\ s1\ B\ s_2\ r$}
-  %   \RightLabel{$\runT\_fail$}
-  %   \TrinaryInfC{$\runT\ fv_0\ s_1\ A\ s_2\ r$}
+  %   \AxiomC{$\run\ fv_0\ s1\ B\ s_2\ r$}
+  %   \RightLabel{$\run\_fail$}
+  %   \TrinaryInfC{$\run\ fv_0\ s_1\ A\ s_2\ r$}
   % \end{prooftree}  
 
   \caption{Rule system for \runT}
   \label{fig:run-rules}
 \end{figure}
 
-% \subsubsection{Properties of \runT}
+% \subsubsection{Properties of \run}
 \label{sec:run-prop}
 
-The set of rules defining \runT is deterministic.
 
-% \input{formalization/theorem/runT_det.tex}
-\begin{lemma}[runT\_det]
-  $$\forall p\ v_0\ \sigma\ t\ r\ b\ v\ r',\ \runT\ p\ v_0\ \sigma\ t \arr r \to
-    \runT\ p\ v_0\ \sigma\ t\ \arr r' \to r' = r$$
-  \label{th:runTdet}
-\end{lemma}
+\input{./formalization/theorem/runT_det.tex}
 
-\begin{proof}[Proof sketch]
 The proof is by induction on the first \runT derivation and is immediate,
 because the rules are selected based on \pathend\ $t$. In particular, the
 hypotheses \success $t$, \incomplete $t$, and \failed $t$ are
 mutually exclusive. Moreover, by \cref{th:pruneNone}, the hypothesis of
 \failt implies that $t$ \emph{failed}; hence \failt is exclusive
-with \stopt and \stept, and it is also exclusive with
+with \stopot, \stopt and \stept, and it is also exclusive with
 \backt since they impose different requirements on the output of \na.
-\end{proof}
 
 The boolean output of \runT allows us to state interesting properties about the
-\orC node in the presence of cut. Here we report only a selection of those we
-proved.
+\orC node in the presence of cut. Below, we report only a selection of the
+lemmas that were proved. To simplify their presentation, we introduce the
+following notation for \orC nodes. When the left-hand side is $\mathrm{None}$,
+we write the symbol $\square$. Otherwise, the notation $A \lor B_\sigma$
+implicitly denotes $(\mathrm{Some}\ A) \lor B_\sigma$.
 
-% \input{formalization/theorem/runSST_or.tex}
-\begin{lemma} \label{th:runSSTor}
-  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ A\ A'\ \sigma_1\ B,$
-  $$\runT\ p\ v\ \sigma\ A\ \arr (\msome(\sigma', \msome A'), \top, v') \to
-   \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1})\ \arr (\msome(\sigma', \msome (\msome A' \lor \cI{KO}_{\sigma_1})), \bot, v')$$
-\end{lemma}
+\input{./formalization/theorem/runSST_or.tex}
+\input{./formalization/theorem/runNT_or.tex}
+\input{./formalization/theorem/runNF_or.tex}
+% $$$$
 
-% \input{formalization/theorem/runNT_or.tex}
-\begin{lemma}\label{th:runNTor}
-  $\forall\ p\ v\ v'\ \sigma\ A\ \sigma_1\ B,$
-  $$\runT\ p\ v\ \sigma\ A\ \arr (\mnone, \top, v') \to
-   \runT\ p\ v\ \sigma\ (\msome A\ \lor B_{\sigma_1}) \arr (\mnone, \bot, v')$$
-\end{lemma}
-
-% \input{formalization/theorem/runNF_or.tex}
-\begin{lemma}\label{th:runNFor}
-  $\forall\ p\ v_0\ v_1\ v_2\ \sigma\ A\ \sigma_1\ \sigma_2\ B\ B'\ b$
-% \begin{coqcode}
-    % $$
-    \begin{align*}    
-    \runT\ p\ v_0\ \sigma\ A \arr (\mnone, \bot, v_1) \to \runT\ p\ v_1 \sigma_1\ B \arr (\msome(\sigma_2, B'), b, v_2) \to\\
-      \runT\ p\ v_0\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma_2,\cI{omap}\ (\lambda x. \mnone \lor x_{\sigma_1})\ B'), \bot, v_2)
-    \end{align*}
-    % $$
-% \end{coqcode}
-\end{lemma}
-
-\Cref{th:runSSTor,th:runNTor,th:runNFor} correspond to the introduction rules
+\Cref{th:orintroleft,th:orintroright,th:orintroright2} correspond to the introduction rules
 for disjunction. If $A$ executes a cut, one \emph{cannot} obtain $A \lor B$ from
 $B$: the execution of $A$, whether it ultimately succeeds or fails, makes the
 success of $B$ irrelevant (the cut discards it). In the first lemma, $B$ is
@@ -781,47 +1002,49 @@ disjunction from its right-hand side can only occur after the left-hand side
 has been disproved.
 Depicted as rules:
 %
-$$
+\begin{center}  
+
 \begin{bprooftree}
   \AxiomC{$A \quad (A ~\mathrm{cuts})$}
   \RightLabel{$(\lor_{il})$}
   \UnaryInfC{$A \lor B $}
 \end{bprooftree}
-\qquad
 \begin{bprooftree}
   \AxiomC{$\lnot A \quad (A ~\mathrm{cuts})$}
   \RightLabel{$(\lor_{ir1})$}
   \UnaryInfC{$\lnot (A \lor B) $}
 \end{bprooftree}
-\qquad
+
+\vspace{18pt}
+
 \begin{bprooftree}
   \AxiomC{$\lnot A$}
   \AxiomC{$B \quad (A ~\mathrm{does~not~cut})$}
   \RightLabel{$(\lor_{ir2})$}
   \BinaryInfC{$A \lor B$}
 \end{bprooftree}
-$$
+\end{center}
 
-\Cref{th:runorSST,th:runorSNT} are elimination
+
+\Cref{th:orelim1,th:orelim2} are elimination
 rules for disjunction. 
 
-% \input{formalization/theorem/run_orSST.tex}
-\begin{lemma}\label{th:runorSST}
-  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ A'\ B\ B'$
-    \begin{align*}
-    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr \msome(\sigma', \msome(\msome A' \lor B'_{\sigma_1}))\ \bot\ v' \to \\
-      \exists\ b, \runT\ p\ v\ \sigma\ A \arr \msome(\sigma', \msome A')\ b\ v'\ \land B' = \cI{if}\ b\ \cI{then}\ \cI{KO}\ \eI{~\PYG{k}{else}~}\ B
-    \end{align*}
+% \input{./formalization/img/run_orSST.tex}
+\begin{lemma}[or\_elim1]\label{th:orelim1}$\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ A'\ B\ B' ,$
+\begin{multline*}
+	\mathrm{runT}\ p\ v\ \sigma\ ( A \lor B\ \phantom{!}_{\!\!\!\!\sigma_1} )\ ( \mathrm{Many}\ \sigma'\ ( A' \lor B'\ \phantom{!}_{\!\!\!\!\sigma_1} ) )\ \mathrm{false}\ v' \to \\
+	\exists\ b ,\ \mathrm{runT}\ p\ v\ \sigma\ A\ ( \mathrm{Many}\ \sigma'\ A' )\ b\ v' \land B' = \mathrm{if}\ b\ \mathrm{then}\ \mathrm{KO}\ \mathrm{else}\ B 
+\end{multline*}
 \end{lemma}
 
-% \input{formalization/theorem/run_orSNT.tex}
-\begin{lemma}\label{th:runorSNT}
-  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ B\ B',$
-  \begin{align*}  
-    \runT\ p\ v\ \sigma\ (\msome A \lor B_{\sigma_1}) \arr (\msome(\sigma', \msome(\mnone \lor B'_{\sigma_1})), \bot, v') \to \\
-      (\exists b, \runT\ p\ v\ \sigma\ A \arr (\msome(\sigma', \mnone), b, v') \land \cI{if}\ b\ \cI{then}\ B' = \cI{KO else prune}\ \bot\ B \arr \msome B')\\
-      \lor\ (\exists v_2\ b, \runT\ p\ v\ \sigma\ A \arr (\mnone, \bot, v_2) \land \runT\ p\ v_2\ \sigma_1\ B \arr (\msome(\sigma', \msome B'), b, v'))
-  \end{align*}
+%\input{./formalization/img/run_orSNT.tex}
+\begin{lemma}[or\_elim2]\label{th:orelim2}
+  $\forall\ p\ v\ v'\ \sigma\ \sigma'\ \sigma_1\ A\ B\ B' ,$
+\begin{multline*}
+	\mathrm{runT}\ p\ v\ \sigma\ ( A \lor B\ \phantom{!}_{\!\!\!\!\sigma_1} )\ ( \mathrm{Many}\ \sigma'\ ( \square\ \lor B'\ \phantom{!}_{\!\!\!\!\sigma_1} ) )\ \mathrm{false}\ v' \to \\
+	( \mathrm{runT}\ p\ v\ \sigma\ A\ ( \mathrm{One}\ \sigma' )\ \mathrm{false}\ v' )\ \lor \\
+	( \exists\ v_2\ b ,\ \mathrm{runT}\ p\ v\ \sigma\ A\ \mathrm{Zero}\ \mathrm{false}\ v_2 \land \mathrm{runT}\ p\ v_2\ \sigma_1\ B\ ( \mathrm{Many}\ \sigma'\ B' )\ b\ v' ) 
+\end{multline*}
 \end{lemma}
 
 
@@ -830,12 +1053,13 @@ From $A \lor B$, when $A$ is not inert (i.e. not already explored), we cannot
 deduce $A$ or $B$ independently. Instead, we can only derive a weakened
 conclusion of the form $\top \lor B'$, where $B'$ provides no information in the
 case where the exploration of $A$ performs a cut. This yields an elimination
-rule that is stronger than the usual one (depicted on the left).
+rule that is stronger than the usual one.
 If $A$ does not cut, the elimination rule has the usual two premises, together
 with the additional constraint that whenever $B$ holds, $A$ must have failed.
 This again reflects the depth-first traversal of the proof tree.
-%
-$$
+
+% $$
+\begin{center}  
 \begin{bprooftree}
   \AxiomC{$A \lor B$}
   \AxiomC{[A]}
@@ -845,7 +1069,9 @@ $$
   \RightLabel{$(\lor_{e1})$}
   \TrinaryInfC{$C$}
 \end{bprooftree}
-\qquad
+
+\vspace{18pt}
+
 \begin{bprooftree}
   \AxiomC{$A \lor B$}
   \AxiomC{[A] }
@@ -857,7 +1083,8 @@ $$
   \RightLabel{$(\lor_{e2})$}
   \TrinaryInfC{C}
 \end{bprooftree}
-$$
+% $$
+\end{center}
 
 It is worth recalling that the ``$A$ cuts'' side-condition in the rules above is
 precisely the boolean result returned by \runT. Without this information, it is
@@ -869,111 +1096,7 @@ Indeed, an atom preceding the cut may fail, so the cut is never reached.
 As anticipated in the introduction, these lemmas contradict the commutativity of
 disjunction.
 
-\section{Stack-based semantics}
-\label{stack-sem}
 
-The stack-based semantics we present is very close to what is
-implemented by the \elpi interpreter (see~\cref{sec:elpi-semantics}).
-Since we encode a first-order interpreter, we have no \pi and \eI{=>} operators,
-therefore the corresponding rules (\runE[\forall] and \runE[\Rightarrow]) are fired.
-This semantics is 
-similar to the one proposed by Pusch in
-\cite{isabelle}, which is in turn closely related to the
-semantics given by Debray and Mishra in
-\cite[Section~4.3]{debray1988}. Pusch mechanized this
-semantics in Isabelle/HOL, together with several optimizations that are
-also present in the Warren Abstract Machine
-\cite{warren1983,ait1991-wam}.
-
-The execution state is a stack of alternatives.
-Each alternative is a list of goals. Intuitively it amounts to
-a disjunctive normal form: each stack item is a self contained
-computation, coupling a substitution with all the goals to be
-solved.
-
-Goals pair an atom with a list of the \emph{cut-to} alternatives, 
-making the two datatypes mutually recursive, but these alternatives have a very different role. They have to be understood
-as pointers to lower levels of the stack itself. This datum is used to implement the cut, i.e. to prune the stack of alternatives.
-
-% \input{tex_code/elpi_def.tex}
-\begin{center}
-\begin{coqcode}
-~\ensuremath{\qquad\qquad}~ Inductive alts  := nilA | consA of (~\ensuremath{\Sigma}~ * goals) ~$\;$~ & alts
-~\ensuremath{\qquad\qquad}~ with      goals := nilG | consG of (Atom * alts) & goals 
-\end{coqcode}
-\end{center}
-
-% We are completely loosing the tree structure. There are no clean reset
-% points. The backtracking operation is simpler: it is the tail function.
-% The cutr and cutl operations disappears: the alternatives are stored 
-% directly in the cutE terminal.
-\noindent
-The stack-based semantics is described by the \runS inductive
-predicates.
-
-% \mvspace{}
-% \deftypes[type:nur]{tex_code/nur_type.tex}
-% \mvspace{}
-% \begin{center}
-% \cI{Inductive runS (p: ~\ensuremath{\mathbb{P}}~) : ~\ensuremath{\FV}~ ~\ensuremath{\to}~ alts ~\ensuremath{\to}~ option (~\ensuremath{\Sigma}~ * alts) ~\ensuremath{\to}~ Prop }
-% \end{center}
-
-$$\runS : \vecL{\UVAR} \times \cI{alts} \to (\Sigma \times \cI{alts}) + \mnone$$
-
-\noindent
-The \runS\ predicate relates a set of variables and a list of
-alternatives to an optional result. The value \mnone\ denotes failure,
-that is, no solution is found. In contrast, $\msome(\sigma, a)$ denotes
-success, where $\sigma$ is the computed solution and $a$ is the list of
-alternatives that are not yet explored.
-
-\begin{figure}
-   \[
-  \backchainS(\prog, v, t, \sigma, a, g) =
-  \bigg[
-  \sigma',
-  (
-    [(\prog, q, a) \mid q \in b] \atsign g
-  )
-  \ \bigg|\ 
-  (\sigma', b) \in \backchain(\prog, v, t, \sigma)
-  \bigg].
-  \]
-
-  \input{nurbp.tex}
-
-  \caption{Rule system for \runS}
-  \label{fig:nur-rules}
-\end{figure}
-
-The rule system for \runS is given in \cref{fig:nur-rules} and is made by $4$
-cases. We distinguish two main cases. If we run out of alternatives we fail:
-rule \fails stops the execution and return $\mnone$. If the list of alternatives
-is $(\sigma_0, h) :: a$, then we look at the list of goals $h$ (under the
-substitution $\sigma_0$). If $h$ is empty, rule \stops stops the execution with
-a success $\sigma_0$ leaving $a$ as the unexplored alternatives. If $h$ is not
-empty we look at its head goal $(t, ca)$ where $t$ is the atom and $ca$ is its
-cut-to alternatives. If $t$ is a cut rule \cuts continues to evaluate the tail
-of $h$ under with alternatives $ca$. Finally, when $t$ is a call, rule \calls
-backchains: for each rule it pairs each premise with the current stack of
-alternatives, and prepends the obtained goals to the tail of $h$. Note that if
-backchain returns the empty list, the second premise of rule \calls amounts to
-exploring the next item in the current stack.
-
-\subsection{Inadequacy of the stack-based semantics for formal reasoning}
-
-The lemmas that we presented in
-\cref{sec:run-prop} are hard to express in the stack-based semantics, due to the
-lack of structure in the stack to delimit the scope of the cut operator. For
-example, consider a stack $a_0, a_1, \dots, a_n$. If $a_0$ succeeds but executes a
-cut, it is hard to relate the remaining alternatives $a_1, \dots, a_n$ to the
-alternatives $b_1, \dots, b_m$ that survive the cut, since the only simple
-invariant is that $b_1, \dots, b_m$ is a suffix of $a_1, \dots, a_n$. If
-$a_1, \dots, a_n$ were generated before the call whose execution generates the cut
-in $a_0$, then they all stay; but if some were generated afterwards, they are
-discarded. Expressing this precisely would require attaching, at the very least,
-time-stamps (or depths) to goals, which amounts to a cumbersome encoding of a
-tree.
 
 \section{Equivalence of the two semantics}
 
@@ -981,11 +1104,10 @@ In order to relate the two semantics we have to relate the computations states,
 i.e., the And-Or tree and the stack of alternatives. We define a translation from trees to stacks, called \ttl, but
 we do not explicitly provide the converse translation, an economy
 allowed by the proof technique we employ, inspired by~\cite{yves-equiv}.
-
 Before describing the translation of trees to stacks (in~\cref{sec:t2l})
-we need to define the notion of \emph{valid tree}. The \cI{tree}
+we need to define the notion of \emph{valid tree}. The {tree}
 datatype indeed contains trees that cannot be generated
-by \cI{runT} via \cI{step} or \cI{prune}, for example
+by {runT} via {step} or {prune}, for example
 all the trees that do not correspond to a depth-first left-to-right
 tree construction strategy. 
 
@@ -997,11 +1119,17 @@ tree construction strategy.
 % states. In the next to subsection we propose the two functions \vast and \ttl.
 
 \subsection{Valid trees}\label{sec:validtree}
+\begin{figure}[b]
+    \input{./formalization/img/valid_tree.tex}
+    \caption{Valid tree \label{fig:vt} }
+\end{figure}
+
 
 The class of valid trees is captured by the \vast
 function shown in Figure~\ref{fig:vt}.
-While all base cases of \cI{tree} are valid, we need to analyze the \orC and
+While all base cases of {tree} are valid, we need to analyze the \orC and
 \andC constructors more carefully.
+% \marginpar{TODO: explain better valid tree as requested by reviewr, maybe make a few examples}
 
 For the \orC constructor, we distinguish two cases depending on whether the
 left-hand side is present. If it is not, then the right-hand side must be a
@@ -1009,62 +1137,73 @@ valid tree. Otherwise, the left-hand side must be a valid tree, and the
 right-hand side must either be the \koC tree or be unexplored. The former case
 occurs when the right-hand side is cut away by the evaluation of a superficial
 cut in the left-hand side.
-In the latter case we use the \cI{base_or} predicate
-to check that \cI{B} is the right-skewed tree formed by a disjunction of
-conjunctions, generated after a successful backchain for a \cI{call}.
+In the latter case we use the \emph{base\_or} predicate
+to check that $B$ is the right-skewed tree formed by a disjunction of
+conjunctions, generated after a successful backchain for a call.
 
 For the \andC constructor, the left hand side is required to be a valid tree.
 The shape of the right hand side depends on whether the left hand side is a
 success. If it is not successful, then the right hand side must not be
-explored, i.e. \cI{B} must be
+explored, i.e. $B$ must be
 the right-skewed tree containing conjunctions of premise atoms.
-This is enforced using the \cI{big_and} procedure, which generates a tree
+This is enforced using the \emph{big\_and} procedure, which generates a tree
 from the reset point $B_0$ (the same procedure used to
-transform each alternative output by \cI{backchain} into the And-layer
+transform each alternative output by backchain into the And-layer
 of the resulting tree).
 When the left hand side is successful, then the right hand side
 may have been explored, and consequently must be a valid tree.
 
+We point out the two main invariants that stating that valid trees
+are preserved by calls to \step and \na.
 
-\begin{figure}  
+% \input{./formalization/img/valid_tree_step.tex}
+\begin{lemma}[valid\_tree\_step]\label{th:validtreestep}%
+	$$\forall\ \sigma\ v\ A\ r ,\ \mathrm{valid\_tree}\ A \to \mathrm{step}\ u\ p\ v\ \sigma\ A = r \to \mathrm{valid\_tree}\ (\mathrm{snd}\ r)$$
+\end{lemma}
 
-  \begin{minipage}{0.50\textwidth}
-    \input{formalization/img/valid_tree.tex}
-    % \caption{Valid tree}
-  \end{minipage}
-  \begin{minipage}{.40\textwidth}
-    \begin{coqcode}
-      Fixpoint t2l ~$t$~ ~$\sigma$~ (cp: alts) : alts ~$\coloneq$~
-      match ~$t$~ with
-      | OK     ~$\Rightarrow$~ [(~$\sigma$~, ~\mnil\unskip~)]
-      | KO     ~$\Rightarrow$~ ~\mnil~
-      | TA a   ~$\Rightarrow$~ [(~$\sigma$~, [(a, ~\mnil\unskip~)])]
-      ...
-    \end{coqcode}
-    % \caption{Tree to list}
-  \end{minipage}
-  \caption{Valid tree and Tree to stack
-  \label{fig:ttl}
-  \label{fig:vt}
-}
-% \caption{Valid tree}
-\end{figure}
+% \input{./formalization/img/valid_tree_prune.tex}
+\begin{lemma}[valid\_tree\_prune]\label{th:validtreeprune}%
+	$$\forall\ A\ B\ b ,\ \mathrm{valid\_tree}\ A \to \mathrm{prune}\ b\ A = \mathrm{Some}\ B \to \mathrm{valid\_tree}\ B $$
+\end{lemma}
 
+% We can therefore derive how valid trees are preserved by the stack interpreter.
+
+% \input{./formalization/img/valid_tree_run.tex}
+\begin{theorem}[valid\_tree\_run]\label{th:validtreerun}%
+	$\forall\ b\ \sigma\ \sigma'\ v\ v'\ A\ B,$
+  $$\mathrm{valid\_tree}\ A \to \mathrm{runT}\ u\ p\ v\ \sigma\ A\ ( \mathrm{Many}\ \sigma'\ B )\ b\ v' \to \mathrm{valid\_tree}\ B $$
+\end{theorem}
+
+% \begin{figure}  
+%     \begin{coqcode}
+%       Fixpoint t2l ~$t$~ ~$\sigma$~ (cp: alts) : alts ~$\coloneq$~
+%       match ~$t$~ with
+%       | OK     ~$\Rightarrow$~ [(~$\sigma$~, ~\mnil\unskip~)]
+%       | KO     ~$\Rightarrow$~ ~\mnil~
+%       | TA a   ~$\Rightarrow$~ [(~$\sigma$~, [(a, ~\mnil\unskip~)])]
+%       ...
+%     \end{coqcode}
+%   \caption{Tree to stack \label{fig:ttl} }
+% \end{figure}
+% \marginpar{TODO: put all code}
 \subsection{From trees to stacks}\label{sec:t2l}
 
+% \marginpar{t2l should be t2s or tree\_to\_stack}
+
 The \ttl recursive function translates a tree to a stack.
-For space constraints %\marginpar{DAVVERO?}
-\cref{fig:ttl} only gives the base cases, while we
-describe the recursive cases in the following text.
+
+$$
+\mathrm{\ttl} : \TREE \to \Sigma \to \mathrm{alts} \to \mathrm{alts}
+$$
+
 % we give junst the implementation of the
 % base cases, the full implementation is available at \href{https://github.com/FissoreD/elpi-formalization/blob/ho-check-ffun/theories/t2l.v}{\emph{this}} link.
 
 The function \ttl takes as input the tree $t_0$, a substitution
-$\sigma_0$, and a list of choice points $cp$. These choice points
+$\sigma$ for the input tree, and an auxiliary list of choice points $cp$.
+These choice points
 represent alternatives that appear at the same level of the current
-tree, such as, for example, the right siblings of an \orC{} node. The
-substitution is used to determine under which substitution the
-subtree being computed lives.
+tree, such as, for example, the right siblings of an \orC{} node. 
 
 The \okC node represents one successful alternative; therefore it is translated
 into a singleton list whose only element has an empty list of goals. The \koC
@@ -1094,19 +1233,19 @@ first alternative $g$, whereas $B_0$ is the continuation for each alternative
 in $a$.
 % While performing these translation, we need to carefully update the cut-atlernatives.
 
-\paragraphTwo{Example of \ttl execution} 
+\subsubsection{Example of \ttl execution} 
 The translations of the trees in \cref{tree-ex} are shown in \cref{ex-elpi}.
 The letters in the figures relate each tree to the corresponding stack.
 For example, \ref{tree-ex1} is translated into \ref{ex-elpi1}. We also
 note that \ref{tree-ex3} and \ref{tree-ex4} are both translated into
-\ref{ex-elpi3}, showing that $t2l$ is not injective: different trees can map to
+\ref{ex-elpi3}, showing that \ttl is not injective: different trees can map to
 the same stack. Consequently, there are transitions in \runT that are not visible
 in \runS.
 %
-\begin{figure}[b]
+\begin{figure}[t]
   \begin{center}
     
-    \includegraphics[width=0.8\textwidth, keepaspectratio]{img/det_check_coq/t2lex.pdf}
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{./img/det_check_coq/t2lex.pdf}
   \end{center}
 \caption{Example of \ttl execution\label{fig:cc}}
 \end{figure}
@@ -1117,7 +1256,7 @@ point from the head of an alternative in the tree to the head of the
 corresponding cell in the stack.
 We focus on the deepest \orC{} node in the tree. This subtree
 is a disjunction with four children. The first is ignored, since it
-is \mnone. The success node below $\sigma_3$ has \eI{f B C} and the cut
+is None. The success node below $\sigma_3$ has \eI{f B C} and the cut
 operator as continuation, corresponding to the first cell in the stack. 
 We note that the cut operator points outside the
 stack, since the scope of this cut eliminates its right uncle. The
@@ -1175,7 +1314,7 @@ the translation of the subtree under $\sigma_2$, since it is one
 % pointers to $bt$, if any, in $lA$. We finally need to treat cases whenever
 % the list $lA$ is empty or not. In the former case the empty list is returned,
 % otherwise, we hasve a list $[::(s_0,gs)\&al]$. By the semantics of
-% the \andC in the \runT interpreter, the rhs of the \andC represent the
+% the \andC in the \run interpreter, the rhs of the \andC represent the
 % sequent of goals to be executed after the first alternative in the lhs,\marginpar{alternative in tree? rephrase}
 % it corresponds to the list of goals $gs$.
 % The reset point $B0$ is to be appended to the next alternatives in the lhs,
@@ -1196,16 +1335,17 @@ we hide it behind existentials.
 
 % Thanks to the two functions \vast and \ttl, we are able to finally state the
 % equivalence theorems between the semantics. The proof we are giving are on a
-% slightly different definition of \runT, since in the equivalence, we ignore the
-% verification for the boolean and the variable set returned by \runT, these piece
+% slightly different definition of \run, since in the equivalence, we ignore the
+% verification for the boolean and the variable set returned by \run, these piece
 % of data are paricularly meant for the proof in \cref{sec:run-prop}.
 
 % The definition we use is the following:
 
-% \input{formalization/theorem/runt1.tex}
-\begin{definition}[\cI{runT'}]\label{th:runT'} 
-  \cI{runT' p v ~$\sigma$~ t ~$\arr$~ r := ~$\exists$~ b v', runT p v ~$\sigma$~ t ~$\arr$~ (r, b, v').}
-\end{definition}
+% \begin{definition}\label{th:runT'}
+%   $\mathrm{runT'}\ \prog\ v\ \sigma\ t\ r := \exists\ b\ v',\ \mathrm{runT}\ \prog\ v\ \sigma\ t\ r\ b\ v'$
+% \end{definition}
+
+\input{./formalization/theorem/runt1.tex}
 
 From \cref{tree-ex,ex-elpi}, we observe that, upon backtracking, \runT may perform
 more steps than \runS before returning a solution or a failure.
@@ -1213,12 +1353,7 @@ These silent transitions must be skipped
 when proving the equivalence between the two semantics. Therefore, we
 prove the following lemma.
 
-% \input{formalization/theorem/pruneF_t2l.tex}
-\begin{lemma}[pruneF\_t2l]\label{th:pruneFt2l}
-  $\forall\ t\ t'\ b, \cI{valid_tree}\ t \to \cI{failed}\ t \to \cI{prune}\ b\ t \arr \msome t' \to$
-   $$\forall\ l\ \sigma, \cI{t2l}\ t\ \sigma\ l = \cI{t2l}\ t'\ \sigma\ l$$
-\end{lemma}
-
+\input{./formalization/theorem/pruneF_tree_to_stack.tex}
 \begin{proof}By induction on the tree $t$. %\marginpar{dire di $v$}
 \end{proof}
 
@@ -1227,45 +1362,58 @@ valid tree is matched by the execution of the stack obtained by
 translating the tree. Moreover, the unexplored alternatives returned as
 a tree correspond to those returned as a stack.
 
-
-% \input{tex_code/tree_to_elpi.tex}
-\begin{theorem}[tree\_to\_elpi]\label{th:treetoelpi}\cI{~\ensuremath{\forall}~ p ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\ensuremath{r}~, let ~\ensuremath{v}~ := vars_tree ~\ensuremath{t}~ ~\ensuremath{\cup}~ vars_sigma ~\ensuremath{\sigma}~ in}~
-\begin{coqcode}
-    valid_tree ~\ensuremath{t}~ ~\ensuremath{\to}~
-      runT' p ~\ensuremath{v}~ ~\ensuremath{\sigma}~ ~\ensuremath{t}~ ~\ensuremath{r}~ ~\ensuremath{\to}~ 
-        let ~\ensuremath{a}~ := t2l ~\ensuremath{t}~ ~\ensuremath{\sigma}~ ~\mnil~ in
-        let ~\ensuremath{r'}~ :=  if ~\ensuremath{r}~ is ~\msome~(~\ensuremath{\sigma'}~, ~\ensuremath{t}~) then  ~\msome~(~\ensuremath{\sigma'}~, t2l (odflt KO ~\ensuremath{t}~) ~\ensuremath{\sigma}~ ~\mnil~)
-                   else ~\ensuremath{\mnone}~ in
-        runS p ~\ensuremath{v}~ ~\ensuremath{a}~ ~\ensuremath{r'}~.
-\end{coqcode}
+% \input{./formalization/img/tree_to_elpi.tex}
+\begin{theorem}[runT\_to\_runS]\label{th:runTtorunS}%
+\begin{multline*}
+	\forall\ p\ t\ \sigma\ r ,\ \mathrm{let}\ v\ \mathrm{:=}\ \mathrm{vars}\ t\ \cup\ \mathrm{vars}\ \sigma\ \mathrm{in}\ 
+	\mathrm{valid\_tree}\ t \to \mathrm{runT'}\ p\ v\ \sigma\ t\ r \to \\
+	\begin{cases}
+	\mathrm{runS}\ p\ v\ ( \mathrm{tree\_to\_stack}\ t\ \sigma\ \mnil )\ \mathrm{None} & \mathrm{if}\ r = \mathrm{Zero}\\
+	\mathrm{runS}\ p\ v\ ( \mathrm{tree\_to\_stack}\ t\ \sigma\ \mnil )\ (\mathrm{Some}\ (\sigma', \mnil)) & \mathrm{if}\ r = \mathrm{One}\ \sigma'\\
+	\mathrm{runS}\ p\ v\ ( \mathrm{tree\_to\_stack}\ t\ \sigma\ \mnil )\ (\mathrm{Some}\ ( \sigma' ,\ \mathrm{tree\_to\_stack}\ t'\ \sigma\ \mnil)) & \mathrm{if}\ r = \mathrm{Many}\ \sigma'\ t'\\
+	\end{cases}
+\end{multline*}
 \end{theorem}
 
 \begin{proof}
-We proceed by induction on the execution of \runT'. There are four cases
-to consider. The first case arises from \stopt; it deals with
-successful trees. A successful tree must start with an empty list, and
-therefore we conclude using \stops. The case for \stept
+We proceed by induction on the execution of \runT'. There are five cases
+to consider. The first (similar) cases arises from \stopot and \stopt; they deal with
+successful trees. A successful tree corresponds to a stack that
+start with an empty list, in both cases
+we conclude using \stops. The case for \stept
 requires treating two subcases: \step evaluates either a cut or a call.
 Accordingly, we apply \cuts or \calls, followed by the
 induction hypothesis. The case for \backt is silent: it represents
 the non-injective behavior of \ttl; however, thanks to
-\cref{th:pruneFt2l} and the induction hypothesis, the conclusion is
+\cref{th:pruneFtreetostack} and the induction hypothesis, the conclusion is
 proved. The last case arises from the derivation \failt. It is
 easily proved using \fails and the fact that if \na returns
-$\mnone$ when trying to erase failure in $t$, then \ttl applied to $t$
+None when trying to erase failure in $t$, then \ttl applied to $t$
 returns the empty list.
 \end{proof}
 
 The converse direction is stated following~\cite{yves-equiv}: instead of
 using a function to translate a stack into a tree it states that any
 tree that translates to the given stack has an equivalent execution,
-i.e. gives the same solution and returns a unexplored tree that
+i.e. gives the same solution and returns an unexplored tree that
 translates to the unexplored stack.
-
-\input{formalization/theorem/elpi_to_tree.tex}
+% \input{./formalization/img/elpi_to_tree.tex}
+\begin{theorem}[runS\_to\_runT]\label{th:runStorunT}%
+\begin{multline*}
+	\forall\ p\ v\ a\ r ,\ \mathrm{runS}\ p\ v\ a\ r \to
+	\forall\ \sigma\ t ,\ \mathrm{valid\_tree}\ t \to \mathrm{tree\_to\_stack}\ t\ \sigma\ \mnil = a \to \\
+	% \mathrm{match}\ r\ \mathrm{with} \\
+  \begin{cases}
+    \mathrm{runT'}\ p\ v\ \sigma\ t\ \mathrm{Zero}             & \mathrm{if}\ r = \mathrm{None} \\
+    \mathrm{runT'}\ p\ v\ \sigma\ t\ ( \mathrm{One}\ \sigma' ) & \mathrm{if}\ r = \mathrm{Some}\ ( \sigma' ,\ \mnil ) \\
+    \exists\ t' ,\ \mathrm{runT'}\ p\ v\ \sigma\ t\ ( \mathrm{Many}\ \sigma'\ t' ) 
+    \land \mathrm{tree\_to\_stack}\ t'\ \sigma\ \mnil = a'     & \mathrm{if}\ r =  \mathrm{Some}\ ( \sigma' ,\ a' ) \\
+  \end{cases}
+\end{multline*}
+\end{theorem}
 
 \noindent
-\begin{minipage}{0.75\textwidth}
+\begin{minipage}{0.6\textwidth}
 \begin{proof}
 The proof is based on the idea explained in~\cite[Section
 3.5.1]{yves-equiv} and depicted in the figure on the right:
@@ -1275,123 +1423,211 @@ that hypothesis that it exists a tree $t'$ such that its translation to a
 stack is $a'$. %This proof strategy is indirectly providing a kind of \ltt function by combining the execution of the \runS and \ttl.
 \end{proof}
 \end{minipage}~~~~~~
-\begin{minipage}{0.25\textwidth}
-  \includegraphics[width=0.8\textwidth, keepaspectratio]{e2t_ind.pdf}
+\begin{minipage}{0.35\textwidth}
+  \includegraphics[width=1\textwidth, keepaspectratio]{./img/det_check_coq/e2t_ind.pdf}
 \end{minipage}
 
 \vspace{10pt}
 
-Stating the converse direction in a symmetric way
+Stating the converse direction of \cref{th:runTtorunS} in a symmetric way
 would require a function
 \ltt transforming a stack $a$ into a tree $t$.
 Writing this function is far from trivial, since the structure of
-the tree is lost by \backchainS and \runT that
+the tree is lost by \backchainS and \runS that
 intuitively keep the state as a big disjunction of conjunctions by
 distributing conjunctions over disjunctions. Moreover, one would need to
 define a notion of valid stack that is equally intricate.
 
-The constructive nature of the logic of \rocq tells us that the proof above
-provides an effective function translating stacks into trees. However, that
-function also uses an execution trace of the stack-based semantics, from which
-it recovers the missing tree structure.
+% The constructive nature of the logic of Rocq tells us that the proof above
+% provides an effective function translating stacks into trees. However, that
+% function also uses an execution trace of the stack-based semantics, from which
+% it recovers the missing tree structure.
 
 \section{Case study: determinacy analysis}\label{sec:determinacy}
 
-An interesting application of the tree semantics is determinacy checking,
-introduced in version~3 of the \elpi{} language~\cite{fissore2026}. The
-checker takes as input the signatures of the predicates declared by the
-user and verifies that the rules of a deterministic predicate generate at
-most one solution; we call this particular kind of predicate a function.
-Thanks to this static verification, the user can better control
-unexpected backtracking.
+As an application of the tree semantics, we mechanize the soundness proof
+of the determinacy-checking algorithm introduced in version~3 of the
+\elpi{} language~\cite{fissore2026}. The static checker takes as input
+the signatures of the predicates declared by the user and verifies that
+the rules of a deterministic predicate generate at most one solution; we
+call this kind of predicate a function. Thanks to this static
+verification, the user can better control unexpected backtracking.
 
 A predicate behaves deterministically if two conditions are
 satisfied: \emph{mutual exclusion} guarantees that at most one rule can
-be successfully applied to any given query, whereas \emph{rule checking}
+be successfully applied to any given query, whereas \emph{rule body checking}
 ensures that each rule does not create choice points, for example by
 calling non-deterministic predicates.
 
-Determinacy checking is strongly related to the modes of predicates: we
-differentiate between input and output arguments. A deterministic call relates
-to its inputs only one output. In the literature, we find several works on
-determinacy checking, namely~\cite{somogy1996,king2005,warren1989}. These works
-need a mode checker that statically ensures that, in a query with ground inputs,
-each recursive call is performed with ground inputs.
+% Determinacy checking is strongly related to the modes of predicates: we
+% differentiate between input and output arguments. A deterministic call relates
+% to its inputs only one output.
+% In the literature, we find several works on
+% determinacy checking, namely~\cite{1996Somogy,king2005,1989Warren}. These works
+% need a mode checker that statically ensures that, in a query with ground inputs,
+% each recursive call is performed with ground inputs.
 
-In our mechanization, and in particular in the \elpi language, we adopt a
-special unification routine for input arguments, called
+Our mechanization implements the unification algorithm by
+Martelli and Montanari~\cite{montanari82}, which we prove
+terminating using the standard lexicographic ordering,
+correct and complete.
+
+In the following definitions and lemmas, we use the notation $x \cap y =
+\varnothing$ to denote that the two sets $x$ and $y$ are disjoint. When the
+arguments are terms, as in $t_1 \cap t_2 = \varnothing$, we mean that the two
+terms do not share any variables.
+
+The first notion to provide is the application of an acyclic substitution:
+
+\begin{definition}[deref]
+  $$
+  \begin{array}{rlrlr}
+    \sigma\ (\mathrm{Symb}\ n) &= \mathrm{Symb}\ n & \qquad\sigma\ (\mathrm{Var}\ n) &= t &\mathrm{if}\ (n,t) \in \sigma\\
+    \sigma\ (\mathrm{Pred}\ n) &= \mathrm{Pred}\ n & \qquad\sigma\ (\mathrm{Var}\ n) &= \mathrm{Var}\ n& \mathrm{otherwise}\\
+    \sigma\ (\mathrm{App}\ t_1\ t_2) &= \mathrm{App}\ (\sigma\ t_1)\ (\sigma\ t_2)
+  \end{array}
+  $$
+\end{definition}
+
+\begin{definition}[acyclic]
+  $\lambda \sigma. \mathrm{dom}\ \sigma \cap \mathrm{codom}\ \sigma = \varnothing$
+\end{definition}
+
+Note that this definition of acyclicity entails that the substitution is
+necessarily self applied, i.e. $\sigma \coloneq \{ X \mapsto f~Y, Y \mapsto a\}$
+is not acyclic, whereas the equivalent $\sigma' \coloneq \{ X \mapsto f~a\}$
+is.
+The algorithm by Martelli and Montanari generates substitutions that
+are acyclic in this sense.
+
+% \input{./formalization/img/unif_correct.tex}
+
+\begin{lemma}[unify\_correct]\label{th:unifycorrect}%
+$$\forall\ t_1\ t_2\ s\ s' ,\ \mathrm{acyclic\_sigma}\ s \to \mathrm{unify}\ t_1\ t_2\ s = \mathrm{Some}\ s' \to s'\ t_1 = s'\ t_2 $$
+\end{lemma}
+
+% \input{./formalization/img/unify_complete.tex}
+\begin{lemma}[unify\_complete]\label{th:unifycomplete} $\forall\ t_1\ t_2\ s ,\ \mathrm{acyclic\_sigma}\ s \to$
+% \begin{multline*}
+$$( \exists\ s' ,\ \mathrm{acyclic\_sigma}\ s' \land s'\ ( s\ t_1 ) = s'\ ( s\ t_2 ) ) \to \exists\ s'' ,\ \mathrm{unify}\ t_1\ t_2\ s = \mathrm{Some}\ s''$$
+\end{lemma}
+
+The \elpi language adopts a
+restricted unification routine for input arguments, called
 \matching~\cite{ait1991-wam,zhou2012}. Similarly to \unify, \matching takes the
 query term $t_1$ and the pattern $t_2$ and returns an optional substitution
-$\sigma'$ that does not assign any variable in the query.
+$\sigma'$ that does not assign any variable in the query arguments that
+are in input position.
 % The query-term is the argument in input mode taken from a dynamic
 % call and the pattern is the corresponding input argument in the chosen
 % rule-head.
 
-The function \matching has the following property:
+To address this need, we extend the Martelli-Montanari unification
+procedure so that it takes a set of frozen variables, i.e. variables that
+cannot be assigned. The function \matching has the following property:
 
-% \input{tex_code/matchdisj.tex}
-\begin{axiom}[matching\_disj]
-  \label{th:matchingdisj}
-  $\forall\ \sigma\ \sigma'\ t_1\ t_2, F_v(t_1)\ \#\ \dom\ \sigma \to F_v(t_1)\ \#\ F_v(t_2) \to$
-    $$\matching\ t_1\ t_2\ \sigma \arr \msome\sigma' \to \exists\ e, \dom\ \sigma' = \dom\ \sigma \cup e \land e \subseteq F_v(t_2)$$
-\end{axiom}
+% \input{./formalization/img/matchdisj.tex}
+\begin{lemma}[matching\_disj]\label{um}\label{th:matchingdisj}
+  $$\forall t_1\ t_2\ \sigma\ \sigma', \mathrm{acyclic}\ \sigma \to \mathrm{matching}\ t_1\ t_2\ \sigma = \mathrm{Some}\ \sigma' \to \sigma'\ t_1 = \sigma\ t_2$$
+\end{lemma}
 
-If the free variables ($F_v$) of two terms are disjoint ($\#$) and the variables in the support of $\sigma$ are
-disjoint from the variables in $t_1$, then, if matching succeeds, only the
-variables in $t_2$ are assigned; that is, $t_1 = \sigma'~t_2$, and the
-variables in $t_1$ are not assigned in $\sigma'$.
+In particular, we can see how the returned substitution $\sigma'$, differently
+from \cref{th:unifycorrect}, does not affect variables in $\sigma\ t_2$.
 
-
-The \backchainS function uses \eI{matching} or \eI{unify} on the arguments $q$
-depending if the argument is in \emph{input} or \emph{output} mode.
-We assume two important properties of our unification routines.
-
-% \input{formalization/theorem/unif_trans.tex}
-\begin{axiom}[unif\_trans]
-  \label{th:uniftrans}
-  $$\forall\ t_1\ t_2\ t_3\ \sigma, \unify\ t_1\ t_2\ \sigma \to \unify\ t_2\ t_3\ \sigma \to \unify\ t_1\ t_3\ \sigma$$
-\end{axiom}
-
-% \input{formalization/theorem/matchunif.tex}
-\begin{axiom}[match\_unif]
-  \label{th:matchunif}
-  $$\forall\ t_1\ t_2\ \sigma, \matching\ t_1\ t_2\ \sigma \to \unify\ t_1\ t_2\ \sigma$$
-\end{axiom}
+\begin{corollary}[matching\_same]\label{umm}\label{th:matchingsame}
+  $$\forall t\ q\ \sigma\ \sigma', \mathrm{acyclic}\ \sigma \to \mathrm{matching}\ t\ q\ \sigma = \mathrm{Some}\ \sigma' \to \sigma'\ q = \sigma\ q$$
+\end{corollary}
 
 
-We also assume that refreshing variables does not affect unification.
- In
-particular, a refreshing renaming $f$ for a term $t$ is a function from variables
-to variables that: (i) $f$ is defined on all the variables in $t$, i.e. all variables get renamed; (ii) $f$ is
-injective, i.e. does not confuse variables; and (iii) $f$ 
-has non-overlapping domain and codomain, i.e. it maps the variables of the term
-to a set of completely fresh variables. 
+% \marginpar{The statement abouve does not say that $\sigma'\ t_2 = t_2$. Did you prove it?}
 
-Below, we define
-\cI{refresh_for} to test the validity of a refreshing renaming.
-\Cref{th:unifren} states the property of term unifiability with respect to term
-renaming. That is, if the renamings of terms $t_1$ and $t_2$ are unifiable
-under two respective valid refreshing renamings, and they have disjoint
-variables, then for any pair of renamings $z$ and $x$ that are valid renamings
-for $t_1$ and $t_2$, respectively, and are disjoint from each other,
-unification also succeeds. In other words, this theorem accounts for
-$\alpha$-equivalence of terms and the unification of terms with disjoint
-variables.
+% If the variables (\cI{vars}) of two terms are disjoint ($\#$) and the variables in the support of $\sigma$ are
+% disjoint from the variables in $t_1$, then, if matching succeeds, only the
+% variables in $t_2$ are assigned; that is, $t_1 = \sigma'~t_2$, and the
+% variables in $t_1$ are not assigned in $\sigma'$.
 
-% \input{formalization/theorem/refresh_for.tex}
-\begin{definition}[\cI{refresh_for}]\label{th:refreshfor}
-  $$\cI{refresh_for}\ x\ t := F_v(t) \subseteq \dom\ x \land \cI{injective}\ x \land (\dom\ x\ \#\ \mathrm{codom}\ x)$$
+
+The backchain function uses matching or unify on the arguments $q$
+depending on whether the argument is in \emph{input} or
+\emph{output} mode.
+% We assume two important properties of our unification routines.
+
+For the static checker, and in particular in order to validate rule mutual
+exclusion, we need to ensure that no two rules can be used on the same query in
+the absence of cut. We exploit the behavior of the matching over input
+arguments to guarantee this property: mutual exclusion ensures that every
+pair of rules for a deterministic predicate has an input term that does
+not unify.
+
+An important property we derive from the matching and unification
+procedures is the following. Given three pairwise variable-disjoint terms
+$h_1$, $h_2$, and $q$, representing two rule heads in the database and a
+query, if both heads match the query $q$, then the two heads must unify.
+% This is formalized in the following lemma.
+
+% \input{./formalization/img/matching_unify_transP.tex}
+
+\begin{lemma}[matching\_unify\_transP]\label{th:matchingunifytransP}%
+\begin{multline*}
+	\forall\ h_1\ h_2\ q .\ h_1 \cap h_2 = \varnothing \to h_1 \cap q = \varnothing \to h_2 \cap q = \varnothing \to \\
+	\mathrm{matching}\ h_1\ q\ \varnothing \to \mathrm{matching}\ h_2\ q\ \varnothing \to \mathrm{unify}\ h_1\ h_2\ \varnothing 
+\end{multline*}
+\end{lemma}
+
+\begin{proof}
+  By \cref{um}, we now that the matching of $h_1$ (resp. $h_2$) and $q$ gives a
+  substitution $\sigma_1$ (resp. $\sigma_2$) where the variables in $q$ are not
+  assigned, i.e. its domain only contains variables in $h_1$ (resp $h_2$). Using
+  \cref{th:unifycomplete} we need to prove that it exists a
+  substitution $\sigma'$ such that $\sigma'\ h_1 = \sigma'\ h_2$. This
+  substitution is the composition of $\sigma_1$ and $\sigma_2$, that is
+  $\sigma' = \lambda x. \sigma_1 (\sigma_2\ x)$. Since $h_1$ and
+  $h_2$ are disjoint, also are the domain of $\sigma_1$ and $\sigma_2$, therefore
+  $\sigma' h_1 = \sigma_2 (\sigma_1\ h_1)$ and $\sigma' h_2 = \sigma_2 (\sigma_1\ h_2)$.
+  We can know conclude the proof: $\sigma'\ h_1 = \sigma_2 (\sigma_1\ h_1) = \sigma_2\ q = q = \sigma_2\ h_2 = \sigma' h_2$.
+\end{proof}
+
+
+% \input{./formalization/img/unif_trans.tex}
+% \input{./formalization/img/matchunif.tex}
+
+Finally, we also need to prove that the refreshing of variables
+performed at runtime does not affect unification.
+In particular, a refreshing renaming $f$ for a term $t$ is a function from
+variables to variables such that: (i) $f$ is defined on all variables in
+$t$, i.e. every variable is renamed; and (ii) $f$ is injective, i.e. it
+does not identify distinct variables. Refreshing therefore produces
+$\alpha$-equivalent terms.
+%\marginpar{spiegare disjoint in hyp of lemma 17}
+
+% Below, we define
+% \emph{refresh\_for} to test the validity of a refreshing renaming.
+% \Cref{th:unifren} states the property of term unifiability with respect to term
+% renaming. That is, if the renamings of terms $t_1$ and $t_2$ are unifiable
+% under two respective valid refreshing renamings, and they have disjoint
+% variables, then for any pair of renamings $z$ and $x$ that are valid renamings
+% for $t_1$ and $t_2$, respectively, and are disjoint from each other,
+% unification also succeeds. In other words, this theorem accounts for
+% $\alpha$-equivalence of terms and the unification of terms with disjoint
+% variables.
+
+% \input{./formalization/img/refresh_for.tex}
+
+% The refreshing performed at runtime ensures that 
+
+\begin{definition}[$=_\alpha$]
+  $\lambda t_1\ t_2. \exists (r:\mathrm{renaming\_for}\ t_2), t_1 = \mathrm{rename}\ r\ t_2$
 \end{definition}
 
-% \input{formalization/theorem/unif_ren.tex}
-\begin{axiom}[unif\_ren]\label{th:unifren}
-  $\forall\ x\ y\ z\ w\ t_1\ t_2$
-  \begin{align*}
-   \cI{refresh_for}\ w\ t_1 \to \cI{refresh_for}\ y\ t_2 \to \cI{refresh_for}\ z\ t_1 \to \cI{refresh_for}\ x\ t_2 \to\\
-    \mathrm{codomf}\ w\ \#\ F_v (\txtI{rename}\ y\ t_2) \to \mathrm{codomf}\ z\ \#\ F_v(\txtI{rename}\ x\ t_2) \to\\
-    \unify\ (\txtI{rename}\ w\ t_1)\ (\txtI{rename}\ y\ t_2) \epsilon \to \unify\ (\txtI{rename}\ z\ t_1)\ (\txtI{rename}\ x\ t_2) \epsilon
-  \end{align*}
-\end{axiom}
+% \input{./formalization/img/unif_ren.tex}
+\begin{lemma}[unif\_ren\_ac]\label{th:unifren}
+  $\forall\ t_1\ t_2\ t_1'\ t_2', t_1 =_\alpha t_1' \land t_2 =_\alpha t_2' \to$
+  \vspace{.8em}\\
+  $\phantom{xxxxA}
+  t_1 \cap t_2 = \varnothing \land t_1' \cap t_2' = \varnothing \to
+  \mathrm{unify}\ t_1\ t_2\ \varepsilon \to \mathrm{unify}\ t_1'\ t_2'\ \varepsilon
+  $
+\end{lemma}
 
 In \cref{fig:progx}, the rules of the program are equipped with three
 signatures, one per predicate. Besides the arity of each predicate, a
@@ -1400,40 +1636,44 @@ their types, and whether the predicate is deterministic. They indicate
 that \texttt{f} and \texttt{g} are expected to be functions, as specified
 by the \eI{~\PYG{k+kd}{func}~} keyword, whereas \eI{r} is a relation, as
 indicated by the \eI{~\PYG{k+kd}{pred}~} keyword. The
-\eI{~$\to$~} symbol separates inputs from
+\eI{~\PYG{k+kMode}{\PYGZhy{}\PYGZgt{}}~} symbol separates inputs from
 outputs; therefore, all three predicates are expected to take an
 \texttt{int} as input and return an \texttt{int} as output.
 
 The signatures of the program are stored in the \texttt{sig} field of
 the program and are encoded as described in
-\cite{fissore2026}: we distinguish data from predicates, and predicates are classified
-into deterministic a non-deterministic.
+\cite{fissore2026}: we distinguish data from predicates, and predicates
+are classified as deterministic or non-deterministic.
 
 A program execution behaves deterministically if, given a program, a
-substitution, and an input tree for the \runT\ inductive, the execution either
-fails or, if it succeeds, the resulting tree of alternatives is $\mnone$.
+substitution, and an input tree for the \runT\ inductive, the execution
+either fails or succeeds with no alternatives left to explore.
 % Below, we define \texttt{is\_det}.
 
 
-% \input{formalization/theorem/is_det.tex}
-\begin{definition}[\cI{is_det}]\label{th:isdet}
-  $$\cI{is_det}\ p\ \sigma\ v\ t\ := \forall\ r,\ \runT'\ p\ v\ \sigma\ t \arr r \to r = \mnone \lor \exists \sigma, r = \msome(\sigma, \mnone)$$
+% \input{./formalization/img/is_det.tex}
+\begin{definition}[is\_det]\label{th:isdet}%
+	$$\lambda\ p\ \sigma\ v\ t .\ \forall\ r ,\ \mathrm{runT'}\ p\ v\ \sigma\ t\ r \to r = \mathrm{Zero} \lor \exists\ \sigma ,\ r = ( \mathrm{One}\ \sigma ) $$
 \end{definition}
 
+\begin{definition}[tm\_is\_det]\label{def:tmisdet}
+  Given a program $p$ and a term $t$,
+  we say that $t$ is deterministic if its head is a predicate $f$
+  which is declared as deterministic in $p$.
+\end{definition}
 
 The theorem we want to prove is the following one:
 
-% \input{formalization/theorem/det_check_call.tex}
-\begin{theorem}[det\_check\_call]
-  \label{th:detcheckcall}
-  $$\forall\ p\ \sigma\ t\ v,
-      \cI{check_}{\mathbb{P}}\ p \to \cI{tm_is_det}\ p.(sig)\ t\ \to \cI{is_det}\ p\ \sigma\ v\ (\cI{Todo}\ (\cI{call} t))$$
+% \input{./formalization/img/det_check_call.tex}
+\begin{theorem}[det\_check\_call]\label{th:detcheckcall}$\forall\ p\ \sigma\ t\ v ,$
+  \vspace{.8em}\\
+	$\phantom{xxxxx} \mathrm{check\_program}\ p \to \mathrm{tm\_is\_det}\ p\ t \to \mathrm{is\_det}\ p\ \sigma\ v\ ( \mathrm{Unexplored}\ ( \mathrm{call}\ t ) ) $
 \end{theorem}
 
-Here, \cI{check_~$\mathbb{P}$~} denotes the function that checks the program
-with respect to mutual exclusion and rule checking, and \cI{tm_is_det}
-denotes the function that tests whether the head of the term refers to a rigid
-constant with a deterministic type.
+Here, check\_program denotes the function that checks the program
+with respect to mutual exclusion and rule checking. %, and \emph{tm\_is\_det}
+% denotes the function that tests whether the head of the term refers to a rigid
+% constant with a deterministic type.
 
 The proof of this lemma proceeds by induction on
 the program execution. However, without further work,
@@ -1441,18 +1681,81 @@ the induction
 hypothesis is too weak since it talks about \taC trees (i.e. atoms),
 whereas we need it on any tree.
 
-To address this issue, we introduce the notion of deterministic trees
-(\cI{det_tree}), show that a tree satisfying this condition enjoys the
-desired properties, and then prove the following more general theorem:
+To overcome this issue, we introduce the notion of deterministic trees,
+written det\_tree. Intuitively, a deterministic tree is a tree
+whose interpretation does not generate choice points. The definition is
+shown in~\cref{fig:dettree}.
 
-% \input{formalization/theorem/det_check_tree.tex}
-\begin{lemma}[\cI{det_check_tree}]
-  \label{th:detchecktree}
-  $$\forall\ \sigma\ v\ p\ t,\ \cI{check_}\mathbb{P}\ p\ \to \cI{det_tree}\ p.(sig)\ t\ \to\ \cI{is_det}\ p\ \sigma\ v\ t$$
+\begin{figure}
+\begin{coqcode}
+  Fixpoint det_tree (p: program) A :=
+    match A with
+    | Unexplored cut => true
+    | Unexplored (call t) => tm_is_det p t
+    | KO | OK => true
+    | And A B0 B =>
+        det_tree p B &&
+        ((prune (success A) A == None) ||
+         ((det_tree p A || (has_cut B && has_cuts B0)) && det_trees p B0))
+    | Or None _ B => det_tree p B
+    | Or (Some A) _ B =>
+        det_tree p A && if has_cut A then det_tree p B else (B == KO)
+    end.
+\end{coqcode}
+\caption{The \emph{det\_tree} predicate\label{fig:dettree}}
+\end{figure}
+
+For a call to a term $t$, the tree is deterministic whenever $t$ calls a
+deterministic predicate. The recursive cases correspond to the \andC and
+\orC nodes.
+
+A conjunction behaves deterministically whenever its right-hand side is a
+deterministic tree. Two cases must then be considered.
+
+If $\mathrm{prune}\ (\mathrm{success}\ A)\ A = \mathrm{None}$, then $A$ produces
+no choice points: it either always fails or contains a single successful
+execution path. Since $\mathrm{det\_tree}\ p\ B$ holds, the entire conjunction
+is therefore deterministic.
+
+Otherwise, the left-hand side may introduce backtracking, potentially
+resuming the reset point, which must itself behave deterministically.
+In this case, either $A$ is deterministic, or both $B$ and the reset
+point contain a cut that prevents the non-deterministic behaviour arising
+from the evaluation of $A$.
+
+For \orC trees, the interesting case is when the left-hand side contains
+an tree. In this case, $A$ must be deterministic. If $A$
+contains a superficial cut, then $B$ must also be deterministic. Indeed,
+if $A$ succeeds, the cut discards $B$; otherwise, if $A$ fails before
+reaching the cut, then no solution is produced by $A$ and $B$ is evaluated.
+
+Finally, if $A$ does not contain a cut, then $B$ must be equal to
+$\mathrm{KO}$, that is, a tree already discarded by a cut. This
+condition is essential. Otherwise, if $A$ succeeds without a
+superficial cut and $B$ is not $\mathrm{KO}$, then $B$ could still
+produce a successful branch, leading to non-deterministic behaviour.
+
+The following lemmas show that deterministic trees are preserved by the
+operations \step and \na.
+
+%\input{./formalization/img/det_tree_step.tex}
+\begin{lemma}[det\_tree\_step]\label{th:dettreestep}
+  $\forall\ \mathrm{p}\ v\ \sigma_1\ A\ r ,\ \mathrm{check\_program}\ \mathrm{p} \to$\\
+	$\phantom{xxxxx} \mathrm{step}\ u\ \mathrm{p}\ v\ \sigma_1\ A = r \to \mathrm{det\_tree}\ \mathrm{pr}\ (\mathrm{snd}\ r) $
 \end{lemma}
 
+% \input{./formalization/img/det_tree_prune.tex}
+\begin{lemma}[det\_tree\_prune]\label{th:dettreeprune}%
+	$$\forall\ p\ A\ B\ b ,\ \mathrm{det\_tree}\ p\ A \to \mathrm{prune}\ b\ A = \mathrm{Some}\ B \to \mathrm{det\_tree}\ p\ B $$
+\end{lemma}
 
-Our target theorem \cI{det_check_call} is a corollary of \cI{det_check_tree}.
+\noindent Finally, we can prove the following lemma that entails det\_check\_call:
+
+% \input{./formalization/img/det_check_tree.tex}
+\begin{lemma}[det\_check\_tree]\label{th:detchecktree}%
+	$$\forall\ \sigma\ v\ p\ t ,\ \mathrm{check\_program}\ p \to \mathrm{det\_tree}\ p\ t \to \mathrm{is\_det}\ p\ \sigma\ v\ t $$
+\end{lemma}
+
 
 % As an important remark, proving the same lemma with the stack semantics, it is
 % difficult to correctly define the predicate \cI{det_stack}, checking for the
@@ -1462,104 +1765,109 @@ Our target theorem \cI{det_check_call} is a corollary of \cI{det_check_tree}.
 
 \section{Related work}
 
-We studied a \prolog semantics in which input arguments are \emph{matched},
-rather than unified, against rule heads. This choice agrees with the \elpi
-interpreter, which is in turn inspired by \bprolog's
-``matching-clauses''~\cite{ait1991-wam,zhou2012}. The two semantics we presented (and
-proved equivalent) also apply to standard \prolog if one forces all predicate
-signatures to have only output arguments.
+The only mechanization of \prolog's semantics that we could find is
+Pusch's \isabelle formalization~\cite{pusch1996}, which follows
+ Debray and Mishra~\cite[Sec.~4.3]{debray1988}.
+That work starts from this semantics and refines it by introducing
+optimizations commonly found in the Warren abstract
+machine~\cite{warren1983,ait1991-wam}. Unlike our case study,
+it does not use the semantics to prove properties of program execution;
+consequently, it does not encounter the difficulty described in
+\cref{stack-sem}, which led us to develop a semantics in which the
+effect of cut is more explicit. In this sense, the two approaches are
+complementary: taken together, they suggest that the tree-based
+semantics is equivalent to an optimized stack-based one.
 
-For determinacy analysis, matching input arguments affects the proofs
-only as follows: \cref{th:matchingdisj} does require the query $q$ to
-be ground. Adapting our results to standard \prolog therefore requires
-the insertion of two additional hypotheses in
-\cref{th:detcheckcall}. First, one has to require that $t$ has ground inputs.
-Second, that the program $p$ is well-moded.
-Well-moded predicates produce ground outputs when given ground inputs;
-hence, starting from an initial query with ground inputs, well-moded
-programs behave exactly as if input arguments were matched. Therefore,
-the proofs in \cref{sec:determinacy} still apply.
+Another relevant work is due to Kriener and King~\cite{king2011}, but
+we could not find their Rocq source code. Their semantics is
+denotational and cannot easily account for all the features covered
+in~\cite{fissore2026}, although it would have been sufficient for the
+first-order fragment considered in this paper.
 
-The only mechanization of \prolog's semantics
-we could find is the one by Pusch in \isabelle~\cite{isabelle}
-that is based on the model of Debray and Mishra~\cite[Sec.~4.3]{debray1988}.
-Their work starts from that semantics and refines it by
-introducing some optimizations usually found in
-the Warren abstract machine~\cite{warren1983,ait1991-wam}.
-They do not use the semantics to prove properties
-on the execution of programs as we do in our use case, hence they do not face the
-difficulty described in \cref{stack-sem} that pushed us to
-develop a more explicit semantics (with respect to cut).
-In a sense, our work is complementary. By combining both works one can show the tree-based semantics
-is equivalent to an optimized stack-based one.
+Hanus and Prott~\cite{hanus2025} formalize a determinacy checker for
+the logic-functional Curry language. In this language choice points
+are eplicitly denoted by the \cI{?} node in the syntax of expressions.
+In this setting the mutual exclusion of rules does not need to be
+ensured resorting to unification: the overlap of rules is explicit in the
+syntax. Similarly the operator to absorb choice points, \cI{allValues},
+explicitly receives the expression containing them as an argument making the
+scope of this control operator trivial to analyze.
 
-Another relevant work is by King~\cite{king2011},
-but we could not find their \rocq source code. Their semantics
-is denotational and cannot easily cover all the
-features that~\cite{fissore2026} covers, but it would have
-been sufficient for this first step.
-
-The proof technique we use to relate the two semantics is inspired by
-\cite{yves-equiv}, and we thank Y.~Bertot for insightful discussions on
-the topic. In \cite{yves-equiv}, Bertot mechanizes the correctness of a
+The proof technique we use to relate the two semantics is inspired
+by~\cite{yves-equiv}, where Bertot mechanizes the correctness of a
 compiler. He relates the semantics of an imperative language to that of
 its compiled assembly code and proves their equivalence. His approach
 uses the compiler as the translation function from one language to the
 other, but does not introduce a decompiler, just as we do not define a
-function from stacks to trees.
-To show that the assembly code behaves like the imperative language, he
-proceeds by induction on the execution of the assembly program. We adopt
-the same strategy in the proof of \cref{th:elpitotree}.
+function from stacks to trees. To show that the assembly code behaves
+like the imperative language, he proceeds by induction on the execution
+of the assembly program. We adopt the same strategy in the proof of
+\cref{th:runStorunT}.
+
+For the static analysis of determinacy, we use a semantics in which
+input arguments are \emph{matched}, rather than unified, against rule
+heads. This choice agrees with the \elpi interpreter, which is in turn
+inspired by B-\prolog's
+``matching-clauses''~\cite{ait1991-wam,zhou2012}.
+Applying our results to a semantics based entirely on unification is
+possible by adding two extra assumptions to
+\cref{th:detcheckcall}. First, the initial query must have ground inputs. Second, the
+program must be well-moded. Well-moded predicates produce ground
+outputs when given ground inputs; hence, starting from an initial query
+with ground inputs, well-moded programs behave exactly as if input
+arguments were matched. In other words,
+\cref{th:matchingdisj} could be reformulated using unification, at the
+cost of an additional assumption that the input arguments are ground;
+under that assumption, unification and matching coincide.
 
 \section{Conclusion}
 
-This chapter describes two operational semantics for \prolog with cut. The first
-semantics is based on And--Or trees: it is well suited to graphically
-illustrating the scope of cut, and to proving lemmas about the impact of its
-evaluation when reasoning about disjunctions. The second semantics is based on
-a stack of alternatives: it is computationally more efficient, but it loses the
-structural expressiveness of the tree-based semantics. Thanks to a dedicated
-function, we translate trees into stacks and prove the two semantics equivalent.
-This stack-based semantics corresponds to the first-order fragment of \elpi.
-Using the tree-based semantics, we mechanize the first-order part of the
-determinacy checker that has been available in \elpi since version~3.0, and we
-prove that a call to a deterministic predicate returns at most one solution.
+This paper describes two operational semantics for \prolog with cut. The first
+semantics is based on And--Or trees: it is well suited both to graphical
+illustrations of the scope of cut and to proving lemmas about the effect of
+cut evaluation when reasoning about disjunctions. The second semantics is
+based on a stack of alternatives: it is closer to actual \prolog
+implementations, including the first-order fragment of \elpi, but it loses
+the explicit structure of the tree-based semantics and is therefore less
+convenient for reasoning about cut. We show how to translate trees into
+stacks and prove the two semantics equivalent. Using the tree-based
+semantics, we mechanize a soundness proof of the first-order fragment of the
+determinacy checker of~\cite{fissore2026}, namely that a call to a
+deterministic predicate returns at most one solution.
 
-The formal development consists of approximately 2,500 lines of
-specifications and about 5,000 lines of \textit{ssreflect} proofs. Roughly 30\%
-of the code is dedicated to the tree semantics (in particular, the proofs in
-\cref{sec:runT}), 15\% to the stack semantics, and 35\% to the equivalence proof.
-The remaining 20\% is devoted to the determinacy checker. The mechanization took us approximately $8$ months.
+The mechanization consists of approximately 2,500 lines of
+specifications and about 5,000 lines of ssreflect proofs based on
+the Mathematical Components library~\cite{assia2022}
+and its finmap~\cite{finmap} extension.
+Roughly 30\% of the code is dedicated to the tree semantics, in particular
+the proofs in \cref{sec:runT}, 15\% to the stack semantics, and 35\% to the
+equivalence proof. The remaining 20\% is devoted to the determinacy checker.
+The mechanization took us approximately $8$ months.
+We believe that the ssreflect proof language, and the proof style it
+advocates, helped us carry out the many refactorings that the mechanization
+underwent. The finmap library provides comprehensive support for reasoning
+about finite maps and finite sets over a countable domain. In particular, it
+helped us express conditions such as the disjointness between sets of
+variables and the domain of a substitution, as well as define the union of
+disjoint substitutions.
+
+To obtain an axiom-free mechanization, we had to provide an implementation
+of the first-order unification algorithm, since we could not find an
+existing Rocq mechanization. Describing this development in detail is out of
+scope for this paper. It amounts to about 1,700 lines of ssreflect code,
+including 200 lines for the termination proof based on a lexicographic
+ordering and 800 lines for correctness and completeness. Because of the
+specific form of \cref{th:unifren,th:matchingdisj}, which deals with
+matching and unification of terms with disjoint support, we did not need to
+prove that the algorithm produces most-general unifiers.
+% \marginpar{Martelli (size, time, relation with saarland (maybe don't say ), substitutions are not finite maps, hence badly integrate with mathcomp, also the algorithm is not explicilty given)}
 
 To fully model the \elpi language and mechanize~\cite{fissore2026} entirely,
-we would need to account for higher-order
-variables, i.e. variables representing predicates. This extension is ongoing and
-largely orthogonal to the present chapter, since cut and higher-order features do
-not interact in subtle ways.
-
-
-% Using ssreflect~\cite{ssreflect}
-
-% \section{The language}
-% Input must come before outputs
-
-% Inputs must come before outputs, with Disc tree this is not mandatory, since
-% unification is weaker.
-
-% EG: 
-
-% \includegraphics{code/dt_mut_excl.pdf}
-
-% In the code above, both rules can be used with the query, but, 
-% the discrimination tree, save the world
-
-
-% \section{The tree semantics}
-% \section{The stack semantics}
-% \cite{pusch1996}
-% \section{Semantics equivalence}
-
-% \cite{yves-equiv}
-
-% \section{The main theorem}
-
+we would need to account for higher-order variables, that is, variables that
+represent predicates. This extension is ongoing and largely orthogonal to
+the present paper, since cut and higher-order variables do not interact in
+subtle ways. The main difficulty is that substitutions may contain
+predicates, and these predicates must have signatures compatible with those
+assumed statically, in the sense of the $\subseteq$ relation defined
+in~\cite[Section~5]{fissore2026}. Dynamic predicates also require minor
+changes to the conditions for mutual exclusion.

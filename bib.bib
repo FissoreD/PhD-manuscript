@@ -1637,3 +1637,21 @@
   abstract  = {Universes are used in Type Theory to ensure consistency by checking that definitions are well-stratified according to a certain hierarchy. In the case of the Coq proof assistant, based on the predicative Calculus of Inductive Constructions (pCIC), this hierachy is built from an impredicative sort Prop and an infinite number of predicative Typeiuniverses. A cumulativity relation represents the inclusion order of universes in the core theory. Originally, universes were thought to be floating levels, and definitions to implicitely constrain these levels in a consistent manner. This works well for most theories, however the globality of levels and constraints precludes generic constructions on universes that could work at different levels. Universe polymorphism extends this setup by adding local bindings of universes and constraints, supporting generic definitions over universes, reusable at different levels. This provides the same kind of code reuse facilities as ML-style parametric polymorphism. However, the structure and hierarchy of universes is more complex than bare polymorphic type variables. In this paper, we introduce a conservative extension of pCIC supporting universe polymorphism and treating its whole hierarchy. This new design supports typical ambiguity and implicit polymorphic generalization at the same time, keeping it mostly transparent to the user. Benchmarking the implementation as an extension of the Coq proof assistant on real-world examples gives encouraging results.},
   isbn      = {978-3-319-08970-6}
 }
+
+@article{montanari82,
+  author     = {Martelli, Alberto and Montanari, Ugo},
+  title      = {An Efficient Unification Algorithm},
+  year       = {1982},
+  issue_date = {April 1982},
+  publisher  = {Association for Computing Machinery},
+  address    = {New York, NY, USA},
+  volume     = {4},
+  number     = {2},
+  issn       = {0164-0925},
+  url        = {https://doi.org/10.1145/357162.357169},
+  doi        = {10.1145/357162.357169},
+  journal    = {ACM Trans. Program. Lang. Syst.},
+  month      = apr,
+  pages      = {258–282},
+  numpages   = {25}
+}

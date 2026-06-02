@@ -4,7 +4,7 @@
 [submodule "formalization/elpi-formalization"]
 	path = formalization/elpi-formalization
 	url = https://github.com/FissoreD/elpi-formalization
-	branch = phd
+	branch = phd1
 [submodule "ho-for-free/HO-unif-for-free"]
 	path = ho-for-free/HO-unif-for-free
 	url = https://github.com/FissoreD/HO-unif-for-free

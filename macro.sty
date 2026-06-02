@@ -109,15 +109,16 @@
 \newcommand{\runT}[1][]{\runBuilder[#1]{T}}
 \newcommand{\runS}[1][]{\runBuilder[#1]{S}}
 
-\newcommand{\stopt}{\runT[\top]}
-\newcommand{\stept}{\runT[\backchain]}
-\newcommand{\backt}{\runT[\circlearrowleft]}
-\newcommand{\failt}{\runT[\bot]}
+\newcommand{\stopt}{StopMT\xspace}
+\newcommand{\stopot}{StopOT\xspace}
+\newcommand{\stept}{StepT\xspace}
+\newcommand{\backt}{BackT\xspace}
+\newcommand{\failt}{FailT\xspace}
 
-\newcommand{\stops}{\runE[\top]}
-\newcommand{\cuts}{\runE[!]}
-\newcommand{\calls}{\runE[\backchain]}
-\newcommand{\fails}{\runE[\bot]}
+\newcommand{\stops}{StopS\xspace}
+\newcommand{\cuts} {CutS\xspace}
+\newcommand{\calls}{CallS\xspace}
+\newcommand{\fails}{FailS\xspace}
 
 \newcommand{\ttl}{\codenames{t2l}}
 \newcommand{\ltt}{\codenames{l2t}}
@@ -216,6 +217,11 @@
 \newcommand{\TYPEBASE}{\ensuremath{\mathbb{T\!_b}}\xspace}
 \newcommand{\TYPEARR}{\ensuremath{\mathbb{T\!_a}}\xspace}
 \newcommand{\TYPEK}{\ensuremath{\mathbb{T\!_k}}\xspace}
+% \newcommand{\RULE}[1][]{\ensuremath{\mathbb{R}#1}\xspace}
+
+\newcommand{\TREE}[1][]{\ensuremath{\mathcal{T}#1}\xspace}
+\newcommand{\STACK}[1][]{\ensuremath{\mathcal{S}#1}\xspace}
+
 
 \newcommand{\cdash}{\texttt{:-}} % colon-dash
 \newcommand{\cut}{\text{\syntaxfont{Cut}}\xspace}
@@ -373,3 +379,4 @@
 \newcommand{\deff}{\ensuremath{\stackrel{{\scriptscriptstyle def}}{=\!=\!\!\!=}}}
 \newcommand{\subterm}[1]{\ensuremath{\mathcal{P}(#1)}}
 \newcommand{\wellb}{\ensuremath{\mathcal{W}}\xspace}
+

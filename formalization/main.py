@@ -95,13 +95,86 @@ def clean_line(escape):
         return l
     return f
 
+def clean_line_math_mode(_) :
+    def f (l:str):
+        #AD HOC:
+        l = l.replace("%G", "")
+        l = l.replace("++", "\\mappend")
+        l = l.replace("\square", "\\square\ ")
+        l = re.sub(" _[A-Za-z0-9]*", " _", l)
+        l = l.replace("stepE", "\\backchainS")
+        l = l.replace("&", "\\land")
+        l = l.replace("[::]", "\\mnil")
+        # l = l.replace('==', '=_b')
+
+
+        l = l.strip()
+        l = l.replace('_', '\_')
+        l = l.replace("#", "\#")
+        l = l.replace("forall", "\\forall")
+        l = l.replace("exists", "\\exists")
+        l = l.replace("∧", "\land")
+        l = l.replace("/\\", "\land")
+        l = l.replace("\\/", "\lor")
+        l = l.replace("∨", "\lor")
+        l = l.replace("<->", "\leftrightarrow")
+        l = l.replace("->", "\\to")
+        l = l.replace("`|`", "\cup")
+        l = l.replace("`<=`", "\\subseteq")
+        l = l.replace("domf", "dom")
+        l = l.replace("fun", "\\lambda")
+        l = l.replace("=>", "\\Rightarrow")
+        if l.endswith("."): l = l[:-1]
+
+        def clean_esc(l):
+            m = l.group(1)
+            return  " \\phantom{!}_{\!\!\!\!" + m.replace("~", "").replace("$","") + "}"
+        l = re.sub(r' -sub\(([^)]*)\)', lambda x: (clean_esc(x)), l)
+
+        space_bef = "()[],"
+        for p in space_bef:
+            l = l.replace(p, f" {p} ")
+
+        pat = ["v","b","t","r","a", "g", "l", "h"]
+        def change_vars(vn, gl, l):
+            return re.sub(f"\\b{vn}('+)|\\b{vn}\\b", f"{gl}\g<1>", l)
+        def it_pat(pat,gl,l):
+            l = change_vars(pat, gl, l)
+            for i in range(10):
+                l = change_vars(f"{pat}{i}", f"{gl}_{i}", l)
+            return l
+        l = it_pat("s", "\\\\sigma", l)
+        for p in pat:
+            l = it_pat(p, p, l)
+
+
+        lst = l.split()
+        l = ""
+        def infix(l: str): return l in ["\\to", "=", "=_b", '\\leftrightarrow',"\\Rightarrow", "\\lor", "\\land"]
+        def befor(l: str): return l in "]}),." or infix(l)
+        def after(l: str): return l in "{[(" or infix(l)
+        def stand(l: str): 
+            l = l.replace("'", "")
+            return l
+        for i,e in enumerate(lst):
+            # if e[-1] in "0123456789":
+            #     e = e[:-1] + "_" + e[-1]
+            if e == "==":
+                e = "=_b"
+            elif len(stand(e)) > 1 and e[0] != "\\" and e[-1] not in "0123456789":
+                e = f"\mathrm{{{e}}}"
+            l += e +  (" " if after(e) or (i+1 < len(lst) and befor(lst[i+1])) or (i + 1 == len(lst)) else "\\ ")
+        return l
+    return f
+
+
 if __name__ == "__main__":
     out = sys.argv[1]
     fname = sys.argv[2]
     thout = sys.argv[3] if len(sys.argv) > 2 else out
-    extract_code.bussproof(out,clean_line).read_file(fname)
+    extract_code.bussproof(out,clean_line_math_mode).read_file(fname)
     if fname.endswith(".v"):
         extract_code.snip("(*", "*)", "coqcode","cI",out,"v",clean_line).read_file(fname)
-        extract_code.theorem("coqcode","cI",thout,clean_line).read_file(fname)
+        extract_code.theorem("coqcode","cI",thout,clean_line_math_mode).read_file(fname)
     if fname.endswith(".elpi"):
         extract_code.snip("%", "", "elpicode","eI",out,"elpi",clean_line).read_file(fname)
