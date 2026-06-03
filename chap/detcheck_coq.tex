@@ -2,42 +2,61 @@
 \label{chap:mechanization}
 
 In the previous chapter we have explained the implementation of the determinacy
-checker algorithm that we have implementated in \elpi, 
-starting from version 3. 
-The checker helps users control
-backtracking: the user asserts which predicates
-should be considered deterministic and then the checker verifies that these predicates
-behave like functions, i.e., they commit to their first solution, leaving
-no \emph{choice points}.
+checker algorithm that which we have included in ELPI since version 3. The
+checker helps users control backtracking: the user asserts which predicates
+should be considered deterministic and then the checker verifies that these
+predicates produce at most one solution for each call, i.e., they commit to
+their first solution, leaving no \emph{choice points}.
 
-In this chapter we introduce a semantics based on And-Or trees,
-in which the history of the computation is represented in a structured way:
-given a goal, each applicable rule generates an Or-branch, which is in turn
+In this chapter we present our work consisting in the formalization (in \rocq)
+of the determinacy checker we have implemented in \elpi. This formalization
+covers the first-order part of the language, that is it does not cosider
+higher-order variables, and dynamic rule loading, i.e. the \pi and \eI{=>}
+operators. The idea of the formalization is to implement a \emph{det\_check}
+predicate testing if a program satisfy determinacy, i.e. if all predicate
+declared deterministic satisfy the property of producing at most one solution
+per call. Finally, we need to show that if a program satisfy this det\_check,
+then any call to a deterministic program in the \elpi semantics produces
+actually at most one solution.
+
+In order to proceed in this direction, we need to consider one main aspects.
+Determinacy is greatly influenced by the presence of cut in the code. This
+operator inpact the execution of the code and, therefore, it should be clear to
+correctly identify its scope while reasoning on determinacy.
+
+The operational semantics of \elpi is, however, not well suited for reasoning
+about the scope of cuts. Because the syntax of \elpi programs does not
+explicitly record the structure of the search space, it is difficult to
+determine precisely which alternatives are discarded by a given cut. 
+
+In order to encompass this issue, we introduce a semantics based on And-Or
+trees, in which the history of the computation is represented in a structured
+way: given a goal, each applicable rule generates an Or-branch, which is in turn
 followed by an And-branch for each premise. This enables an explicit
-characterization of the cut operator as a function that prunes selected
-branches of the tree. The tree-based semantics allows us to formulate
-introduction and elimination rules for disjunction in the presence of cut,
-which, as expected, differ from those of classical logic. For example,
-$q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$, since $q_2$ may be cut
-away by $q_1$.
+characterization of the cut operator as a function that prunes selected branches
+of the tree. The tree-based semantics allows us to formulate introduction and
+elimination rules for disjunction in the presence of cut, which, as expected,
+differ from those of classical logic. For example, $q_1 \lor q_2$ is not
+equivalent to $q_2 \lor q_1$, since $q_2$ may be cut away by $q_1$.
 
-Finally, we use the tree-based semantics to prove the correctness of the
-determinacy analysis from~\cite{fissore2026}. In Rocq, we prove that any
-terminating call to a predicate identified as deterministic introduces no
-additional Or-branches into the tree. Combined with the equivalence
-between the two semantics, this result implies that any call to a
-deterministic predicate leaves no choice points on the stack used by
-actual \prolog implementations, including the
-\elpi~\cite{dunchev15} $\lambda$\prolog interpreter, for which the
-static analysis of~\cite{fissore2026} was originally developed. \elpi
-serves as an extension language for the \rocq prover and has become an
-important component of the Rocq ecosystem~\cite{krebbers2025,enzo2023,maas2024,fissore2023,fissore2024,hb,enzo2024,tassi2018,tassi2019,tassi2023};
-our result therefore further strengthens confidence in its
-implementation.
+Once we have defined this semantics, we need to prove its equivalence with the
+\elpi semantics. Finally, we use the tree-based semantics to prove the
+correctness of the determinacy analysis from~\cite{fissore2026}.
 
 Our mechanization is axiom-free and is available at
 \url{https://github.com/FissoreD/elpi-formalization}.
-(joined as supplementary material).
+
+The remainder of this work is organized as follows. We first present in
+\cref{sec:preliminaries} the syntax we use in our \rocq development represent
+terms, atoms, rules and programs (it is a subset of the syntax shown
+\cref{sec:elpi-syntax}). In \cref{stack-sem}, we provide the formal
+represenation of the \elpi semantics restrained at the first order, called \runS
+(it is a subset of \cref{sec:elpi-semantics}). After the formalization of the
+\runS, we formalise the And-Or tree semantics, called \runT and show some
+properties about the impact of the cut operator over disjounctions. In
+\cref{equiv}, we prove the equivalence of the two semantics. Finally in
+\cref{sec:determinacy}, we provide a proof about the correctness of determinacy
+checking in And-Or trees.
 
 \begin{comment}
 \section{Introduction}
@@ -1099,6 +1118,7 @@ disjunction.
 
 
 \section{Equivalence of the two semantics}
+\label{equiv}
 
 In order to relate the two semantics we have to relate the computations states,
 i.e., the And-Or tree and the stack of alternatives. We define a translation from trees to stacks, called \ttl, but
