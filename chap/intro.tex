@@ -24,9 +24,9 @@
 % Dall'altro lato, l'automazione nel mondo informatico, quando controllata, sta
 % portando a diversi benefici.
 
-Our way of thinking is fundamentally based on logic. More precisely, as humans
-we tend to accept or justify an action, a choice, or a conclusion whenever it
-follows a line of reasoning that satisfies the criteria we consider valid.
+Logical reasoning plays a central role in the way humans justify actions,
+choices, and conclusions, particularly when decisions are not primarily driven
+by emotions or other non-rational factors.
 
 For example, if ``All humans are mortal'' and ``All Greeks are humans'', then we
 can conclude that ``All Greeks are mortal''. This particular form of reasoning,
@@ -36,26 +36,40 @@ directly from the premises.
 A counterpart of these philosophical ideas can be found in mathematical
 reasoning. Similarly to a syllogism, the validity of a mathematical statement is
 established through a proof constructed from a collection of axioms and
-inference rules.
+inference rules. 
 
-In the middle of the twentieth century, Curry and
-Howard~\cite{Howard-correspondance} discovered a deep connection between the
-representation of propositions and their proofs on the one hand, and computation
-on the other. Under this correspondence, a proof of a proposition can be viewed
-as a well-typed program, while the proposition itself corresponds to the type of
-that program.
+In his work Begriffsschrift (concept-writing in English) of 1879, Gottlob Frege
+tried to formalize a complete foundation for logic in mathematics, based on a
+set of axioms.
 
-Proof assistants are software systems that support human-machine interaction in
-order to provide strong guarantees that an algorithm satisfies a given property.
-As a result, one can state with a high degree of confidence that a program
-formally satisfies the specification that has been verified.
+It is clear that the axioms accepted in the foundation of a theory need to
+satisfy a basic criterion: they should not create paradoxes, otherwise the
+theory itself becomes meaningless. Frege's logical system was later shown to
+be inconsistent following Russell's discovery of the paradox that now bears his
+name. Today, several foundational frameworks coexist, including classical set
+theory, intuitionistic logic, and various forms of type theory.
 
-For example, the operator $+$ can be implemented as a function that takes two
+In the middle of the twentieth century, with the advent of computer science,
+Curry and Howard~\cite{Howard-correspondance} discovered a deep connection
+between the representation of propositions and their proofs on the one hand, and
+computation on the other. Under this correspondence, a proof of a proposition
+can be viewed as a well-typed program, while the proposition itself corresponds
+to the type of that program.
+
+Using software to build proofs becomes more and more a good alternative to
+pen-and-paper proof: once the proof is provided to the machine, it is then the
+responsibility of the machine to verify that the proof establishes the desired
+property. Proof assistants are software systems designed to support the
+construction and verification of formal proofs while providing human-machine
+interaction. As a result, one can state with a high degree of confidence that a
+program formally satisfies the specification that has been verified.
+
+For example, the operator $+$ can be described as a program that takes two
 integers and computes their sum. Within a proof assistant, it is possible to
-prove that $0$ is a neutral element for addition, that is, $\forall a, a + 0 =
-a$.
+prove in just one line of code using induction that $0$ is a neutral element for
+addition, i.e. $\forall a, a + 0 = a$.
 
-The importance of certified algorithms is evident, especially in safety-critical
+The importance of certified algorithms is evident in safety-critical
 domains such as medicine and aerospace engineering.
 
 In such settings, the tolerance for implementation errors is extremely low. For
@@ -63,13 +77,8 @@ instance, when launching a rocket into space, it is unacceptable for it to fail
 because of a software bug. A well-known example is the maiden flight of the
 Ariane 5 rocket in 1996, which ended in failure due to a software error.
 
-Beyond providing formal guarantees, proof assistants also enable users to
-automate parts of the proving process by exploiting the computational power of
-the underlying machine. A notable success in this direction is the proof of the
-Four Color Theorem~\cite{gonthier2023}, where the computer was used to enumerate the many
-configurations that had to be considered. This illustrates how computer
-assistance can help explore large search spaces that would be difficult to
-handle in a traditional pen-and-paper proof.
+Beyond checking proofs, proof assistants also help users to
+write proof by automating parts of the proving process. 
 
 In general, formal proofs developed in a proof assistant must be extremely
 detailed and are often difficult for humans to read. To reduce the effort
@@ -78,13 +87,15 @@ required during proof development, modern proof assistants, such as the
 allow users to write incomplete proof terms, leaving some information to be
 inferred automatically by the system.
 
-These mechanisms are
-collectively referred to as the \emph{elaborator}~\cite{elaboration}. Their
-purpose is to simplify the interaction between the user and the system
-by allowing incomplete proof
-terms to be submitted and automatically completed by the system. In some
-situations, ambiguities may even be left intentionally in the source code, with
-the elaborator responsible for resolving them using information available in the
+These mechanisms are collectively referred to as the
+\emph{elaborator}~\cite{elaboration}. The purpose of elaboration is to bridge
+the gap between the notation written by users and the internal representation
+manipulated by the proof assistant. Just as a computer does not directly
+understand ordinary text, the elaborator translates user-written terms into a
+machine-interpretable form. Moreover, elaboration allows incomplete proof terms
+to be submitted and automatically completed by the system. In some situations,
+ambiguities may even be left intentionally in the source code, with the
+elaborator responsible for resolving them using information available in the
 current environment.
 
 A common source of ambiguity arises from symbol overloading. In mathematics, it
@@ -94,11 +105,11 @@ or vector addition in the expression $[\pi, e] + [\sqrt{2}, \frac{1}{3}]$. A
 human reader can usually infer the intended meaning from the surrounding
 context.
 
-A similar mechanism exists in programming languages. In object-oriented
+A similar ambiguity exists in programming languages. In object-oriented
 languages, a common interface may admit multiple implementations, and the
 compiler is responsible for selecting the appropriate one. Functional
 programming languages vary in the support they provide for overloading. For
-instance, in \ocaml, different operators are typically required for different
+instance, in \ocaml different operators are typically required for different
 notions of addition, whereas \haskell supports overloading through its
 type-class mechanism~\cite{wadler1989-tc}. Since many proof assistants are based
 on functional programming languages, they often provide a type-class system as
@@ -163,41 +174,38 @@ therefore insufficient. This motivates another contribution of this thesis: a
 compilation scheme that preserves the benefits of the translation while
 recovering the intended unification behavior.
 
-To address this issue, we propose a compilation scheme
-(\ref{chap:ho-for-free}) that preserves most of the structure of terms
-while isolating problematic subterms. These are replaced only when
+To address this issue, we propose a compilation scheme in
+\cref{chap:ho-for-free} that preserves most of the structure of terms while
+isolating problematic subterms. These subterms are replaced only when
 necessary and recorded as \emph{links}, representing delayed constraints.
-They are checked during execution, allowing us to recover the intended
+These links are checked during execution, allowing us to recover the intended
 behavior without reimplementing unification.
 
-This compilation with links is also motivated by efficiency. 
-Since most of the term
-structure is preserved, we can still exploit \elpi features such as
-indexing and mode-directed unification. This is important in type-class
-resolution, where the search space can be large.
+Beyond type-class resolution, the intrinsic nature of logic programming
+raises another important concern, especially for users who are not familiar with
+logic programming. Controlling the backtracking performed by the interpreter is
+fundamental to managing performance. This motivates a second line of work
+developed in this thesis: a determinacy analysis for \elpi
+programs~\cref{chap:det-elpi}. Determinacy ensures that selected predicates
+produce at most one solution and do not introduce unnecessary choice points for
+any call to them. This property helps control the behavior of logic programs.
+In our setting, type classes correspond to predicates, and instances to rules.
+If a class is declared deterministic, the analysis ensures that all its
+instances satisfy this property.
 
-Beyond type-class resolution, logic programming raises another important
-concern: controlling the search performed by the interpreter. This motivates a
-second line of work developed in this thesis, namely a determinacy analysis for
-\elpi programs~(\ref{chap:det-elpi}). Determinacy ensures that selected
-predicates produce at most one solution and do not introduce unnecessary choice
-points for any call to it. This property helps control the behavior of logic
-programs. In our setting, type classes correspond to predicates, and instances
-to rules. If a class is declared deterministic, the analysis ensures that all
-its instances satisfy this property.
-
-We present an analysis based on inspecting clauses and tracking argument
+We design and implement an analysis based on inspecting clauses and tracking argument
 modes. The algorithm supports most features of \elpi, including
 higher-order predicates, dynamic clauses, and the cut operator. Handling
 cut is important, as it can enforce determinism but interacts in subtle
 ways with logical semantics.
 
-We have formalized the expected properties of the static checker in the
-\rocq proof assistant by encoding the \elpi
-interpreter~(\ref{chap:mechanization}). To support this development, we restrict
-the model to a first-order fragment of the language, where terms do not contain
-higher-order variables. In this setting, the absence of propositional variables
-simplifies the formalization and allows us to produce a fully mechanized proof.
+To increase the level of trust in the static analysis, we have formalized the
+expected properties of the static checker in the \rocq proof assistant by encoding
+the \elpi interpreter~\cref{chap:mechanization}. To simplify this development,
+we restrict the model to a first-order fragment of the language, where terms do
+not contain higher-order variables. In this setting, the absence of propositional
+variables simplifies the formalization and allows us to produce a fully
+mechanized proof.
 
 Although this model does not capture all higher-order features of \elpi, it
 encompasses the aspects relevant to our analysis and provides a foundation for
@@ -218,18 +226,18 @@ This thesis contains five main contributions, organized as follows:
   \item [\Cref{sec:elpi-syntax,sec:elpi-semantics}] We present a formalization
             of the \elpi language, covering both its syntax and its semantics.
             This formalization first appeared in the appendix
-            of~\cite{fissore2026}. We include it in \cref{chap:context} -- the
-            chapter describing the context of this work -- as this placement
-            better fits the overall structure of the thesis.
+            of~\cite{fissore2026}. We include it in \cref{chap:context}, the
+            chapter describing the context of this work, because this
+            placement fits the overall structure of the thesis better.
 
   \item[\Cref{chap:tc}] We study the implementation of a type-class solver
                         written in \elpi for \rocq~\cite{fissore2023}. We present the core part of
                         the compiler that translates \rocq classes and
                         instances into an \elpi database. This database is then
                         used by the interpreter to search for inhabitants of
-                        type classes. We also compare our solver with the one of
-                        \rocq, focusing on performance, modes, and unification
-                        issues.
+                        type classes. We also compare our solver with \rocq's
+                        native solver, focusing on performance, modes, and
+                        unification issues.
 
   \item[\Cref{chap:ho-for-free}] We analyze unification problems arising from
                 the higher-order abstract syntax used to represent \rocq terms
