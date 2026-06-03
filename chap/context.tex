@@ -862,9 +862,12 @@ empty.
 The remaining rules of \runE, namely \runE[!], \runE[\backchain],
 \runE[\forall], and \runE[\Rightarrow], apply when the first alternative
 contains a non-empty list of goals. Such alternative list has the form
-$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where $q$ is the current goal atom
-(or query). The derivation rule to use depends on the syntactic form of $q$, which
-can be one of the four forms of \ATOM\ listed in \cref{fig:elpi-syntax}.
+$\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where $q$ is the current query, $g$
+the list og goals in conjunction to be executed after $q$ if $q$ succeeds, and
+$a$ is the list of alternatives to execute if it the execution of
+$\ConsHd{q}\ConsTl{g}$ brings no solution. The derivation rule to use depends on
+the syntactic form of $q$, which can be one of the four forms of atoms listed
+in \cref{fig:elpi-syntax}.
 
 If $q$ is a \cut, rule \runE[!] discards the current alternatives $a$ and
 replaces them with the cut-to alternatives stored in $q$. Evaluation then
@@ -901,9 +904,9 @@ an extension of $\sigma$.
   \label{def:pattern-fragment}
 \end{definition}
 
-The procedure \unify\ implements higher-order unification restricted to the
+The procedure \emph{\unify} implements higher-order unification restricted to the
 pattern fragment, and is used for arguments in \Eoutput\ position. The
-procedure \matching, inspired by \bprolog's ``matching clauses''
+procedure \emph{\matching}, inspired by \bprolog's ``matching clauses''
 \cite{zhou2012}, is used for arguments in \Einput\ position. It also performs
 higher-order unification restricted to the pattern fragment.
 
