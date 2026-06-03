@@ -798,7 +798,7 @@ of variables that are assigned in $\sigma$.
 
 \begin{definition}[Substitution application (or term dereferencing)]
   A substitution $\sigma$ applied to a term $t$, noted $\sigma t$, is the operation
-  allowing to recursively replace the variables in $t$ by their assignement in 
+  that recursively replaces the variables in $t$ by their assignment in
   $\sigma$.
   \label{def:deref}
 \end{definition}
@@ -807,16 +807,16 @@ of variables that are assigned in $\sigma$.
 %   A typing environment is a partial mapping from symbol names to their type.
 % \end{definition}
 
-We use the notation $\env$ to represent a typing environment, it
-maps symbol names to their type.
+We use the notation $\env$ to represent a typing environment. It maps symbol
+names to their type.
 
 A program $\prog$ of type $\PROG$ is made by a triple
-$(\vecL{\RULE}, \vecL{\NVAR}, \env)$
+$(\vecL{\RULE}, \vecL{\NVAR}, \env)$.
 
-The first element represent the ordered list of rules characterising the
-program, we use the notation $\prog.\cI{index}$ to get this element from \prog. 
-The second element of the triple contains the set of nominal
-variables that have already been introduced, we use the notation
+The first element represents the ordered list of rules characterising the
+program. We use the notation $\prog.\cI{index}$ to get this element from
+\prog. The second element of the triple contains the set of nominal
+variables that have already been introduced; we use the notation
 $\prog.\cI{nvar}$ to get this element for the program \prog. Finally, the
 last element of the triple contain the typing environment, we use the
 notation $\prog.\cI{sig}$ to get this element.
@@ -998,12 +998,11 @@ substitution associated with each alternative is the one returned by
 \paragraphTwo{Comparison with Tassi's presentation}
 
 In the previous subsections, we presented the \elpi language, including its
-syntax and semantics. This formalization has been
-developed in collaboration with Enrico Tassi. A comprehensive description of
-\elpi can be found in his work~\cite{hdr}.
+syntax and semantics. This formalization is one of our contribution. A
+comprehensive description of \elpi can be found in Enrico Tassi's work~\cite{hdr}.
 
 We highlight here the main differences between his presentation and the one
-adopted in this section. First, in the syntax, we use binary application for
+adopted in ours. First, in the syntax, we use binary application for
 terms, instead of the $n$-ary application used in \cite{hdr}. Second, in the
 semantics, programs carry not only the list of rules and nominal variables, but
 also the signature of declared predicates. We also omit the formal treatment of
@@ -1011,20 +1010,17 @@ constraints, as it is not required for the remainder of this manuscript; a brief
 informal explanation is sufficient for our purposes (see~\cref{sec:chr}).
 
 Another difference concerns the definition of \runE. In Tassi's presentation,
-\runE, called \texttt{run}, is defined as a procedure that takes two arguments:
+\runE is defined as a procedure that takes two arguments:
 the current alternative and the list of future alternatives. This choice
 reflects closely the concrete implementation in \elpi, where execution starts
 from a query, and a query is represented as an alternative. In contrast, we
 define \runE with a single input, namely a list of alternatives, from which the
 first element is extracted by pattern matching when needed. This design choice
-is motivated by the mechanization in \rocq (see \cref{chap:mechanization}),
-where we need to prove the equivalence between two semantics and to represent
-the execution of \runE on an empty list of goals.
-Despite these differences, as the theorem below claims, the two semantics are
+aims to simplify the presentation of \cref{chap:det-elpi}
+and mechanization in \rocq of \cref{chap:mechanization}.
+Despite these differences the two semantics can be proved
 equivalent when executed on non-empty lists of alternatives, modulo the
-absence of constraints, which is forced to the empty list in the \texttt{run}
-semantic (this is performed by the \txtI{map}ping of one list to the other
-and putting the empty set, i.e. $\emptyset$, of constraints).
+absence of constraints.
 
 % \begin{table}
 %     \begin{subtable}{0.48\textwidth}
@@ -1286,7 +1282,7 @@ $.
 \label{sec:example-ho-dyn-programs}
 
 One of the main features of \elpi is the possibility to work with
-higher-order and dynamic programs. In this section, we present some simple
+higher-order and dynamic and meta- programs. In this section, we present some simple
 examples illustrating these two aspects. These examples will be used later as a
 reference when discussing determinacy checking in \elpi (see
 \cref{chap:det-elpi}).
@@ -1300,7 +1296,7 @@ map _ [] [].
 map F [X|XS] [Y|YS] :- F X Y, map F XS YS.
 \end{elpicode}
 
-This is a \prolog-style definition. The predicate takes a
+The predicate takes a
 higher-order argument \eI{F}, which is applied to each element of the input
 list. In the base case, the empty list is mapped to the empty list. In the
 recursive case, the head \eI{X} is transformed into \eI{Y} using \eI{F}, and the
@@ -1416,10 +1412,10 @@ The argument \eI{A} is put in place of the (previously) bound variable in
 \eI{F} by replacing that variable with \eI{x} and
 by running \eI{copy} with the addition of a special rule
 copying \eI{x} to \eI{A}.
-Our static analysis understands this programming pattern
-and is able to recognize that \eI{whd} is also a function.
-In particular the first rule, if taken, discard the second rule (due to the cut)
-and only calls functions.
+% Our static analysis understands this programming pattern
+% and is able to recognize that \eI{whd} is also a function.
+% In particular the first rule, if taken, discard the second rule (due to the cut)
+% and only calls functions.
 
 \paragraphTwo{Meta-programming}
 
@@ -1474,19 +1470,19 @@ In the following, the notation $\vecL{h}, \vecL{g}, \vecL{b}$, and
 $\vecL{k}$ denotes lists of atoms.
 
 \emph{Simplification}, written
-$\vecL{h}\ \iff \vecL{g}\ |\ \vecL{b}$, is triggered when the constraints
+$\vecL{h} \iff \vecL{g} \mid \vecL{b}$, is triggered when the constraints
 $\vecL{h}$ are present in the store and the guards $\vecL{g}$ hold. In
 this case, $\vecL{h}$ is removed, and the body $\vecL{b}$ is executed,
 possibly introducing new constraints.
 
-\emph{Propagation}, written $\vecL{k}\ \iff \vecL{g}\ |\ \vecL{b}$, is
+\emph{Propagation}, written $\vecL{k} \iff \vecL{g} \mid \vecL{b}$, is
 triggered under the same conditions, namely when $\vecL{k}$ is in the
 store and $\vecL{g}$ holds. The body $\vecL{b}$ is then executed, but in
 contrast to simplification, the constraints $\vecL{k}$ remain in the
 store.
 
 \emph{Simpagation}, written
-$\vecL{k}\ \backslash \vecL{h} \iff \vecL{g}\ |\ \vecL{b}$, combines the
+$\vecL{k} \backslash \vecL{h} \iff \vecL{g} \mid \vecL{b}$, combines the
 previous two mechanisms. It is triggered when both $\vecL{k}$ and
 $\vecL{h}$ are present in the store and the guards $\vecL{g}$ hold. Then
 $\vecL{h}$ is removed, while $\vecL{k}$ is retained, and the body
@@ -1674,9 +1670,6 @@ diagnostic explaining the error. Internally, this predicate relies on
 the \rocq unification algorithm. When \elpi{coq.unify-eq} is called, the
 HOAS representation of the terms is translated into \rocq terms before
 performing the unification.
-
-Other predicates allow extending the \rocq system with new definitions,
-modules, modes, and more.
 %
 \begin{center}
   \eI{pred coq.typecheck term ~$\to$~ term, diagnostic}
@@ -1757,10 +1750,9 @@ Elpi Accumulate [command_name|tactic_name] lp:{{
 
 As mentioned at the beginning of this chapter, commands are used to extend the
 \rocq language with new definitions and theorems. In other words, a command does
-not return a value: it is mainly used for printing or for modifying the internal
+not return a value: it is mainly used for modifying the internal
 state of the system. The entry point of a command is a predicate named
-\eI{main}, with signature \eI{pred main list argument ~$\to$~}. An argument can be a
-string, an integer, a term, or an open term.
+\eI{main}, with signature \eI{pred main list argument ~$\to$~}.
 
 Tactics in \elpi are used to solve \rocq goals through the \elpi interpreter.
 Their declaration is similar to that of commands. The entry point of a tactic is
@@ -1788,9 +1780,9 @@ type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~ list argument
 
 The \eI{msolve} predicate takes as input a list of \rocq sealed goals and
 returns an updated list of sealed goals. The type \eI{sealed-goal}, shown in
-\cref{fig:goals-type}, represents goals that may contain abstractions (typically
-the context in which the goal leaves). These abstractions are encoded using the
-\eI{nabla} constructor.
+\cref{fig:goals-type}, represents goals that may contain abstractions, typically
+encoding the context in which the goal lives. These abstractions are encoded
+using the \eI{nabla} constructor.
 
 For example, consider the \rocq{} goal
 \begin{prooftree}
