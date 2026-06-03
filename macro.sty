@@ -100,7 +100,7 @@
 \newcommand{\failed}{{failed}}
 \newcommand{\incomplete}{{incomplete}}
 
-\newcommand{\runBuilder}[2][]{\ensuremath{{run#2}\ifx\expandafter\relax
+\newcommand{\runBuilder}[2][]{\ensuremath{\mathrm{{run#2}}\ifx\expandafter\relax
       \detokenize{#1}\relax\else{_{#1}}\fi}\xspace}
 
 
@@ -120,21 +120,20 @@
 \newcommand{\calls}{CallS\xspace}
 \newcommand{\fails}{FailS\xspace}
 
-\newcommand{\ttl}{t2l}
-\newcommand{\ltt}{l2t}
-\newcommand{\vast}{valid\_tree}
+\newcommand{\ttl}{tree\_to\_stack\xspace}
+\newcommand{\ltt}{stack\_to\_tree\xspace}
+\newcommand{\vast}{valid\_tree\xspace}
 
 \renewcommand{\epsilon}{\varepsilon}
 \newcommand{\msome}{\ensuremath{\cdot}}
-\newcommand{\mnone}{\ensuremath{\square}\xspace}
 \newcommand{\mappend}{\ensuremath{\mathbin{+\!\!+}}\xspace}
 \newcommand{\mnil}{\ensuremath{\varnothing}\xspace}
 
-\newcommand{\saveas}{save\_as}
-\newcommand{\unify}{unify}
-\newcommand{\matching}{matching}
-\newcommand{\Eoutput}{output}
-\newcommand{\Einput}{input}
+\newcommand{\saveas}{save\_as\xspace}
+\newcommand{\unify}{unify\xspace}
+\newcommand{\matching}{matching\xspace}
+\newcommand{\Eoutput}{output\xspace}
+\newcommand{\Einput}{input\xspace}
 \newcommand{\dom}{\text{dom}\xspace}
 
 
@@ -302,7 +301,7 @@
 \newcommand{\isdetp}{\texttt{checked}\ensuremath{_\text{\procfont p}}\xspace}
 
 \newcommand{\buildRunArg}[3]{\ConsHd{(#1,\ #2)}\ConsTl{#3}}
-\newcommand{\runCmd}[5]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr (#5, #4)}}
+\newcommand{\runCmd}[5]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr \mathrm{Some}\ (#5, #4)}}
 \newcommand{\runCmdR}[3]{\ensuremath{\runE\ \buildRunArg{#3}{#1}{#2} \arr r}}
 
 \newcommand{\backchain}[1][]{
