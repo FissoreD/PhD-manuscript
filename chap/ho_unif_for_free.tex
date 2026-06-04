@@ -1,16 +1,15 @@
-\chapter{\texorpdfstring{$\beta\eta$}{etabeta}-unification support for meta-programs}
+\chapter{Supporting \texorpdfstring{$\beta\eta$}{beta-eta}-unification in meta-programs}
 \label{chap:ho-for-free}
 
 In the previous chapter, and in particular in \cref{sec:unif-problems}, we have
-talked about the unification issues that we incounter in the \elpi class solver
-when unifying certain \rocq terms. Unification up to $\delta$ is not possible
-in \elpi, but the $\beta\eta$-conversion rules are part of the \elpi unification
-algorithm. In this chapter we propose a framework allowing to ease the unification
-of the HOAS representation of the object language terms in the meta language.
-The sentence which better 
-describe the aim of this chapter: \emph{how to
-reuse the higher-order unification procedure of the meta language in order to
-simulate a higher-order logic program for the object language}.
+talked about the unification issues that we encounter in the \elpi class solver
+when unifying certain \rocq terms. Unification modulo $\delta$-reduction is not
+supported by \elpi, but the $\beta\eta$-conversion rules are part of the \elpi
+unification algorithm. In this chapter, we propose a framework that simplifies
+the unification of HOAS representations of object-language terms in the
+meta-language. The main goal of this chapter can be summarized as follows:
+\emph{how to reuse the higher-order unification procedure of the meta language
+in order to simulate a higher-order logic program for the object language}.
 
 The example we have given in \cref{sec:unif-problems} providing a source of
 $\beta\eta$-unification problem is due to the instance \cI{Pimpl}.
@@ -23,23 +22,22 @@ $\beta\eta$-unification problem is due to the instance \cI{Pimpl}.
 The variable \eI{Q} in \rocq is an object living in the function space, while in
 the HOAS representation of \elpi \eI{Q} is a first-order variable of type
 \eI{term}. As shown in \cref{sec:unif-problems}, the \rocq statement
-\cI{Provable (impl (atom a) (atom a))} can be solved by the \rocq type-class solver
-using the instance \cI{Pimpl}. On the contrary, \elpi fails: the rule above
-would be used on the query \eI{tc-Provable {{impl (atom a) (atom a)}} S} but the
-sub-query \eI{tc-Provable {{atom a}} {{lp:Q lp:p}}} will fails since not
-unifying with the local rule \eI{tc-Provable {{atom a}} p}.
+\cI{Provable (impl (atom a) (atom a))} can be solved by the \rocq type-class
+solver using the instance \cI{Pimpl}. On the contrary, \elpi fails: the rule
+above would be used on the query \eI{tc-Provable {{impl (atom a) (atom a)}} S}
+but the sub-query \eI{tc-Provable {{atom a}} {{lp:Q lp:p}}} will fail because it
+cannot be unified with the local rule \eI{tc-Provable {{atom a}} p}.
 
-The root cause of the problems we outlined in this example
-is a mismatch between the equational theories of the meta language
-and the object language, which in turn makes the 
-unification procedures of the meta language weak.
-The equational theory of the meta-language \elpi encompasses
-$\beta\eta$-equivalence and its unification procedure can solve higher-order
-problems in the pattern fragment (\cref{def:pattern-fragment}). Although 
-the equational theory of \rocq is much richer, for efficiency and predictability
-reasons automatic proof search procedures typically employ a unification
-procedure that only captures a $\beta\eta$-equivalence and only operates
-in the pattern fragment. % The similarity is striking, but one needs to exercise some caution in order to
+The root cause of the problems we outlined in this example is a mismatch between
+the equational theories of the meta-language and the object language, which
+limits the effectiveness of the meta-language unification procedure. The
+equational theory of \elpi includes $\beta\eta$-equivalence and its unification
+procedure can solve higher-order problems in the pattern fragment
+(\cref{def:pattern-fragment}). Although the equational theory of \rocq is much
+richer, for efficiency and predictability reasons automatic proof search
+procedures typically employ a unification procedure that only captures a
+$\beta\eta$-equivalence and only operates in the pattern fragment.
+% The similarity is striking, but one needs to exercise some caution in order to
 % simulate a higher-order logic program in \rocq using the unification of \elpi.
 
 
@@ -121,8 +119,8 @@ in the pattern fragment. % The similarity is striking, but one needs to exercise
 % where \eI{P} can only stand for a predicate symbol, while in a higher-order
 % language \eI{P} can stand for any 1-argument predicate.
 
-A more sophisticated encoding of \rocq terms that, on a first approximation,
-would reshape the compiled rule for \cI{Pimpl} as follows:
+As a first approximation, a more sophisticated encoding of \rocq terms would
+produce the following compilation of \cI{Pimpl}:
 
 \begin{elpicode}
 tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :- 
@@ -133,58 +131,23 @@ tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
 In the body of the rule, we have added a new higher-order \elpi variable \eI{Qm}
 which has the type \eI{term ~$\to$~ term}. In the recursive call to
 \eI{tc-Provable} we pass as argument the variable \eI{Qm} applied, using \elpi
-application, to \eI{p}, allowing the the unification problem \eI{Qm p = p} to
+application, to \eI{p}, allowing the unification problem \eI{Qm p = p} to
 get a solution, namely, \eI{Qm = x\ x}.
 
 The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
 to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
 \eI{Q} is assigned to the HOAS term \cI{fun _ _ x => x}. With this encoding, the
-query \eI{tc-Provable {{imp (atom a) (atom a)}} S} has a solution.
-
-% \noindent
-% Once the head of rule \emph{r3'} unifies with the goal,
-% the premise <<\eI{link Pm A P}>> brings the assignment for \emph{Pm}
-% back to the domain \eI{tm} of \rocq terms, obtaining the expected solution: 
-% % \cref{solution:intro}:
-
-% \begin{elpicode}
-% P = \mlam A x\ mapp [mcon"nfact", x, mcon"3"]
-% \end{elpicode}
-
-% \noindent
-% This simple example is sufficient to show that the encoding we seek
-% is not trivial: the \elpi compiler should identify all the potential unification
-% problem and replace it with a sequence
-% of unification problems that constitute the execution of a logic program.
-
-% In fact
-% the solution for \eI{P} above generates a
-% (\rocq) $\beta$-redex in the second premise (the predicate
-% under the \eI{pi w\ }\hspace{-0.4em}).
-% We show below the premise before and
-% after the instantiation of \eI{P}:
-% \begin{elpicode}
-% decision (mapp [                   P                  , w])
-% decision (mapp [\mlam A (a\ mapp [mcon"nfact", a, mcon"3"]), w])
-% \end{elpicode}
-% \noindent
-% In turn, this redex prevents rule \emph{r2} in \cref{fig:rules-elpi} from backchaining properly since
-% the following unification problem has no solution:
-
-% \begin{elpicode}
-% mapp [ \mlam A (a\ mapp [mcon"nfact", a, mcon"3"]) , x] =
-% mapp [ mcon"nfact"                             , N, NF]
-% \end{elpicode}
-
-% \noindent
-
-% \paragraph{Contributions}
+query \eI{tc-Provable {{impl (atom a) (atom a)}} S} has a solution.
 
 The purpose of this compilation is to detect, at compile time, all
 subterms that may cause unification difficulties up to $\beta\eta$-conversion.
 Each such subterm $t$ is replaced by a unification variable $v$. This
 transformation simplifies unification in the meta-language, while an
 additional premise is introduced to relate $t$ and $v$.
+
+Intuitively, this transformation exposes object-level structure as
+meta-level structure, allowing the meta-language unification
+algorithm to operate directly on it.
 
 Our compilation strategy is described as a general framework based on
 two languages: \Fo{} for the object language, and \Ho{} for the

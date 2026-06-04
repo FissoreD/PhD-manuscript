@@ -208,7 +208,7 @@ arguments.
 Both rules \eI{~\PYG{c}{r$\to$}~} and \eI{~\PYG{c}{r$\forall$}~} return a term
 of the form \eI{(pi y\ R y)}, where \eI{R} is the result of the recursive call
 to \eI{comp}. Since \eI{R} has type \eI{term ~$\to$~ prop} and abstracts the local
-variable \eI{x}, the compiler abstracts $x$
+variable \eI{x}, the compiler abstracts \cI{x}
 in the result \eI{pi y\ R y}. This ensures that the resulting rule is
 closed (ground), as required by the \eI{coq.elpi.accumulate} predicate.
 
@@ -277,7 +277,9 @@ to \rocq as the solution to the type-class goal.
 The implementation presented in this section illustrates the expressive power of
 the \elpi language: the core of the compiler fits in roughly eight lines of
 code, while a similar number of lines is required to complete the \elpi command
-for the compiler. The solver itself consists of a single rule. However, this
+for the compiler. The solver itself consists of a single rule. 
+
+However, this
 simplified implementation has some limitations it is worth to point out.
 
 \begin{itemize}
@@ -338,14 +340,15 @@ three \rocq symbols \cI{-, +, !}, separated by spaces. If the user does not
 provide an explicit mode declaration, \eI{S} is the empty string.
 
 Predicates can be created dynamically in \elpi using the API
-\eI{coq.elpi.add-predicate}. This primitive takes four arguments: the database
-in which the predicate will be stored (in our case \eI{tc.db}), the (optional) indexing
-strategy, the predicate name \eI{N}, and a list \eI{M} of values of type
-\eI{mode-type}. Each element of \eI{M} is a pair specifying the mode and the type of one
-argument of the predicate. The predicate name is constructed from the global
-reference of the class using the predicate \eI{gref~$\to$~pred-name}. The list of
-modes \eI{M} is obtained by processing the string \eI{S} with the predicate
-\eI{str~$\to$~modes}.
+\eI{coq.elpi.add-predicate} (see \cref{sec:elpi-commands-tactics}). 
+% This primitive takes four arguments: the database
+% in which the predicate will be stored (in our case \eI{tc.db}), the (optional) indexing
+% strategy, the predicate name \eI{N}, and a list \eI{M} of values of type
+% \eI{mode-type}. Each element of \eI{M} is a pair specifying the mode and the type of one
+% argument of the predicate. The predicate name is constructed from the global
+% reference of the class using the predicate \eI{gref~$\to$~pred-name}. The list of
+% modes \eI{M} is obtained by processing the string \eI{S} with the predicate
+% \eI{str~$\to$~modes}.
 
 Two cases must be distinguished depending on whether the string \eI{S} is
 empty. If \eI{S} is empty, the compiler derives the modes from the type of the
@@ -425,11 +428,11 @@ be used a on any goal for \cI{Add}.
   \label{fig:simple-elpi-compiler}
 \end{figure}
 
-As explained in \cref{sec:interface-rocq-elpi}, instance compilation is triggered immediately after an instance
-declaration. \Cref{fig:simple-elpi-compiler} shows an instance compiler
-implemented in \elpi where we take into account the type of dependent
-quantification and the positive/negative positition of the term 
-being compiled.
+As explained in \cref{sec:interface-rocq-elpi}, instance compilation is
+triggered immediately after an instance declaration.
+\Cref{fig:simple-elpi-compiler} shows an instance compiler more advanced then
+\cref{sec:simple-instance-compiler}. It takes into account the type of dependent
+quantification and the positive/negative positition of the term being compiled.
 
 Similarly to \cref{fig:simple-elpi-compiler-tc}, we define a \eI{compile}
 predicate which calls the \eI{comp} auxiliary function. \eI{comp} this time
@@ -470,11 +473,12 @@ constructs the final rule by building its head and premises.
 
 To build the head \eI{Head}, the compiler first constructs the proof term
 \eI{Proof}, obtained by applying the instance \eI{I} to its arguments
-\eI{rev Ag}. The list \eI{Ag} is stored in reverse order during traversal, so
-it is reversed before constructing the application. The predicate
+\eI{rev Ag}. %The list \eI{Ag} is stored in reverse order during traversal, so
+% it is reversed before constructing the application.
+The predicate
 \eI{make-rule-head} takes the class name as its first argument in order to
 generate the predicate corresponding to the class. The arguments of this
-predicate are obtained by appending the proof term to the list of class
+predicate are obtained by appending the proof term to the list of the class
 arguments.
 
 The premises of the clause are stored in the accumulator \eI{P}. As with the
@@ -623,7 +627,7 @@ hypotheses that correspond to type classes, and compile them using the
 are added to the program during resolution.
 
 Next, we compile the goal type \eI{Ty}. The
-compilation is performed with polarity \eI{ff}. Concretely,
+compilation is performed with boolean set to \eI{ff}. Concretely,
 %
 \begin{center}
   \eI{comp ff P Ty [] H R}
@@ -639,6 +643,40 @@ to a type class whose proof argument is \eI{P}.
 
 Evaluating \eI{R} instantiates the proof term \eI{P}, which is then used
 to refine the original \rocq goal.
+
+\paragraph*{Example of execution}
+
+We consider as an example of execution the following \rocq goal,
+where local instances are taken into account for the resolution.
+
+\begin{prooftree}
+  \AxiomC{$\cI{T}: \cI{Type} \qquad x : \cI{T} \qquad H : \cI{Add}\ \cI{T}$}
+  \UnaryInfC{$?s : \cI{plus}\ (x, \pig, 3)\ (x, e, 4) = \cI{plus}\ (x, e, 4)\ (x, \pig, 3)$}
+\end{prooftree}
+
+The goal can be solved using the \cI{comm} property over addition. What is
+interesting here is the type-class goal aiming to find the right implementation
+of \cI{plus} in the database, i.e. an instance of \cI{Add} applied to the type
+\cI{(T * R * nat)}, where \cI{T} appears in the hypothesis lists.
+
+The \elpi goal is:
+
+\begin{coqcode}  
+nabla t \ nabla x \ nabla h \ seal
+  (goal 
+    [decl h `H` {{Add lp:t}}, decl x `x` t, decl t `T` {{Type}}] % the context
+    (X0 t x h)
+    {{Add (lp:t * R * nat)}}                                     % the conclusion
+    (X1 t x h) [])
+\end{coqcode}
+
+The context contains a premises which is a typeclass, namely \cI{h}. It is compiled
+into the simple local rule \eI{tc-Add t h}: the proof for the type-class
+\cI{Add} applied to the local type \cI{t} is the local hypothesis \cI{h}. The
+conclusion is encoded as the query \cI{tc-Add {{lp:t * nat}} P}.
+
+To solve this goal we backchain the query in the program extended with
+\eI{tc-Add t h} and obtain the proof $\eI{P} := \cI{addProd lp:t nat lp:h addNat}$.
 
 \subsection{User-Defined Rules}
 \label{sec:user-defined-rules}
@@ -677,9 +715,10 @@ is some case as not the expressivness power of \elpi.
 \subsection{Benchmarks}
 \label{sec:bench}
 
-We evaluate our solver on existing libraries, in particular
-\tlc~\cite{tlc} and \stdpp~\cite{stdpp}. Both libraries use type-class
-inference as a main implementation tool. Studying them helps us
+Using the instance compiler show in the previous section and the \elpi
+interpreter to solve type-class goals, we evaluate our solver on existing
+libraries, in particular \tlc~\cite{tlc} and \stdpp~\cite{stdpp}. Both libraries
+use type-class inference as a main implementation tool. Studying them helps us
 understand the practical needs of \rocq users. %Moreover, \stdpp uses
 %modes in type-class resolution. 
 This can reveal limitations of our
@@ -699,11 +738,10 @@ The type class \cI{Inj} expresses that a
 function $f$ is injective if, for all $x$ and $y$, $f\ x = f\ y$
 implies $x = y$.
 
-The library provides $13$ instances of this class. These include the
-identity function (\cI{id}) and the constructors \cI{inl} and
-\cI{inr}, which are the injections of a sum type. In this benchmark,
-we focus on function composition. The composition (written $\circ$)
-of two functions \cI{f} and \cI{g} is injective if both functions are
+The library provides $13$ instances of this class. These include, for example,
+instances for the identity function,the injections of a sum type. The instance
+we target in our benchmark is function composition. The composition (written
+$\circ$) of two functions \cI{f} and \cI{g} is injective if both functions are
 injective.
 
 To evaluate performance, we measure the time needed by the instance
@@ -723,20 +761,20 @@ $$
 
 \begin{figure}
   \centering
-  \begin{subfigure}{.75\textwidth}
+  \begin{subfigure}{.7\textwidth}
     \centering
     \includegraphics{img/bench/elpi_stat_check.pdf}
     \caption{With typechecking}
     \label{fig:bench-1}
   \end{subfigure}
-  \begin{subfigure}{.75\textwidth}
+  \begin{subfigure}{.7\textwidth}
     \centering
     \includegraphics{img/bench/share.pdf}
     \caption{With memory sharing}
     \label{fig:bench-2}
   \end{subfigure}
 
-  \begin{subfigure}{.75\textwidth}
+  \begin{subfigure}{.7\textwidth}
     \centering
     \includegraphics{img/bench/elpi_stat_no_check.pdf}
     \caption{Without typechecking}
@@ -745,23 +783,22 @@ $$
   \caption{Benchmarks of \elpi solver}
 \end{figure}
 
-For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the
-solver. The size of this goal grows exponentially with $n$.
-\Cref{fig:bench-1} shows the resolution time for $n$ from $0$ to $15$.
-The $x$-axis is the number of nodes (logarithmic scale), and the
-$y$-axis is the time in seconds. The plot compares \rocq with a
-detailed analysis of the \elpi solver.
+For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the solver. The size of
+this goal grows exponentially with $n$. \Cref{fig:bench-1} shows the resolution
+time for $n$ from $0$ to $15$. The $x$-axis is the number of nodes (logarithmic
+scale), and the $y$-axis is the time in seconds. The plot compares the time
+spent by the \rocq and \elpi solvers.
 
 For \elpi, we split the total time into four parts: type-class
 resolution, query construction (translation of \rocq terms into
 \elpi), communication between \elpi and \rocq, and typechecking of
 the final proof.
 
-For \rocq, it is harder to separate these costs. Query construction
-and communication do not appear. However, instance search and
-typechecking are mixed together. In fact, partial typechecking is
-done after each instance selection. For this reason, we cannot easily
-measure them separately.
+For \rocq, query construction and communication intuitively do not appear as
+part of the total time. However, it is harder to separate the time cost of
+instance search and typechecking, since they are mixed together. In fact,
+partial typechecking is done after each instance selection. For this reason, we
+cannot easily measure them separately.
 
 The results in \cref{fig:bench-1} show that instance search is very
 fast. For goals with $2^{15}$ nodes, it takes about $0.25$ seconds
@@ -772,7 +809,7 @@ depend on the \elpi interpreter itself.
 
 The main cost is typechecking the proof term. It represents about
 $77\%$ of the total time. We consider two ways to reduce this cost.
-First, we can introduce ad hoc rules for the specific problem.
+First, we can introduce ad hoc rules in the \elpi database for the specific problem.
 Second, we can skip typechecking of the produced proof.
 
 The first approach also produces smaller proof terms, which are
@@ -790,7 +827,7 @@ proof term should be correct, because the rules in the database are
 compiled in a context where they already typecheck. The main problem
 comes from universe constraints~\cite{universes}.
 
-In the \elpi solver, universes are removed from the compiled clauses to simplify
+In the \elpi compier, universes are removed from the compiled rules to simplify
 unification. For example, the \rocq term \cI{Type@{i}} corresponds to
 the HOAS term \eI{sort (typ i)}. During compilation, the level $i$ is
 replaced by a unification variable. This allows matching terms at
@@ -849,7 +886,8 @@ the same instance cannot be applied because of mode restrictions. The input mode
 is declared on the second argument of the class, in particular, \matching the
 query \eI{tc-Union {{A}} {{option lp:X}}} against the clause head for
 \cI{ounion} fails, since \elpi does not assign variables in input positions
-during matching.
+during matching, that is it fails to match the query input term \cI{{{option
+lp:X}}} against the term \cI{{{option A}}}.
 
 Another subtle point arises when additional instances are present. If,
 before the lemma \cI{union_None_r}, the database is extended with the
@@ -860,12 +898,13 @@ following instance,
 \input{code/UNION_INST1.tex}
 \mvspace{}
 
-\noindent then, under \rocq modes, it becomes unclear which instance is
-selected to solve the goal. Indeed, both instances match the constraint
-\cI{Union A (option ?X)}. Depending on their priorities, \cI{?X} may be
-instantiated differently. As a result, developers may be unaware of which
-instance has been chosen, potentially leading to type errors later in the
-development.
+\noindent then, under \rocq modes, it becomes unclear which instance is selected
+to solve the same goal produced by lemma \cI{union_Nr}. Indeed, both instances
+match the constraint \cI{Union A (option ?X)}. Depending on their priorities,
+\cI{?X} may be instantiated differently, that is either \cI{A} or \cI{option A}
+depending on which instance among \cI{ounion} and \cI{oounion} is used. As a
+result, developers may be unaware of which instance has been chosen, potentially
+leading to type errors later in the development.
 
 In contrast, in \elpi, even with the additional instance \cI{oounion},
 type-class resolution still fails to make progress. In particular, the
@@ -906,7 +945,7 @@ function}, where \cI{?F} is a unification variable. In \rocq, this succeeds
 by instantiating \cI{?F} with \cI{fun x y => map y x}. In contrast, \elpi
 represents these terms as HOAS expressions, namely
 \eI{fun _ _ x\ fun _ _ y\ app[F, y, x]} and
-\eI{global «map»}. Since these terms have different rigid heads,
+\eI{«map»}. Since these terms have different rigid heads,
 unification fails.
 
 This behavior is expected from the \elpi unification algorithm, but it is

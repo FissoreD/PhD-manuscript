@@ -234,18 +234,22 @@ Module Logic1.
   Fixpoint interp (p: mlogic) : Prop := 
     match p with
     | atom a => to_prop a
-    | impl a b => interp a -> interp b
     | and a b => interp a /\ interp b
+    | impl a b => interp a -> interp b
     end.
 
   Class Provable (T : mlogic) := { proof : interp T }.
 
+  #[refine](*HIDE*)
   Instance Pand F1 F2 :
-    Provable F1 -> Provable F2 -> Provable (and F1 F2).
+    Provable F1 -> Provable F2 -> Provable (and F1 F2) := (*DOTS*)
+  _. (*HIDE*)
   Proof. now intros [][]; constructor; simpl; auto. Qed. (*HIDE*)
 
+  #[refine](*HIDE*)
   Instance Pimpl F1 F2 :
-    (Provable F1 -> Provable F2) -> Provable (impl F1 F2).
+    (Provable F1 -> Provable F2) -> Provable (impl F1 F2) := (*DOTS*)
+  _. (*HIDE*)
   Proof. now intros H; split; simpl; intro H1; case H; auto; split. Qed. (*HIDE*)
   (*ENDSNIP: HORN1 *)
 
