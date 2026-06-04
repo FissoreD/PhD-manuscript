@@ -156,7 +156,8 @@ that the higher-order unification procedure of the meta-language,
 denoted \Ue{}, can simulate a higher-order unification procedure \Uo{}
 for the object language, including $\beta\eta$-conversion.
 
-Section~\cref{sec:problem-statement} states the problem formally and gives the
+The following section are inspired from our paper~\cite{fissore2024}.
+In particular, section~\cref{sec:problem-statement} states the problem formally and gives the
 intuition behind our solution; \cref{sec:simulation} sets up a basic
 simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
 extend it to higher-order logic programs in the pattern fragment
@@ -192,7 +193,7 @@ for the rule \eI{tc-Provable}. The term \eI{(Qm p)} is represented as
 \eI{~\muva~ [Qm, p]}, while the term 
 \eI{~{\PYGZob{}\PYGZob{}}\PYG{l+m}{lp:}\PYG{n+nv}{Q}\PYG{+w}{ }\PYG{l+m}{lp:}\PYG{n+nv}{p}\PYG{p}{\PYGZcb{}\PYGZcb{}}~}
 is encoded as
-\eI{~\mapp~ [Q, p]}.\marginpar{TODO: syntax coloring \ref{code:common-terms}}
+\eI{~\mapp~ [Q, p]}.
 
 % This encoding is implemented and tested in an \elpi development available at
 % \githubUrl.

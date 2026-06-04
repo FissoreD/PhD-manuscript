@@ -97,18 +97,21 @@ example map and fold, see \cref{sec:HO-program}) and dynamic predicates that ext
 runtime (see \cref{sec:dynamic-prog}), and meta-programs that manipulate \elpi code
 (see \cref{sec:meta-prog}).
 
-We apply these signatures to a large portion of publicly available
-\elpi code in the \rocq ecosystem and report our experience. Our
-findings indicate that most \elpi programs are intended to be
-backtracking-free and require only minimal signatures for the static
-analyzer we implemented to verify determinacy.
+Our findings indicate that most \elpi programs are intended to be
+backtracking-free and require only minimal annotations for our static
+analyzer to verify determinacy.
 
-Our contributions are:
-1) we design a language of signatures to assert the determinacy of predicates
-that covers higher-order logic programming constructs such as first-class
-predicates and dynamic predicates; 2) we implement a
-static analyzer for that language; 3) we apply the static analyzer
-to most of the \elpi code available in the \rocq ecosystem.
+The following sections are inspired by our paper~\cite{fissore2026}.
+In particular, \cref{sec:elpi-det-ex} motivates the need for determinacy
+in a logic programming language such as \elpi, while
+\cref{sec:elpi-syn-sem-det} briefly reviews the syntax and semantics of
+\elpi, which are described in detail in
+\cref{sec:elpi-syntax,sec:elpi-semantics}. In
+\cref{sec:hc,sec:staticanalysis}, we present the core building blocks of
+determinacy checking, in particular the mutual-exclusion checker and the
+rule checker. Finally, in \cref{sec:det-guar}, we establish the
+properties of our determinacy checker, while
+\cref{sec:det-exp-report} concludes with an experimental report.
 
 % Our contribution is a static analyzer that 1)
 % % \begin{itemize}
@@ -121,6 +124,7 @@ to most of the \elpi code available in the \rocq ecosystem.
 % % \end{itemize}
 
 \section{\elpi and determinacy signatures by examples}\label{sec:intro}
+\label{sec:elpi-det-ex}
 
 As in most logic programming languages, \elpi programs are organized in rules.
 When rules are not \emph{mutually exclusive}, i.e. multiple rules apply on the same query,
@@ -276,13 +280,20 @@ this with four scenarios involving correct calls and miscalls to \eI{map}.
 func incr int ~$\to$~ int.             pred get_pdiv int ~$\to$~ int.
 incr 1 2.                         get_pdiv 6 3. get_pdiv 6 2.
 
-       % four predicates calling map or miscalling map
-func p list int ~$\to$~ list int.      pred q list int ~$\to$~ list int.
-p L R :- map incr L R. ~\PYG{c}{\PYGZpc{} OK}~       q L R :- map get_pdiv L R. % OK
+% four predicates calling map or miscalling map
 
-func r list int ~$\to$~ list int.      func r1 list int ~$\to$~ list int.
-r L R :- map get_pdiv L R.        r1 L R :- map get_pdiv L R, !. % OK
+func p list int ~$\to$~ list int.
+p L R :- map incr L R.            % OK
+
+pred q list int ~$\to$~ list int.
+q L R :- map get_pdiv L R.        % OK
+
+func r list int ~$\to$~ list int.
+r L R :- map get_pdiv L R.        % KO
            % ^^^^^^^^ error: non-deterministic atom
+
+func r1 list int ~$\to$~ list int.
+r1 L R :- map get_pdiv L R, !.    % OK
 \end{elpicode}
 
 In this example, \eI{incr} is a function, while \eI{get_pdiv} is a relation.
@@ -361,6 +372,7 @@ also \eI{F} and \eI{G} must be; from that we have that
 \eI{comp F G} is a function and so is \eI{map (comp F G)}.
 
 \section{\elpi's abstract syntax and semantics}
+\label{sec:elpi-syn-sem-det}
 
 Any static analysis aimed at ruling out non-determinism must take into account
 the operational semantics of the language. In particular, the order in which
@@ -396,7 +408,8 @@ In summary, the algorithm proceeds as follows:
 \section{Mutual Exclusion}
 \label{sec:hc}
 
-We focus on how to address the first source of non-determinism.
+% We focus on how to address the first source of non-determinism.
+Mutual exclusion is one of the two main ingredients of the static checker.
 The interesting aspects
 for this section are the \cut operator and the \matching/\unify procedure
 depending on the modes of a predicate.
@@ -511,7 +524,8 @@ Conversely, \eI{q} satisfies mutual exclusion: no query can trigger both
 rules. Note that, since inputs are matched, a query like \eI{q X Y} has no
 solution in \elpi. % Standard \prolog implementation would reject the query as
 % not well moded since the input \eI{X} is not ground.
-Both rules for \eI{r} match any input.
+
+Finally, both rules for \eI{r} match any input.
 If the first rule succeeds, the \cut\ removes the alternatives
 created by the call to \eI{p} and also 
 discards the 
@@ -685,11 +699,11 @@ and \eI{pred} in the concrete syntax). % used in the introduction).
   % \begin{framed}
 %   \begin{minipage}{0.45\textwidth}
   $$
-  \begin{array}{rlrrlr}
-    \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{sign.\ start} & \qquad
+  \begin{array}{rlr}
     \F & ::= \detI \mid \relI & \mathrm{~~determinacy} \\
-    \SIGN_o & ::=     \F\ \mid \SIGN_i \toO \SIGN_o \mid \STAR \toO \SIGN_o & \mathrm{sign.\ stop} &
     \STAR & ::= \star & \mathrm{all\ data} \\
+    \SIGN_i & ::= \SIGN_o \mid \SIGN_i \toI \SIGN_i \mid \STAR \toI \SIGN_i & \mathrm{signature\ start} \\
+    \SIGN_o & ::=     \F\ \mid \SIGN_i \toO \SIGN_o \mid \STAR \toO \SIGN_o & \mathrm{signature\ stop} \\
     \TYPE   & ::= \SIGN_i& \mathrm{signature} 
 % \end{array}
 % $$
@@ -1146,6 +1160,7 @@ occurring in input positions are also updated in the context.
 
 
 \section{Determinism guarantees}
+\label{sec:det-guar}
 
 In order to express \emph{operational determinacy}
 we need to use the operational semantics for \elpi. The semantics is
@@ -1416,6 +1431,7 @@ formalization is discussed in detail in~\cref{chap:mechanization}. The
 mechanization of the higher-order part is still ongoing.
 
 \section{Experience report}
+\label{sec:det-exp-report}
 
 The static analyzer we describe was integrated in the \elpi language
 version 3.0. It

@@ -1,22 +1,33 @@
+From elpi Require Import tc.
 Require Import Reals.
 
 Class Add T := { plus: T -> T -> T; 
-  assoc: forall a b c, plus a (plus b c) = plus (plus a b) c}.
+  comm: forall a b, plus a b = plus b a}.
 
-Instance mNat : Add nat := {plus := Nat.add; assoc:= Nat.add_assoc}.
+Instance mNat : Add nat := {plus := Nat.add; comm:= Nat.add_comm}.
 Program Instance mR : Add R  := {plus := Rplus}.
-Next Obligation. now rewrite Rplus_assoc. Qed.
+Next Obligation. now rewrite Rplus_comm. Qed.
 
 Program Instance mProp T1 T2 : Add T1 -> Add T2 -> Add (T1 * T2) :=
   {plus '(x1,y1) '(x2, y2) := (plus x1 x2, plus y1 y2)}.
-Next Obligation. now rewrite 2!assoc. Qed.
+Next Obligation. now f_equal; rewrite comm. Qed.
 
 Notation "a +k b" := (plus a b)
   (at level 1, no associativity).
 
-Goal ((3, PI) +k ((3, sqrt 2) +k (3, PI2))) = ((3, PI) +k (3, sqrt 2)) +k (3, PI2).
+Axiom e : R.
+
+Elpi Accumulate TC.Solver lp:{{
+  :before "0"
+  msolve L _ :- coq.say L, fail.
+}}.
+
+Goal plus (PI, 3) (e, 4) = plus (e, 4)  (PI, 3).
 Proof.
-  apply assoc.
-  Set Printing All.
-  Show Proof.
+  intros T x H; apply comm.
+Qed.
+
+Goal forall T (x : T) (H: Add T), plus (x, PI, 3) (x, e, 4) = plus (x, e, 4)  (x, PI, 3).
+Proof.
+  intros T x H; apply comm.
 Qed.
