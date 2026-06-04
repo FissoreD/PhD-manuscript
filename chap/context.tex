@@ -444,22 +444,22 @@ duplication of code by resolving instances automatically.
 In a proof assistant such as \rocq, the type class
 mechanism reuses the same intuition behind symbol overloading so that not only
 function can be overload but also theorem symbol.
-For instance, one may enrich \cI{Add} with the associativity specification:
+For instance, one may enrich \cI{Add} with the commutativity specification:
 %
 \input{code/plus_tc_add1.tex}
 
 An instance of this refined class must now provide both an implementation of the
-function \cI{plus} and a proof that \cI{plus} is associative. Then, if
+function \cI{plus} and a proof that \cI{plus} is commutative. Then, if
 \cI{addNat}, \cI{addR} and \cI{addProd} are implemented according the new
-definition of \cI{Add}, the \cI{assoc} symbol can be used as a proof that
-addition is associative over natural and real numbers and pairs.
+definition of \cI{Add}, the \cI{comm} symbol can be used as a proof that
+addition is commutative over natural and real numbers and pairs.
 
 As an example, the specification:
 %
-$$(3, \pig) + \big((3, e) + (3, \sqrt{2})\big) = \big((3, \pig) + (3, e)\big) + (3, \sqrt{2}).$$
+$$\cI{plus}\ (3, e)\ (4, \sqrt{2}) = \cI{plus}\ (4, \sqrt{2})\ (3, e)$$
 
 \noindent
-can be proved by using the overload theorem \cI{assoc}, and the type-class solver
+can be proved by using the overload theorem \cI{comm}, and the type-class solver
 will be charged of finding an instance for the type \cI{nat * R}.
 
 % In order to better structure type classes, the system can be extended so that
@@ -509,8 +509,12 @@ instance resolution and its termination behavior.
 
 As an example, consider the instances defined for the type class
 \cI{Add}, ordered as follows: \cI{addNat}, \cI{addR}, and
-\cI{addProd}. To solve the goal \cI{Add (nat * R)}, the solver examines
-the instances in that order. The first two instances are discarded
+\cI{addProd}. Performing the addition $\cI{plus}\ (3, \pi)\ (4, e)$
+asks the elaborator to find an implementation for symbol \cI{plus}
+used on the type \cI{nat * R}. Sais in other words,
+we need to find an instance for following goal \cI{Add (nat * R)}.
+The type-class solver examines
+the instances in the order in which the instances are declared. The first two instances are discarded
 because their conclusions do not match the goal. The instance
 \cI{addProd} matches and generates the subgoals \cI{Add nat} and
 \cI{Add R}. These subgoals are solved by \cI{addNat} and \cI{addR},

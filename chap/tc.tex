@@ -83,8 +83,8 @@ These APIs allow one to declare new compilers and solvers inside the
 
 A compiler is implemented as an observer, which is triggered whenever a
 new class or instance is declared. To define a compiler, one provides a
-name and an event handler to \mlI{register_compiler}. Observers are
-stored in a table that maps names to their handlers. The handler is a
+name and an event handler to \mlI{register_compiler}. Compilers are
+stored in a table that maps their names to their handlers. The handler is a
 higher-order function, invoked each time an event occurs. Each event
 contains the class or instance currently being defined in \rocq. The
 handler processes this information and updates its internal database.
@@ -121,7 +121,17 @@ By invariant, a query of the form \eI{tc T I} ensures that the term
 
 
 \begin{figure}
-  \input{code/plus_tc_add_inst.tex}
+  \begin{coqcode}
+  Class Add T := {
+    plus: T ~$\rightarrow$~ T ~$\rightarrow$~ T;
+    comm: ~$\forall$~ a b, plus a b = plus b a.
+  }.
+
+  Instance addNat : Add nat := ...
+  Instance addR : Add R  := ...
+  Instance addProd : ~$\forall$~ T1 T2, Add T1 ~$\rightarrow$~ Add T2 ~$\rightarrow$~ Add (T1 * T2) := ...
+  \end{coqcode}
+  % \input{code/plus_tc_add_inst.tex}
   \caption{The \cI{Add} type class and its instances}
   \label{fig:add-class-full}
 \end{figure}%
@@ -214,7 +224,7 @@ Compiling this instance yields the following \elpi rule:
 
 \begin{elpicode}
   pi L R PL PR\
-    tc {{Add (lp:L * lp:R)}} {{addNat lp:L lp:R lp:PL lp:PR}} :-
+    tc {{Add (lp:L * lp:R)}} {{addProd lp:L lp:R lp:PL lp:PR}} :-
       tc {{Add lp:L}} PL, tc {{Add lp:R}} PR.
 \end{elpicode}
 
@@ -239,8 +249,30 @@ backchaining step on \eI{tc Ty P} to obtain a proof \eI{P}, and refines the goal
 \eI{G} with \eI{P}. The refinement produces a list of subgoals \eI{S}, which are
 returned to \rocq.
 
-% The full code, together with a working example, can be found in
-% \cref{app:full-simpl-compiler}.
+\paragraph*{Complete example of execution}
+To illustrate how type-class goals are delegated from \rocq to \elpi, we
+present a complete example. Consider the following \rocq goal, using the class
+and instances defined in \cref{fig:add-class-full}:
+
+\begin{prooftree}
+  \AxiomC{}
+  \UnaryInfC{$?s : \cI{plus}\ (\pig, 3)\ (e, 4) = \cI{plus}\ (e, 4)\ (\pig, 3)$}
+\end{prooftree}
+
+This goal can be solved using the commutativity property of addition. The
+interesting part is the associated type-class resolution problem, which
+consists in finding an implementation of \cI{plus} from the instance database,
+that is, an instance of \cI{Add} for the type \cI{(R * nat)}.
+
+The corresponding \elpi goal is
+\eI{(goal [] X0 {{Add (R * nat)}} X1 [])}. This goal is solved through the
+recursive call \eI{tc {{Add (R * nat)}} P}. Applying the rule corresponding to
+\cI{addProd} generates two recursive type-class goals, which are solved using
+the instances \cI{addR} and \cI{addNat}, respectively. As a result,
+\eI{P} is instantiated with \cI{addProd R nat addR addNat}, which is returned
+to \rocq as the solution to the type-class goal.
+
+\paragraph*{Concluding remarks}
 
 The implementation presented in this section illustrates the expressive power of
 the \elpi language: the core of the compiler fits in roughly eight lines of

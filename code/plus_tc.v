@@ -105,7 +105,7 @@ Module S4.
 
 (*SNIP: plus_tc_add1 *)
 Class Add T := { plus: T -> T -> T; 
-  assoc: forall a b c, plus a (plus b c) = plus (plus a b) c}.
+  comm: forall a b, plus a b = plus b a}.
 (*ENDSNIP: plus_tc_add1 *)
 
 End S4.
