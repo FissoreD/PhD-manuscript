@@ -19,13 +19,33 @@ making this approach viable from an efficiency perspective.
 
 The integration of \rocq and \elpi is, however, not without challenges.
 Although both systems support higher-order unification and
-$\beta\eta$-conversion, their internal representations of terms differ
+$\beta\eta$-conversion rules, their internal representations of terms differ
 significantly. This mismatch leads to situations where terms that unify in
 \rocq fail to unify after translation into \elpi. To address this issue, we
 developed a compilation scheme based on links and delayed constraints. This
 approach allows us to recover much of the intended behavior of \rocq
 unification while preserving the advantages of the \elpi execution model,
-including indexing and mode-directed unification.
+including mode-directed unification.
+
+Overall, the \elpi compiler of \rocq classes and instances consists of
+approximately 1,500 lines of code. Around 150 lines are devoted to the
+compilation of new predicates when \rocq classes are declared. Roughly 700 lines
+implement the infrastructure required to compile rules while introducing links
+for problematic subterms, as described in \cref{chap:ho-for-free}.
+
+This infrastructure is organized into three main phases. First, the term
+undergoes a preprocessing phase, during which problematic subterms are
+identified and replaced with dedicated constructors indicating the category to
+which each subterm belongs. The resulting representation is then traversed and
+compiled into an \elpi rule or query, depending on whether a \rocq instance or
+goal is being translated. Finally, a decompilation phase removes auxiliary
+compilation artifacts and reconstructs the final representation expected by the
+solver.
+
+The solver itself consists of approximately 200 lines of code dedicated to rule
+resolution. In particular, these rules are responsible for translating \rocq
+goals into \elpi queries and for managing the link constraints generated during
+the instantiation of compiled problematic subterms.
 
 Beyond type-class resolution, this thesis also investigated static analyses for
 logic programs. We introduced a determinacy analysis for \elpi capable of
@@ -35,16 +55,68 @@ introduce unnecessary choice points during execution. In the context of
 type-class resolution, such guarantees contribute to a better understanding and
 control of the search performed by the logic-programming engine.
 
-Finally, we initiated the formal verification of these results by mechanizing a
-first-order fragment of the \elpi interpreter in \rocq. Although this model
-does not capture the full higher-order language, it is sufficiently expressive
-to establish machine-checked correctness results for the determinacy analysis.
-This mechanization constitutes a first step towards a more comprehensive formal
-account of \elpi and its analyses.
+The static checker is implemented directly in the \elpi backend rather than in
+\rocqelpi. Consequently, any \elpi program (including the type-class solver
+developed in this thesis) can benefit from it simply by declaring the expected
+predicates as deterministic. This illustrates one of the main advantages of the
+integration between \elpi and \rocq: techniques developed within the
+logic-programming framework can be implemented once in \elpi and subsequently
+benefit all systems built on top of it.
 
-Taken together, these results suggest that logic programming is not merely a
-convenient implementation technique for proof assistants, but also a useful
-framework for studying, prototyping, and formally reasoning about elaboration
-mechanisms. The interaction between \rocq and \elpi demonstrates that existing
-logic-programming technology can be leveraged effectively while still preserving
-the level of rigor expected from theorem-proving environments.
+The implementation of the static checker relies on discrimination trees built
+upon trie-based data structures. Together, these indexing structures account for
+approximately 400 lines of code. The two main components of the determinacy
+checker — the mutual-exclusion checker and the rule checker — consist of
+approximately 200 and 1,000 lines of code, respectively.
+
+To increase confidence in the correctness of our determinacy checker, we have
+done a formal verification effort using the \rocq proof assistant. The
+current mechanization focuses on a first-order fragment of the \elpi
+interpreter. To the best of our knowledge, this constitutes a novel
+formalization of the operational semantics of a Prolog-like interpreter
+featuring the cut operator and determinacy verification.
+
+Although the formalized model does not capture the full higher-order language,
+it is sufficiently expressive to establish machine-checked correctness results
+for the determinacy analysis. This work therefore represents a first step toward
+a comprehensive formal account of \elpi and of the static analyses developed for
+it.
+
+The formalization consists of approximately 7,500 lines of \rocq code, divided
+among the specification of the tree-based and stack-based semantics of \elpi,
+the formalization of first-order unification based on the Martelli–Montanari
+algorithm~\cite{montanari82}, and the implementation and verification of the
+static checker.
+
+Taken together, the results presented in this thesis suggest that logic
+programming provides a powerful framework for studying, prototyping, and
+reasoning about elaboration mechanisms. The integration of \rocq and \elpi
+demonstrates that mature logic-programming technology can be effectively
+leveraged within theorem-proving environments while maintaining the level of
+rigor expected of such systems.
+
+Beyond the specific contributions presented here, several directions for future
+work remain open. We detail them in the following perspective section. 
+
+\section{Perspective}
+
+\subsection{Reusing links for other unification problems}
+
+One of the main obstacle of our type-classes solver written in \elpi is still
+unification: thanks to our work in~\cref{chap:ho-for-free} we have reduced
+considerably unification failures for terms in pattern fragment featuring
+$\beta\eta$-equivalence. Beyond \tlc and \stdpp we have tried our solver on the
+\iris~\cite{iris-junk} library, and we immediately face a main unification
+problem due to projections of canonical structure a standard coding structure
+used in \iris.
+
+In particular, take the following code:
+
+\input{code/ofe.tex}
+
+In the code 
+
+
+\subsection{Tabling}
+
+\subsection{Formalizing full \elpi in \rocq}
