@@ -168,11 +168,11 @@ Our mechanization is axiom-free and is available at
 
 % \end{figure}
 
-In the entire paper we use \Cref{fig:progx} as our running example, and
-we start by describing how we represent a program like that one.
-In the concrete syntax, variables are written with capital letters, and
-predicate application follows the $\lambda$-calculus style (no
-parentheses).
+% In the entire paper we use \Cref{fig:progx} as our running example, and
+% we start by describing how we represent a program like that one.
+% In the concrete syntax, variables are written with capital letters, and
+% predicate application follows the $\lambda$-calculus style (no
+% parentheses).
 
 The description of a program is given by a pair
 $\PROG := (\mathrm{list}\ \mathbb{R} \times \mathrm{sigT})$ and is shared by
@@ -349,7 +349,8 @@ applied to the pair \cI{x}.
 \label{stack-sem}
 
 The stack-based semantics we present is very close to what is
-implemented by the \elpi interpreter. This semantics is 
+implemented by the \elpi interpreter and is a subset of \cref{sec:elpi-semantics}.
+This semantics is 
 similar to the one proposed by Pusch in
 \cite{pusch1996}, which is in turn closely related to the
 semantics given by Debray and Mishra in

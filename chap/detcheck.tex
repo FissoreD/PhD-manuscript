@@ -578,14 +578,13 @@ rules are mutually exclusive with the global rules in the program, but the query
 \newcommand{\pfdt}{https://www.cs.cmu.edu/~fp/courses/99-atp/lectures/lecture28.html}
 \subsection{Checking mutual exclusion: discrimination trees}
 
-This subsection briefly describes our implementation of mutual exclusion
-verification in \elpi.
+This subsection describes the implementation of mutual exclusion checking in \elpi.
 
-To support mutual exclusion checking in \elpi, we rely on the
-discrimination tree data structure~\cite{disc-tree}, a standard mechanism for
-indexing rules in logic programming systems. Discrimination trees are widely
-used in \prolog-like systems to improve the efficiency of clause retrieval. Our
-implementation follows, in part, the presentation given in Pfenning's
+To support mutual exclusion checking in \elpi, we rely on the discrimination
+tree data structure~\cite{disc-tree}, a standard mechanism for indexing rules in
+logic programming systems. Discrimination trees are widely used in \prolog-like
+systems to improve the efficiency of clause retrieval. Our implementation is
+partially inspired by the presentation in Pfenning's
 notes~\footnote{\url{\pfdt}}.
 
 A discrimination tree is a trie-based structure. Inner nodes are labeled,
@@ -596,15 +595,15 @@ encountered from the root to a leaf.
 Two basic operations are supported: insertion and retrieval.
 %
 \begin{camlcode}
-  type retrive trie ~$\to$~ key ~$\to$~ option elt.
-  type insert  trie ~$\to$~ key ~$\to$~ elt ~$\to$~ unit.
+  type retrieve trie ~$\to$~ key ~$\to$~ option elt.
+  type insert   trie ~$\to$~ key ~$\to$~ elt ~$\to$~ unit.
 \end{camlcode}
 
 To insert an
 element $e$ with key $k$, the algorithm traverses the trie symbol by symbol,
 starting from the root. For each symbol, it follows the corresponding edge,
 creating a new node if necessary. Once all symbols have been consumed, the
-element $e$ is stored in the resulting leaf. Retrieval works similarly: the key
+element $e$ is stored in the corresponding leaf. Retrieval works similarly: the key
 is read symbol by symbol, and the tree is traversed accordingly. If the path
 exists, the elements stored in the corresponding leaf are returned.
 
@@ -627,14 +626,13 @@ the database
 annotated with the rules stored in each bucket. The purpose of the tree is to
 enable fast clause retrieval.
 
-Variables are represented in an approximate way. In particular, they are encoded
-as generic symbols that match any term. For instance, in
+Variables are represented approximately by wildcard symbols. In particular, they
+are encoded as generic symbols that match any term. For instance, in
 \cref{fig:disc-tree}, rules 1 and 2 share the same path and are stored in the
-same bucket. Differently from \cite{disc-tree},
-retrieval must take modes into account. For example, if the
-predicate \eI{g} has one input and one output argument, the query \eI{g X Y}
-returns only rules 7 and 8. If both arguments are outputs, then rules 7, 8, and 9
-are returned.
+same bucket. Unlike the approach described in~\cite{disc-tree}, retrieval in our
+setting must take modes into account. For example, if the predicate \eI{g} has
+one input and one output argument, the query \eI{g X Y} retrieves only rules 7 and
+8. If both arguments are outputs, then rules 7, 8, and 9 are returned.
 
 For efficiency, terms are encoded as sequences of integers, where each integer
 represents multiple pieces of information at the bit level. Modes are included
@@ -647,27 +645,28 @@ of rules returned by the tree is a superset of the rules that actually match the
 query. A second phase applies the full \elpi unification to filter out
 non-applicable rules.
 
-We also optimize the encoding of query paths. In practice, query terms are
-often larger than the terms stored in the database, so encoding them entirely
-is not useful. Instead, we use a hit map to decide which subterms should be
-encoded and at which depth.
+We also optimize the encoding of query paths. In practice, query terms are often
+larger than the terms stored in the database, so encoding them entirely is not
+useful. Instead, we use a hit map that records which positions in the subterms
+can influence retrieval, and encode only the corresponding them.
 
-Moreover, to avoid complex unification, terms headed by a $\lambda$-symbol are
-treated as variables. For example, \eI{x\ X x} may unify with \eI{id} or with
-\eI{(x y\ true)}, but all such terms are encoded as variables in the tree. As a
-result, in our implementation of discrimination trees, the following program
-does not satisfy mutual exclusion:
+To avoid higher-order unification during retrieval, terms headed by a
+$\lambda$-abstraction are treated as variables. For example, \eI{x\ X x} may
+unify with \eI{id} or with \eI{(x y\ true)}, but all such terms are encoded as
+variables in the tree. As a result, in our implementation of discrimination
+trees, the following program does not satisfy mutual exclusion:
 
 \begin{elpicode}
 func isfunc (func int ~$\to$~ int) ~$\to$~.
 isfunc id.
-isfunc (x y\ true).
+isfunc (x\ y\ x = y).
 \end{elpicode}
 
 The argument of the second rule for the predicate \eI{isfunc} contains a
 $\lambda$-abstraction, so the whole argument is encoded as a variable in the
 discrimination tree. To make the checker accept this program, a \cut must be
-added to the body of the first rule.
+added to the body of the first rule, indicating that the second rule should not
+be considered once the first one succeeds.
 
 Discrimination trees are effective for indexing rules in the \elpi database,
 making retrieval faster in many cases. In this chapter, however, their main role is
@@ -677,9 +676,10 @@ During compilation, an auxiliary discrimination tree is built. Each rule of a
 deterministic predicate is inserted into this structure. When a new rule is
 added, the tree is queried to retrieve the set of potentially overlapping rules
 $r$. By invariant, $r$ is an ordered (possibly empty) list in which all rules,
-except possibly the last one, contain a \cut. The mutual exclusion check then
-verifies that the new rule is inserted either at the end of the list; otherwise
-it should contain the \cut operator.
+except possibly the last one, contain a \cut. The mutual exclusion checker then
+verifies that either the new rule is inserted at the end of the list, or that it
+contains a \cut. This ensures that any potentially overlapping rule is either
+the final alternative or explicitly commits to its choice.
 
 
 \section{Static analysis of determinacy signatures}
