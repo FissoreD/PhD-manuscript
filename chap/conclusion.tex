@@ -1,102 +1,71 @@
 \chapter{Conclusion and Perspectives}
 
-This thesis investigated the use of logic programming as an implementation
-framework for elaboration mechanisms in \rocq, with a particular focus on
-type-class resolution and static analyses. More broadly, our goal was to
-explore how an external logic-programming engine can be used both as an
-implementation tool and as a framework for reasoning about components of an
-interactive theorem prover.
+This thesis investigated the use of logic programming as a base for the
+implementation and analysis of elaboration mechanisms in \rocq. More
+specifically, we explored how an external logic-programming engine can be used
+not only as an implementation vehicle for components of an interactive theorem
+prover, but also as a framework in which such components can be studied,
+optimized, and formally reasoned about.
 
-A first contribution of this work is the implementation of an alternative
-type-class solver in \elpi. We showed that type classes and instances can be
-compiled into a logic-programming database using a relatively small amount of
-code, while relying on the existing \elpi interpreter for resolution. The
-resulting solver shows competitive performance with respect to the native
-\rocq implementation. Experimental results presented in
-\cref{sec:bench} indicate that the overhead introduced by translating terms
-between the object language and the meta-language remains limited in practice,
-making this approach viable from an efficiency perspective.
+The main contributions of this thesis are threefold.
 
-The integration of \rocq and \elpi is, however, not without challenges.
-Although both systems support higher-order unification and
-$\beta\eta$-conversion rules, their internal representations of terms differ
-significantly. This mismatch leads to situations where terms that unify in
-\rocq fail to unify after translation into \elpi. To address this issue, we
-developed a compilation scheme based on links and delayed constraints. This
-approach allows us to recover much of the intended behavior of \rocq
-unification while preserving the advantages of the \elpi execution model,
-including mode-directed unification.
+First, we developed an alternative type-class solver for \rocq based on the
+\elpi logic-programming language. We showed that classes and instances can be
+compiled into a logic-programming database and resolved using the existing
+\elpi execution engine. Experimental results demonstrate that the resulting
+solver achieves performance comparable to the native \rocq implementation,
+while requiring only a modest amount of compilation infrastructure. These
+results indicate that logic programming provides a practical and efficient
+foundation for implementing elaboration mechanisms traditionally embedded
+within the theorem prover itself.
 
-Overall, the \elpi compiler of \rocq classes and instances consists of
-approximately 1,500 lines of code. Around 150 lines are devoted to the
-compilation of new predicates when \rocq classes are declared. Roughly 700 lines
-implement the infrastructure required to compile rules while introducing links
-for problematic subterms, as described in \cref{chap:ho-for-free}.
+Second, we addressed a fundamental mismatch between the unification mechanisms
+of \rocq and \elpi. Although both systems support higher-order unification and
+$\beta\eta$-conversion, differences in their internal representations lead to
+situations where terms that unify in \rocq fail to unify after translation into
+\elpi. To bridge this gap, we introduced a compilation technique based on links
+and delayed constraints. This approach allows difficult unification problems to
+be deferred and delegated back as constraints while preserving
+the advantages of the \elpi execution model, including mode-directed
+unification. The resulting infrastructure significantly extends the class of
+programs that can be handled by the solver and demonstrates how logic
+programming and a proof assistants can cooperate effectively despite
+differences in their underlying computational models.
 
-This infrastructure is organized into three main phases. First, the term
-undergoes a preprocessing phase, during which problematic subterms are
-identified and replaced with dedicated constructors indicating the category to
-which each subterm belongs. The resulting representation is then traversed and
-compiled into an \elpi rule or query, depending on whether a \rocq instance or
-goal is being translated. Finally, a decompilation phase removes auxiliary
-compilation artifacts and reconstructs the final representation expected by the
-solver.
+Third, we developed a static determinacy analysis for \elpi capable of handling
+higher-order predicates, dynamic clauses, and the cut operator. The analysis
+provides guarantees that predicates declared deterministic do not introduce
+unnecessary choice points during execution, thereby improving the reliability
+and predictability of logic programs. To increase confidence in the correctness
+of this analysis, we carried out a mechanized verification effort in \rocq.
+The resulting formalization includes an operational semantics for a
+first-order fragment of \elpi, a formalization of first-order unification based
+on the Martelli-Montanari algorithm~\cite{montanari82}, and a machine-checked
+verification of the determinacy checker. To the best of our knowledge, this
+constitutes the first formal verification effort for a Prolog-like language
+featuring both the cut operator and determinacy verification.
 
-The solver itself consists of approximately 200 lines of code dedicated to rule
-resolution. In particular, these rules are responsible for translating \rocq
-goals into \elpi queries and for managing the link constraints generated during
-the instantiation of compiled problematic subterms.
+Taken together, these contributions illustrate two complementary roles of logic
+programming within theorem-proving environments. On the one hand, logic
+programming provides a concise and expressive framework for implementing
+elaboration mechanisms such as type-class resolution. On the other hand, it
+offers a setting in which these mechanisms can be analyzed, optimized, and
+formally verified. The integration of \rocq and \elpi demonstrates that mature
+logic-programming technology can be effectively leveraged within proof
+assistants while maintaining the level of rigor expected of such systems.
 
-Beyond type-class resolution, this thesis also investigated static analyses for
-logic programs. We introduced a determinacy analysis for \elpi capable of
-handling higher-order predicates, dynamic clauses, and the cut operator. The
-analysis provides guarantees that predicates declared deterministic do not
-introduce unnecessary choice points during execution. In the context of
-type-class resolution, such guarantees contribute to a better understanding and
-control of the search performed by the logic-programming engine.
+More generally, this thesis suggests that logic programming should not be
+viewed merely as an implementation language for theorem-prover infrastructure.
+Rather, it provides a unifying framework in which elaboration mechanisms can be
+specified, experimented with, analyzed through static techniques, and
+ultimately subjected to machine-checked verification. We believe that this
+combination of expressiveness, extensibility, and formal rigor makes logic
+programming a promising foundation for future generations of proof-assistant
+infrastructure.
 
-The static checker is implemented directly in the \elpi backend rather than in
-\rocqelpi. Consequently, any \elpi program (including the type-class solver
-developed in this thesis) can benefit from it simply by declaring the expected
-predicates as deterministic. This illustrates one of the main advantages of the
-integration between \elpi and \rocq: techniques developed within the
-logic-programming framework can be implemented once in \elpi and subsequently
-benefit all systems built on top of it.
-
-The implementation of the static checker relies on discrimination trees built
-upon trie-based data structures. Together, these indexing structures account for
-approximately 400 lines of code. The two main components of the determinacy
-checker — the mutual-exclusion checker and the rule checker — consist of
-approximately 200 and 1,000 lines of code, respectively.
-
-To increase confidence in the correctness of our determinacy checker, we have
-done a formal verification effort using the \rocq proof assistant. The
-current mechanization focuses on a first-order fragment of the \elpi
-interpreter. To the best of our knowledge, this constitutes a novel
-formalization of the operational semantics of a Prolog-like interpreter
-featuring the cut operator and determinacy verification.
-
-Although the formalized model does not capture the full higher-order language,
-it is sufficiently expressive to establish machine-checked correctness results
-for the determinacy analysis. This work therefore represents a first step toward
-a comprehensive formal account of \elpi and of the static analyses developed for
-it.
-
-The formalization consists of approximately 7,500 lines of \rocq code, divided
-among the specification of the tree-based and stack-based semantics of \elpi,
-the formalization of first-order unification based on the Martelli–Montanari
-algorithm~\cite{montanari82}, and the implementation and verification of the
-static checker.
-
-Taken together, the results presented in this thesis suggest that logic
-programming provides a powerful framework for studying, prototyping, and
-reasoning about elaboration mechanisms. The integration of \rocq and \elpi
-demonstrates that mature logic-programming technology can be effectively
-leveraged within theorem-proving environments while maintaining the level of
-rigor expected of such systems.
-
-Beyond the specific contributions presented here, several directions for future
-work remain open. We detail them in the following perspective section. 
+Several directions for future work naturally emerge from the results presented
+in this thesis. We discuss the most promising ones in the remainder of this
+chapter.
 
 \section{Perspective}
 
@@ -182,30 +151,65 @@ predictability, and search efficiency that warrants further investigation.
 
 \subsection{Tabling}
 
-One of the main advantages coming from using \elpi as a plugin, as already has
-been shown by the implementation of the static determinacy checker, is that one
-can extend \elpi with features coming from the world of logic programming and
-reuse them in the developments base on this language. An interesting aspect of
-logic programs is that their search strategy can be extended with a caching
-system storing part of the search in the exploration tree. This strategy is
-called tabling~\cite{OLD-tabling}. This search strategy ahs been widely adopeted
-in the \lean proof assistant~\cite{tabling-dm} and marks a big success in the
-resolution of type-classes where, in a hugh mathemathical dependency graph,
-several paths may lead to the same solution (or failure). Exploring these
-paths may lead to unnecessary computation.  
+One of the major advantages of building elaboration mechanisms on top of
+\elpi is the ability to reuse techniques developed in the broader logic
+programming community. The determinacy checker presented in this thesis
+illustrates this point: once implemented in the \elpi backend, it becomes
+available to every application built on top of the language, including the
+type-class solver developed in this work.
 
-It would be interesting to see how this searh strategy, once implemented in
-\elpi, could impact the exponential blow-up in the instance search, pointed out
-in the previous section.
+A particularly promising technique that has not yet been explored in the
+context of \rocqelpi is tabling~\cite{OLD-tabling}. Tabling augments the
+standard resolution strategy of logic programming languages with a memoization
+mechanism that stores intermediate search results. Whenever the same goal is
+encountered again, the previously computed result can be reused rather than
+recomputed. This approach avoids redundant exploration of identical portions
+of the search space and can dramatically improve performance in applications
+that repeatedly encounter similar subgoals.
 
-\subsection{Formalizing full \elpi in \rocq}
+Tabling has already proved successful in theorem-proving environments. In
+particular, it plays an important role in the implementation of type-class
+resolution in \lean~\cite{tabling-dm}, where large dependency graphs often
+contain multiple paths leading to the same instance or to the same failure.
+Without memoization, these paths may be explored repeatedly, resulting in
+significant computational overhead.
 
-The formalization we have mechanized concerning the \elpi language and the
-determinacy checker seems promising. In our implementation we have already
-covered the first-order part of the \elpi language. We have provided a formal
-specification of the \elpi semantics together with some of the properties that
-this semantics brings. An undoubtely interesting perspective of this work would
-be to extend this development so that the higher-order features of the language
-are covered. Completing, step by step the \elpi semantics, and proving important
-aspects of the language, would prevent erroneus implementations in the \elpi
-language, providing therefore a strong guarantee about the language itself.
+The type-class solver developed in this thesis provides a natural setting in
+which to investigate the impact of tabling on proof-assistant workloads.
+Because resolution is delegated to the \elpi engine, tabling could in
+principle be integrated without requiring substantial changes to the
+compilation of classes and instances. Such an extension would make it possible
+to experimentally evaluate the interaction between tabling, canonical
+structures, and the link-based compilation strategy introduced in this thesis.
+
+More broadly, tabling may provide a practical way of mitigating the
+exponential search behavior discussed in the previous section. Understanding
+whether tabling can alleviate these performance issues in realistic \rocq
+developments constitutes an interesting direction for future research.
+
+\subsection{Formalizing the full \elpi language}
+
+The mechanized development presented in this thesis establishes a first formal
+account of a substantial fragment of the \elpi language. Although the current
+formalization is restricted to first-order programs, it already provides a
+machine-checked semantics for a Prolog-like language with cut and supports the
+verification of non-trivial static analyses.
+
+A natural continuation of this work is to extend the formalization so as to
+cover the higher-order features of \elpi. Such an extension would require
+formalizing the higher-order abstract syntax representation used by the
+language, together with the corresponding higher-order unification procedures.
+While technically challenging, this effort would significantly broaden the
+scope of properties that could be established about \elpi programs.
+
+A complete formalization of \elpi would provide a trustworthy foundation for
+the verification of logic-programming tools and applications built on top of
+it. In particular, it would enable correctness proofs for static analyses,
+compiler transformations, and elaboration mechanisms implemented in the
+language. Since \elpi is increasingly used as a meta-programming framework for
+proof assistants, such guarantees would have practical consequences for the
+reliability of the systems that depend on it.
+
+Beyond the specific analyses considered in this thesis, a formal account of
+the full \elpi language would constitute an important step toward a verified
+meta-programming framework for theorem provers.
