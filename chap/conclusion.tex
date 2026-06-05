@@ -180,12 +180,32 @@ interaction with our solver, it may also introduce significant performance
 regressions. This highlights a broader tension between expressiveness,
 predictability, and search efficiency that warrants further investigation.
 
-We discuss in the following section more in detail the exponential blowup that
-can be produced by type-class resolution and provide a third alternative that
-could be taken into account to reduce the phenomen.
-
 \subsection{Tabling}
 
+One of the main advantages coming from using \elpi as a plugin, as already has
+been shown by the implementation of the static determinacy checker, is that one
+can extend \elpi with features coming from the world of logic programming and
+reuse them in the developments base on this language. An interesting aspect of
+logic programs is that their search strategy can be extended with a caching
+system storing part of the search in the exploration tree. This strategy is
+called tabling~\cite{OLD-tabling}. This search strategy ahs been widely adopeted
+in the \lean proof assistant~\cite{tabling-dm} and marks a big success in the
+resolution of type-classes where, in a hugh mathemathical dependency graph,
+several paths may lead to the same solution (or failure). Exploring these
+paths may lead to unnecessary computation.  
 
+It would be interesting to see how this searh strategy, once implemented in
+\elpi, could impact the exponential blow-up in the instance search, pointed out
+in the previous section.
 
 \subsection{Formalizing full \elpi in \rocq}
+
+The formalization we have mechanized concerning the \elpi language and the
+determinacy checker seems promising. In our implementation we have already
+covered the first-order part of the \elpi language. We have provided a formal
+specification of the \elpi semantics together with some of the properties that
+this semantics brings. An undoubtely interesting perspective of this work would
+be to extend this development so that the higher-order features of the language
+are covered. Completing, step by step the \elpi semantics, and proving important
+aspects of the language, would prevent erroneus implementations in the \elpi
+language, providing therefore a strong guarantee about the language itself.
