@@ -102,21 +102,90 @@ work remain open. We detail them in the following perspective section.
 
 \subsection{Reusing links for other unification problems}
 
-One of the main obstacle of our type-classes solver written in \elpi is still
-unification: thanks to our work in~\cref{chap:ho-for-free} we have reduced
-considerably unification failures for terms in pattern fragment featuring
-$\beta\eta$-equivalence. Beyond \tlc and \stdpp we have tried our solver on the
-\iris~\cite{iris-junk} library, and we immediately face a main unification
-problem due to projections of canonical structure a standard coding structure
-used in \iris.
+Despite the improvements presented in \cref{chap:ho-for-free},
+unification remains one of the main limitations of our \elpi-based type-class
+solver. The techniques developed in that chapter considerably reduce unification
+failures, in particular it solves the unification issues coming
+from terms in the higher-order pattern fragment modulo
+$\beta\eta$-equivalence. However, when evaluating the solver on libraries beyond
+\tlc and \stdpp, in particular the \iris~\cite{iris-junk} ecosystem, we
+encountered a different class of unification problems arising from the
+interaction between type classes and canonical structures~\cite{cs}.
 
-In particular, take the following code:
+Canonical structures have so far been omitted from the presentation because they
+are not part of the type-class mechanism itself, although they are frequently
+used to implement forms of symbol overloading. According to the \rocq reference
+manual, a canonical structure is \textit{an instance of a record or structure
+type that can be used to solve unification problems involving a projection
+applied to an unknown structure instance and a value}. Consider the following
+example.
 
 \input{code/ofe.tex}
 
-In the code 
+Through canonical structure resolution, the unification problem \cI{car ?c =
+nat}, where \cI{?c} is an object of type \cI{ofe}, can be solved by consulting
+the canonical structure database and retrieving an instance of \cI{ofe} whose
+carrier field is \cI{nat}. In contrast to type-class search, canonical structure
+resolution is performed during unification and is largely driven by indexing on
+the projection being unified, making the process significantly more
+deterministic.
 
+Canonical structures are extensively used in libraries such as \hb~\cite{hb}.
+However, because their resolution is intertwined with unification, understanding
+why a particular instance is selected can be difficult in practice. In
+particular, users are typically provided with little information about the
+sequence of unification steps that led to a successful resolution. By contrast,
+type-class search follows a more explicit resolution procedure and offers
+detailed tracing facilities that allow users to inspect both successful and
+failed resolution attempts. This increased transparency comes at a cost, as
+type-class search is generally slower than canonical structure lookup.
+
+The choice between canonical structures and type classes therefore involves a
+trade-off between efficiency and debuggability. Difficulties for our \elpi-based
+solver arise precisely when both mechanisms are used together.
+
+For example, the \iris library contains type-class instances parameterized by
+projections of canonical structures.
+
+\input{code/ofec.tex}
+
+In this example, the instance \cI{c} of the class \cI{C} depends on an instance
+of \cI{ofe}. The \elpi compiler translates this declaration into the rule
+\eI{tc-C {{car lp:X}} {{c lp:X}}}.
+
+The resulting rule can only be applied when the argument of the class explicitly
+exposes the projection \cI{car}. Consequently, our solver is unable to solve the
+goal \cI{C nat}. The native \rocq type-class solver, however, succeeds on this
+goal because the unification problem \cI{car ?c = nat} triggers canonical
+structure resolution, which retrieves the suitable \cI{ofe} instance --
+\cI{ofe_nat} in this case -- and allows resolution to proceed.
+
+Addressing this limitation would require extending the compiler so that
+occurrences of projections originating from canonical structures are detected
+and translated into suitable deferred constraints. The link-based infrastructure
+developed in this thesis appears applicable to this setting, as it already
+supports delegating difficult unification problems to the constraint solver.
+However, identifying such situations statically during compilation remains an
+open problem.
+
+An alternative approach would be to reformulate developments so as to rely
+exclusively on type classes, thereby eliminating this source of unification
+failures altogether. However, as observed in~\cite{assia-exp-blow-up} and
+discussed in more detail by
+Jung,\footnote{\url{https://www.ralfj.de/blog/2019/05/15/typeclasses-exponential-blowup.html}}
+replacing canonical structures with type classes may lead to exponential
+blow-ups in search \textit{when using unbundled typeclasses to model algebraic
+hierarchies}. Consequently, while such a reformulation would simplify the
+interaction with our solver, it may also introduce significant performance
+regressions. This highlights a broader tension between expressiveness,
+predictability, and search efficiency that warrants further investigation.
+
+We discuss in the following section more in detail the exponential blowup that
+can be produced by type-class resolution and provide a third alternative that
+could be taken into account to reduce the phenomen.
 
 \subsection{Tabling}
+
+
 
 \subsection{Formalizing full \elpi in \rocq}
