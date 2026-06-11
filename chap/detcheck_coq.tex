@@ -204,7 +204,7 @@ are identified by natural numbers. We represent substitutions
 finmap library~\cite{finmap}.
 The empty substitution is written $\epsilon$,
 while the composition of two substitutions $\sigma_1$ and $\sigma_2$ with
-disjoint supports as $\sigma_1 + \sigma_2$. %\marginpar{usiamo + ?}
+disjoint supports as $\sigma_1 + \sigma_2$.
  
 The backchaining operation applies all rules to a query term; it is
 central to both semantics and it has the following type:
@@ -299,7 +299,7 @@ the particular implementation chosen for that algorithm.
 % \deftypes[type:backchain]{tex_code/bc_type.tex}
 % \mvspace{}
 
-% A rule (see~\cref{type:r}) has a head of type term and a list of premises, that\marginpar{se riesco extract lemma immediately with lemma environment}
+% A rule (see~\cref{type:r}) has a head of type term and a list of premises, that
 % are a list of atoms. A program (see~\cref{type:prog}) is made by its rules and
 % the signatures of predicates, \texttt{sigT} is a mapping from predicates to
 % their signatures, signatures represent the defintion of type from the simply
@@ -342,7 +342,6 @@ applied to the pair \cI{x}.
 % List concatenation is the infix \mappend,
 % while mapping a function \cI{f} on a list \cI{l} is written
 % \cI{[seq f x | x <- l]}.
-% \marginpar{spiegare notation for list}
 % $\epsilon$ is the empty substitution.
 
 \section{Stack-based semantics}
@@ -482,7 +481,7 @@ The \orC node, written \(A \lor B_\sigma\), represents the addition of an
 alternative \(B_\sigma\) to an existing disjunction $A$. The left subtree
 \(A\) is optional and is absent once that branch has been fully explored.
 The right alternative is paired with a substitution \(\sigma\), which becomes
-the current substitution when backtracking to \(B\). %\marginpar{why option and not KO?}
+the current substitution when backtracking to \(B\).
 
 The \andC{} node, written \(A \land_{B_0} B\), represents the addition
 of a subquery \(B\) to the first choice point in \(A\). We call
@@ -598,7 +597,7 @@ the next alternative and continues from there, if one exists.
 % the case of a conjunction, if \getend of the lhs returns the tree \okC, then the
 % \getend continues in the rhs, otherwise we return the result of the lhs. We
 % derive some useful definition from \getend.
-% They are listed in\marginpar{fare fresh rules in \cref{tree-ex}}
+% They are listed in
 % \cref{fig:getend-aux}.
 % We have pointed by a black arraw the \pathend of 
 
@@ -695,7 +694,7 @@ The set of variables is assumed to contain all variables occurring in the
 tree. It is passed to backchain so that rules can be refreshed correctly.
 % This guarantees that any call
 % to \emph{backchain} returns a list of atoms whose variables are disjoint from
-% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:elpi-execution-example}}
+% the variables of the current working tree.
 
 The \steptag is implemented as follows: 
 %
@@ -726,7 +725,6 @@ is \okC; otherwise, it is a right-skewed tree of \andC nodes.
 \Cref{tree-ex} depicts the tree corresponding to the running example
 (\cref{sec:elpi-execution-example}) as it undergoes calls to \step and \na.
 % , we provide a graphical representation a call to \step on the query
-%\marginpar{sottolineare le sostituzioni}
 We run query \eI{q 0 R} against the program $P$ in \cref{fig:progx}. Let $c_0$, $c_1$, and $c_2$
 be the children of the root. By construction, $c_0$ is None, while
 $c_1$ and $c_2$ correspond respectively to the premises of rules $r_1$ and
@@ -906,7 +904,7 @@ complements \step with respect to failed, successful, and incomplete trees.
 % tree: its path-end ends in \koC. The expected behavior of \na is to take
 % this \koC node and make it a .... This allows \step to continue the
 % exploration of the tree. In particular, the path-end of this new tree ends
-% in \okC. The step leaves the tree unchanged producing the new substitution.\marginpar{subst taken form the or}
+% in \okC. The step leaves the tree unchanged producing the new substitution.
 % This solution however is not unique, we should be able to backtrack on this
 % successful tree. To do so we can call \na and it will deadify the \okC node
 % allowing \step to proceed on r X Z.
@@ -1151,7 +1149,6 @@ The class of valid trees is captured by the \vast
 function shown in Figure~\ref{fig:vt}.
 While all base cases of {tree} are valid, we need to analyze the \orC and
 \andC constructors more carefully.
-% \marginpar{TODO: explain better valid tree as requested by reviewr, maybe make a few examples}
 
 For the \orC constructor, we distinguish two cases depending on whether the
 left-hand side is present. If it is not, then the right-hand side must be a
@@ -1207,10 +1204,7 @@ are preserved by calls to \step and \na.
 %     \end{coqcode}
 %   \caption{Tree to stack \label{fig:ttl} }
 % \end{figure}
-% \marginpar{TODO: put all code}
 \subsection{From trees to stacks}\label{sec:t2l}
-
-% \marginpar{t2l should be t2s or tree\_to\_stack}
 
 The \ttl recursive function translates a tree to a stack.
 
@@ -1337,7 +1331,7 @@ the translation of the subtree under $\sigma_2$, since it is one
 % the list $lA$ is empty or not. In the former case the empty list is returned,
 % otherwise, we hasve a list $[::(s_0,gs)\&al]$. By the semantics of
 % the \andC in the \run interpreter, the rhs of the \andC represent the
-% sequent of goals to be executed after the first alternative in the lhs,\marginpar{alternative in tree? rephrase}
+% sequent of goals to be executed after the first alternative in the lhs,
 % it corresponds to the list of goals $gs$.
 % The reset point $B0$ is to be appended to the next alternatives in the lhs,
 % that is the queue of $lA$, that is $al$.
@@ -1376,7 +1370,7 @@ when proving the equivalence between the two semantics. Therefore, we
 prove the following lemma.
 
 \input{./formalization/theorem/pruneF_tree_to_stack.tex}
-\begin{proof}By induction on the tree $t$. %\marginpar{dire di $v$}
+\begin{proof}By induction on the tree $t$.
 \end{proof}
 
 The first direction of the equivalence states that the execution of a
@@ -1561,8 +1555,6 @@ from \cref{th:unifycorrect}, does not affect variables in $\sigma\ t_2$.
 \end{corollary}
 
 
-% \marginpar{The statement abouve does not say that $\sigma'\ t_2 = t_2$. Did you prove it?}
-
 % If the variables (\cI{vars}) of two terms are disjoint ($\#$) and the variables in the support of $\sigma$ are
 % disjoint from the variables in $t_1$, then, if matching succeeds, only the
 % variables in $t_2$ are assigned; that is, $t_1 = \sigma'~t_2$, and the
@@ -1620,7 +1612,6 @@ variables to variables such that: (i) $f$ is defined on all variables in
 $t$, i.e. every variable is renamed; and (ii) $f$ is injective, i.e. it
 does not identify distinct variables. Refreshing therefore produces
 $\alpha$-equivalent terms.
-%\marginpar{spiegare disjoint in hyp of lemma 17}
 
 % Below, we define
 % \emph{refresh\_for} to test the validity of a refreshing renaming.
@@ -1882,7 +1873,6 @@ ordering and 800 lines for correctness and completeness. Because of the
 specific form of \cref{th:unifren,th:matchingdisj}, which deals with
 matching and unification of terms with disjoint support, we did not need to
 prove that the algorithm produces most-general unifiers.
-% \marginpar{Martelli (size, time, relation with saarland (maybe don't say ), substitutions are not finite maps, hence badly integrate with mathcomp, also the algorithm is not explicilty given)}
 
 To fully model the \elpi language and mechanize~\cite{fissore2026} entirely,
 we would need to account for higher-order variables, that is, variables that
