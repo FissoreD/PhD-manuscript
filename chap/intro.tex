@@ -83,7 +83,7 @@ write proof by automating parts of the proving process.
 In general, formal proofs developed in a proof assistant must be extremely
 detailed and are often difficult for humans to read. To reduce the effort
 required during proof development, modern proof assistants, such as the
-\rocq~\cite{coqart} proof assistant, provide various forms of automation that
+\rocq~\cite{coqart} proof assistant (formerly known as \coq), provide various forms of automation that
 allow users to write incomplete proof terms, leaving some information to be
 inferred automatically by the system.
 
@@ -127,22 +127,23 @@ As observed in~\cite{elaboration}, elaboration mechanisms are often based on
 inference rules that are reminiscent of logic programming. In this work, we
 investigate an alternative implementation of type-class resolution based on a
 logic programming language. This approach offers an immediate advantage: the
-possibility of reusing an existing logic-programming engine instead of
-reimplementing the resolution procedure directly in \rocq. At the same time, it
+possibility of reusing an existing logic-programming techniques
+studied by the logic programming community and the existing
+inference engines instead of
+reimplementing the resolution procedure. At the same time, it
 raises several questions. How naturally can \rocq's inference problems be
 translated into a logic programming setting? What are the performance
 implications of such a translation? More generally, what are the benefits and
 limitations of this design choice?
 
 To explore these questions, we rely on \elpi~\cite{dunchev15}, the
-\emph{Embeddable Lambda-Prolog Interpreter}. While \elpi is an implementation of
-\lprolog~\cite{miller1988}, implementing higher-order unification, one
-significant aspect for our purposes is its embeddability. \elpi is designed to
-be integrated into external systems through dedicated interfaces, making it
-suitable as an extension language. The \rocqelpi plugin~\cite{tassi2018}
+\emph{Embeddable Lambda-Prolog Interpreter}. On the one hand \elpi is
+an implementation of \lprolog~\cite{miller1988}, on the other it integrates easily
+with a host application While \elpi is an implementation such as \rocq.
+The \rocqelpi plugin~\cite{tassi2018}
 provides such an integration between \rocq and \elpi.
 
-This setting gives rise to a form of metaprogramming, in which \rocq
+This setup gives rise to a form of metaprogramming, in which \rocq\marginpar{TODO: xxx rivedere}
 acts as the object language and delegates part of its computation to \elpi, the
 meta-language. The interaction proceeds in three stages: first, terms of the
 object language are translated into terms of the meta-language; second, the
@@ -162,19 +163,17 @@ instances and compare the resulting solver with the native one of
 A central challenge in this approach arises from the mismatch between the object 
 language and the meta-language. Although
 both support higher-order unification~\cite{miller1991-pf} and
-$\beta\eta$-conversion, \rocq terms are represented in \elpi using
-higher-order abstract syntax (HOAS)~\cite{pfenning1988}. In this
-representation, $\lambda$-abstractions and applications are encoded with
+$\beta\eta$-conversion, $\lambda$-abstractions and applications are encoded with
 rigid constructors, which introduces additional constraints during
-unification.
+unification. \marginpar{TODO: legare a xxx}
 
 As a consequence, terms that are unifiable in \rocq may fail to unify after
 translation into \elpi. Simply delegating unification to the meta-language is
 therefore insufficient. This motivates another contribution of this thesis: a
 compilation scheme that preserves the benefits of the translation while
-recovering the intended unification behavior.
+recovering the intended unification behavior.\marginpar{TODO}
 
-To address this issue, we propose a compilation scheme in
+To address this issue, we propose a compilation scheme in\marginpar{TODO}
 \cref{chap:ho-for-free} that preserves most of the structure of terms while
 isolating problematic subterms. These subterms are replaced only when
 necessary and recorded as \emph{links}, representing delayed constraints.
@@ -187,11 +186,11 @@ logic programming. Controlling the backtracking performed by the interpreter is
 fundamental to managing performance. This motivates a second line of work
 developed in this thesis: a determinacy analysis for \elpi
 programs~\cref{chap:det-elpi}. Determinacy ensures that selected predicates
-produce at most one solution and do not introduce unnecessary choice points for
+produce at most one solution and do not introduce unexpected choice points for
 any call to them. This property helps control the behavior of logic programs.
 In our setting, type classes correspond to predicates, and instances to rules.
 If a class is declared deterministic, the analysis ensures that all its
-instances satisfy this property.
+instances satisfy this property.\marginpar{TODO}
 
 We design and implement an analysis based on inspecting clauses and tracking argument
 modes. The algorithm supports most features of \elpi, including
@@ -209,7 +208,7 @@ mechanized proof.
 
 Although this model does not capture all higher-order features of \elpi, it
 encompasses the aspects relevant to our analysis and provides a foundation for
-establishing machine-checked correctness guarantees.
+establishing machine-checked correctness guarantees.\marginpar{TODO}
 
 \section{Contributions and structure of the thesis}
 

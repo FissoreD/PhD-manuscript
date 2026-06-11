@@ -9,8 +9,8 @@ def remove_quote(l):
 def clean_line(is_elpi_coq):
     def clean_line(_):
         def f(l:str):
-            if is_elpi_coq:
-                l = l.replace("neg","~$\lnot$~")
+            # if is_elpi_coq:
+                # l = l.replace("neg","~$\lnot$~")
             if not is_elpi_coq and l.strip().startswith("/*"):
                 return ""
             if "HIDE" in l: return ""

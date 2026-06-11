@@ -190,7 +190,7 @@ terms. By contrast, the constructor \mapp encodes the application of
 
 This distinction can be seen in the example introduced in the previous section
 for the rule \eI{tc-Provable}. The term \eI{(Qm p)} is represented as
-\eI{~\muva~ [Qm, p]}, while the term 
+\eI{~\muva~ Qm [p]}, while the term 
 \eI{~{\PYGZob{}\PYGZob{}}\PYG{l+m}{lp:}\PYG{n+nv}{Q}\PYG{+w}{ }\PYG{l+m}{lp:}\PYG{n+nv}{p}\PYG{p}{\PYGZcb{}\PYGZcb{}}~}
 is encoded as
 \eI{~\mapp~ [Q, p]}.
@@ -814,8 +814,8 @@ number of \eI{abs} nodes in the resulting assignment matches this
 length.
 
 % We write $\sigma = \{~ A_{xy} \mapsto y ~\}$ for the assignment
-% <<\eI{abs x\abs y\y}>> and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
-% for <<\eI{\mlam x\mlam y\y}>>.
+% «\eI{abs x\abs y\y}» and $\sigma = \{~ A \mapsto \lambda x.\lambda y.y ~\}$
+% for «\eI{\mlam x\mlam y\y}».
 
 \subsection{Links (\linkStore)}
 
@@ -2795,7 +2795,7 @@ the verified version and the actual implementation, which we
 found to hinder the development and exploration of the system.
 
 Nevertheless, we established a test suite of about one hundred
-cases, which is available at \githubUrl.
+cases, which is available at \githubUrl.\marginpar{TODO: add biblio}
 
 % \cite{Fissore2024}
 

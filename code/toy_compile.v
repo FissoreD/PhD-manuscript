@@ -48,17 +48,18 @@ Elpi Db compiler lp:{{
   %         Pol   Inst  Ty    Args       Prems        Res
   pred comp bool, term, term, list term, list prop -> prop.
   comp B I {{forall x: lp:Ty, lp:(Bo x)}} Ag P (pi y\ R y) :- % rto
-    is-class? Ty, !, 
+    is-class? Ty, !, neg B B',
     pi x\
-      comp {neg B} x Ty [] [] (M x),
+      comp B' x Ty [] [] (M x),
       comp B I (Bo x) [x|Ag] [M x | P] (R x).
   comp B I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !,     % rforall
     pi x\ comp B I (Bo x) [x|Ag] P (R x).
   comp B I Ty Ag P R :-                                  % rB
     safe-dest-app Ty C CAg,
-    mk-app I {rev Ag} Proof,
-    make-rule-head C {append CAg [Proof]} Head,
-    build-rule B Head {rev P} R.
+    rev Ag Ag', mk-app I Ag' Proof,
+    append CAg [Proof] Ags,
+    make-rule-head C Ags Head,
+    rev P P', build-rule B Head P' R.
 
   pred compile gref ->.
   compile G :- coq.env.typeof G Ty,
@@ -81,7 +82,8 @@ Elpi Db compiler lp:{{
   pred str->modes gref, string -> list mode-type.
   str->modes C "" M :- !, dft-class-mode {coq.env.typeof C} M.
   str->modes _ S  M' :- 
-    map {rex.split " " S} str->mode M,
+    rex.split " " S SL,
+    map SL str->mode M,
     append M [pr out "term"] M'.
 
   pred add-class-pred gref, string ->.

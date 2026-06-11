@@ -104,8 +104,7 @@ End S3x.
 Module S4.
 
 (*SNIP: plus_tc_add1 *)
-Class Add T := { plus: T -> T -> T; 
-  comm: forall a b, plus a b = plus b a}.
+Class Add T := { plus: T -> T -> T; comm: forall a b, plus a b = plus b a}.
 (*ENDSNIP: plus_tc_add1 *)
 
 End S4.

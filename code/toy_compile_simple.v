@@ -13,14 +13,15 @@ Elpi Accumulate lp:{{
   shorten coq.{mk-app}.
 
   /*SNIP: toy_compiler_tc*/
-  % Inst Ty Args Prems Res
+  %         Inst  Ty    Args       Prems        Res
   pred comp term, term, list term, list prop -> prop.
   comp I {{lp:T -> lp:Bo}} Ag P (pi y\ R y) :- !,  % rto
     pi x\ comp I Bo [x|Ag] [tc T x | P] (R x).
   comp I {{forall x, lp:(Bo x)}} Ag P (pi y\ R y) :- !, % rforall
     pi x\ comp I (Bo x) [x|Ag] P (R x).
   comp I T Ag P (tc T Proof :- [true | Body]) :-   % rB
-    mk-app I {rev Ag} Proof,
+    rev Ag Ag',
+    mk-app I A' Proof,
     rev P Body.
 
   pred compile gref ->.

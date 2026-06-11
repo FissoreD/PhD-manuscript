@@ -649,7 +649,7 @@ the next alternative and continues from there, if one exists.
 \caption{Execution in the tree semantics.
 %\footnotemark}
 % \footnotetext{
-  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:cut-op}.
+  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}.
   $R_1,R_2$, and $R_3$ are reset points and correspond respectively to the
   lists of atoms $[\eI{f Y Z, !}]$, $[\eI{!}]$, and $[\eI{f Y Z}]$.
   }
@@ -695,7 +695,7 @@ The set of variables is assumed to contain all variables occurring in the
 tree. It is passed to backchain so that rules can be refreshed correctly.
 % This guarantees that any call
 % to \emph{backchain} returns a list of atoms whose variables are disjoint from
-% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:cut-op}}
+% the variables of the current working tree.\marginpar{not true in figure:fix + also fix in \cref{sec:elpi-execution-example}}
 
 The \steptag is implemented as follows: 
 %
@@ -724,7 +724,7 @@ each leaf corresponds to a list of atoms $e \in l$. If $e$ is empty, the leaf
 is \okC; otherwise, it is a right-skewed tree of \andC nodes.
 
 \Cref{tree-ex} depicts the tree corresponding to the running example
-(\cref{sec:cut-op}) as it undergoes calls to \step and \na.
+(\cref{sec:elpi-execution-example}) as it undergoes calls to \step and \na.
 % , we provide a graphical representation a call to \step on the query
 %\marginpar{sottolineare le sostituzioni}
 We run query \eI{q 0 R} against the program $P$ in \cref{fig:progx}. Let $c_0$, $c_1$, and $c_2$
@@ -734,7 +734,7 @@ $r_2$ in $P$.
 % We need the initial \mnone subtree so that we can attach a substitution to $c_1$. 
 Note that $c_1$ (resp. $c_2$) is associated with
 substitution $\sigma_1$ (resp. $\sigma_2$), whose values are the same as in
-\cref{sec:cut-op}. Reset points are defined as follows: %are marked with the $R$ symbol:
+\cref{sec:elpi-execution-example}. Reset points are defined as follows: %are marked with the $R$ symbol:
 $R_1 \coloneq [\eI{f Y Z, !}]$, $R_2 \coloneq [\eI{!}]$, and
 $R_3 \coloneq \eI{f Y Z}$. Intuitively, they record the lists of atoms used to
 generate the corresponding subtree. Other examples of \step performing a
@@ -772,7 +772,7 @@ the evaluation of a cut keeps the path leading to the cut node unchanged, in
 the sense that substitution $\sigma_4$ is preserved, while the path under
 substitution $\sigma_5$ (which also succeeds) is replaced by \koC. This
 amounts to discarding the third rule of predicate \eI{r}.
-% (see \cref{sec:cut-op}).
+% (see \cref{sec:elpi-execution-example}).
 
 \subsection{The \na procedure}\label{sec:next_alt}
 \label{sec:na}
@@ -1467,7 +1467,7 @@ define a notion of valid stack that is equally intricate.
 
 \section{Case study: determinacy analysis}\label{sec:determinacy}
 
-As an application of the tree semantics, we mechanize the soundness proof
+As an application of the tree semantics, we mechanize the soundness proof\marginpar{TODO: rifare}
 of the determinacy-checking algorithm introduced in version~3 of the
 \elpi{} language~\cite{fissore2026}. The static checker takes as input
 the signatures of the predicates declared by the user and verifies that
@@ -1844,7 +1844,7 @@ under that assumption, unification and matching coincide.
 
 \section{Conclusion}
 
-This paper describes two operational semantics for \prolog with cut. The first
+This paper describes two operational semantics for \prolog with cut. The first\marginpar{TODO: rifare}
 semantics is based on And--Or trees: it is well suited both to graphical
 illustrations of the scope of cut and to proving lemmas about the effect of
 cut evaluation when reasoning about disjunctions. The second semantics is
