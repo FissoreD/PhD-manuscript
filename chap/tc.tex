@@ -596,7 +596,7 @@ $$
 The compiled rule is:
 
 \begin{elpicode}
-  % pi F B Q \
+  pi F B Q \ % this line is optional in toplevel rule
     tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
       pi p \ tc-Provable F p => tc-Provable B {{lp:Q lp:p}}.
 \end{elpicode}
