@@ -4,18 +4,63 @@
 \begin{ResumeMotsCles}
 %% Résumé en français : pas plus de 2000 caractères
 \begin{resume}
-Les macarons c'est bon par nature, c'est le propre même du macaron que d'être bon. Au vue de l'affluence constante aux divers magasins Ladurée on peut supposer que les macarons qu'on y trouve sont meilleurs qu'ailleurs. Cette thèse vise à donner des idées et pistes sur le pourquoi du comment que les macarons de Ladurée sont si bons.
+La résolution de classes de types est un composant central de l'élaboration dans
+les assistants de preuve modernes. Cette thèse étudie un moteur de résolution
+pour \rocq fondé sur \elpi, un interprète embarqué de \lprolog. Nous
+présentons un schéma de compilation traduisant les classes de types et leurs
+instances en une base de données de programmation logique, permettant de
+déléguer la résolution à \elpi, et évaluons cette approche par rapport au
+solveur natif de \rocq.
+
+Une difficulté majeure provient des différences entre les mécanismes
+d'unification de \rocq et d'\elpi. Malgré leur prise en charge de l'unification
+d'ordre supérieur et de la conversion $\beta\eta$, leurs représentations
+internes peuvent entraîner des échecs d'unification après traduction. Pour y
+remédier, nous introduisons une technique de compilation fondée sur des
+contraintes différées, vérifiées à l'exécution.
+
+La thèse présente également une analyse statique du déterminisme pour \elpi,
+capable de vérifier qu'un prédicat produit au plus une solution. Afin d'en
+garantir la correction, nous en formalisons les propriétés essentielles dans
+\rocq à l'aide d'un modèle du premier ordre de l'interprète \elpi.
+
+Ensemble, ces contributions montrent comment les techniques de programmation
+logique peuvent servir à implémenter, analyser et vérifier des mécanismes
+d'élaboration dans les assistants de preuve.
 \end{resume}
 
 %% Résumé en anglais : pas plus de 2000 caractères
 \begin{abstract}
-Macarons are so good.
+
+Type-class resolution is a central component of elaboration in modern proof
+assistants. This thesis investigates a type-class resolution engine for the \rocq
+proof assistant based on \elpi, an embeddable \lprolog interpreter. We
+present a compilation scheme translating \rocq type classes and instances into a
+logic-programming database, enabling resolution to be delegated to \elpi, and
+evaluate its expressiveness and performance against \rocq's native solver.
+
+A key challenge arises from differences between \rocq and \elpi unification.
+Although both support higher-order unification and $\beta\eta$-conversion,
+differences in term representations can lead to unification failures after
+translation. To address this issue, we introduce a compilation technique based
+on delayed constraints, replacing problematic subterms with links that record
+constraints checked during execution.
+
+The thesis also presents a static determinacy analysis for \elpi, capable of
+verifying that selected predicates produce at most one solution. To increase
+confidence in the analysis, we formalize its core correctness properties in \rocq
+by mechanizing a first-order model of the \elpi interpreter and proving the
+soundness of the checker.
+
+Together, these contributions demonstrate how logic-programming techniques can
+be used to implement, analyze, and verify elaboration mechanisms in proof
+assistants.
 \end{abstract}
 
 %% Mots-clés en français
-\motscles{Pâtisserie, Macaron, Ladurée.}
+\motscles{Programmation logique, Théorie des types, Elpi, Rocq, Classes de type, Analyse de déterminisme.}
 %% Mots-clés en anglais
-\keywords{Pastry, Macaron, Ladurée.}
+\keywords{Logic Programming, Type Theory, Elpi, Rocq, Type Classes, Determinacy Analysis.}
 \end{ResumeMotsCles}
 
 
