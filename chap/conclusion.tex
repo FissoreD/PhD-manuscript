@@ -132,10 +132,12 @@ structure resolution, which retrieves the suitable \cI{ofe} instance --
 Addressing this limitation would require extending the compiler so that
 occurrences of projections originating from canonical structures are detected
 and translated into suitable deferred constraints. The link-based infrastructure
-developed in this thesis appears applicable to this setting, as it already
-supports delegating difficult unification problems to the constraint solver.
-However, identifying such situations statically during compilation remains an
-open problem.\marginpar{TODO: why it is hard?}
+developed in this thesis appears applicable in this setting, as it already
+supports delegating difficult unification problems to the constraint solver. A
+more challenging aspect concerns how links are managed. In particular, we would
+need a compilation routine that translates declared records and canonical
+structures (similarly to type classes and instances) into the \elpi database and
+to investigate how their interaction works with the type-class solver.\marginpar{FIXME: enrico}
 
 An alternative approach would be to reformulate developments so as to rely
 exclusively on type classes, thereby eliminating this source of unification

@@ -1459,41 +1459,32 @@ define a notion of valid stack that is equally intricate.
 % function also uses an execution trace of the stack-based semantics, from which
 % it recovers the missing tree structure.
 
-\section{Case study: determinacy analysis}\label{sec:determinacy}
+\section{Determinacy analysis}\label{sec:determinacy}
 
-As an application of the tree semantics, we mechanize the soundness proof\marginpar{TODO: rifare}
-of the determinacy-checking algorithm introduced in version~3 of the
-\elpi{} language~\cite{fissore2026}. The static checker takes as input
-the signatures of the predicates declared by the user and verifies that
-the rules of a deterministic predicate generate at most one solution; we
-call this kind of predicate a function. Thanks to this static
-verification, the user can better control unexpected backtracking.
+The formalization of the two semantics in the \rocq proof assistant is an\marginpar{FIXME: enrico}
+essential ingredient in demonstrating the correctness of the determinacy checker
+for the first-order fragment of the \elpi language. This theorem is proved in
+the tree semantics and can therefore be transferred to the stack semantics using
+\cref{th:runTtorunS}.
 
-A predicate behaves deterministically if two conditions are
-satisfied: \emph{mutual exclusion} guarantees that at most one rule can
-be successfully applied to any given query, whereas \emph{rule body checking}
-ensures that each rule does not create choice points, for example by
-calling non-deterministic predicates.
+As explained in detail in \cref{chap:det-elpi}, a predicate behaves
+deterministically if two conditions are satisfied. \emph{Mutual exclusion}
+guarantees that at most one rule can be successfully applied to any given query,
+whereas \emph{rule checking} ensures that each rule does not create choice
+points, for example by calling non-deterministic predicates. In this chapter, we
+take both aspects into account.
 
-% Determinacy checking is strongly related to the modes of predicates: we
-% differentiate between input and output arguments. A deterministic call relates
-% to its inputs only one output.
-% In the literature, we find several works on
-% determinacy checking, namely~\cite{1996Somogy,king2005,1989Warren}. These works
-% need a mode checker that statically ensures that, in a query with ground inputs,
-% each recursive call is performed with ground inputs.
-
-Our mechanization implements the unification algorithm by
-Martelli and Montanari~\cite{montanari82}, which we prove
-terminating using the standard lexicographic ordering,
-correct and complete.
+Our mechanization implements the unification algorithm of Martelli and
+Montanari~\cite{montanari82}, which we prove to be terminating using a standard
+lexicographic ordering, as well as correct and complete.
 
 In the following definitions and lemmas, we use the notation $x \cap y =
-\varnothing$ to denote that the two sets $x$ and $y$ are disjoint. When the
+\varnothing$ to denote that the sets $x$ and $y$ are disjoint. When the
 arguments are terms, as in $t_1 \cap t_2 = \varnothing$, we mean that the two
 terms do not share any variables.
 
-The first notion to provide is the application of an acyclic substitution:
+The first notion we need to introduce is the application of an acyclic
+substitution:
 
 \begin{definition}[deref]
   $$

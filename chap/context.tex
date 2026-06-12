@@ -36,11 +36,12 @@ In \rocqelpi:
   \cite{gonthier2013,gonthier2023}.
 
   \item \emph{Tactics} extend the proof system of \rocq{} by allowing additional
-  forms of automation during proof development.\marginpar{TODO}
-  As an example, the \trocq~\cite{enzo2023,enzo2024} library provides an \elpi-based tactic for
-  automatic reasoning using proof transfer techniques. The \algtac~\cite{algtac}
-  library instead offers \elpi-based tactics to reason about computational
-  reflection for algebraic structures such as rings and lattices.
+  forms of automation during proof development As an example, the
+  \trocq~\cite{enzo2023,enzo2024} library provides an tactic used to achieve
+  proof transfer by both translating a user goal into another, related, variant,
+  and computing a proof that proves the corresponding implication. The
+  \algtac~\cite{algtac} library instead offers tactics to reason in particular
+  about polynomial and rational equations.\marginpar{FIXME: enrico}
 \end{itemize}
 
 In the following sections, we introduce the key concepts that form the
@@ -63,8 +64,8 @@ behind the \rocqelpi plugin.
 
 As anticipated, the \rocq language is based on type theory~\cite{coq-huet}.
 At its core lies the pure $\lambda$-calculus, introduced by Church
-in 1932~\cite{church}. This is a minimal language whose syntax is defined
-by \emph{terms}:\marginpar{TODo}
+in 1932~\cite{church}. $\lambda$-calculus is language whose syntax is defined
+by \emph{terms}:\marginpar{FIXME: enrico}
 %
 $$t := x\ |\ t\ t\ |\ \lambda x.t$$
 
@@ -72,10 +73,9 @@ A term can be a variable $x$, an application $t\ t$, or an abstraction $\lambda
 x.t$. A \emph{subterm} is any term occurring inside another term. In an
 application, the first (sub)term is called the \emph{head} and the second the
 \emph{argument}. An abstraction $\lambda x.t$ binds the variable $x$ in its
-abstraction body $t$. A variable that is declared by a lambda abstraction and\marginpar{TODO}
-whose occurrences lie within that abstraction's scope is called \emph{bound}
-variable, whereas, a variable that occurs in an expression but is not bound by
-any enclosing lambda abstraction is called \emph{free}.
+abstraction body $t$, we say that $x$ is a \emph{bound} variable in $\lambda
+x.t$. A variable that occurs in an expression but is not bound by any enclosing
+lambda abstraction is called \emph{free}.\marginpar{FIXME:enrico}
 
 For instance, the term $\lambda x.\lambda y.x$ (often called
 \texttt{fst}) contains two bound variables, $x$ and $y$. The term
@@ -157,7 +157,7 @@ illustrated by the Barendregt cube~\cite{cube}. One important extension
 is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
 terms may depend on types.
 
-Consider the identity function $\lambda x.x$. In the simply-typed\marginpar{TODO}
+Consider the identity function $\lambda x.x$. In the simply-typed\marginpar{FIXME: enrico}
 setting, it must be assigned a fixed type, for example
 $\lambda (x:\texttt{bool}).x : \texttt{bool} \to \texttt{bool}$. A separate definition would be needed for
 each type, such as $\texttt{nat}$. This duplication can be avoided in the
@@ -298,11 +298,12 @@ Polymorphism is a central feature of functional programming languages. In his
 lecture notes, Strachey~\cite{polymorphism} distinguishes two main forms:
 parametric polymorphism and ad-hoc polymorphism. Parametric polymorphic
 functions are \emph{uniform}, meaning that their behavior does not depend on the
-specific type at which they are instantiated. For example, the function
-\texttt{length}, which computes the length of a list, has type \cI{list A
-~$\to$~ int}. When applied to either \cI{[1,0]} or \cI{["foo","bar"]}, it
-returns $2$. The same implementation is reused for every instantiation
-of~\cI{A}. \marginpar{TODO: usare id invece di length}
+specific type at which they are instantiated. For example, if we take the
+function \cI{id} from \cref{sec:rocq-intro-lam-calc}, we can note the when
+applied to either \cI{1} or \cI{["foo","bar"]}, it always return its input, that
+is, the same implementation is reused for every instantiation of its type
+parameter.
+\marginpar{FIXME: check enrico}
 
 Although parametric polymorphism is widely used, it is not well suited to model
 overloading as it appears in mathematics. In mathematical notation, a symbol
@@ -510,10 +511,11 @@ procedure. If all premises can be resolved, the instance provides a
 solution to the original goal. Otherwise, the solver backtracks and
 continues the search with the next matching instance.
 
-Because instances are explored according to their position in the
-database, the ordering of the database can have a significant impact on
-the search process. In particular, it may affect both the performance of
-instance resolution and its termination behavior.\marginpar{TODO}
+Because instances are explored according to their position in the database, the
+ordering of the database can have a significant impact on the search process. In
+particular, it may affect the performance of instance resolution. In certain
+scenarios, an improperly ordered database may even compromise
+termination.\marginpar{FIXME: enrico}
 
 As an example, consider the instances defined for the type class
 \cI{Add}, ordered as follows: \cI{addNat}, \cI{addR}, and
@@ -555,7 +557,7 @@ behavior to emulate logic programming. For example, the type class
 \cI{SetUnfold} is used to rewrite set expressions into logical statements. An
 inclusion $X \subseteq Y$ can be transformed into a formula of the form
 $\forall x, P\ x \to Q\ x$, under the hypothesis that $\forall x, x \in X \to P\ x$
-and $\forall x, x \in Y \to Q\ x$. When no\marginpar{TODO: ENRICO CHEKC}
+and $\forall x, x \in Y \to Q\ x$. When no\marginpar{FIXME: enrico}
 specific rule applies, the default instance
 \cI{set_unfold_default P : SetUnfold P P} leaves the goal unchanged.
 This default instance acts as a catch-all rule, since it applies to any goal.
@@ -921,7 +923,7 @@ The procedure \emph{\unify} implements higher-order unification restricted to th
 pattern fragment, and is used for arguments in \Eoutput\ position. The
 procedure \emph{\matching}, inspired by \bprolog's ``matching clauses''
 \cite{zhou2012}, is used for arguments in \Einput\ position extended to the
-higher-order variable unification within the pattern fragment. \marginpar{TODO: enrico}
+higher-order variable unification within the pattern fragment. \marginpar{FIXME: enrico}
 
 \begin{definition}[\unify]\label{def:unify}
 Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
@@ -960,7 +962,7 @@ which renames its variables with respect to the set $V$.
 
 For each applicable rule, \backchain returns the substitution obtained by
 matching/unifying the rule head with $q$, together with the corresponding
-rule body.\marginpar{TODO: enrico}
+rule body.\marginpar{FIXME: enrico}
 
 The definition relies on two auxiliary functions:
 \begin{align*}
@@ -999,7 +1001,7 @@ $\sigma'$; otherwise it returns None.
 
 The function \backchainE, used by rule \runE[\backchain] in
 \cref{fig:elpi-semantics}, builds a new list of alternatives from the result of
-\backchain ($F_v$ is the function retrieving the set of free variables in \marginpar{TODO: enrico}
+\backchain ($F_v$ is the function retrieving the set of free variables in \marginpar{FIXME: enrico}
 the term $t$, we lift the definition over list of terms, and substitution%
 \footnote{$F_v(\sigma)$ is made by the domain of $\sigma$ and the free variables
 in all terms appearing in the codomain in $\sigma$}).
@@ -1115,7 +1117,7 @@ Several variants of the cut operator exist in the literature. The variant we
 consider, used in \elpi, is the so-called \emph{hard cut} (see, for example, the
 documentation of \sprolog~\cite{swi-prolog-cut}). When the \cI{backchain}
 function returns a non-empty list of alternatives, the first alternative is
-executed immediately, while the remaining ones are stored as choice points.\marginpar{TODO: enrico}
+executed immediately, while the remaining ones are stored as choice points.\marginpar{FIXME: enrico?}
 
 Within a selected alternative, premises are evaluated from left to right, each
 atom being executed in sequence. When a \cut is encountered, it removes two
