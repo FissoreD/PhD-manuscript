@@ -193,7 +193,7 @@ The concrete definition of these two algebraic types is given below:
 \end{align*}
 
 The syntax tree allows variables to be applied and predicates to be mixed with
-data. These higher-order features play no role in the current paper, which
+data. These higher-order features play no role in the current chapter, which
 focuses on first-order logic programming, but they allow future extensions to
 full $\lambda$\prolog to be based on the same mechanization.
 
@@ -1786,7 +1786,7 @@ Another relevant work is due to Kriener and King~\cite{king2011}, but
 we could not find their Rocq source code. Their semantics is
 denotational and cannot easily account for all the features covered
 in~\cite{fissore2026}, although it would have been sufficient for the
-first-order fragment considered in this paper.
+first-order fragment considered in this chapter.
 
 Hanus and Prott~\cite{hanus2025} formalize a determinacy checker for
 the logic-functional Curry language. In this language choice points
@@ -1824,53 +1824,41 @@ arguments were matched. In other words,
 cost of an additional assumption that the input arguments are ground;
 under that assumption, unification and matching coincide.
 
-\section{Conclusion}
+\section{Conclusion}\marginpar{FIXME: enrico}
 
-This paper describes two operational semantics for \prolog with cut. The first\marginpar{TODO: rifare}
-semantics is based on And--Or trees: it is well suited both to graphical
-illustrations of the scope of cut and to proving lemmas about the effect of
-cut evaluation when reasoning about disjunctions. The second semantics is
-based on a stack of alternatives: it is closer to actual \prolog
-implementations, including the first-order fragment of \elpi, but it loses
-the explicit structure of the tree-based semantics and is therefore less
-convenient for reasoning about cut. We show how to translate trees into
-stacks and prove the two semantics equivalent. Using the tree-based
-semantics, we mechanize a soundness proof of the first-order fragment of the
-determinacy checker of~\cite{fissore2026}, namely that a call to a
-deterministic predicate returns at most one solution.
+In this chapter, we presented a mechanized formalization of the first-order
+determinacy checker implemented in \elpi. The central challenge was to provide a
+mathematically precise account of determinacy in the presence of the cut
+operator, whose operational behavior directly affects the existence of
+alternative computations. To address this issue, we developed an axiom-free
+formalization in Rocq of both the stack-based semantics used by the \elpi
+interpreter and a novel And-Or tree semantics that makes the structure of the
+search space and the scope of cuts explicit.
 
-The mechanization consists of approximately 2,500 lines of
-specifications and about 5,000 lines of ssreflect proofs based on
-the Mathematical Components library~\cite{assia2022}
-and its finmap~\cite{finmap} extension.
-Roughly 30\% of the code is dedicated to the tree semantics, in particular
-the proofs in \cref{sec:runT}, 15\% to the stack semantics, and 35\% to the
-equivalence proof. The remaining 20\% is devoted to the determinacy checker.
-The mechanization took us approximately $8$ months.
-We believe that the ssreflect proof language, and the proof style it
-advocates, helped us carry out the many refactorings that the mechanization
-underwent. The finmap library provides comprehensive support for reasoning
-about finite maps and finite sets over a countable domain. In particular, it
-helped us express conditions such as the disjointness between sets of
-variables and the domain of a substitution, as well as define the union of
-disjoint substitutions.
+The And-Or tree semantics plays a crucial role in the formalization of the
+determinacy checker. By representing alternatives and subgoals as distinct
+layers of a tree, it becomes possible to reason locally about the pruning
+effects of cut and to characterize precisely when alternative computations
+remain available. This explicit representation enabled the development of a
+collection of structural lemmas describing the interaction between cut,
+conjunction, and disjunction, as well as the proof of equivalence between the
+tree-based semantics and the operational stack-based semantics.
 
-To obtain an axiom-free mechanization, we had to provide an implementation
-of the first-order unification algorithm, since we could not find an
-existing Rocq mechanization. Describing this development in detail is out of
-scope for this paper. It amounts to about 1,700 lines of ssreflect code,
-including 200 lines for the termination proof based on a lexicographic
-ordering and 800 lines for correctness and completeness. Because of the
-specific form of \cref{th:unifren,th:matchingdisj}, which deals with
-matching and unification of terms with disjoint support, we did not need to
-prove that the algorithm produces most-general unifiers.
+Building on these foundations, we formalized the static determinacy analysis
+introduced in~\cite{fissore2026}. The analysis captures 
+the mutual-exclusion and
+rule-checking conditions required for deterministic execution. The mechanization
+establishes that these syntactic conditions are sufficient to guarantee the
+absence of alternatives in the And-Or tree semantics. In other words,
+whenever determinacy checking succeeds, every call to a predicate declared
+deterministic produces at most one successful execution path.
 
-To fully model the \elpi language and mechanize~\cite{fissore2026} entirely,
-we would need to account for higher-order variables, that is, variables that
-represent predicates. This extension is ongoing and largely orthogonal to
-the present paper, since cut and higher-order variables do not interact in
-subtle ways. The main difficulty is that substitutions may contain
-predicates, and these predicates must have signatures compatible with those
-assumed statically, in the sense of the $\subseteq$ relation defined
-in~\cite[Section~5]{fissore2026}. Dynamic predicates also require minor
-changes to the conditions for mutual exclusion.
+Combining this result with the equivalence theorem between the two semantics
+yields the main correctness statement of the formalization: predicates accepted
+by the determinacy checker leave no observable choice points during execution in
+the \elpi interpreter. Consequently, the mechanized proof provides a formal
+guarantee for the determinacy analysis shipped with \elpi, connecting
+a practical static analysis tool with a fully verified semantic foundation. This
+work also lays the groundwork for future extensions toward the higher-order
+features of the language and the formal verification of additional static
+analyses.
