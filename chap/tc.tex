@@ -248,7 +248,7 @@ Compiling this instance yields the following \elpi rule:
 This rule provides a proof for \eI{Add (x * y)} provided that the two premises
 \eI{Add x} and \eI{Add y} can be solved. Note that the generated rule
 contains explicit \eI{pi} qunatifiers for the unification variable in the rule.
-In a hand-written rule they become optional.\marginpar{FIXME: enrico, nota snip pag 37}
+In a hand-written rule they become optional.% \marginpar{FIXME: enrico, nota snip pag 37}
 
 As explained in \cref{sec:elpi-commands-tactics}, a \rocq{} goal can be
 passed to an \elpi{} tactic responsible for solving it. Type-class goals
@@ -475,7 +475,7 @@ If this condition holds, we are compiling a conditional instance and rule
 instance with type \eI{Ty}. To construct the premise
 corresponding to \eI{x}, the compiler recursively invokes \eI{comp} on \eI{x}
 while switching the boolean in the recursive call. This recursive call produces the
-premise \eI{M}, which abstracts \eI{x}. Compilation then continues on\marginpar{FIXME: enrico?}
+premise \eI{M}, which abstracts \eI{x}. Compilation then continues on% \marginpar{FIXME: enrico?}
 \eI{Bo x}, while extending the accumulators with the new instance argument
 \eI{x} and the new premise \eI{M x}.
 
@@ -506,7 +506,7 @@ instance arguments, they are reversed before constructing the final rule.
 Finally, the predicate \eI{build-rule} assembles the rule according to the
 current position tag: positive or nagative. In the former
 case, it produces a standard clause
-\eI{Head :- Prems}. Otherwise, it produces the implication\marginpar{FIXME: enrico,per soddisfare sintassi}
+\eI{Head :- Prems}. Otherwise, it produces the implication% \marginpar{FIXME: enrico,per soddisfare sintassi}
 \eI{Prems => Head}.
 
 Given the instance in \cref{fig:add-class-full}, this version of the
@@ -673,7 +673,7 @@ where local instances are taken into account for the resolution.
   \UnaryInfC{$?s : \cI{plus}\ (x, \pig, 3)\ (x, e, 4) = \cI{plus}\ (x, e, 4)\ (x, \pig, 3)$}
 \end{prooftree}
 
-The goal can be solved using the \cI{comm} property over addition. What is\marginpar{FXIME:enrico? why reduce the lemma, it is the same as pag 33}
+The goal can be solved using the \cI{comm} property over addition. What is% \marginpar{FXIME:enrico? why reduce the lemma, it is the same as pag 33}
 interesting here is the type-class goal aiming to find the right implementation
 of \cI{plus} in the database, i.e. an instance of \cI{Add} applied to the type
 \cI{(T * R * nat)}, where \cI{T} appears in the hypothesis lists.
@@ -726,7 +726,7 @@ to the \cI{Hint} system, that allows to tweak somehow the search engine, for
 example the \cI{Hint Extern} command allows to apply a list of tactics on goal
 matching a particular pattern. This approach, however, asks the user to write
 ad-hoc rules in a language which is not the same of the \rocq solver, and which,
-is some case as not the expressivness power of \elpi.\marginpar{FIXME: enrico?}
+is some case as not the expressivness power of \elpi.% \marginpar{FIXME: enrico?}
 
 \section{Experimental results}
 \label{sec:exp-res}
@@ -967,7 +967,7 @@ represents these terms as HOAS expressions, namely
 \eI{global (const «map»)}. Since these terms have different rigid heads,
 unification fails.
 
-This behavior is expected from the \elpi unification algorithm, but it is\marginpar{FIXME: enrico? random order of sentences?}
+This behavior is expected from the \elpi unification algorithm, but it is% \marginpar{FIXME: enrico? random order of sentences?}
 problematic in the context of instance resolution, where equivalent
 problems -- expressed differently -- should be solvable. For example, using
 \elpi-style $\lambda$-abstraction and application, the term
@@ -1094,7 +1094,7 @@ of a determinacy checker for \elpi that accounts for both the \cut operator and
 higher-order features such as local rule insertion. A detailed discussion is
 provided in \cref{chap:det-elpi}. Finally, we formalize the first-order fragment
 of the checker within \elpi in the \rocq system; this formalization is described
-in \cref{chap:mechanization}.\marginpar{FIXME: enrico?}
+in \cref{chap:mechanization}.% \marginpar{FIXME: enrico?}
 
 
 
