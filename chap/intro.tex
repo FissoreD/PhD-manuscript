@@ -28,26 +28,26 @@ Logical reasoning plays a central role in the way humans justify actions,
 choices, and conclusions, particularly when decisions are not primarily driven
 by emotions or other non-rational factors.
 
-For example, if ``All men are mortal'' and ``Socrates is a man'', then we
-can conclude that ``Socrates is mortal''. This particular form of reasoning,
-known as an Aristotelian syllogism, is irrefutable: the conclusion follows
-directly from the premises.
+For example, if ``All men are mortal'' and ``Socrates is a man'', then we can
+conclude that ``Socrates is mortal''. This particular form of reasoning, known as
+an Aristotelian syllogism, is irrefutable: the conclusion follows directly from
+the premises.
 
-A counterpart of these philosophical ideas can be found in mathematical
-reasoning. Similarly to a syllogism, the validity of a mathematical statement is
+A counterpart to these philosophical ideas can be found in mathematical
+reasoning. Much like a syllogism, the validity of a mathematical statement is
 established through a proof constructed from a collection of axioms and
-inference rules. 
+inference rules.
 
-In his work Begriffsschrift (concept-writing in English) of 1879, Gottlob Frege
-tried to formalize a complete foundation for logic in mathematics, based on a
+In his 1879 work Begriffsschrift (``concept writing'' in English), Gottlob Frege
+attempted to formalize a complete logical foundation for mathematics based on a
 set of axioms.
 
-It is clear that the axioms accepted in the foundation of a theory need to
-satisfy a basic criterion: they should not create paradoxes, otherwise the
-theory itself becomes meaningless. Frege's logical system was later shown to
-be inconsistent following Russell's discovery of the paradox that now bears his
-name. Today, several foundational frameworks coexist, including classical set
-theory, intuitionistic logic, and various forms of type theory.
+The axioms underlying a theory must satisfy a fundamental requirement: they
+should not give rise to paradoxes, otherwise the theory itself becomes
+meaningless. Frege's logical system was later shown to be inconsistent following
+Russell's discovery of the paradox that now bears his name. Today, several
+foundational frameworks coexist, including classical set theory, intuitionistic
+logic, and various forms of type theory.
 
 In the middle of the twentieth century, with the advent of computer science,
 Curry and Howard~\cite{Howard-correspondance} discovered a deep connection
@@ -56,36 +56,36 @@ computation on the other. Under this correspondence, a proof of a proposition
 can be viewed as a well-typed program, while the proposition itself corresponds
 to the type of that program.
 
-Using software to build proofs becomes more and more a good alternative to
-pen-and-paper proof: once the proof is provided to the machine, it is then the
-responsibility of the machine to verify that the proof establishes the desired
+Using software to construct proofs has increasingly become a viable alternative
+to pen-and-paper proofs: once a proof is provided to a machine, it becomes the
+machine's responsibility to verify that the proof guarantees the desired
 property. Proof assistants are software systems designed to support the
-construction and verification of formal proofs while providing human-machine
-interaction. As a result, one can state with a high degree of confidence that a
-program formally satisfies the specification that has been verified.
+construction and verification of formal proofs while providing interactive
+human-machine collaboration. As a result, one can state with a high degree of
+confidence that a program satisfies a formally verified specification.
 
 For example, the operator $+$ can be described as a program that takes two
 integers and computes their sum. Within a proof assistant, it is possible to
-prove in just one line of code using induction that $0$ is a neutral element for
-addition, i.e. $\forall a, a + 0 = a$.
+prove in a single line of code, using induction, that $0$ is a neutral element
+for addition, i.e., $\forall a, a + 0 = a$.
 
-The importance of certified algorithms is evident in safety-critical
-domains such as medicine and aerospace engineering.
+The importance of certified algorithms is particularly evident in
+safety-critical domains such as medicine and aerospace engineering.
 
 In such settings, the tolerance for implementation errors is extremely low. For
-instance, when launching a rocket into space, it is unacceptable for it to fail
-because of a software bug. A well-known example is the maiden flight of the
-Ariane 5 rocket in 1996, which ended in failure due to a software error.
+instance, when launching a rocket into space, it is unacceptable for the mission
+to fail because of a software bug. A well-known example is the maiden flight of
+the Ariane 5 rocket in 1996, which ended in failure due to a software error.
 
-Beyond checking proofs, proof assistants also help users to
-write proof by automating parts of the proving process. 
+Beyond checking proofs, proof assistants also help users write proofs by
+automating parts of the proving process.
 
 In general, formal proofs developed in a proof assistant must be extremely
 detailed and are often difficult for humans to read. To reduce the effort
 required during proof development, modern proof assistants, such as the
-\rocq~\cite{coqart} proof assistant (formerly known as \coq), provide various forms of automation that
-allow users to write incomplete proof terms, leaving some information to be
-inferred automatically by the system.
+\rocq~\cite{coqart} proof assistant (formerly known as \coq), provide various
+forms of automation that allow users to write incomplete proof terms, leaving
+some information to be inferred automatically by the system.
 
 These mechanisms are collectively referred to as the
 \emph{elaborator}~\cite{elaboration}. The purpose of elaboration is to bridge
@@ -109,7 +109,7 @@ A similar ambiguity exists in programming languages. In object-oriented
 languages, a common interface may admit multiple implementations, and the
 compiler is responsible for selecting the appropriate one. Functional
 programming languages vary in the support they provide for overloading. For
-instance, in \ocaml different operators are typically required for different
+instance, in \ocaml, different operators are typically required for different
 notions of addition, whereas \haskell supports overloading through its
 type-class mechanism~\cite{wadler1989-tc}. Since many proof assistants are based
 on functional programming languages, they often provide a type-class system as
@@ -119,96 +119,96 @@ well. In \rocq, for example, type classes were introduced in
 The role of the type-class solver is to determine which implementation should be
 used in a given context. Conceptually, the expression $1 +_{?} 2$ can be viewed
 as containing a missing piece of information, represented here by the
-placeholder $?$: the implementation of addition that is appropriate for the
-current types. The task of the type-class solver is to infer this implementation
+placeholder $?$: the implementation of addition appropriate for the current
+types. The task of the type-class solver is to infer this implementation
 automatically.
 
 As observed in~\cite{elaboration}, elaboration mechanisms are often based on
-inference rules that are reminiscent of logic programming. In this work, we
-investigate an alternative implementation of type-class resolution based on a
-logic programming language. This approach offers an immediate advantage: the
-possibility of reusing an existing logic-programming techniques
-studied by the logic programming community and the existing
-inference engines instead of
-reimplementing the resolution procedure. At the same time, it
+inference rules reminiscent of logic programming. In this work, we investigate
+an alternative implementation of type-class resolution based on a logic
+programming language. This approach offers an immediate advantage: the
+possibility of reusing existing logic-programming techniques developed by the
+logic-programming community, as well as existing inference engines, rather than
+reimplementing the resolution procedure from scratch. At the same time, it
 raises several questions. How naturally can \rocq's inference problems be
-translated into a logic programming setting? What are the performance
+translated into a logic-programming setting? What are the performance
 implications of such a translation? More generally, what are the benefits and
 limitations of this design choice?
 
 To explore these questions, we rely on \elpi~\cite{dunchev15}, the
-\emph{Embeddable Lambda-Prolog Interpreter}. On the one hand \elpi is
-an implementation of \lprolog~\cite{miller1988}, on the other it integrates easily
-with a host application While \elpi is an implementation such as \rocq.
-The \rocqelpi plugin~\cite{tassi2018}
-provides such an integration between \rocq and \elpi.
+\emph{Embeddable Lambda-Prolog Interpreter}. On the one hand, \elpi is an
+implementation of \lprolog~\cite{miller1988}; on the other hand, it integrates
+easily with a host application such as \rocq. The \rocqelpi
+plugin~\cite{tassi2018} provides such an integration between \rocq and \elpi.
 
-This setup gives rise to a form of metaprogramming, in which \rocq\marginpar{TODO: xxx rivedere}
-acts as the object language and delegates part of its computation to \elpi, the
-meta-language. The interaction proceeds in three stages: first, terms of the
-object language are translated into terms of the meta-language; second, the
-meta-language performs the required computation and produces a result; finally,
-the result is translated back into a term of the object language.
+This setup gives rise to a form of metaprogramming in which \rocq serves as the
+object language and delegates part of its computation to \elpi, the
+meta-language. The key idea is that the object language is embedded within the
+meta-language, meaning that terms of the former are translated into terms of the
+latter. In our encoding, terms are represented using a shallow embedding,
+allowing users to inspect and manipulate them directly. Furthermore, a
+collection of APIs for the object language is exposed, enabling the
+meta-language to leverage some of the object language's functionalities.
 
-In this work, we study the integration of \rocq with an alternative
-type-class solver implemented in \elpi. This requires translating type
-classes and instances from \rocq into an \elpi database, which can be
-seen as a compilation step. We show in
-\cref{sec:simple-instance-compiler} that a basic compiler can be written
-in only a few lines, while relying on the existing \elpi interpreter for
-resolution. We then extend this translation to support more complex
-instances and compare the resulting solver with the native one of
-\rocq~\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}.
+In this work, we study the integration of \rocq with an alternative type-class
+solver implemented in \elpi. This requires translating type classes and
+instances from \rocq into an \elpi database, which can be viewed as a
+compilation step. We show in \cref{sec:simple-instance-compiler} that a basic
+compiler can be written in only a few lines while relying on the existing \elpi
+interpreter for resolution. We then extend this translation to support more
+complex instances and compare the resulting solver with \rocq's native
+solver~\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}.
 
-A central challenge in this approach arises from the mismatch between the object 
-language and the meta-language. Although
-both support higher-order unification~\cite{miller1991-pf} and
-$\beta\eta$-conversion, $\lambda$-abstractions and applications are encoded with
-rigid constructors, which introduces additional constraints during
-unification. \marginpar{TODO: legare a xxx}
+A central challenge in this approach arises from the mismatch between the object
+language and the meta-language. Although both support higher-order
+unification~\cite{miller1991-pf} and $\beta\eta$-conversion, the shallow
+encoding of terms, which underlies our metaprogramming setup, creates terms
+whose $\lambda$-abstractions and applications are represented using rigid
+constructors rather than the native constructs of the meta-language. As a
+consequence, additional constraints are introduced during unification.
 
-As a consequence, terms that are unifiable in \rocq may fail to unify after
+As a result, terms that are unifiable in \rocq may fail to unify after
 translation into \elpi. Simply delegating unification to the meta-language is
-therefore insufficient. This motivates another contribution of this thesis: a
-compilation scheme that preserves the benefits of the translation while
-recovering the intended unification behavior.\marginpar{TODO}
+therefore insufficient. This motivates another contribution of this thesis.
 
-To address this issue, we propose a compilation scheme in\marginpar{TODO}
+To address this unification mismatch, we propose a compilation scheme in
 \cref{chap:ho-for-free} that preserves most of the structure of terms while
-isolating problematic subterms. These subterms are replaced only when
-necessary and recorded as \emph{links}, representing delayed constraints.
-These links are checked during execution, allowing us to recover the intended
-behavior without reimplementing unification.
+isolating problematic subterms. These subterms are replaced with unification
+variables only when necessary and recorded to the original term with
+\emph{links}, representing delayed constraints. These links are checked during
+execution, allowing us to recover the intended behavior without reimplementing
+unification.
 
-Beyond type-class resolution, the intrinsic nature of logic programming
-raises another important concern, especially for users who are not familiar with
-logic programming. Controlling the backtracking performed by the interpreter is
+Beyond type-class resolution, the intrinsic nature of logic programming raises
+another important concern, especially for users unfamiliar with logic
+programming. Controlling the backtracking performed by the interpreter is
 fundamental to managing performance. This motivates a second line of work
 developed in this thesis: a determinacy analysis for \elpi
 programs~\cref{chap:det-elpi}. Determinacy ensures that selected predicates
 produce at most one solution and do not introduce unexpected choice points for
-any call to them. This property helps control the behavior of logic programs.
-In our setting, type classes correspond to predicates, and instances to rules.
-If a class is declared deterministic, the analysis ensures that all its
-instances satisfy this property.\marginpar{TODO}
+any call. This property helps control the behavior of logic programs. In our
+setting, type classes correspond to predicates and instances to rules. If a
+class is declared deterministic, the analysis ensures that the program generated
+by the instances of this class satisfies the property that any call to the class
+produces at most one solution.
 
-We design and implement an analysis based on inspecting clauses and tracking argument
-modes. The algorithm supports most features of \elpi, including
-higher-order predicates, dynamic clauses, and the cut operator. Handling
-cut is important, as it can enforce determinism but interacts in subtle
-ways with logical semantics.
+We design and implement an analysis based on inspecting clauses and tracking
+argument modes. The algorithm supports most features of \elpi, including
+higher-order predicates, dynamic clauses, and the cut operator. Handling cut is
+important, as it can enforce determinism while interacting in subtle ways with
+logical semantics.
 
-To increase the level of trust in the static analysis, we have formalized the
-expected properties of the static checker in the \rocq proof assistant by encoding
-the \elpi interpreter~\cref{chap:mechanization}. To simplify this development,
-we restrict the model to a first-order fragment of the language, where terms do
-not contain higher-order variables. In this setting, the absence of propositional
-variables simplifies the formalization and allows us to produce a fully
-mechanized proof.
+To increase confidence in the static analysis, we formalize the expected
+properties of the checker in the \rocq proof assistant by encoding the \elpi
+interpreter~\cref{chap:mechanization}. To simplify this development, we restrict
+the model to a first-order fragment of the language, where terms do not contain
+higher-order variables. In this setting, the absence of higher-order variables
+simplifies the formalization and allows us to produce a fully mechanized proof.
 
 Although this model does not capture all higher-order features of \elpi, it
-encompasses the aspects relevant to our analysis and provides a foundation for
-establishing machine-checked correctness guarantees.\marginpar{TODO}
+encompasses the aspects relevant to our analysis and provides a first foundation
+for establishing machine-checked correctness guarantees for the \elpi language.
+
 
 \section{Contributions and structure of the thesis}
 
