@@ -247,7 +247,7 @@ Compiling this instance yields the following \elpi rule:
 
 This rule provides a proof for \eI{Add (x * y)} provided that the two premises
 \eI{Add x} and \eI{Add y} can be solved. Note that the generated rule
-contains explicit \eI{pi} qunatifiers for the unification variable in the rule.
+contains explicit \eI{pi} quantifiers for the unification variable in the rule.
 In a hand-written rule they become optional.% \marginpar{FIXME: enrico, nota snip pag 37}
 
 As explained in \cref{sec:elpi-commands-tactics}, a \rocq{} goal can be
@@ -451,7 +451,7 @@ As explained in \cref{sec:interface-rocq-elpi}, instance compilation is
 triggered immediately after an instance declaration.
 \Cref{fig:simple-elpi-compiler} shows an instance compiler more advanced then
 \cref{sec:simple-instance-compiler}. It takes into account the type of dependent
-quantification and the positive/negative positition of the term being compiled.
+quantification and the positive/negative position of the term being compiled.
 
 Similarly to \cref{fig:simple-elpi-compiler-tc}, we define a \eI{compile}
 predicate which calls the \eI{comp} auxiliary function. \eI{comp} this time
@@ -504,7 +504,7 @@ The premises of the clause are stored in the accumulator \eI{P}. As with the
 instance arguments, they are reversed before constructing the final rule.
 
 Finally, the predicate \eI{build-rule} assembles the rule according to the
-current position tag: positive or nagative. In the former
+current position tag: positive or negative. In the former
 case, it produces a standard clause
 \eI{Head :- Prems}. Otherwise, it produces the implication% \marginpar{FIXME: enrico,per soddisfare sintassi}
 \eI{Prems => Head}.
@@ -531,7 +531,7 @@ predicate \eI{tc-Add} for the \cI{Add} class.
   \label{fig:h-clause}
 \end{figure}
 
-An interesting example of compilation, where the posititive/negative
+An interesting example of compilation, where the positive/negative
 position of a subterm in the compilation phase plays a
 central role (and is incorrectly handled by the compiler in
 \cref{sec:simple-instance-compiler}), is shown in
@@ -726,7 +726,7 @@ to the \cI{Hint} system, that allows to tweak somehow the search engine, for
 example the \cI{Hint Extern} command allows to apply a list of tactics on goal
 matching a particular pattern. This approach, however, asks the user to write
 ad-hoc rules in a language which is not the same of the \rocq solver, and which,
-is some case as not the expressivness power of \elpi.% \marginpar{FIXME: enrico?}
+in some cases has not the expressiveness power of \elpi.% \marginpar{FIXME: enrico?}
 
 \section{Experimental results}
 \label{sec:exp-res}
@@ -846,7 +846,7 @@ proof term should be correct, because the rules in the database are
 compiled in a context where they already typecheck. The main problem
 comes from universe constraints~\cite{universes}.
 
-In the \elpi compier, universes are removed from the compiled rules to simplify
+In the \elpi compiler, universes are removed from the compiled rules to simplify
 unification. For example, the \rocq term \cI{Type@{i}} corresponds to
 the HOAS term \eI{sort (typ i)}. During compilation, the level $i$ is
 replaced by a unification variable. This allows matching terms at
@@ -875,7 +875,7 @@ declaration requires \cI{M} to have a rigid applicative head, while no
 constraint is imposed on \cI{A}. The class provides the overloadable
 symbol \cI{union}, which computes the union of two collections. During
 the union operation, the filter function is used to determine which
-element to keep if a key appers in both collections.
+element to keep if a key appears in both collections.
 
 We now consider an instance of \cI{Union} from \stdpp, together with a
 lemma that relies on it.

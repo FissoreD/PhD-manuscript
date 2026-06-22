@@ -156,7 +156,7 @@ that the higher-order unification procedure of the meta-language,
 denoted \Ue{}, can simulate a higher-order unification procedure \Uo{}
 for the object language, including $\beta\eta$-conversion.
 
-The following section are inspired from our paper~\cite{fissore2024}.
+The following sections are inspired from our paper~\cite{fissore2024}.
 In particular, section~\cref{sec:problem-statement} states the problem formally and gives the
 intuition behind our solution; \cref{sec:simulation} sets up a basic
 simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
@@ -219,7 +219,7 @@ distinguish between the ``application'' of a unification variable
 to its scope and the application of a term to a list of arguments.
 We write the scope of unification variables in subscript
 while we use juxtaposition for regular application.
-Here are few examples:\\
+Here are a few examples:\\
 \vspace{4pt}
 {
 \setlength{\tabcolsep}{1em}
@@ -448,7 +448,7 @@ for the weaker equational theory supported by \Ue.
 Since we simulate unification of \Fo within \Ho, the purpose of
 \hrun{} is to take a list of unification problems \foUnifPb and
 produce a substitution $\rho_n$ for \Fo. This substitution
-is equivalente to the one returned by \frun{} when applied to
+is equivalent to the one returned by \frun{} when applied to
 \foUnifPb.
 
 The \hrun{} procedure first compiles all terms in \foUnifPb,
@@ -981,7 +981,7 @@ their original binding context.
 \end{lemma}
 
 \begin{proof}
-  By the definition of \eI{comp}, the compilation precedure is a simple mapper
+  By the definition of \eI{comp}, the compilation procedure is a simple mapper
   from terms in \Fo to terms in \Ho. By hypothesis, $\wellb(s)$, therefore
   $\wellb(t)$.
 \end{proof}
@@ -1703,7 +1703,7 @@ Moreover:
 
 \begin{proof}[Proof sketch]
   We need to extend the proof of \cref{lem:w-enforcement-maybeeta}, since we
-  need to conseder the case of terms \maybeeta. By \cref{lem:maybeeta},
+  need to consider the case of terms \maybeeta. By \cref{lem:maybeeta},
   we know that any \maybeeta term is captured by \testmaybeeta, therefore
   the rule in \cref{fig:com-maybeeta} is used. The output is a variable,
   where in \llambda, therefore, the new terms is \wellb.
@@ -1725,7 +1725,7 @@ we know for sure if their head lambdas can (or cannot) be $\eta$-contracted.
 
 \begin{definition}[\progressetaleft]\label{def:progressetaleft}
 A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
-$X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
+  $X$ becomes  in a substitution $\sigma$. Let $y\in\Gamma$. There are two cases:
 \begin{enumerate}
   \item if $\sigma X = a$ or $\sigma X = y$ or $\sigma X = f \appsep a_1\ldots a_n$
     we unify the $\eta$-redex of $X$ with $t$, that is we run
@@ -1871,7 +1871,7 @@ $X$ becomes  in a substituion $\sigma$. Let $y\in\Gamma$. There are two cases:
           in this case $s_2$ is compiled to $t_2$ and the unification step $u$ assigns $t_2$ to $X$
           and triggers \progressetaleft.
           If $s_1$ and $s_2$ are equal thanks to $r_{\eta_l}$ in \cref{fig:feq} then
-          progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$ namly
+          progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$ namely
           $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule $r_{\lambda\lambda}$ in \cref{fig:feq}
           and the link progress $p$ unifies $\lambda x.t_1$ with $t_2$.
           Alternatively, if $s_1$ are different $s_2$
@@ -1969,7 +1969,7 @@ $\foUnifPb_1$ and with arity $0$ in $\foUnifPb_2$.
 In order to preserve \cref{inv:uvaarity} the compiler
 did generate two entries in \mapStore for $X$, namely $B$ and $C$. 
 However, there is no connection between these two variables
-and any incompatible assignements to them would not be detected,
+and any incompatible assignments to them would not be detected,
 in turn breaking \cref{prop:fidelity}. 
 % This incompatibility will only be detected during the
 % decompilation phase.
@@ -2118,7 +2118,7 @@ If we take back the example given at the beginning of this section,
 \noindent
 Note that $\mapping{X}{C}{0}$ disappears from \mapStore
 in favour of the auxiliary \linketa \linketaM{}{C}{\lambda x.B_{x}}.
-The resolution of $\hoUnifPb_1$ assignes $a$ to $A$. This wakes up
+The resolution of $\hoUnifPb_1$ assigns $a$ to $A$. This wakes up
 $\linkStore_2$ by \progressetaleft, assigning $f \appsep x$ to $B_x$.
 The resolution of $\hoUnifPb_2$ instantiates $C$ to $\lambda x.a$, which, in
 turn triggers $\linkStore_1$ by \progressetaleft. In turn, this performs
@@ -2447,7 +2447,7 @@ whenever its \rhs is for sure a \wellb term.
   \cref{lemma:prog-eta-terminates}, this does not affect termination. 
   \progBetaFail terminates since it stop progression with failure.
   Finally, \progressetaright performs 
-  terminating operations and, if its permises succeed, the considered
+  terminating operations and, if its premises succeed, the considered
   \linketa is removed from \linkStore, ensuring termination.
   %
   % \Cref{def:progBetaRH} makes \eI{progress} terminates, since it makes a
@@ -2678,7 +2678,7 @@ whose \lhs is a variable \eI{X}; the second matches and removes
 a constraint on the same variable; the third
 relocates \eI{T2} and the latter crafts the new goal that unifies
 \eI{T1} with \eI{T2'} under \eI{G1} and the set of
-heigenvariables \eI{N1}.
+eigenvariables \eI{N1}.
 
 % Remark that \cref{inv:uvaarity} makes it possible to relocate \eI{T2}
 % using the name-to-name mapping obtained by zipping

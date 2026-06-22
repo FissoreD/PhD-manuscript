@@ -739,7 +739,7 @@ base type, a variable, or the application of a type to another in the
 case of parametric types. The arrow symbol is used to type function space and in
 \elpi it takes an optional mode information. The mode, \Einput or
 \Eoutput, tells the runtime which unification algorithm to use when unifying the
-arguments of two terms, we dealy this discussion in the next section,
+arguments of two terms. We delay this discussion in the next section,
 in particular at \cref{def:unify,def:matching}. By
 default, no mode information is compiled to \Eoutput.
 
@@ -910,7 +910,7 @@ taking two terms and an initial substitution $\sigma$. They either fail
 an extension of $\sigma$.
 
 \begin{definition}[Pattern fragment]
-  A $\lambda$-term belongs to Miller's pattern frangment~\cite{miller1991-pf} if in every subterm of
+  A $\lambda$-term belongs to Miller's pattern fragment~\cite{miller1991-pf} if in every subterm of
   the form $F\ t_1\ t_2 \dots t_n$, where $F$ is a higher-order unification
   variable, each term $t_i$ is a bound variable distinct from any $t_j$ (with $i
   \neq j$).
@@ -1860,8 +1860,8 @@ solved recursively. The \rocq tactics performing this task is called
 \eI{refine}.
 
 In \elpi{}, the \eI{refine} predicate exists and has the same behavior: it takes
-a proof term and a goal, it typechecks the proof agains the goals and returns a
-list of subgoals on the for of a list of sealed-goals. It is customary for
+a proof term and a goal, it typechecks the proof against the goals and returns
+a list of subgoals in the form of a list of sealed-goals. It is customary for
 \elpi{} tactics to invoke \eI{refine} in order to produce the output list for the
 \eI{solve} predicate.
 

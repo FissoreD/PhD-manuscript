@@ -264,7 +264,7 @@ that \eI{F} is a function, and a \emph{postcondition}, namely that
 no choice points.
 If the precondition is not met the postcondition is not guaranteed to hold and we say
 that \eI{map} is \emph{miscalled}. In this case we weaken its signature to%
-\footnote{We explain in detail this weakining operation in \cref{sec:basic}}:
+\footnote{We explain in detail this weakening operation in \cref{sec:basic}}:
 %
 \begin{elpicode}
 pred map (func A ~$\to$~ B), list A ~$\to$~ list B.
@@ -346,19 +346,19 @@ each \eI{copy x x} rule is mutually exclusive with the other rules.
 \subsection{Meta programs}
 \label{sec:meta-prog}
 
-The meta-program we have show in \cref{sec:example-ho-dyn-programs} is a good
-example of how our determinacy checker interacts well in program inspecion and
+The meta-program we have shown in \cref{sec:example-ho-dyn-programs} is a good
+example of how our determinacy checker interacts well in program inspection and
 composition.
 
 We take back the implementation for the predicates \eI{comp} and \eI{fuse}, but
-this time, we pay atention to their determinacy in the signatures.
+ this time, we pay attention to their determinacy in the signatures.
 
 
 \input{code/fuse_func.tex}
 
-The signature of \eI{comp} infroms the checker that \eI{comp} behaves
+The signature of \eI{comp} informs the checker that \eI{comp} behaves
 deterministically if its two higher-order arguments are functions. This piece of
-informarmation is important when the checker analyses the rule for \eI{fuse}.
+information is important when the checker analyses the rule for \eI{fuse}.
 
 The signature of \eI{fuse} has two preconditions, both inputs
 should be functions, and two postconditions: \eI{fuse} is a function and
@@ -910,8 +910,8 @@ and the result is a function.
 Finally, the body of \eI{compose} is empty, so it is deterministic.
 Therefore, \eI{compose} behaves deterministically.
 
-We now move to an example that involes a miscall to a predicate, that is,
-a rule wih a non-deterministic body atom.
+We now move to an example that involves a miscall to a predicate, that is,
+a rule with a non-deterministic body atom.
 
 \begin{elpicode}
 func r (func int ~$\to$~ int), (pred int ~$\to$~ int), int ~$\to$~ int.
@@ -1515,7 +1515,7 @@ lines of code.  None of these libraries were using \eI{copy} as a relation, i.e.
 generate all possible copies of a term.
 The \languages{BRiCk} application has some public code we ported
 ourselves and some closed source code ported by the BlueRock company, that we
-thank for sharing these numebrs.
+thank for sharing these numbers.
 In the public code we added 11 cuts over 2500 lines of
 code, while in the private one they added 11 cuts over 7500 lines.
 
