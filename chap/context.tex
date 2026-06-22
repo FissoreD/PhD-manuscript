@@ -35,13 +35,12 @@ In \rocqelpi:
   mechanizations such as the Odd Order and Four Color theorems
   \cite{gonthier2013,gonthier2023}.
 
-  \item \emph{Tactics} extend the proof system of \rocq{} by allowing additional
-  forms of automation during proof development As an example, the
-  \trocq~\cite{enzo2023,enzo2024} library provides an tactic used to achieve
-  proof transfer by both translating a user goal into another, related, variant,
-  and computing a proof that proves the corresponding implication. The
-  \algtac~\cite{algtac} library instead offers tactics to reason in particular
-  about polynomial and rational equations.% \marginpar{FIXME: enrico}
+  \item \emph{Tactics} extend the proof system of \rocq{} by providing
+  additional forms of automation during proof development. For example, the
+  \trocq~\cite{enzo2023,enzo2024} library provides a tactic for proof transfer
+  that both translates a user's goal into a related variant and constructs a
+  proof of the corresponding implication. In contrast, the \algtac~\cite{algtac}
+  library offers tactics for reasoning about polynomial and rational equations.% \marginpar{FIXME: enrico}
 \end{itemize}
 
 In the following sections, we introduce the key concepts that form the
@@ -303,7 +302,6 @@ function \cI{id} from \cref{sec:rocq-intro-lam-calc}, we can note the when
 applied to either \cI{1} or \cI{["foo","bar"]}, it always return its input, that
 is, the same implementation is reused for every instantiation of its type
 parameter.
-% \marginpar{FIXME: check enrico}
 
 Although parametric polymorphism is widely used, it is not well suited to model
 overloading as it appears in mathematics. In mathematical notation, a symbol
@@ -515,7 +513,7 @@ Because instances are explored according to their position in the database, the
 ordering of the database can have a significant impact on the search process. In
 particular, it may affect the performance of instance resolution. In certain
 scenarios, an improperly ordered database may even compromise
-termination.% \marginpar{FIXME: enrico}
+termination.
 
 As an example, consider the instances defined for the type class
 \cI{Add}, ordered as follows: \cI{addNat}, \cI{addR}, and
@@ -923,7 +921,7 @@ The procedure \emph{\unify} implements higher-order unification restricted to th
 pattern fragment, and is used for arguments in \Eoutput\ position. The
 procedure \emph{\matching}, inspired by \bprolog's ``matching clauses''
 \cite{zhou2012}, is used for arguments in \Einput\ position extended to the
-higher-order variable unification within the pattern fragment. % \marginpar{FIXME: enrico}
+higher-order variable unification within the pattern fragment.
 
 \begin{definition}[\unify]\label{def:unify}
 Two terms $q$ and $u$ \emph{unify} under a substitution $\sigma$ if there
@@ -962,7 +960,7 @@ which renames its variables with respect to the set $V$.
 
 For each applicable rule, \backchain returns the substitution obtained by
 matching/unifying the rule head with $q$, together with the corresponding
-rule body.% \marginpar{FIXME: enrico}
+rule body.
 
 The definition relies on two auxiliary functions:
 \begin{align*}

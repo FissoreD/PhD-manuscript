@@ -240,7 +240,7 @@ $$
 Compiling this instance yields the following \elpi rule:
 
 \begin{elpicode}
-  pi L\ pi R\ pi PL\ pi PR\
+  pi L\ pi R\ pi PL\ pi PR\  % this line is optional in toplevel rules
     tc {{Add (lp:L * lp:R)}} {{addProd lp:L lp:R lp:PL lp:PR}} :-
       tc {{Add lp:L}} PL, tc {{Add lp:R}} PR.
 \end{elpicode}
