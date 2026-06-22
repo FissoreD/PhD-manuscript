@@ -109,7 +109,7 @@ rule applies are called $\eta$-redexes.
 
 Two terms are considered equivalent if they reduce to the same term.
 
-In type theory, the pure $\lambda$-calculus is extended with typing
+In simple type theory, the pure $\lambda$-calculus is extended with typing
 rules. These constrain how terms can be formed by assigning a
 \emph{type} to each term. This extension is known as the
 simply-typed $\lambda$-calculus~\cite{church-type}:
@@ -553,9 +553,9 @@ Another important aspect is that multiple instances may match the same goal,
 which requires backtracking. Some libraries, such as \stdpp{}, exploit this
 behavior to emulate logic programming. For example, the type class
 \cI{SetUnfold} is used to rewrite set expressions into logical statements. An
-inclusion $X \subseteq Y$ can be transformed into a formula of the form
-$\forall x, P\ x \to Q\ x$, under the hypothesis that $\forall x, x \in X \to P\ x$
-and $\forall x, x \in Y \to Q\ x$. When no% \marginpar{FIXME: enrico}
+inclusion $X \subseteq Y$ can be transformed into a formula of the form % set_unfold_subseteq
+$\forall x, P\ x \to Q\ x$, under the hypothesis that $\forall x, x \in X \leftrightarrow P\ x$
+and $\forall x, x \in Y \leftrightarrow Q\ x$. When no% \marginpar{FIXME: enrico}
 specific rule applies, the default instance
 \cI{set_unfold_default P : SetUnfold P P} leaves the goal unchanged.
 This default instance acts as a catch-all rule, since it applies to any goal.
