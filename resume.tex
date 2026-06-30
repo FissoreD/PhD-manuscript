@@ -64,7 +64,84 @@ assistants.
 \end{ResumeMotsCles}
 
 
-% Changer la langue du document en anglais:
-% - commenter les "renewcommand" dans [ce fichier](./francisation.sty)
-% - changer l'ordre des argument du pacquet `babel`: `\RequirePackage[french,english]{babel}` dans [ce fichier](./these-ISSS.cls)
-% - changer l'option `selectlanguage`: `\selectlanguage{english}` dans [ce fichier](./these-ISSS.cls)
+%%------------------------------------------------ Le résumé et les mots-clés -
+% \begin{ResumeMotsCles}
+% %% Résumé en français : pas plus de 2000 caractères
+% \begin{resume}
+% La résolution de classes de types est un mécanisme central de l’élaboration dans
+% les assistants de preuve modernes, assurant l’inférence d’arguments implicites
+% et la désambiguïsation des symboles surchargés. Sa proximité avec la
+% programmation logique suggère des implémentations alternatives fondées sur
+% l’exécution de programmes logiques.
+
+% Cette thèse propose une implémentation d’un solveur de classes de types pour
+% Rocq basé sur ELPI, un interpréteur Lambda-Prolog emarqué. Nous introduisons
+% une compilation des classes de types et instances vers une base de connaissances
+% logique, permettant de déléguer la résolution à ELPI. Nous analysons
+% l’expressivité de cette approche et ses performances en la comparant au solveur
+% natif de Rocq.
+
+% Un défi majeur provient des divergences entre Rocq et ELPI en matière
+% d’unification et de représentation des termes. Bien que les deux systèmes
+% supportent l’unification d’ordre supérieur et la $\beta\eta$-conversion, leurs encodages
+% diffèrent, ce qui peut empêcher la préservation de l’unification après
+% traduction. Nous résolvons ce problème via des contraintes différées, remplaçant
+% certains sous-termes par des variables contraintes vérifiées à l’exécution, ce
+% qui restaure le comportement attendu.
+
+% Nous étudions également la prédictibilité des programmes logiques au moyen d’une
+% analyse de déterminisme pour ELPI. Celle-ci garantit qu’un prédicat donné
+% produit au plus une solution, en supportant prédicats d’ordre supérieur, clauses
+% dynamiques et cut, propriété essentielle pour la résolution de classes de types.
+% Enfin, nous formalisons la correction de cette analyse dans Rocq via un modèle
+% d’ordre un de l’interpréteur ELPI et une preuve de sûreté du vérificateur
+% statique.
+
+% Dans l’ensemble, ce travail met en évidence le rôle des techniques de
+% programmation logique dans la mise en œuvre et l’analyse de mécanismes
+% d’élaboration, éclairant les liens entre résolution de classes de types,
+% programmation logique et vérification formelle.
+% \end{resume}
+
+% %% Résumé en anglais : pas plus de 2000 caractères
+% \begin{abstract}
+
+% Type-class resolution is a central component of elaboration in modern proof
+% assistants, enabling automatic inference of implicit arguments and resolution
+% of overloaded symbols. It is closely related to logic programming, suggesting
+% alternative implementation strategies based on logic-program execution.
+
+% This thesis studies the design and implementation of a type-class solver for the
+% Rocq proof assistant based on ELPI, an embeddable Lambda-Prolog interpreter. We
+% present a compilation scheme translating Rocq type classes and instances into a
+% logic-programming database, allowing type-class resolution to be delegated to
+% ELPI. We evaluate expressiveness and performance and compare it with Rocq’s
+% native solver.
+
+% A major challenge comes from differences between Rocq and ELPI unification and
+% from their internal term representations. Although both support higher-order
+% unification and $\beta\eta$-conversion, their encodings differ, so terms that unify in
+% Rocq may fail after translation. We address this using delayed constraints:
+% problematic subterms are replaced by placeholders carrying constraints checked
+% during execution, restoring intended unification behavior.
+
+% We also study predictability and performance of logic programs via a determinacy
+% analysis for ELPI. We propose a static analysis ensuring selected predicates
+% have at most one solution, supporting higher-order predicates, dynamic clauses,
+% and cut. This is relevant to type-class resolution, where deterministic behavior
+% is expected.
+% To validate the analysis, we formalize its correctness in Rocq by mechanizing a
+% first-order model of the ELPI interpreter and proving soundness of the static
+% checker.
+
+% Overall, this work shows how logic-programming techniques can implement and
+% analyze elaboration in proof assistants, clarifying links between type-class
+% resolution, logic programming, and formal verification.
+
+% \end{abstract}
+
+% %% Mots-clés en français
+% \motscles{Programmation logique, Théorie des types, Elpi, Rocq, Classes de type, Analyse de déterminisme.}
+% %% Mots-clés en anglais
+% \keywords{Logic Programming, Type Theory, Elpi, Rocq, Type Classes, Determinacy Analysis.}
+% \end{ResumeMotsCles}
