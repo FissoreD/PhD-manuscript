@@ -41,7 +41,7 @@ LOG_links := log
 links_pdf: $(PDFFILES_links)
 
 links:
-	mkdir -p $(OUT_links) && python3 parse_link.py $(OUT_links) logg
+	mkdir -p $(OUT_links) && python3 parse_link.py $(OUT_links) $(LOG_links)
 
 links_old:
 	eval $$(opam env) && \

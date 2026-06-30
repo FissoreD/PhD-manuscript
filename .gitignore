@@ -20,7 +20,7 @@ _minted
 *.xmpi
 *.maf
 **/__pycache__
-ho-for-free/log
+# ho-for-free/log
 dummy
 _opam
 
