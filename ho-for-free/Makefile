@@ -41,6 +41,9 @@ LOG_links := log
 links_pdf: $(PDFFILES_links)
 
 links:
+	mkdir -p $(OUT_links) && python3 parse_link.py $(OUT_links) logg
+
+links_old:
 	eval $$(opam env) && \
 	make -C HO-unif-for-free/ test TEX=tex > $(LOG_links) && \
 	mkdir -p $(OUT_links) && \
