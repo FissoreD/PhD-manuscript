@@ -1937,11 +1937,11 @@
 	\newlabel{last@page}{{}{\thepage}}{}{}{}}%
 	\addtocounter{page}{1}}
 			
-\AtEndDocument{
-	\fourthcover
-	%  \clearpage
-	\lastpage@putlabel
-}
+% \AtEndDocument{
+% 	\fourthcover
+% 	%  \clearpage
+% 	\lastpage@putlabel
+% }
 			
 % Classification ACM
 \newcommand{\categoryname}{Catégories et descripteurs de sujets :}
