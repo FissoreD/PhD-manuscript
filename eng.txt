@@ -12,7 +12,7 @@ performance by comparing it with Rocq's native solver.
 
 A major challenge arises from the differences between Rocq and ELPI with respect
 to unification and term representation. Although both systems support
-higher-order unification and $\beta\eta$-conversion, their term encodings
+higher-order unification and βη-conversion, their term encodings
 differ, which may prevent unification from being preserved by the translation.
 To address this issue, we develop a compilation technique based on delayed
 constraints: problematic subterms are replaced with links recording constraints

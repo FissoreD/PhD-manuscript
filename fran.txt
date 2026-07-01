@@ -13,7 +13,7 @@ natif de Rocq.
 
 Un défi majeur provient des divergences entre Rocq et ELPI en matière
 d’unification et de représentation des termes. Bien que les deux systèmes
-supportent l’unification d’ordre supérieur et la $\beta\eta$-conversion, leurs encodages
+supportent l’unification d’ordre supérieur et la βη-conversion, leurs encodages
 diffèrent, ce qui peut empêcher la préservation de l’unification après
 traduction. Pour remédier à ce problème, nous développons une
 technique de compilation fondée sur des contraintes différées : les sous-termes
