@@ -1,0 +1,33 @@
+Type-class resolution is a central component of elaboration in modern proof
+assistants, providing implicit argument inference and the disambiguation of
+overloaded symbols. Its close relationship with logic programming suggests
+alternative implementations based on the execution of logic programs.
+
+This thesis presents an implementation of a type-class solver for the Rocq proof
+assistant based on ELPI, an embeddable Lambda-Prolog interpreter. We introduce a
+compilation scheme that translates type classes and their instances into a
+logic-programming knowledge base, allowing type-class resolution to be delegated
+to ELPI. We study the expressiveness of this approach and evaluate its
+performance by comparing it with Rocq's native solver.
+
+A major challenge arises from the differences between Rocq and ELPI with respect
+to unification and term representation. Although both systems support
+higher-order unification and $\beta\eta$-conversion, their term encodings
+differ, which may prevent unification from being preserved by the translation.
+To address this issue, we develop a compilation technique based on delayed
+constraints: problematic subterms are replaced with links recording constraints
+that are checked during execution, thereby recovering the intended unification
+behavior.
+
+We also investigate the predictability of logic programs through a determinacy
+analysis for ELPI. The analysis guarantees that a given predicate produces at
+most one solution while supporting higher-order predicates, dynamic clauses, and
+the cut operator. This analysis is particularly relevant to type-class
+resolution, where deterministic behavior is generally expected. Finally, we
+formalize the correctness of this analysis in Rocq by mechanizing a first-order
+model of the ELPI interpreter and proving the soundness of the static checker.
+
+Overall, this work demonstrates the role that logic-programming techniques can
+play in the implementation and analysis of elaboration mechanisms, shedding new
+light on the connections between type-class resolution, logic programming, and
+formal verification.

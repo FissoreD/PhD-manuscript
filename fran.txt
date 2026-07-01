@@ -1,0 +1,37 @@
+La résolution de classes de types est un mécanisme central de l’élaboration dans
+les assistants de preuve modernes, assurant l’inférence d’arguments implicites
+et la désambiguïsation des symboles surchargés. Sa proximité avec la
+programmation logique suggère des implémentations alternatives fondées sur
+l’exécution de programmes logiques.
+
+Cette thèse propose une implémentation d’un solveur de classes de types pour
+Rocq basé sur ELPI, un interpréteur Lambda-Prolog emarqué. Nous introduisons
+une compilation des classes de types et instances vers une base de connaissances
+logique, permettant de déléguer la résolution à ELPI. Nous analysons
+l’expressivité de cette approche et ses performances en la comparant au solveur
+natif de Rocq.
+
+Un défi majeur provient des divergences entre Rocq et ELPI en matière
+d’unification et de représentation des termes. Bien que les deux systèmes
+supportent l’unification d’ordre supérieur et la $\beta\eta$-conversion, leurs encodages
+diffèrent, ce qui peut empêcher la préservation de l’unification après
+traduction. Pour remédier à ce problème, nous développons une
+technique de compilation fondée sur des contraintes différées : les sous-termes
+problématiques sont remplacés par des liens enregistrant des contraintes qui
+seront vérifiées au cours de l'exécution, ce qui permet de retrouver le
+comportement d'unification attendu.
+
+Nous étudions également la prédictibilité des programmes logiques au moyen d’une
+analyse de déterminisme pour ELPI. Celle-ci garantit qu’un prédicat donné
+produit au plus une solution, en supportant prédicats d’ordre supérieur, clauses
+dynamiques et cut. Cette analyse est particulièrement pertinente dans le contexte de la
+résolution de classes de types, où un comportement déterministe est généralement
+attendu.
+Enfin, nous formalisons la correction de cette analyse dans Rocq via un modèle
+d’ordre un de l’interpréteur ELPI et une preuve de sûreté du vérificateur
+statique.
+
+Dans l’ensemble, ce travail met en évidence le rôle des techniques de
+programmation logique dans la mise en œuvre et l’analyse de mécanismes
+d’élaboration, éclairant les liens entre résolution de classes de types,
+programmation logique et vérification formelle.
