@@ -292,7 +292,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [ ] L2720: more restricted form _(?)_ what is this reference, a missing footnote?
 
-- [ ] Figure 6.2: Todo should be Unexplored
+- [x] Figure 6.2: Todo should be Unexplored
 
 - [ ] P100, Figure 6.3. Please recall the program and the substitutions immediately before this figure, otherwise it is very difficult to follow, going back and force between this figure and section 2.3.3
 
@@ -319,4 +319,4 @@ To recall:
 - [x] L3151: that it/there exists
 - [x] L3154: we can now
 
-- [ ] L3185: again a Todo/Unexplored mixup
+- [x] L3185: again a Todo/Unexplored mixup
