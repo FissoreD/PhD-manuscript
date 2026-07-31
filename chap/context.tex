@@ -800,11 +800,11 @@ The domain $\dom\ \sigma$ of a substitution $\sigma$ is the set
 of variables that are assigned in $\sigma$.
 
 \begin{definition}[Substitution extension]
+  \label{def:sub-extension}
   A substitution $\sigma'$ is an extension of $\sigma$, noted $\sigma \subseteq \sigma'$,
   iff
   $$\exists \sigma'',\ \sigma + \sigma'' = \sigma' \ \land\
   \dom\ \sigma'' \cap \dom\ \sigma = \varnothing $$
-  \label{def:sub-extension}
 \end{definition}
 
 \vspace{-3em}
@@ -909,12 +909,11 @@ taking two terms and an initial substitution $\sigma$. They either fail
 (returning None) or succeed with an updated substitution $\sigma'$ that is
 an extension of $\sigma$.
 
-\begin{definition}[Pattern fragment]
+\begin{definition}[Pattern fragment] \label{def:pattern-fragment}
   A $\lambda$-term belongs to Miller's pattern fragment~\cite{miller1991-pf} if in every subterm of
   the form $F\ t_1\ t_2 \dots t_n$, where $F$ is a higher-order unification
   variable, each term $t_i$ is a bound variable distinct from any $t_j$ (with $i
   \neq j$).
-  \label{def:pattern-fragment}
 \end{definition}
 
 The procedure \emph{\unify} implements higher-order unification restricted to the

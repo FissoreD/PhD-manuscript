@@ -168,9 +168,9 @@ A small, simpler example to illustrate the Or and And nodes would go a long way 
 Typos / Presentation
 --------------------
 
-- [ ] It seems you are using a few different counters for definitions/lemmas/propositions/invariants and sections, that is quite confusing (esp in chapter 4).
+- [x] It seems you are using a few different counters for definitions/lemmas/propositions/invariants and sections, that is quite confusing (esp in chapter 4).
 
-- [ ] Some links to theorems/invariants/propositions appear to be broken, it is probably just a LaTeX issue.
+- [x] Some links to theorems/invariants/propositions appear to be broken, it is probably just a LaTeX issue.
 
 - [x] When citing articles, it would be useful to give names of authors so that one does not need to constantly lookup the bibliography to figure which paper is refered to.
 E.g. L2212: instead of just `[19]`, using `by A. Felty [19]`
