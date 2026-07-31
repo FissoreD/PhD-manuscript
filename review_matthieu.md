@@ -68,11 +68,11 @@ You could say a few words about this situation here.
 
 - [ ] L1253: The Rocq solver is based on the use of (a variant of) the `apply` tactic and is a multigoal tactic itself, implemented in OCaml using the proof engine's primitive tactic(als) for proof search. So the fact that `Hint Extern` allows to customize resolution using (Ltac) tactics is quite natural: it directly integrates in the solver. However it is definitely less expressive than Elpi: for example non-local cuts are not exposed. This comparison should be a bit more detailed to explain the differences. The idea you may want to convey is that the proof-search strategy itself is not customizable for Rocq's solver.
 
-- [ ] Benchmarks
+Benchmarks
   - [ ] Can you elaborate on how you implement sharing for this example? I suppose it's exactly the same idea as in 3.4.3, reusing the `g (n-1)` proofs, which is a really specific case. 
   - [ ] Are you comparing with a `Hint Extern` shortcut instance that does the same in the Rocq version then?
   
-  It would be best to present the sources of your benchmark so that it can be assessed and reproduced.
+It would be best to present the sources of your benchmark so that it can be assessed and reproduced.
 
   - [ ] The charts start at an already large number of nodes, how does it look for smaller instances? I guess the translation cost dominates at that depth, it would then be interesting to know until which level they do.
 
@@ -88,7 +88,7 @@ Chapter 4
 - [ ] L1476: efficiency, predictability _and decidability_ reasons.
   Higher-order unification is undecidable (see results by Huet for example), it should be mentionned here.
 
-- [ ] L1487: why does the solution to Q have 3 binders? A priori Q should be a Rocq term of type `Provable F -> Provable B`, and in the examples' particular case, `Provable (atom a) -> Provable (atom a)`, so `fun x => x` should be the witness.
+- [x] L1487: why does the solution to Q have 3 binders? A priori Q should be a Rocq term of type `Provable F -> Provable B`, and in the examples' particular case, `Provable (atom a) -> Provable (atom a)`, so `fun x => x` should be the witness.
 
 - [ ] L1556: you didn't define "more general", is it the same notion as 2.3.1, substitution extension, i.e. σ ⊆ σ': σ' = σ + σ'', dom(σ) ∩ dom(σ'') = ∅.
 

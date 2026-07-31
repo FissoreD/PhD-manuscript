@@ -136,7 +136,8 @@ get a solution, namely, \eI{Qm = x\ x}.
 
 The role of the \eI{link} predicate is to relate the \elpi variable \eI{Qm} back
 to the \rocq variable \eI{Q}. For instance, when \eI{Qm} is assigned, then
-\eI{Q} is assigned to the HOAS term \cI{fun _ _ x => x}. With this encoding, the
+\eI{Q} is assigned to the HOAS term \eI{fun `dummy_name` T (x\ x)} where \eI{T}
+is the type of the bound variable \eI{x}. With this encoding, the
 query \eI{tc-Provable {{impl (atom a) (atom a)}} S} has a solution.
 
 The purpose of this compilation is to detect, at compile time, all
