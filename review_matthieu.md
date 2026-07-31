@@ -253,34 +253,34 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L1372: isproblematic
 - [ ] L1521/Figure 4.1: missing `type` highlightings
 
-- [ ] L1547: introduce_d_ by pi
-- [ ] L1549: "how weaker" -> that =m is much weaker than =o
+- [x] L1547: introduce_d_ by pi
+- [x] L1549: "how weaker" -> that =m is much weaker than =o
 
 - [ ] L1571: (resp =o) in L
-- [ ] L1597: all term_s_, belongs -> belong
-- [ ] L1685: /of/ in
+- [x] L1597: all term_s_, belongs -> belong
+- [x] L1685: /of/ in
 
-- [ ] L1709: invariant invariant
+- [x] L1709: invariant invariant
 - [ ] L1716: shouldn't it be =L instead of =Β, as used just below ?
 
-- [ ] L1951: when X becomes _instantiated_ ?
+- [x] L1951: when X becomes _instantiated_ ?
 - [ ] L1994: "are different s2"  
 
-- [ ] L2062: first problem _P1 below_ the choice is obvious
-- [ ] L2075: "such as rhs" -> "such a rhs"
+- [x] L2062: first problem _P1 below_ the choice is obvious
+- [x] L2075: "such as rhs" -> "such a rhs"
 
-- [ ] L2091: that is _in_ "possibly L".
-- [ ] L2100: the followins
+- [x] L2091: that is _in_ "possibly L".
+- [x] L2100: the followins
 
-- [ ] L2122: is a variable_s_
-- [ ] L2141: in _the_ literature
-- [ ] L2142: ... Huet's algorithm which is a semi-decision procedure.
+- [x] L2122: is a variable_s_
+- [x] L2141: in _the_ literature
+- [x] L2142: ... Huet's algorithm which is a semi-decision procedure.
 - [ ] L2145: mimicking?
-- [ ] L2146: solver [64]_._
-- [ ] L2151: also become_s_
-- [ ] L2168: (section 2.3.5)
-- [ ] L2176, L2177: invariant invariant
-- [ ] L2193: in the snippet, I suppose the `\pi p` quantification would scope over the `unify` call? Maybe add parenthesis to make this explicit?
+- [x] L2146: solver [64]_._
+- [x] L2151: also become_s_
+- [x] L2168: (section 2.3.5)
+- [x] L2176, L2177: invariant invariant
+- [x] L2193: in the snippet, I suppose the `\pi p` quantification would scope over the `unify` call? Maybe add parenthesis to make this explicit?
 
 - [ ] L2334: is a function/s/
 - [ ] L2415: use bullets

@@ -277,11 +277,12 @@ and \eI{~\ocon~"3"} are definitionally equal.
 
 \noindent
 Both procedures use implication to
-assume that the fresh nominal constants introduces by \eI{pi} are
+assume that the fresh nominal constants introduced by \eI{pi} are
 equal to themselves.
 
-The main point in showing these equality tests is to remark how
-weaker \Ee is, and to identify the four rules that need special
+The main point in showing these equality tests is to remark 
+that \Ee is much weaker than \Eo, 
+and to identify the four rules that need special
 treatment in the simulation of \Uo in \Ho.
 The implementation of the predicate \eI{beta} essentially computes the
 weak-head normal form of a term, its implementation is similar to
@@ -458,7 +459,7 @@ and finally decompiles $\sigma_n$ to obtain $\rho_n$.
 We claim:
 
 \begin{proposition}[Run equivalence]\label{prop:simulation} $\forall \foUnifPb,
-\forall n,$ if all terms in \foUnifPb belongs to \llambda
+\forall n,$ if all term in \foUnifPb belong to \llambda
 $$
   \runFx{\foUnifPb}{n}{\rho} \land
   \runHx{\foUnifPb}{n}{\rho'}
@@ -740,7 +741,7 @@ the assignment $\{X_y \mapsto \lambda z. y \}$, which corresponds in \elpi
 concrete syntax to \eI{abs y\ val (~\mlam~ z\ y)}.
 
 Intuitively, the \eI{abs} node represents abstraction in the
-meta-language, while \mlam encodes object-level abstraction of in the HOAS
+meta-language, while \mlam encodes object-level abstraction in the HOAS
 of \Ho, in the same way \muva represents application of
 the meta-language, and \mapp encodes object-level applications in the HOAS
 of \Ho.
@@ -806,7 +807,7 @@ are renamed with the names in the scope of the unification variable occurrence.
 
 \mvspace
 
-Note that \eI{move} relies crucially on invariant \cref{inv:uvaarity},
+Note that \eI{move} relies crucially on \cref{inv:uvaarity},
 which ensures that all occurrences of a unification variable are
 applied to argument lists of the same length. As a consequence, these
 occurrences share the same simple type at the meta-level, and the
@@ -1725,7 +1726,7 @@ we know for sure if their head lambdas can (or cannot) be $\eta$-contracted.
 
 \begin{definition}[\progressetaleft]\label{def:progressetaleft}
 A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
-  $X$ becomes  in a substitution $\sigma$. Let $y\in\Gamma$. There are two cases:
+  $X$ becomes instantiated in a substitution $\sigma$. Let $y\in\Gamma$. There are two cases:
 \begin{enumerate}
   \item if $\sigma X = a$ or $\sigma X = y$ or $\sigma X = f \appsep a_1\ldots a_n$
     we unify the $\eta$-redex of $X$ with $t$, that is we run
@@ -2167,7 +2168,7 @@ admits two different solutions: $\rho_1 = \{~X \mapsto \lambda x.x~\}$
 and $\rho_2 = \{~X \mapsto \lambda x.a~\}$.
 The unification algorithm alone
 cannot chose the right one, since no solution is more general than the other,
-but for the first problem the choice is obvious, and in turn
+but for the first problem ($P_1$ below) the choice is obvious, and in turn
 this choice makes $\foUnifPb_2 \subseteq \llambda$:
 
 $$
@@ -2243,7 +2244,7 @@ has the following property:
   a term other than a variable.
 \end{invariant}
 
-\noindent Note that the shape of such as \rhs is
+\noindent Note that the shape of such a \rhs is
   \eI{~\mapp~ [~\muva~ X S | L]}, where
   \eI{S} is \eI{[s~$_1$~, ~$\ldots$~, s~$_n$~]}
   and \eI{L} is  \eI{[t~$_1$~, ~$\ldots$~, t~$_m$~]}.
@@ -2338,7 +2339,7 @@ This construction enforces \cref{inv:beta-rhs}.
 \begin{proof}[Proof sketch]
   By \cref{lem:w-enforcement-maybeeta}, we already cover terms in
   \maybebeta\ and \maybeeta. We now need to consider the case of a term
-  $s$ in the object language that is not in \notllambda. This category
+  $s$ in the object language that is in \notllambda. This category
   of terms identifies variables that are applied to a list of
   non-distinct names; that is, the pattern fragment from
   \cref{def:pattern-fragment} is not respected.
@@ -2355,7 +2356,7 @@ If any \linkbeta remains in \linkStore, decompilation fails.
 \subsection{Progress}
 
 
-We add the followins rules to \eI{progress1}.
+We add the following rules to \eI{progress1}.
 Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
 
 \begin{definition}[\progBetaLL] \label{def:progBetaLL}
@@ -2437,7 +2438,7 @@ whenever its \rhs is for sure a \wellb term.
   Let $l = \linkbetaM{\Gamma}{T}{\rhsBeta}$ a \linkbeta in the store \linkStore.
   The progression made by \progBetaRH{} terminates: $l$ is removed from
   \linkStore after having performed terminating instructions. If $l$ is not
-  activated by \progBetaRH, then $X$ is a variables. The activation
+  activated by \progBetaRH, then $X$ is a variable. The activation
   of \progBetaLL replaces $l$ with the new \linkbeta 
   $\linkbetaM{\Gamma}{T}{Y_{s_1\dots s_n~s}\appsep t_2\dots t_m}$.
   This progression can be triggered at most $m$ times, since at each time
@@ -2565,15 +2566,15 @@ a ~\}$.
 
 % from https://www.cs.mcgill.ca/~bpientka/papers/unif_miller60.pdf
 Working with terms in \llambda is sometime too restrictive~\cite{pientka2018}
-and we could find in literature a few strategies to go beyond \llambda without 
-implementing Huet's algorithm~\cite{huet75}.
+and we could find in the literature a few strategies to go beyond \llambda without 
+implementing Huet's algorithm~\cite{huet75} which is a semi-decision procedure.
 Some implementations of \lprolog~\cite{miller1988} such as
 Teyjus~\cite{teyjus} delay the resolution of \notllambda unification
 problems until the substitution makes them reenter \llambda.
 Other systems apply heuristics like preferring projection over mimic,
 and commit to that solution. This is the case for
 the unification algorithm \rocq uses in its type-class
-solver~\cite{sozeau2008-tc}, 
+solver~\cite{sozeau2008-tc}.
 
 In this section we show how we can implement these strategies
 by simply adding (or removing) rules to the
@@ -2598,7 +2599,7 @@ If we want the object-language unification to delay the first unification proble
 (waiting for $X$ to be be instantiated),
 we can relax \cref{def:progBetaFail}. 
 Instead of failing when the \lhs of $\linkStore_1$ becomes rigid (equal to $a$),
-we keep it in \linkStore until the head of its \rhs also become rigid.
+we keep it in \linkStore until the head of its \rhs also becomes rigid.
 In this case, since both the \lhs and \rhs have rigid heads, they can be unified.
 While this relaxed rule does not break \cref{prop:fidelity} per se,
 the \eI{occur-check-links} procedure becomes incomplete since
@@ -2628,7 +2629,7 @@ The main difference is that we cannot implement \hrun since it is
 the runtime of the programming language. In particular the runtime iterates
 \Ue, but \hstep also needs to check links for \progress. Luckily \elpi extends
 \lprolog with constraints (suspended goals) and
-Constraint Handling Rules (\chr) to operate on them~\cref{sec:chr}.
+Constraint Handling Rules (\chr) to operate on them~(\cref{sec:chr}).
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
 suspended on a list of variables that is resumed \emph{as soon as one of these variable
 is assigned}, before any other existing goal is considered. 
@@ -2646,9 +2647,9 @@ L ~$=_\eta$~ R :- declare_constraint (L ~$=_\eta$~ R) [L,R].
 \end{elpicode}
 
 The first two clauses describe when \progress can occur. If \eI{L} is no longer
-a variable, the invariant \cref{inv:linklhs} is violated; therefore, we trigger
+a variable, the \cref{inv:linklhs} is violated; therefore, we trigger
 unification between \eI{L} and \eI{R}. Similarly, if \eI{R} is no longer a
-\maybeeta term, the invariant \cref{inv:link-eta-right} does not hold anymore,
+\maybeeta term, the \cref{inv:link-eta-right} does not hold anymore,
 and we again force unification of \eI{L} and \eI{R}.
 
 If neither condition holds, no \progress is possible, and the constraint is
@@ -2695,8 +2696,9 @@ regular routine, i.e. write rules as follows
 
 \begin{elpicode}
   tc-Provable {{impl lp:F lp:B}} {{Pimpl lp:F lp:B lp:Q}} :-
-    pi p \ tc-Provable {{fact lp:F}} p => tc-Provable B X,
-    unify X {{lp:Q lp:p}}.
+    pi p \ 
+      (tc-Provable {{fact lp:F}} p => tc-Provable B X),
+      unify X {{lp:Q lp:p}}.
 \end{elpicode}
 
 \noindent
