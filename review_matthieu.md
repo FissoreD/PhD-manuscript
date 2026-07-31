@@ -282,22 +282,21 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L2176, L2177: invariant invariant
 - [x] L2193: in the snippet, I suppose the `\pi p` quantification would scope over the `unify` call? Maybe add parenthesis to make this explicit?
 
-- [ ] L2334: is a function/s/
+- [x] L2334: is a function/s/
 - [ ] L2415: use bullets
 
 - [ ] L2495: "the correponding them"? rephrase
-- [ ] L2524: Definitions of min/max: the right collumn should be max.
+- [x] L2524: Definitions of min/max: the right collumn should be max.
 
-- [ ] L2584: by -> be smaller
+- [x] L2584: by -> be smaller
 
 - [ ] L2720: more restricted form _(?)_ what is this reference, a missing footnote?
 
 - [ ] Figure 6.2: Todo should be Unexplored
 
-- [ ] P100, Figure 6.3. Please recall the program and the substitutions immediately before this figure, otherwise it is very difficult to follow,
-- [ ] going back and force between this figure and section 2.3.3
+- [ ] P100, Figure 6.3. Please recall the program and the substitutions immediately before this figure, otherwise it is very difficult to follow, going back and force between this figure and section 2.3.3
 
-- [ ] To recall: 
+To recall: 
   ```
   g A C :- r A B, f B C, !
   g D F :- f D E, f E F.
@@ -310,14 +309,14 @@ Résumé, p. v: et cut, et coupure ?
   f 2 3.
   ```
 
-- [ ] L2912: you mention "reset points" [f Y Z, !], [!] and [f Y Z], but shouldn't that be [f B C, !], [!] and [f D E]? It seems strange that R3 would mention variables associated to the first rule for g when that subtree is comming from the second rule. L2936 confirms that the restored R1 is [f B C].
+- [x] L2912: you mention "reset points" [f Y Z, !], [!] and [f Y Z], but shouldn't that be [f B C, !], [!] and [f D E]? It seems strange that R3 would mention variables associated to the first rule for g when that subtree is comming from the second rule. L2936 confirms that the restored R1 is [f B C].
 
-- [ ] L3032: That stat_e_ that.
-- [ ] L3038: at the same level _as_ the current tree
+- [x] L3032: That stat_e_ that.
+- [x] L3038: at the same level _as_ the current tree
 
-- [ ] L3101: in the figure, t2l should rather be tree_to_stack.
-- [ ] L3126: σ' is not really equivalent to σ, you are missing the {Y |-> a} binding.
-- [ ] L3151: that it/there exists
-- [ ] L3154: we can now
+- [x] L3101: in the figure, t2l should rather be tree_to_stack.
+- [x] L3126: σ' is not really equivalent to σ, you are missing the {Y |-> a} binding.
+- [x] L3151: that it/there exists
+- [x] L3154: we can now
 
 - [ ] L3185: again a Todo/Unexplored mixup

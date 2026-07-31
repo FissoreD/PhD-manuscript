@@ -650,7 +650,7 @@ the next alternative and continues from there, if one exists.
 % \footnotetext{
   The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}.
   $R_1,R_2$, and $R_3$ are reset points and correspond respectively to the
-  lists of atoms $[\eI{f Y Z, !}]$, $[\eI{!}]$, and $[\eI{f Y Z}]$.
+  lists of atoms $[\eI{f B C, !}]$, $[\eI{!}]$, and $[\eI{f D E}]$.
   }
   \label{tree-ex}
   \end{figure}
@@ -1172,7 +1172,7 @@ of the resulting tree).
 When the left hand side is successful, then the right hand side
 may have been explored, and consequently must be a valid tree.
 
-We point out the two main invariants that stating that valid trees
+We point out the two main invariants stating that valid trees
 are preserved by calls to \step and \na.
 
 % \input{./formalization/img/valid_tree_step.tex}
@@ -1218,7 +1218,7 @@ $$
 The function \ttl takes as input the tree $t_0$, a substitution
 $\sigma$ for the input tree, and an auxiliary list of choice points $cp$.
 These choice points
-represent alternatives that appear at the same level of the current
+represent alternatives that appear at the same level as the current
 tree, such as, for example, the right siblings of an \orC{} node. 
 
 The \okC node represents one successful alternative; therefore it is translated
@@ -1502,7 +1502,7 @@ substitution:
 
 Note that this definition of acyclicity entails that the substitution is
 necessarily self applied, i.e. $\sigma \coloneq \{ X \mapsto f~Y, Y \mapsto a\}$
-is not acyclic, whereas the equivalent $\sigma' \coloneq \{ X \mapsto f~a\}$
+is not acyclic, whereas the equivalent $\sigma' \coloneq \{ X \mapsto f~a, Y \mapsto a\}$
 is.
 The algorithm by Martelli and Montanari generates substitutions that
 are acyclic in this sense.
@@ -1583,13 +1583,13 @@ query, if both heads match the query $q$, then the two heads must unify.
   By \cref{um}, we now that the matching of $h_1$ (resp. $h_2$) and $q$ gives a
   substitution $\sigma_1$ (resp. $\sigma_2$) where the variables in $q$ are not
   assigned, i.e. its domain only contains variables in $h_1$ (resp $h_2$). Using
-  \cref{th:unifycomplete} we need to prove that it exists a
+  \cref{th:unifycomplete} we need to prove that there exists a
   substitution $\sigma'$ such that $\sigma'\ h_1 = \sigma'\ h_2$. This
   substitution is the composition of $\sigma_1$ and $\sigma_2$, that is
   $\sigma' = \lambda x. \sigma_1 (\sigma_2\ x)$. Since $h_1$ and
   $h_2$ are disjoint, also are the domain of $\sigma_1$ and $\sigma_2$, therefore
   $\sigma' h_1 = \sigma_2 (\sigma_1\ h_1)$ and $\sigma' h_2 = \sigma_2 (\sigma_1\ h_2)$.
-  We can know conclude the proof: $\sigma'\ h_1 = \sigma_2 (\sigma_1\ h_1) = \sigma_2\ q = q = \sigma_2\ h_2 = \sigma' h_2$.
+  We can now conclude the proof: $\sigma'\ h_1 = \sigma_2 (\sigma_1\ h_1) = \sigma_2\ q = q = \sigma_2\ h_2 = \sigma' h_2$.
 \end{proof}
 
 
