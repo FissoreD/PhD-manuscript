@@ -181,47 +181,48 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] L23: and _typed_ computations
 
-- [ ] L99: _in_ secttions 3.3 to 3.5L119: _in_ chapter 5 (other occurrences of the same issue later)
+- [x] L99: _in_ secttions 3.3 to 3.5
+- [x] L119: _in_ chapter 5 (other occurrences of the same issue later)
 
-- [ ] L204: focus _on_ type-classes
-- [ ] L208: _The_ λ-calculus
+- [x] L204: focus _on_ type-classes
+- [x] L208: _The_ λ-calculus
 
-- [ ] L234: simply-typed_ _setting
+- [x] L234: simply-typed_ _setting
 
-- [ ] L240: In τ
+- [x] L240: In τ
 
-- [ ] L258: _The_ ∀ (x : □). τ constructor.
+- [x] L258: _The_ ∀ (x : □). τ constructor.
 
-- [ ] L292: note s/the/that/ when applied
+- [x] L292: note s/the/that/ when applied
 
-- [ ] L315: where _there_ exists
+- [x] L315: where _there_ exists
 
-- [ ] L324: You could use the curly braces notation to indicate
-- [ ]   more explicitly which arguments are implicit. 
+- [x] L324: You could use the curly braces notation to indicate
+      more explicitly which arguments are implicit. 
 
-- [ ] L357: For instance, /in/ the 
+- [x] L357: For instance, /in/ the 
 
-- [ ] L370: function_s_ symbol_s
-- [ ] L378: the overload_ed_. An instance of `_Add_ (nat * R)`
+- [x] L370: function_s_ symbol_s
+- [x] L378: the overload_ed_. An instance of `_Add_ (nat * R)`
 
-- [ ] L404: Sai/s/d/
+- [x] L404: Sai/s/d/
 
-- [ ] L427: no_specific
+- [x] L427: no_specific
 
-- [ ] L488: ether
-- [ ] L489: function space_s_
+- [x] L488: ether
+- [x] L489: function space_s_
 
-- [ ] L632: /and / meta-programs
-- [ ] L637: no role_/_.
-- [ ] L722: goal_s_
+- [x] L632: /and / meta-programs
+- [x] L637: no role_/_.
+- [x] L722: goal_s_
 
-- [ ] L740: the associated constraints are resumed ? 
+- [x] L740: the associated constraints are resumed ? 
 
-- [ ] L748: make :name "nth-fail" appear on the next page
+- [x] L748: make :name "nth-fail" appear on the next page
 
-- [ ] L761: missin description of 2.4.3 (databases)
+- [x] L761: missin description of 2.4.3 (databases)
 
-- [ ] L800: missing end of `]`
+- [x] L800: missing end of `]`
 
 - [ ] L893: which computation are you referring to?
 
@@ -297,16 +298,17 @@ Résumé, p. v: et cut, et coupure ?
 - [ ] going back and force between this figure and section 2.3.3
 
 - [ ] To recall: 
+  ```
+  g A C :- r A B, f B C, !
+  g D F :- f D E, f E F.
 
-- [ ] g A C :- r A B, f B C, !
-- [ ] g D F :- f D E, f E F.
+  r 0 0.
+  r 1 1.
 
-- [ ] r 0 0.
-- [ ] r 1 1.
-
-- [ ] r 0 2 :- !.
-- [ ] f 1 2.
-- [ ] f 2 3.
+  r 0 2 :- !.
+  f 1 2.
+  f 2 3.
+  ```
 
 - [ ] L2912: you mention "reset points" [f Y Z, !], [!] and [f Y Z], but shouldn't that be [f B C, !], [!] and [f D E]? It seems strange that R3 would mention variables associated to the first rule for g when that subtree is comming from the second rule. L2936 confirms that the restored R1 is [f B C].
 

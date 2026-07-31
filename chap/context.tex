@@ -50,7 +50,7 @@ the notion of parametric polymorphism (also called system F~\cite{systemf}),
 so that we can provide a very simple
 intuition about the role of the elaboration. Elaboration is treated in
 \cref{sec:rocq-intro}, where we focus
-about type-classes, a central component
+on type-classes, a central component
 of the elaborator for symbol overloading. In
 \cref{sec:the-elpi-language}, we present the core aspects of the \elpi language,
 including its syntax and semantics, which are necessary to understand its
@@ -63,7 +63,7 @@ behind the \rocqelpi plugin.
 
 As anticipated, the \rocq language is based on type theory~\cite{coq-huet}.
 At its core lies the pure $\lambda$-calculus, introduced by Church
-in 1932~\cite{church}. $\lambda$-calculus is language whose syntax is defined
+in 1932~\cite{church}. The $\lambda$-calculus is language whose syntax is defined
 by \emph{terms}:% \marginpar{FIXME: enrico}
 %
 $$t := x\ |\ t\ t\ |\ \lambda x.t$$
@@ -156,7 +156,7 @@ illustrated by the Barendregt cube~\cite{cube}. One important extension
 is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
 terms may depend on types.
 
-Consider the identity function $\lambda x.x$. In the simply-typed% \marginpar{FIXME: enrico}
+Consider the identity function $\lambda x.x$. In the simply-typed % \marginpar{FIXME: enrico}
 setting, it must be assigned a fixed type, for example
 $\lambda (x:\texttt{bool}).x : \texttt{bool} \to \texttt{bool}$. A separate definition would be needed for
 each type, such as $\texttt{nat}$. This duplication can be avoided in the
@@ -169,9 +169,9 @@ $$t := \dots\ |\ \tau \qquad
   \tau := \dots\ |\ \forall (x:\square).\tau$$
 
 The constructor $\forall$ expresses that a type may depend on another
-type. $\forall (x : \square), \tau$ is a generalization of $\square \to \tau$,
+type. The $\forall (x : \square), \tau$ constructor is a generalization of $\square \to \tau$,
 in particular the two representation are equivalent if $x$ does not appear
-as a free variable in $\square$.
+as a free variable in $\tau$.
 
 At the term level, we write $\lambda (x:\square).t$ to abstract over a
 type. With this, the polymorphic identity function can be written as
@@ -298,7 +298,7 @@ lecture notes, Strachey~\cite{polymorphism} distinguishes two main forms:
 parametric polymorphism and ad-hoc polymorphism. Parametric polymorphic
 functions are \emph{uniform}, meaning that their behavior does not depend on the
 specific type at which they are instantiated. For example, if we take the
-function \cI{id} from \cref{sec:rocq-intro-lam-calc}, we can note the when
+function \cI{id} from \cref{sec:rocq-intro-lam-calc}, we can note that when
 applied to either \cI{1} or \cI{["foo","bar"]}, it always return its input, that
 is, the same implementation is reused for every instantiation of its type
 parameter.
@@ -332,7 +332,7 @@ static type safety. A type class is parameterized by one or more types~$t$ and
 declares a set of functions, called methods, whose types may depend on~$t$. An
 instance of a type class gives a concrete implementation for a specific type.
 
-Unlike parametric polymorphism, where it exists only one function implementing
+Unlike parametric polymorphism, where there exists only one function implementing
 each symbol, type classes
 rely on instance resolution. Instances are stored in a database. When a method
 is used, the elaborator selects the appropriate implementation by searching for
@@ -347,8 +347,8 @@ follows.
 The method \cI{plus} has the following implementation \cI{fun T (f :
 Add T) => f.(plus)} where \cI{f.(plus)} is the syntax for
 retrieve the method plus inside the instance \cI{f}. The type of \cI{plus} is
-$\forall \cI{T},\ \cI{Add T} \to \cI{T} \to \cI{T} \to \cI{T}$,
-where both the type parameter and the instance argument are implicit.
+$\forall \{\cI{T}\},\ \{\cI{Add T}\} \to \cI{T} \to \cI{T} \to \cI{T}$,
+where the type parameters surrounded by curly brackets are implicit.
 Typechecking the term \cI{plus 3 4} gives:
 %
 \begin{center}
@@ -358,7 +358,7 @@ Typechecking the term \cI{plus 3 4} gives:
 The typechecker successfully infers that the expression has type \texttt{nat},
 but leaves a typeclass constraint unsolved. Specifically, it cannot infer an
 instance of \cI{Add nat}, since no such instance has been registered.
-Consequently, the metavariable \texttt{?a}, whose type is constrained to be
+Consequently, the meta-variable \texttt{?a}, whose type is constrained to be
 \cI{Add nat}, remains unresolved.
 
 Using the function \cI{Nat.add}, of type
@@ -423,7 +423,7 @@ pairs from two modules.
 
 However, the two approaches differ in practice. In \rocq, instance resolution
 automatically selects the correct implementation of \cI{plus}. In \ocaml, the
-programmer must explicitly specify which implementation to use. For instance, in
+programmer must explicitly specify which implementation to use. For instance,
 the implementation of \mlI{plus} in the module
 \mlI{AddProd} uses \mlI{T1.plus} and \mlI{T2.plus}
 to compute its output, instead of calling an overloaded symbol \mlI{plus}.
@@ -450,7 +450,7 @@ duplication of code by resolving instances automatically.
 
 In a proof assistant such as \rocq, the type class
 mechanism reuses the same intuition behind symbol overloading so that not only
-function can be overload but also theorem symbol.
+function symbols can be overload but also theorem symbols.
 For instance, one may enrich \cI{Add} with the commutativity specification:
 
 \input{code/plus_tc_add1.tex}
@@ -466,7 +466,7 @@ As an example, the specification:
 $$\cI{plus}\ (3, e)\ (4, \sqrt{2}) = \cI{plus}\ (4, \sqrt{2})\ (3, e)$$
 
 \noindent
-can be proved by using the overload theorem \cI{comm}, and the type-class solver
+can be proved by using the overloaded theorem \cI{comm}, and the type-class solver
 will be charged of finding an instance for the type \cI{nat * R}.
 
 % In order to better structure type classes, the system can be extended so that
@@ -519,7 +519,7 @@ As an example, consider the instances defined for the type class
 \cI{Add}, ordered as follows: \cI{addNat}, \cI{addR}, and
 \cI{addProd}. Performing the addition $\cI{plus}\ (3, \pi)\ (4, e)$
 asks the elaborator to find an implementation for symbol \cI{plus}
-used on the type \cI{nat * R}. Sais in other words,
+used on the type \cI{nat * R}. Said in other words,
 we need to find an instance for following goal \cI{Add (nat * R)}.
 The type-class solver examines
 the instances in the order in which the instances are declared. The first two instances are discarded
@@ -555,7 +555,7 @@ behavior to emulate logic programming. For example, the type class
 \cI{SetUnfold} is used to rewrite set expressions into logical statements. An
 inclusion $X \subseteq Y$ can be transformed into a formula of the form % set_unfold_subseteq
 $\forall x, P\ x \to Q\ x$, under the hypothesis that $\forall x, x \in X \leftrightarrow P\ x$
-and $\forall x, x \in Y \leftrightarrow Q\ x$. When no% \marginpar{FIXME: enrico}
+and $\forall x, x \in Y \leftrightarrow Q\ x$. When no % \marginpar{FIXME: enrico}
 specific rule applies, the default instance
 \cI{set_unfold_default P : SetUnfold P P} leaves the goal unchanged.
 This default instance acts as a catch-all rule, since it applies to any goal.
@@ -734,9 +734,9 @@ This notion of positive/negative position of a term will be used again in
 In \elpi, users can define the algebraic data types required by their
 development as well as the signatures of predicates. A new algebraic data type
 is declared with the \kind\ keyword, while constructors of that type are
-introduced using the \type\ keyword. A type is ether a
+introduced using the \type\ keyword. A type is either a
 base type, a variable, or the application of a type to another in the
-case of parametric types. The arrow symbol is used to type function space and in
+case of parametric types. The arrow symbol is used to type function spaces and in
 \elpi it takes an optional mode information. The mode, \Einput or
 \Eoutput, tells the runtime which unification algorithm to use when unifying the
 arguments of two terms. We delay this discussion in the next section,
@@ -1211,7 +1211,7 @@ and
 $
   \sigma_2 \coloneq \{\eI{D} \mapsto \eI{0}, \eI{F} \mapsto \eI{R}\}
 $.
-For simplicity, we choose an example where variable refreshing plays no role/
+For simplicity, we choose an example where variable refreshing plays no role.
 % , so we do not discuss the set \FV{} any further.
 
 Execution continues with the first premise of the first alternative, namely
@@ -1294,7 +1294,7 @@ $.
 \label{sec:example-ho-dyn-programs}
 
 One of the main features of \elpi is the possibility to work with
-higher-order and dynamic and meta- programs. In this section, we present some simple
+higher-order and dynamic and meta programs. In this section, we present some simple
 examples illustrating these two aspects. These examples will be used later as a
 reference when discussing determinacy checking in \elpi (see
 \cref{chap:det-elpi}).
@@ -1474,7 +1474,7 @@ once.
 
 In \elpi, \chr\ is integrated as an extension of the underlying
 \lprolog\ engine. The motivation for this integration is the need to
-combine and refine goal (seen as suspended constraints) that arise during proof search.
+combine and refine goals (seen as suspended constraints) that arise during proof search.
 This model explains how the system manages the constraint store. The
 main operations are simplification, propagation, and their combination,
 called simpagation.
@@ -1506,8 +1506,8 @@ constraint is declared using the predicate
 \eI{declare_constraint}, which takes two arguments: the constraint
 itself (an atom) and a list of variables on which the constraint is
 suspended.
-When a variable is assigned, the constraint is resumed within the
-constraint store. A more complete presentation can be found in
+When a variable is assigned, the associated constraints are resumed. 
+A more complete presentation can be found in
 \cite[Sec.~4.3]{chr-elpi} and \cite[Sec.~2.4]{hdr}.
 
 \subsection{Rule names and insertion}
@@ -1524,10 +1524,17 @@ position of rules in the search order.
 In \elpi, inserting a rule before or after an existing one is called
 \emph{grafting}.
 
+\vspace{1em}
+
+\noindent
+\begin{minipage}{\textwidth}
 \begin{elpicode}
   :name "nth-fail"
   nth _ _ _ :- error "List is to short".
 \end{elpicode}
+\end{minipage}
+
+\vspace{1em}
 
 The definition of \eI{nth} above is a catch-all rule, since it applies to
 any query. This rule is named \eI{nth-fail}.
@@ -1557,8 +1564,9 @@ within the \rocq environment. In the following sections, we first explain the
 idea behind encoding \rocq terms in \elpi (see \cref{sec:hoas}) using
 higher-order abstract syntax (HOAS).
 In~\cref{sec:elpi-main-API}, we provide some important API that are widely used
-in \rocqelpi. Finally, in \cref{sec:elpi-commands-tactics}, we provide a brief
-description of how commands and tactics are written in \rocqelpi and how they
+in \rocqelpi. Finally, in \cref{sec:database,sec:elpi-commands-tactics}, we provide
+a brief
+description of how database and commands and tactics are respectively written in \rocqelpi and how they
 integrate with \rocq.
 
 \subsection{HOAS: \texorpdfstring{$\lambda$}{lambda}-terms representation}
@@ -1656,7 +1664,7 @@ code, and conversely \elpi{} syntax within \rocq{} code, in a recursive manner.
 
 An illustrative example, adapted from~\cite{hdr}, is the following:
 %
-$$\underbrace{\eI{print}}_{\elpi}\ \{\{ \underbrace{\cI{1 +}}_{\rocq}\ \eI{lp:}\{\{\underbrace{\eI{app[~«S»~, }}_{\elpi}\{\{ \underbrace{\cI{0}}_{\rocq} \}\} \underbrace{\phantom{aa}}_{\elpi} \}\} \underbrace{\phantom{aa}}_{\rocq} \}\}$$
+$$\underbrace{\eI{print}}_{\elpi}\ \{\{ \underbrace{\cI{1 +}}_{\rocq}\ \eI{lp:}\{\{\underbrace{\eI{app[~«S»~, }}_{\elpi}\{\{ \underbrace{\cI{0}}_{\rocq} \}\} \underbrace{\phantom{a}\eI{]}\phantom{a}}_{\elpi} \}\} \underbrace{\phantom{aa}}_{\rocq} \}\}$$
 
 Within an \elpi{} code block, the syntax \cI{{{ ... }}} denotes a
 quotation that allows writing \rocq{} code. Conversely, within \rocq{} code, the
@@ -1693,6 +1701,7 @@ can be typechecked. Otherwise, it leaves \eI{Ty} unbound and assigns the
 corresponding type-error diagnostic message to \eI{D}.
 
 \subsection{Declaring Databases in \rocqelpi}
+\label{sec:database}
 
 In \cite[Sec. 4.4.3]{hdr}, a database is defined as a programmatically
 extensible \elpi

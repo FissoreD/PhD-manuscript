@@ -52,7 +52,7 @@ logic, and various forms of type theory.
 In the middle of the twentieth century, with the advent of computer science,
 Curry and Howard~\cite{Howard-correspondance} discovered a deep connection
 between the representation of propositions and their proofs on the one hand, and
-computation on the other. Under this correspondence, a proof of a proposition
+typed computation on the other. Under this correspondence, a proof of a proposition
 can be viewed as a well-typed program, while the proposition itself corresponds
 to the type of that program.
 
@@ -157,7 +157,7 @@ compilation step. We show in \cref{sec:simple-instance-compiler} that a basic
 compiler can be written in only a few lines while relying on the existing \elpi
 interpreter for resolution. We then extend this translation to support more
 complex instances and compare the resulting solver with \rocq's native
-solver~\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}.
+solver~(\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}).
 
 A central challenge in this approach arises from the mismatch between the object
 language and the meta-language. Although both support higher-order
@@ -184,7 +184,7 @@ another important concern, especially for users unfamiliar with logic
 programming. Controlling the backtracking performed by the interpreter is
 fundamental to managing performance. This motivates a second line of work
 developed in this thesis: a determinacy analysis for \elpi
-programs~\cref{chap:det-elpi}. Determinacy ensures that selected predicates
+programs~(\cref{chap:det-elpi}). Determinacy ensures that selected predicates
 produce at most one solution and do not introduce unexpected choice points for
 any call. This property helps control the behavior of logic programs. In our
 setting, type classes correspond to predicates and instances to rules. If a
@@ -200,7 +200,7 @@ logical semantics.
 
 To increase confidence in the static analysis, we formalize the expected
 properties of the checker in the \rocq proof assistant by encoding the \elpi
-interpreter~\cref{chap:mechanization}. To simplify this development, we restrict
+interpreter~(\cref{chap:mechanization}). To simplify this development, we restrict
 the model to a first-order fragment of the language, where terms do not contain
 higher-order variables. In this setting, the absence of higher-order variables
 simplifies the formalization and allows us to produce a fully mechanized proof.
