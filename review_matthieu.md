@@ -226,31 +226,31 @@ Résumé, p. v: et cut, et coupure ?
 
 - [ ] L893: which computation are you referring to?
 
-- [ ] L1107: before backchaining
+- [x] L1107: before backchaining
 
 - [ ] p36/Fig 3.4: for readers unfamiliar with elpi, the code 
-- [ ]   uses quite a few primitives that are not defined before they are used. It would help to summarize with a documentation the basic predicates you are using (list rev, append, boolean negation, rocq-specific mk-app, safe-dest-app, etc...). I think it should appear in either in the Elpi API section or an appendix.
+  uses quite a few primitives that are not defined before they are used. It would help to summarize with a documentation the basic predicates you are using (list rev, append, boolean negation, rocq-specific mk-app, safe-dest-app, etc...). I think it should appear in either in the Elpi API section or an appendix.
 
-- [ ] L1112: an existential variable
+- [x] L1112: an existential variable
 - [ ] L1117: can be used /a/ on  any goal. This is a bit unclear: shouldn't it be `a pattern that can match any goal for Add`? 
 
-- [ ] L1120: more advanced than then one of section 3.2
-- [ ] L1124: This time, comp takes (do not start sentences with a symbol)
+- [x] L1120: more advanced than then one of section 3.2
+- [x] L1124: This time, comp takes (do not start sentences with a symbol)
 
 - [ ] L1131: whose "applicative head". This notion is not defined, should be in chapter 2. Maybe add "a declared type-class"? Is it a lookup in the registered type classes?
 
 - [ ] L1136: onBo x
 - [ ] L1156: it produces the implicationPrems
 
-- [ ] L1217: a_n_ formula
-- [ ] L1224: isinterresting
-- [ ] L1229: a premise/s/
-- [ ] L1231: `lp: t * R * nat`, or remove the `R` components entirely, they're not needed for the example.
-- [ ] L1251: on goal_s_
-- [ ] L1253: same of the -> same as the
+- [x] L1217: a_n_ formula
+- [x] L1224: isinterresting
+- [x] L1229: a premise/s/
+- [x] L1231: `lp: t * R * nat`, or remove the `R` components entirely, they're not needed for the example.
+- [x] L1251: on goal_s_
+- [x] L1253: same of the -> same as the
 
-- [ ] L1267: function,the  -> function and 
-- [ ] L1372: isproblematic
+- [x] L1267: function,the  -> function and 
+- [x] L1372: isproblematic
 - [ ] L1521/Figure 4.1: missing `type` highlightings
 
 - [ ] L1547: introduce_d_ by pi

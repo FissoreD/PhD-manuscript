@@ -419,7 +419,7 @@ of the argument: \cI{+} requires a ground term, while \cI{!} requires a term
 with a rigid applicative head. During the resolution phase, if a goal does not
 satisfy the mode constraint imposed by the class declaration, a failure
 immediately stops the instance search. In contrast, \elpi modes do not check the
-shape of the argument before backchain the query into the database, it, instead,
+shape of the argument before backchaining the query into the database, it, instead,
 modifies the unification strategy by using the \matching procedure
 (see~\cref{sec:elpi-semantics}).
 
@@ -428,7 +428,7 @@ rework the implementation of the \cI{Add} type class.
 %
 \input{code/add_dummy.tex}
 
-Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is a existential
+Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is an existential
 variable. With the \rocq mode system, this goal has no solution because the
 argument of the class is a non-ground term and therefore does not satisfy the
 mode constraint. In contrast, under the \elpi mode interpretation the instance
@@ -449,12 +449,12 @@ be used a on any goal for \cI{Add}.
 
 As explained in \cref{sec:interface-rocq-elpi}, instance compilation is
 triggered immediately after an instance declaration.
-\Cref{fig:simple-elpi-compiler} shows an instance compiler more advanced then
+\Cref{fig:simple-elpi-compiler} shows an instance compiler more advanced than
 \cref{sec:simple-instance-compiler}. It takes into account the type of dependent
 quantification and the positive/negative position of the term being compiled.
 
 Similarly to \cref{fig:simple-elpi-compiler-tc}, we define a \eI{compile}
-predicate which calls the \eI{comp} auxiliary function. \eI{comp} this time
+predicate which calls the \eI{comp} auxiliary function. This time, \eI{comp}
 takes one more boolean argument.
 
 The compilation proceeds by analyzing the structure of the instance type.
@@ -656,7 +656,7 @@ compilation is performed with boolean set to \eI{ff}. Concretely,
 constructs a formula in negative position. Here, \eI{P} is a unification
 variable representing the proof term, \eI{Ty} is the goal to be compiled,
 the list of instance parameters is empty, and \eI{H} provides the
-premises extracted from the context. The result of the compilation is an
+premises extracted from the context. The result of the compilation is a
 formula \eI{R} of the form \eI{H => Q}, where \eI{Q} is a query corresponding
 to a type class whose proof argument is \eI{P}.
 
@@ -670,13 +670,13 @@ where local instances are taken into account for the resolution.
 
 \begin{prooftree}
   \AxiomC{$\cI{T}: \cI{Type} \qquad x : \cI{T} \qquad H : \cI{Add}\ \cI{T}$}
-  \UnaryInfC{$?s : \cI{plus}\ (x, \pig, 3)\ (x, e, 4) = \cI{plus}\ (x, e, 4)\ (x, \pig, 3)$}
+  \UnaryInfC{$?s : \cI{plus}\ (x, 3)\ (x, 4) = \cI{plus}\ (x, 4)\ (x, 3)$}
 \end{prooftree}
 
-The goal can be solved using the \cI{comm} property over addition. What is% \marginpar{FXIME:enrico? why reduce the lemma, it is the same as pag 33}
+The goal can be solved using the \cI{comm} property over addition. What is % \marginpar{FXIME:enrico? why reduce the lemma, it is the same as pag 33}
 interesting here is the type-class goal aiming to find the right implementation
 of \cI{plus} in the database, i.e. an instance of \cI{Add} applied to the type
-\cI{(T * R * nat)}, where \cI{T} appears in the hypothesis lists.
+\cI{(T * nat)}, where \cI{T} appears in the hypothesis lists.
 
 The \elpi goal is:
 
@@ -685,11 +685,11 @@ nabla t \ nabla x \ nabla h \ seal
   (goal 
     [decl h `H` {{Add lp:t}}, decl x `x` t, decl t `T` {{Type}}] % the context
     (X0 t x h)
-    {{Add (lp:t * R * nat)}}                                     % the conclusion
+    {{Add (lp:t * nat)}}                                     % the conclusion
     (X1 t x h) [])
 \end{coqcode}
 
-The context contains a premises which is a typeclass, namely \cI{h}. It is compiled
+The context contains a premise which is a typeclass, namely \cI{h}. It is compiled
 into the simple local rule \eI{tc-Add t h}: the proof for the type-class
 \cI{Add} applied to the local type \cI{t} is the local hypothesis \cI{h}. The
 conclusion is encoded as the query \cI{tc-Add {{lp:t * nat}} P}.
@@ -723,9 +723,9 @@ users are free to implement any custom rule that suits their needs.
 
 Extending the database with ad-hoc rules is possible in the \rocq system thanks
 to the \cI{Hint} system, that allows to tweak somehow the search engine, for
-example the \cI{Hint Extern} command allows to apply a list of tactics on goal
+example the \cI{Hint Extern} command allows to apply a list of tactics on goals
 matching a particular pattern. This approach, however, asks the user to write
-ad-hoc rules in a language which is not the same of the \rocq solver, and which,
+ad-hoc rules in a language which is not the same as the \rocq solver, and which,
 in some cases has not the expressiveness power of \elpi.% \marginpar{FIXME: enrico?}
 
 \section{Experimental results}
@@ -758,7 +758,7 @@ function $f$ is injective if, for all $x$ and $y$, $f\ x = f\ y$
 implies $x = y$.
 
 The library provides $13$ instances of this class. These include, for example,
-instances for the identity function,the injections of a sum type. The instance
+instances for the identity function and injections of the sum type. The instance
 we target in our benchmark is function composition. The composition (written
 $\circ$) of two functions \cI{f} and \cI{g} is injective if both functions are
 injective.
@@ -967,7 +967,7 @@ represents these terms as HOAS expressions, namely
 \eI{global (const «map»)}. Since these terms have different rigid heads,
 unification fails.
 
-This behavior is expected from the \elpi unification algorithm, but it is% \marginpar{FIXME: enrico? random order of sentences?}
+This behavior is expected from the \elpi unification algorithm, but it is % \marginpar{FIXME: enrico? random order of sentences?}
 problematic in the context of instance resolution, where equivalent
 problems -- expressed differently -- should be solvable. For example, using
 \elpi-style $\lambda$-abstraction and application, the term
