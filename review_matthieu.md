@@ -172,7 +172,7 @@ Typos / Presentation
 
 - [ ] Some links to theorems/invariants/propositions appear to be broken, it is probably just a LaTeX issue.
 
-- [ ] When citing articles, it would be useful to give names of authors so that one does not need to constantly lookup the bibliography to figure which paper is refered to.
+- [x] When citing articles, it would be useful to give names of authors so that one does not need to constantly lookup the bibliography to figure which paper is refered to.
 E.g. L2212: instead of just `[19]`, using `by A. Felty [19]`
 
 - [ ] In the bibliography, many titles are lowercased, I think this is a latex/bibtex issue. 
