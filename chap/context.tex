@@ -211,7 +211,7 @@ them automatically.
 \label{sec:rocq-intro}
 
 The possibility of writing terms with holes, as indicated in the previous section,
-is just one of the functionalities supported by the elaborator~\cite{elaboration}.
+is just one of the functionalities supported by the elaborator~\cite[Chap.~7]{elaboration}.
 In this section, we study more deeply this technical component that mediates the
 interaction between the user and the \rocq system. This component is present in all
 proof assistants. Its role is to accept expressions that may be
@@ -224,7 +224,7 @@ automatically, simplifying therefore the exchanges with the user.
 \label{fig:elaboration}
 \end{figure}
 
-Figure~\ref{fig:elaboration}, adapted from~\cite{elaboration}, outlines
+Figure~\ref{fig:elaboration}, adapted from~\cite[Chap.~7]{elaboration}, outlines
 the main steps of this process. Starting from a raw input string, the
 system first parses it into a \rocq term, which can still contain
 implicit parts. This term is then elaborated into a fully explicit one.
