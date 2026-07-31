@@ -1448,7 +1448,7 @@
 			\newcommand{\acknowledgementname}{Acknowledgement}
 			\newenvironment{remerciements}{%
 				\if@openright\cleardoublepage\else\clearpage\fi
-				\chapter*{\acknowledgementname}}{\vfill\thispagestyle{empty}}
+				\chapter*{\acknowledgementname\footnotemark}}{\vfill\thispagestyle{empty}}
 			
 			\newcounter{@front}
 			\setcounter{@front}{0}
