@@ -62,7 +62,7 @@ Chapter 3
 - [x] L1117: such catchall clauses do not resolve the ?X metavariable, and make `Add` non-deterministic/functional. Presumably, when analysing determinism later in the thesis, you will want to prevent such instances when the parameter is marked as an input.
 You could say a few words about this situation here. 
 
-- [ ] L1187: At this point one can already see that using the `tc-Provable B {{lp:Q lp:p}}` atom might be problematic. You could already explain here that one would more naturally write this rule as `tc-Provable F p -> tc-Provable B (X p)` as `X` might depend on the `p` proof, but this `(X p)` should not necessarily be a Rocq application of the shape `app Q p`, forward referencing the next section on unification problems and following chapter.
+- [x] L1187: At this point one can already see that using the `tc-Provable B {{lp:Q lp:p}}` atom might be problematic. You could already explain here that one would more naturally write this rule as `tc-Provable F p -> tc-Provable B (X p)` as `X` might depend on the `p` proof, but this `(X p)` should not necessarily be a Rocq application of the shape `app Q p`, forward referencing the next section on unification problems and following chapter.
 
 - [ ] L1199: in Rocq, the user can set the priority to an arbitrary natural number, so this way of emulating is necessarily partial, how do you deal with that? To be fair, one can also criticize Rocq's mechanism which is less user-friendly and modular than grafting by name.
 

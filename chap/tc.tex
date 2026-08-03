@@ -611,6 +611,22 @@ The structure of this rule matches the intended semantics: the head
 targets \cI{impl F B}, while the body attempts to construct a proof
 of \cI{B} in a context extended with the assumption \cI{F}.
 
+Even though this rule is very close to its final implementation, it is still not
+the implementation one would naturally write. In particular, the premise
+\eI{tc-Provable B {{lp:Q lp:p}}} is not flexible enough, since the solution
+\eI{{{lp:Q lp:p}}} requires a term with exactly the shape \eI{app[Q, p]}. This
+is too restrictive, since the variable \eI{Q} may depend on \eI{p}. A more
+flexible solution is to replace this premise with \eI{tc-Provable B (X p)}. In
+this way, we use the \elpi term application of a higher-order variable \eI{X}
+depending on the proof term \eI{p}.
+
+However, we must be careful: \eI{X} is not a \rocq term, but an \elpi term
+living in the function space. Therefore, some additional work is required to
+establish the correspondence between the variable \eI{X} and the variable \eI{Q}
+appearing in the rule head. This is precisely the subject of
+\cref{chap:ho-for-free}.
+
+
 \subsection{Rule Priorities}
 \label{sec:rule-prio}
 
