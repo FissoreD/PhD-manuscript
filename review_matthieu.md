@@ -38,7 +38,7 @@ Chapter 2
 
 - [x] L508: how do you represent multiple arguments after the arrow?
 
-- [ ] L564: can you develop on what is the motivation for this   refinement in elpi? Maybe also forward referencing to the determinacy analysis chapter?
+- [x] L564: can you develop on what is the motivation for this   refinement in elpi? Maybe also forward referencing to the determinacy analysis chapter? ENRICO: justify input/output mode
 
 - [x] L577: Definition 2.3.5, an example contrasting solutions
   that matching & unification can produce would help better understand the definitions.

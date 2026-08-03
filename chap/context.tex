@@ -916,6 +916,18 @@ taking two terms and an initial substitution $\sigma$. They either fail
 (returning None) or succeed with an updated substitution $\sigma'$ that is
 an extension of $\sigma$.
 
+The choice of providing two distinct procedures for selecting a rule from the
+database is mainly motivated by a practical need: \elpi aims to give the user
+finer control over the rule selection process. In particular, the input mode
+treats the input arguments as patterns used to identify applicable rules, rather
+than as terms to be instantiated through unification. Consequently, variables
+occurring in input positions are not assigned during the matching of a query
+input argument; instead, any such assignments must be explicitly performed by
+the rule body. This separation makes the direction of information flow explicit
+and allows rule selection to be used as a controlled matching mechanism, closer
+in spirit to the pattern matching found in functional languages, rather than as
+an implicit source of variable instantiation.
+
 \begin{definition}[Pattern fragment] \label{def:pattern-fragment}
   A $\lambda$-term belongs to Miller's pattern fragment~\cite{miller1991-pf} if in every subterm of
   the form $F\ t_1\ t_2 \dots t_n$, where $F$ is a higher-order unification
