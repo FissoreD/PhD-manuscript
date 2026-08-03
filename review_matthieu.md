@@ -110,7 +110,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
  The analysis and definitions below better illustrates the notion.
 
 - [ ] L1925: the term \x. f (A x) (A x) is in L, as far as I can tell, how does it not break the invariant that failures are in lock-step?
-- [ ] L1930: discrepancy with the figure, where "G" is used instead.
+- [x] L1930: discrepancy with the figure, where "G" is used instead.
 - [ ] L1934: shouldn't it link to 4.2.1 instead?
 
 - [ ] Corollary 4.4.4. How do you ensure that the invariants hold at the right time? An arbitrary instantiation of an existential variable at any point could break the link invariants, isn't there a hidden reliance on the fact that e.g. comp produces _fresh_ variables. I would have liked to see a discussion of what the "invariants" impose and at which boundary they should hold, before the presentation of the algorithm. Later on, it seems that they are ensured because links/CHRs are reconsidered before doing anything else when a variable subject to a constraint is instantiated.
