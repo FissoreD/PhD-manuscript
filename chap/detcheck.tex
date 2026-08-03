@@ -367,8 +367,10 @@ The code of \eI{fuse} inspects two programs: if both are
 mapping a list, respectively with \eI{F} and \eI{G}, then it
 generates a new program \eI{map (comp F G)}. The static analysis
 is able to verify that this output is a function following this
-reasoning: since \eI{map F} and \eI{map G} are functions then
-also \eI{F} and \eI{G} must be; from that we have that
+reasoning: by hypothesis, \eI{map F} (resp \eI{map G}) is a function, therefore,
+also \eI{F} (resp \eI{G}) must be, otherwise, we would have a miscall of \eI{map},
+contradicting the hypothesis claiming that
+the inputs of \eI{fuse} are functions; from that we have that
 \eI{comp F G} is a function and so is \eI{map (comp F G)}.
 
 \section{\elpi's abstract syntax and semantics}

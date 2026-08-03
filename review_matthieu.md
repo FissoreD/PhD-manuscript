@@ -134,7 +134,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
 Chapter 5
 ---------
 
-- [ ] L2393: What is the reasoning ensuring that if `map F` is a function then `F` must be as well. For example `once F` being a function does not ensure that `F` is. 
+- [x] L2393: What is the reasoning ensuring that if `map F` is a function then `F` must be as well. For example `once F` being a function does not ensure that `F` is. 
 
 - [x] L2523/5.4.1: The contravariance/covariance labels in the table for the subtyping relations seem to be interchanged.
 
