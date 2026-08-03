@@ -1341,9 +1341,15 @@ is checked against a context of signatures \ctx iff it validates these rules:
 \end{center}
 \end{definition}
 
+The empty program is a valid candidate for determinacy checking. Rules are 
+processed one by one, in declaration order, thereby respecting the priority they
+have in the operational interpretation of the program. This ordering is 
+essential for checking mutual exclusion. In particular, each rule $r$ is 
+checked against the remaining rules in the program, denoted by $\prog$. 
+A mutual exclusion error is reported whenever there exists a rule $r' \in \prog$ 
+whose head overlaps with the head of $r$, and the rule $r$ is not protected by 
+a cut.
 
-The intuition is that we build the program from the end, always adding new rules with
-highest priority.
 % Case (a) in \cref{def:mutExcl} is justified by the hard-cut semantics (1) (in \cref{def:op-sem}) combined with the highest
 % priority of the rule containing the cut.
 % For example in the snippet below even if the two rules

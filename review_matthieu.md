@@ -152,7 +152,7 @@ Chapter 5
   This seems to allow to use a "stronger" map that takes relations as arguments but must be using cut to be deterministic as a whole where a map taking functions is expected. 
   This seems to go against the above point where it is assumed that if `map F` is deterministic then `F` must be as well.
 
-- [ ] L2643: Isn't this inductive process rather starting from the empty program? I'm not sure what you mean by "from the end" here.
+- [x] L2643: Isn't this inductive process rather starting from the empty program? I'm not sure what you mean by "from the end" here.
 
 Chapter 6
 ---------
