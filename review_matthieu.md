@@ -293,7 +293,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] Figure 6.2: Todo should be Unexplored
 
-- [ ] P100, Figure 6.3. Please recall the program and the substitutions immediately before this figure, otherwise it is very difficult to follow, going back and force between this figure and section 2.3.3
+- [x] P100, Figure 6.3. Please recall the program and the substitutions immediately before this figure, otherwise it is very difficult to follow, going back and force between this figure and section 2.3.3
 
 To recall: 
   ```

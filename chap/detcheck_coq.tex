@@ -601,6 +601,11 @@ the next alternative and continues from there, if one exists.
 % \cref{fig:getend-aux}.
 % We have pointed by a black arraw the \pathend of 
 
+% \begin{figure}
+  
+% \end{figure}
+
+
 \begin{figure}
   \begin{subfigure}{0.99\textwidth}
     \centering
@@ -648,7 +653,8 @@ the next alternative and continues from there, if one exists.
 \caption{Execution in the tree semantics.
 %\footnotemark}
 % \footnotetext{
-  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}.
+  The substitutions $\sigma_1\dots\sigma_6$ are from \cref{sec:elpi-execution-example}
+  and refer to interpretation on the program recalled in~\cref{fig:progx'}.
   $R_1,R_2$, and $R_3$ are reset points and correspond respectively to the
   lists of atoms $[\eI{f B C, !}]$, $[\eI{!}]$, and $[\eI{f D E}]$.
   }
@@ -656,6 +662,21 @@ the next alternative and continues from there, if one exists.
   \end{figure}
 
 \subsection{The \step procedure}\label{sec:step}
+
+ \begin{figure}[t]
+  \begin{subfigure}{0.32\textwidth} 
+    \input{code/prog_non_det1.tex} 
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth} 
+    \input{code/prog_non_det2.tex} 
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth} 
+    \input{code/prog_non_det3.tex} 
+  \end{subfigure}
+  \caption{Example recalling the program from \cref{fig:progx}}
+  \label{fig:progx'}
+\end{figure}
+
 \begin{figure}
   \begin{coqcode}
   Definition step p v s A :=
