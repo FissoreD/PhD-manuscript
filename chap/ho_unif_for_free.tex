@@ -2578,10 +2578,8 @@ implementing Huet's algorithm~\cite{huet75} which is a semi-decision procedure.
 Some implementations of \lprolog~\cite{miller1988} such as
 Teyjus~\cite{teyjus} delay the resolution of \notllambda unification
 problems until the substitution makes them reenter \llambda.
-Other systems apply heuristics like preferring projection over mimic,
-and commit to that solution. This is the case for
-the unification algorithm \rocq uses in its type-class
-solver~\cite{sozeau2008-tc}.
+Other systems apply heuristics and commit to that solution. This is the case for
+the unification algorithm \rocq.
 
 In this section we show how we can implement these strategies
 by simply adding (or removing) rules to the

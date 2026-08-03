@@ -274,7 +274,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L2122: is a variable_s_
 - [x] L2141: in _the_ literature
 - [x] L2142: ... Huet's algorithm which is a semi-decision procedure.
-- [ ] L2145: mimicking?
+- [x] L2145: mimicking?
 - [x] L2146: solver [64]_._
 - [x] L2151: also become_s_
 - [x] L2168: (section 2.3.5)
@@ -289,7 +289,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] L2584: by -> be smaller
 
-- [ ] L2720: more restricted form _(?)_ what is this reference, a missing footnote?
+- [x] L2720: more restricted form _(?)_ what is this reference, a missing footnote?
 
 - [x] Figure 6.2: Todo should be Unexplored
 
