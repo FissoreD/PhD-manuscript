@@ -162,7 +162,7 @@ A small, simpler example to illustrate the Or and And nodes would go a long way 
 
 - [ ] What is the use of Corrolary 6.5.4? It says that a matching's σ' substitution has no more effect than the initial σ on the rhs term, is it used in lemma 6.5.5? It would be good to motivate it more.
 
-- [ ] You should assess the size of the formalization (split between the various components), which looks to me like an important contribution of this thesis.
+- [x] You should assess the size of the formalization (split between the various components), which looks to me like an important contribution of this thesis.
 
 Typos / Presentation
 --------------------

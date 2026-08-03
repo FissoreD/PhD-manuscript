@@ -1835,6 +1835,30 @@ formalization in Rocq of both the stack-based semantics used by the (first-order
 interpreter and a novel And-Or tree semantics that makes the structure of the
 search space and the scope of cuts explicit.
 
+The mechanization consists of approximately 2,500 lines of
+specifications and about 5,000 lines of ssreflect proofs based on
+the Mathematical Components library~\cite{assia_mahboubi_2022_7118596}
+and its finmap~\cite{finmap} extension.
+Roughly 30\% of the code is dedicated to the tree semantics, in particular
+the proofs in \cref{sec:runT}, 15\% to the stack semantics, and 35\% to the
+equivalence proof. The remaining 20\% is devoted to the determinacy checker.
+The mechanization took us approximately $8$ months.
+We believe that the ssreflect proof language, and the proof style it
+advocates, helped us carry out the many refactorings that the mechanization
+underwent. The finmap library provides comprehensive support for reasoning
+about finite maps and finite sets over a countable domain. In particular, it
+helped us express conditions such as the disjointness between sets of
+variables and the domain of a substitution, as well as define the union of
+disjoint substitutions.
+
+To obtain an axiom-free mechanization, we had to provide an implementation of
+the first-order unification algorithm. It amounts to about 1,700 lines of
+ssreflect code, including 200 lines for the termination proof based on a
+lexicographic ordering and 800 lines for correctness and completeness. Because
+of the specific form of \cref{th:unifren,th:matchingdisj}, which deals with
+matching and unification of terms with disjoint support, we did not need to
+prove that the algorithm produces most-general unifiers.
+
 The And-Or tree semantics plays a crucial role in the formalization of the
 determinacy checker. By representing alternatives and subgoals as distinct
 layers of a tree, it becomes possible to reason locally about the pruning
