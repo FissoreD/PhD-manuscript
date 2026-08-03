@@ -942,7 +942,23 @@ $\sigma' u = \sigma q$, where $\sigma'$ assigns at most the variables
 occurring in $u$.
 \end{definition}
 
-Backchaining is defined by the function \backchain:
+For example, consider the query \eI{q X} and the rule $r$ whose head is \eI{q
+0}. If the signature of \eI{q} is \eI{pred q -> int}, then its argument is an
+output. Consequently, the procedure invokes \eI{~\unify~ X 0 ~$\varepsilon$~},
+which returns the substitution $\sigma' := {\eI{X} \mapsto 0}$. This
+substitution is valid because it is the most general unifier of the two terms
+and $\sigma'\ X = \sigma'\ 0$.
+
+On the other hand, if the signature is \eI{pred q int ->}, then the predicate
+expects an input argument matching the value $0$. In this case, the procedure
+invokes \eI{~\matching~ X 0 ~$\varepsilon$~}, where the goal is to find a
+substitution $\sigma'$ such that $\sigma'\ 0 = \varepsilon\ X$. Dereferencing the
+first term yields $X$, while dereferencing the second yields $0$ (since $0$
+contains no variables, dereferencing leaves it unchanged). Because $X$ and $0$
+are distinct terms, no such substitution exists. Therefore, the query cannot be
+resolved using the rule $r$.
+
+The backchaining procedure is defined below by the function \backchain.
 
 \begin{definition}[Backchain, $\backchain : \PROG \times \vecL{\VAR} \times \TERM \times \Sigma \to
 \vecL{\Sigma \times \vecL{\ATOM}}$]

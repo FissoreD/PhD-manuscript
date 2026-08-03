@@ -40,7 +40,7 @@ Chapter 2
 
 - [ ] L564: can you develop on what is the motivation for this   refinement in elpi? Maybe also forward referencing to the determinacy analysis chapter?
 
-- [ ] L577: Definition 2.3.5, an example contrasting solutions
+- [x] L577: Definition 2.3.5, an example contrasting solutions
   that matching & unification can produce would help better understand the definitions.
 
 - [ ] L776: isn't it problematic to have `app []` as a valid term?
