@@ -1631,8 +1631,21 @@ written using guillemets, avoiding the explicit use of the \eI{global}
 constructor. For instance, the \rocq{} constant \cI{nat} is represented in HOAS
 form as \cI{~«nat»~}.
 
-Term application in \rocq is represented by the \eI{app} constructor,
-which takes a list of terms. $\lambda$-abstractions and
+Term application is represented by the constructor \eI{app}, which takes a list
+of terms as its argument. A natural HOAS encoding of a \rocq application is a
+term of the form \eI{app L}, where \eI{L} is a list of length at least two: its
+first element is the head of the application, and the remaining elements are its
+arguments.
+
+When translating \elpi terms back to \rocq, a term of the form \eI{app [T]} is
+interpreted as the application of a single term and is therefore equivalent to
+the term \eI{T} itself. Consequently, the translator simply returns the
+translation of \eI{T}. By contrast, the term \eI{app []} has no corresponding
+representation in \rocq. Encountering such a term therefore results in the
+error: \textit{the app term constructor expects a non-empty list}.
+
+
+$\lambda$-abstractions and
 $\forall$-quantifications are encoded using the \eI{fun} and \eI{prod}
 constructors, respectively. Each of these constructors carries the
 \eI{name} of the \rocq binder (used only for pretty printing), the type of the

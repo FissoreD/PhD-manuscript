@@ -43,7 +43,7 @@ Chapter 2
 - [x] L577: Definition 2.3.5, an example contrasting solutions
   that matching & unification can produce would help better understand the definitions.
 
-- [ ] L776: isn't it problematic to have `app []` as a valid term?
+- [x] L776: isn't it problematic to have `app []` as a valid term?
 
 - [ ] 2.4.2: it would be good here and elsewhere in the document to link to Rocq-elpi's documentation for more detailed explanations of the primitives that are used.
 
