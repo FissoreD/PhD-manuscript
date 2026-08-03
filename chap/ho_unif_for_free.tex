@@ -359,16 +359,18 @@ to a domain $\mathcal{D}$ is the following:
     #4 \to
       % \forall \rho, %
         \rho #3_1 #1 \rho #3_2  %
-          \to \exists \rho', #3_1 #2 #3_2 \arr \rho' \land \rho' \subseteq \rho
+          \to \exists \rho', #3_1 #2 #3_2 \arr \rho' \land \mathrm{mgu (\rho #3_1, \rho #3_2) = \rho'}
 }}
 
 \begin{proposition}[Good unification]\label{prop:good-unif}
 A good unification $\UnifRel\;$ for equality $\;\EqualRel\;$ in the domain
 $\mathcal{D}$ satisfies the following properties:%\noteD{use $\sigma$, not $\rho$}
-  \begin{gather}
-    \unifcorrectX{\EqualRel}{\UnifRel}{t}{\{~t_1,~ t_2~\} \subseteq \mathcal{D}}\\
-    \unifcompleteX{\EqualRel}{\UnifRel}{t}{\{~ t_1,~ t_2 ~\} \subseteq \mathcal{D}}
-  \end{gather}
+  \begin{align}
+    \mathrm{Completeness}:\ & \unifcorrectX{\EqualRel}{\UnifRel}{t}{\{~t_1,~ t_2~\} \subseteq \mathcal{D}}\\
+    \mathrm{Correctness}:\ & \unifcompleteX{\EqualRel}{\UnifRel}{t}{\{~ t_1,~ t_2 ~\} \subseteq \mathcal{D}}
+  \end{align}
+when $\mathrm{mgu}$ ensure that $\rho'$ is the most general unifier between $t_1$ and $_2$
+under the initial substitution $\rho$.
 \end{proposition}  
 
 \noindent

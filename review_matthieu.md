@@ -92,8 +92,8 @@ Chapter 4
 
 - [x] L1556: you didn't define "more general", is it the same notion as 2.3.1, substitution extension, i.e. σ ⊆ σ': σ' = σ + σ'', dom(σ) ∩ dom(σ'') = ∅.
 
-- [ ] It seems that the notion of a good unification is the definition of a correct (4.1) and complete (4.2) unification w.r.t. equality, can you explicit it?
-- [ ] In particular, it matters how the `σ` quantified in 4.2.
+- [x] It seems that the notion of a good unification is the definition of a correct (4.1) and complete (4.2) unification w.r.t. equality, can you explicit it?
+- [x] In particular, it matters how the `σ` quantified in 4.2.
   This "hides" the usual notion of most general unifier that would be good to explicitly state as well.
 
 - [ ] In invariant 4.2.1/m-alloc: when performing `Mv = mvar N _`, it is assumed that there is a single arity to fill the hole? It's unclear at this point of `m-alloc` will be used, it becomes clearer only when looking at Figure 4.5.a that 
