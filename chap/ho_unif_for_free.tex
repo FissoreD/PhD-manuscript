@@ -158,12 +158,12 @@ denoted \Ue{}, can simulate a higher-order unification procedure \Uo{}
 for the object language, including $\beta\eta$-conversion.
 
 The following sections are inspired from our paper~\cite{fissore2024}.
-In particular, section~\cref{sec:problem-statement} states the problem formally and gives the
+In particular, \cref{sec:problem-statement} states the problem formally and gives the
 intuition behind our solution; \cref{sec:simulation} sets up a basic
 simulation of first-order logic programs, \cref{sec:llam} and \cref{sec:eta}
 extend it to higher-order logic programs in the pattern fragment
 while \cref{sec:beta} goes beyond the pattern fragment.
-Section \cref{sec:implementation} discusses the implementation in \elpi.
+\Cref{sec:implementation} discusses the implementation in \elpi.
 
 \section{Problem statement and solution} %%%%%%%%%%%%%%%%%%%%%%
 \label{sec:problem-statement}
@@ -790,7 +790,7 @@ to record its arity.
 When a single \eI{ovariable} occurs multiple times with different numbers
 of arguments, the compiler generates multiple mappings for it, on a first
 approximation, and then ensures the mapping is bijective by introducing
-\linketa; this detail is discussed in section \cref{sec:invariant1}.
+\linketa; this detail is discussed in \cref{sec:invariant1}.
 
 It is worth examining the code of the application of substitution to terms in
 \Ho. This is called \eI{deref} and implements \cref{def:deref}. Notice how
@@ -822,7 +822,7 @@ length.
 \subsection{Links (\linkStore)}
 
 \noindent
-As mentioned in section~\cref{sec:nutshell}, the compiler
+As mentioned in~\cref{sec:nutshell}, the compiler
 replaces terms in \maybeeta, \maybebeta, and \notllambda with fresh
 variables linked to the problematic terms. Terms in \maybebeta do not
 need a link since \Ho{} variables faithfully represent
@@ -1014,7 +1014,7 @@ can update the substitution, which may then enable another link to progress.
 \paragraph*{Progress}
 In the base compilation scheme, \eI{progress1} is the identity function
 on both the links and the substitution, so the fixpoint trivially terminates.
-Sections \cref{sec:eta} and \cref{sec:beta} add rules to \eI{progress1}
+\Cref{sec:eta,sec:beta} add rules to \eI{progress1}
 and explain why they do not hinder termination.
 % For brevity we omit the code
 % that applies the substitution \eI{S1} to all terms in \linkStore.
