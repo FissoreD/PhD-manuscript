@@ -650,7 +650,7 @@ non-applicable rules.
 We also optimize the encoding of query paths. In practice, query terms are often
 larger than the terms stored in the database, so encoding them entirely is not
 useful. Instead, we use a hit map that records which positions in the subterms
-can influence retrieval, and encode only the corresponding them.
+can influence retrieval, and only encode them.
 
 To avoid higher-order unification during retrieval, terms headed by a
 $\lambda$-abstraction are treated as variables. For example, \eI{x\ X x} may

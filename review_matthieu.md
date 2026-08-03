@@ -284,7 +284,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L2334: is a function/s/
 - [x] L2415: use bullets
 
-- [ ] L2495: "the correponding them"? rephrase
+- [x] L2495: "the correponding them"? rephrase
 - [x] L2524: Definitions of min/max: the right collumn should be max.
 
 - [x] L2584: by -> be smaller
