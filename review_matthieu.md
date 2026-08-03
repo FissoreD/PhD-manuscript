@@ -4,7 +4,7 @@ Comments/questions
 Chapter 1
 ---------
 
-I found this chapter quite terse, I think the historical background could be more ample. In particular the idea that Rocq relies on a dependently-typed lambda calculus with inductive types is not very apparent here, some illustrative examples could help (nat, list). When mentionning curry-howard for example, L24, a simple statement and its proof could illustrate that mechanism. Likewise, giving a glimpse of how the logic programming paradigm differs and is useful for elaboration would give better motivation (around L74). 
+- [ ] I found this chapter quite terse, I think the historical background could be more ample. In particular the idea that Rocq relies on a dependently-typed lambda calculus with inductive types is not very apparent here, some illustrative examples could help (nat, list). When mentionning curry-howard for example, L24, a simple statement and its proof could illustrate that mechanism. Likewise, giving a glimpse of how the logic programming paradigm differs and is useful for elaboration would give better motivation (around L74). 
 
 Chapter 2
 ---------
@@ -24,7 +24,7 @@ Chapter 2
 - [ ] 2.2 Notation resolution: please present how notations are 
  defined / introduced before using them, starting with the notations for naturals and then the recursive notation for lists. 
 
-- [ ] 2.2.1. "+ has a stable meaning". Shouldn't you rather say that the meaning of "+" depends on the context of usage, so that ambiguity is resolvable by inspecting the context of its occurrence (e.g. the type of objects it is applied to) ?
+- [x] 2.2.1. "+ has a stable meaning". Shouldn't you rather say that the meaning of "+" depends on the context of usage, so that ambiguity is resolvable by inspecting the context of its occurrence (e.g. the type of objects it is applied to) ?
 
 - [ ] L292: here unification could be mentionned more explicitly and exemplified: it is the mechanism that instantiates the holes for `?T` to `nat`, because we get a unification problem `nat = ?T` from typechecking the `S O` and `O` arguments.
 

@@ -303,13 +303,17 @@ applied to either \cI{1} or \cI{["foo","bar"]}, it always return its input, that
 is, the same implementation is reused for every instantiation of its type
 parameter.
 
-Although parametric polymorphism is widely used, it is not well suited to model
-overloading as it appears in mathematics. In mathematical notation, a symbol
-such as $+$ has a stable meaning and no ambiguity for the reader. For instance,
-in $1 + 2$ it denotes addition on integers, while in $\pig + e$ it denotes
-addition on real numbers. The same symbol is reused for operations that share
-common properties, for example the symbol $+$ is usually commutative and
-has a neutral element called $0$.
+Although parametric polymorphism is widely used, it is not well suited to
+modeling overloading as it appears in mathematics. For example, in mathematical
+notation, the meaning of the symbol $+$ depends on the context in which it is
+used. An informed reader can easily infer that, in the expression $1 + 2$, the
+symbol $+$ denotes addition on integers, whereas in $\pi + e$ it denotes
+addition on real numbers.
+
+More generally, reusing the same symbol in different contexts makes it possible
+to capture the common properties that are typically associated with the
+corresponding operation. For instance, the operator $+$ is generally assumed to
+be commutative and to admit a neutral element, conventionally denoted by $0$.
 
 In contrast, parametric polymorphism does not support multiple
 type-dependent implementations of the same symbol. This limitation appears in
