@@ -136,9 +136,9 @@ Chapter 5
 
 - [ ] L2393: What is the reasoning ensuring that if `map F` is a function then `F` must be as well. For example `once F` being a function does not ensure that `F` is. 
 
-- [ ] L2523/5.4.1: The contravariance/covariance labels in the table for the subtyping relations seem to be interchanged.
+- [x] L2523/5.4.1: The contravariance/covariance labels in the table for the subtyping relations seem to be interchanged.
 
-  According to the subtyping relation, we have:
+- [ ] According to the subtyping relation, we have:
 
   (* -i> (* -o> Rel)) -i> (* -i> (* -o> Fun))
   \incl 
