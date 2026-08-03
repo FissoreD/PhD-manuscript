@@ -282,7 +282,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L2193: in the snippet, I suppose the `\pi p` quantification would scope over the `unify` call? Maybe add parenthesis to make this explicit?
 
 - [x] L2334: is a function/s/
-- [ ] L2415: use bullets
+- [x] L2415: use bullets
 
 - [ ] L2495: "the correponding them"? rephrase
 - [x] L2524: Definitions of min/max: the right collumn should be max.
