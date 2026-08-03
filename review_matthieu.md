@@ -123,7 +123,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
 - [ ] L1983/Thm 4.4.11: here we assume that u is performed by the rule in figure 4.6 and not any other, right?
  I don't get all the details of this proof sketch, especially the second case where s2 is definitely not eta reducible. When you state "if s1 is different from s2 it cannot be because of the λ constructor in the head of t1", are we not in the situation `s1 = \x. t1` rather?
 - [ ] The statement that M is a bijection seems wrong, it states that every two variables in P and Q are linked by an entry in M, while I would expect only some pairs to appear. Shouldn't it rather be: for each O-variable X in P, there is exactly one q ∈ Q and `p -> q^n` in M and vice-versa for every q ∈ Q, exactly (or at most one due to generation of free variables?) p ∈ P and `p -> q^n`, no?
-- [ ] L2054: "the resolution of Q1 assigns a to A". It should be `f` to `A` no?
+- [x] L2054: "the resolution of Q1 assigns a to A". It should be `f` to `A` no?
 
 - [ ] Definition 4.6.4, you state that if maybe-eta T does not hold, a unification is triggered, in `progress1`. Why does this rule related to η not appear in the section related to η instead?
 
