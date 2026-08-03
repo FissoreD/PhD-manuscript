@@ -90,7 +90,7 @@ Chapter 4
 
 - [x] L1487: why does the solution to Q have 3 binders? A priori Q should be a Rocq term of type `Provable F -> Provable B`, and in the examples' particular case, `Provable (atom a) -> Provable (atom a)`, so `fun x => x` should be the witness.
 
-- [ ] L1556: you didn't define "more general", is it the same notion as 2.3.1, substitution extension, i.e. σ ⊆ σ': σ' = σ + σ'', dom(σ) ∩ dom(σ'') = ∅.
+- [x] L1556: you didn't define "more general", is it the same notion as 2.3.1, substitution extension, i.e. σ ⊆ σ': σ' = σ + σ'', dom(σ) ∩ dom(σ'') = ∅.
 
 - [ ] It seems that the notion of a good unification is the definition of a correct (4.1) and complete (4.2) unification w.r.t. equality, can you explicit it?
 - [ ] In particular, it matters how the `σ` quantified in 4.2.
