@@ -1869,20 +1869,26 @@ A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
           This unification succeeds iff $s_1 \Uo s_2$ succeeds by \cref{th:fidelity-beta}.
 
 
-    \item $s_2 \notin \maybeeta$,
-          in this case $s_2$ is compiled to $t_2$ and the unification step $u$ assigns $t_2$ to $X$
-          and triggers \progressetaleft.
-          If $s_1$ and $s_2$ are equal thanks to $r_{\eta_l}$ in \cref{fig:feq} then
-          progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$ namely
-          $\lambda x.t_2\appsep x$, otherwise they are equal thanks to rule $r_{\lambda\lambda}$ in \cref{fig:feq}
-          and the link progress $p$ unifies $\lambda x.t_1$ with $t_2$.
-          Alternatively, if $s_1$ are different $s_2$
-          it cannot be because of the $\lambda$ constructor in the head of $t_1$,
-          since rule $r_{\lambda\lambda}$ in \cref{fig:feq} or rule $r_{\eta_l}$ in \cref{fig:feq} move under it, eventually finding two
-          different subterms $s_1'$ and $s_2'$. By \cref{th:fidelity-beta},
-          \Ue fails on terms $t_1'$ and $t_2'$ even if \progressetaleft
-          $\eta$-expands $t_2$.
+    \item $s_2 \notin \maybeeta$. In this case, $s_2$ is compiled to $t_2$, and the
+    unification step $u$ assigns $t_2$ to $X$, thereby triggering
+    \progressetaleft. If $s_1 \Uo s_2$ succeeds, then either $r_{\eta_l}$ or
+    $r_{\lambda\lambda}$ from \cref{fig:feq} is applied. In the former case,
+    the progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of
+    $t_2$, namely $\lambda x.t_2\appsep x$. The link progression therefore
+    attempts to unify $t_1$ with $t_2\appsep x$. Since both terms belong to
+    $\maybebeta$, they unify in \Ho by \cref{th:fidelity-beta} and the
+    hypothesis that $s_1 \Uo s_2$. In the latter case, $t_2$ has the form
+    $\lambda x.t_2'$, where $t_2' \in \maybebeta$. Hence, the link
+    progression unifies $t_1$ with $t_2'$, and again the unification succeeds
+    by \cref{th:fidelity-beta}.
 
+    Conversely, if $s_1 \Uo s_2$ fails, then neither $r_{\eta_l}$ nor
+    $r_{\lambda\lambda}$ succeeds. Depending on the shape of $t_2$,
+    \progressetaleft attempts to unify $t_1$ either with $t_2$ or with its
+    $\eta$-redex. In both cases, the unification is performed between terms
+    in $\maybebeta$. Since $s_1 \Uo s_2$ fails by hypothesis, the
+    corresponding higher-order unification also fails by
+    \cref{th:fidelity-beta}.
   \end{itemize}
   % wlog we assume s1 is in \maybeeta, s2 is not (if both are thanks to dedup we are back in this situation).
   % we assume s1 is compiled to X and $\linketaM{\Gamma}{X}{t1}$.

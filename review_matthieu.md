@@ -263,7 +263,7 @@ Résumé, p. v: et cut, et coupure ?
 - [ ] L1716: shouldn't it be =L instead of =Β, as used just below ?
 
 - [x] L1951: when X becomes _instantiated_ ?
-- [ ] L1994: "are different s2"  
+- [x] L1994: "are different s2"  
 
 - [x] L2062: first problem _P1 below_ the choice is obvious
 - [x] L2075: "such as rhs" -> "such a rhs"
