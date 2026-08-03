@@ -64,7 +64,7 @@ You could say a few words about this situation here.
 
 - [x] L1187: At this point one can already see that using the `tc-Provable B {{lp:Q lp:p}}` atom might be problematic. You could already explain here that one would more naturally write this rule as `tc-Provable F p -> tc-Provable B (X p)` as `X` might depend on the `p` proof, but this `(X p)` should not necessarily be a Rocq application of the shape `app Q p`, forward referencing the next section on unification problems and following chapter.
 
-- [ ] L1199: in Rocq, the user can set the priority to an arbitrary natural number, so this way of emulating is necessarily partial, how do you deal with that? To be fair, one can also criticize Rocq's mechanism which is less user-friendly and modular than grafting by name.
+- [x] L1199: in Rocq, the user can set the priority to an arbitrary natural number, so this way of emulating is necessarily partial, how do you deal with that? To be fair, one can also criticize Rocq's mechanism which is less user-friendly and modular than grafting by name.
 
 - [ ] L1253: The Rocq solver is based on the use of (a variant of) the `apply` tactic and is a multigoal tactic itself, implemented in OCaml using the proof engine's primitive tactic(als) for proof search. So the fact that `Hint Extern` allows to customize resolution using (Ltac) tactics is quite natural: it directly integrates in the solver. However it is definitely less expressive than Elpi: for example non-local cuts are not exposed. This comparison should be a bit more detailed to explain the differences. The idea you may want to convey is that the proof-search strategy itself is not customizable for Rocq's solver.
 

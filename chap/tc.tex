@@ -647,6 +647,19 @@ account for this mechanism by modifying the \eI{compile} rule in
 When a rule is added to the database, we explicitly specify that it must
 be grafted \eI{:before} the hook named $n$.
 
+The choice of grafting \rocq instances into the \elpi database by number is only
+a partial solution, but it is necessary to preserve compatibility with \rocq. In
+particular, we must ensure that \rocq instances can be grafted into the \elpi
+database while preserving the declaration order of these instances. However, the
+\rocq grafting mechanism is less expressive than the one provided by \elpi.
+Relying on a numerical ordering scheme is sometimes limiting: a user may wish to
+insert an instance relative to other instances already present in the database,
+for example by referring to them by name and specifying that a new instance
+should be placed before or after them. Such a mechanism would provide a more
+flexible way of controlling instance ordering. Nevertheless, in order to remain
+compatible with \rocq, we reproduce its grafting behavior, where each instance
+is inserted at a position determined by its numerical priority.
+
 \subsection{Goal Encoding}
 \label{sec:goal-encoding}
 
