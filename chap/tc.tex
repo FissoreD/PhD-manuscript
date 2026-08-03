@@ -434,9 +434,15 @@ argument of the class is a non-ground term and therefore does not satisfy the
 mode constraint. In contrast, under the \elpi mode interpretation the instance
 \cI{addDummy} is a valid solution.
 
-In \elpi, the instance \cI{addDummy} acts as a catchall:
-the first argument of the \cI{Add} class is a variable, i.e a pattern that can
-be used a on any goal for \cI{Add}.
+In \elpi, the instance \cI{addDummy} acts as a catchall rule: the first argument
+of the \cI{Add} class is a variable, i.e., a pattern that can match any goal
+involving \cI{Add}. Catchall rules have two main consequences. First, in the
+goal $g$ above, the variable \cI{?X} is not assigned: the proof term leaves a hole in
+the solution. Second, they introduce a source of nondeterminism in \elpi. As
+their name suggests, catchall rules can apply to any goal, and
+overlap with other applicable instances, resulting in multiple possible rule
+selections. This nondeterministic behavior is detected by the determinacy
+checker presented in \cref{chap:det-elpi}.
 
 \section{Instance compilation}
 \label{sec:instance-encoding}
