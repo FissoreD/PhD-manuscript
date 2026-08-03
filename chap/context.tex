@@ -373,7 +373,7 @@ we can define:
 
 The declaration \cI{addNat : Add nat} provides an implementation of
 \cI{plus}. After registering it, the term \cI{plus 3 4} is elaborated as:
-\cI{plus nat addNat 3 4 : nat} which is equivalent by $\beta$-reduction
+\cI{plus nat addNat 3 4 : nat} which is equivalent by $\beta$-reduction \marginpar{TODO: N7}
 to \cI{Nat.add 3 4 : nat}.
 
 Similarly, using \cI{Rplus}, computing addition over \cI{R}eal numbers,
@@ -527,7 +527,7 @@ used on the type \cI{nat * R}. Said in other words,
 we need to find an instance for following goal \cI{Add (nat * R)}.
 The type-class solver examines
 the instances in the order in which the instances are declared. The first two instances are discarded
-because their conclusions do not match the goal. The instance
+because their conclusions do not match the goal. The instance \marginpar{TODO: N8}
 \cI{addProd} matches and generates the subgoals \cI{Add nat} and
 \cI{Add R}. These subgoals are solved by \cI{addNat} and \cI{addR},
 respectively, yielding the solution
@@ -771,13 +771,16 @@ is an equivalent notation following the convention of~\cite{miller2012}.
 \elpi\ provides a dedicated syntax for declaring predicates, which also
 allows the programmer to specify the modes of their arguments.
 
-The declaration \eI{pred p t1 ~$\to$~ t2}, where \eI{t1} and \eI{t2} are
-types, is equivalent to \eI{type p t1 ~$\to$~ t2 ~$\to$~ prop}. However, it also
-defines the modes of the two arguments.
+% $$\text{pred} \quad \PRED \quad \underbrace{\underbrace{\mathbf{type}^*}_{\text{inputs}}\quad \to}_{\text{optional}}\quad \underbrace{\mathbf{type}^*}_{\text{outputs}}$$
 
-Arguments placed before the arrow symbol in a \eI{pred} declaration
-are considered inputs, while those
-after the arrow are outputs.
+The declaration \eI{pred p ~$t_1, \dots, t_m \to t_{m+1}, \dots, t_n$~}, where
+each $t_i$ ($1 \leq i \leq n$) is a type, is equivalent to the declaration
+\eI{type p ~$t_1 \to \dots \to t_n \to\ $~ prop}. In addition, it specifies the
+modes of the predicate's arguments.
+
+Arguments appearing before the arrow in a \eI{pred} declaration are considered
+input arguments, whereas those appearing after the arrow are considered output
+arguments.
 
 % \paragraphTwo{Program type checking}
 
@@ -811,7 +814,7 @@ of variables that are assigned in $\sigma$.
   \dom\ \sigma'' \cap \dom\ \sigma = \varnothing $$
 \end{definition}
 
-\vspace{-3em}
+% \vspace{-3em}
 
 \begin{definition}[Substitution application (or term dereferencing)]
   A substitution $\sigma$ applied to a term $t$, noted $\sigma t$, is the operation

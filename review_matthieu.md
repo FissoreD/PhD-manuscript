@@ -28,15 +28,15 @@ Chapter 2
 
 - [ ] L292: here unification could be mentionned more explicitly and exemplified: it is the mechanism that instantiates the holes for `?T` to `nat`, because we get a unification problem `nat = ?T` from typechecking the `S O` and `O` arguments.
 
- - [ ] L336: you also need delta/iota reduction here, due to the encoding of record types, that should also be introduced. 
+ - [ ] TODO: N7 L336: you also need delta/iota reduction here, due to the encoding of record types, that should also be introduced. 
  
- - [ ] It should be said in a bit more detail around L406 what "matching" means and how it relates to unification.
+ - [ ] TODO: N8 It should be said in a bit more detail around L406 what "matching" means and how it relates to unification.
 
 - [ ] L417: "which restrict the shape of class arguments during resolution." The notions of ground term, and terms with "rigid" head symbols are not introduced before use, so this might be unclear to readers. "ground" should probably be done at the beginning of 2.1 when introducing lambda calculus, for rigid heads probably here. Please add also add an example explaining the meaning/use of modes for `Add` and how it can avoid non-termination in some cases.   
 
 - [ ] L421: its not clear what "matching" a mode means here, please define it. I guess a mode m1 .. mn matches a goal C t1 .. tn, if each ti respects the mode mi. 
 
-- [ ] L508: how do you represent multiple arguments after the arrow?
+- [x] L508: how do you represent multiple arguments after the arrow?
 
 - [ ] L564: can you develop on what is the motivation for this   refinement in elpi? Maybe also forward referencing to the determinacy analysis chapter?
 
