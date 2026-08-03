@@ -114,8 +114,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
 - [x] L1934: shouldn't it link to 4.2.1 instead?
 
 - [ ] Corollary 4.4.4. How do you ensure that the invariants hold at the right time? An arbitrary instantiation of an existential variable at any point could break the link invariants, isn't there a hidden reliance on the fact that e.g. comp produces _fresh_ variables. I would have liked to see a discussion of what the "invariants" impose and at which boundary they should hold, before the presentation of the algorithm. Later on, it seems that they are ensured because links/CHRs are reconsidered before doing anything else when a variable subject to a constraint is instantiated.
-- [ ] L1943: "where in L"? I guess the variable application to `Scope` is
-   indeed in L as the set of free names is duplicate-free?
+- [x] L1943: "where in L"? I guess the variable application to `Scope` is indeed in L as the set of free names is duplicate-free?
 - [ ] L1947: broken 4.4.5 link (goes to 2.3.5)
 - [ ] Definition 4.4.4. Can you explain informally why these two cases occur? Why make a difference here? 
 - [ ] I don't understand how lemma 4.4.6 follows from 4.4.5.

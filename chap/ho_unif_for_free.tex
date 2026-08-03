@@ -1706,8 +1706,9 @@ Moreover:
   We need to extend the proof of \cref{lem:w-enforcement-maybeeta}, since we
   need to consider the case of terms \maybeeta. By \cref{lem:maybeeta},
   we know that any \maybeeta term is captured by \testmaybeeta, therefore
-  the rule in \cref{fig:com-maybeeta} is used. The output is a variable,
-  where in \llambda, therefore, the new terms is \wellb.
+  the rule in \cref{fig:com-maybeeta} is used. The output is a variable and
+  its scope is a list of distinct variables, 
+  therefore, the new terms is \wellb.
 \end{proof}
 
 
