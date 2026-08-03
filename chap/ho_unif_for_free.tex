@@ -34,9 +34,16 @@ limits the effectiveness of the meta-language unification procedure. The
 equational theory of \elpi includes $\beta\eta$-equivalence and its unification
 procedure can solve higher-order problems in the pattern fragment
 (\cref{def:pattern-fragment}). Although the equational theory of \rocq is much
-richer, for efficiency and predictability reasons automatic proof search
-procedures typically employ a unification procedure that only captures a
-$\beta\eta$-equivalence and only operates in the pattern fragment.
+richer, automatic proof search procedures typically rely, for efficiency and
+predictability, on a unification procedure restricted to $\beta\eta$-equivalence
+and the higher-order pattern fragment. Outside this fragment, \rocq's
+unification algorithm employs heuristics. For example, the unification problem
+\eI{P (Q 3) = f (g 3)} succeeds with the substitution $\sigma = \{\eI{P} \mapsto
+\eI{f}, \eI{Q} \mapsto \eI{g}\}$. However, this problem admits many incomparable
+solutions, such as $\sigma = \{\eI{P} \mapsto \lambda x.\eI{f (g 3)}, \eI{Q}
+\mapsto \lambda x.\eI{100}\}$, illustrating the non-deterministic search space
+explored by higher-order unification algorithms such as Huet's~\cite{huet75}.
+
 % The similarity is striking, but one needs to exercise some caution in order to
 % simulate a higher-order logic program in \rocq using the unification of \elpi.
 

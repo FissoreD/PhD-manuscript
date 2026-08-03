@@ -85,7 +85,7 @@ It would be best to present the sources of your benchmark so that it can be asse
 Chapter 4
 ---------
 
-- [ ] L1476: efficiency, predictability _and decidability_ reasons.
+- [x] L1476: efficiency, predictability _and decidability_ reasons.
   Higher-order unification is undecidable (see results by Huet for example), it should be mentionned here.
 
 - [x] L1487: why does the solution to Q have 3 binders? A priori Q should be a Rocq term of type `Provable F -> Provable B`, and in the examples' particular case, `Provable (atom a) -> Provable (atom a)`, so `fun x => x` should be the witness.
