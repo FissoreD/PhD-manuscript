@@ -184,10 +184,33 @@ Chapter 5
 Chapter 6
 ---------
 
-- [ ] There is something I don't understand about the Or node: it seems that we construct Or only when backchaining, which sets the left option to None. The rest of the code of prune and step do not seem to set this tree to (Some A) unless they get a (Some A) first. In the figure 6.3, likewise it seems that all the "left" disjuncts are None, while the corresponding subtrees are not yet fully explored. Can you explain why?
+- [x] There is something I don't understand about the Or node: it seems that we construct Or only when backchaining, which sets the left option to None. The rest of the code of prune and step do not seem to set this tree to (Some A) unless they get a (Some A) first. In the figure 6.3, likewise it seems that all the "left" disjuncts are None, while the corresponding subtrees are not yet fully explored. Can you explain why?
 A small, simpler example to illustrate the Or and And nodes would go a long way to carry the intuitions of this clever representation.
 
-- [ ] What is the use of Corrolary 6.5.4? It says that a matching's σ' substitution has no more effect than the initial σ on the rhs term, is it used in lemma 6.5.5? It would be good to motivate it more.
+> The `step` procedure creates `Or` nodes after calling `backchain`.
+> 
+> We insert `None` on the left so that we can associate the substitution with the
+> first child in the graph. If
+> 
+> `backchain u p v s t = [(s₀, x₀), ..., (sₙ, xₙ)]`,
+> 
+> then the first list of goals, `x₀`, should be explored under the substitution
+> `s₀`. In the tree, we represent this information by introducing the `None` node.
+> 
+> The resulting tree has the form:
+> 
+> `(Or None s₀ (Or x₀ s₁ (Or x₁ s₂ (Or ... (Or xₙ₋₁ sₙ xₙ)))))`.
+> 
+> The substitution associated with an `xᵢ` node is stored in its closest enclosing
+> `Or` ancestor. The interpreter therefore explores `x₀` under `s₀`. If `x₀`
+> yields no solution, the tree becomes:
+> 
+> `(Or None s₁ (Or x₁ s₂ (Or ... (Or xₙ₋₁ sₙ xₙ))))`.
+> 
+> The interpreter then continues iterating in the same way.
+
+
+- [x] What is the use of Corrolary 6.5.4? It says that a matching's σ' substitution has no more effect than the initial σ on the rhs term, is it used in lemma 6.5.5? It would be good to motivate it more.
 
 - [x] You should assess the size of the formalization (split between the various components), which looks to me like an important contribution of this thesis.
 
