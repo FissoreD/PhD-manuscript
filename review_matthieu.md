@@ -96,7 +96,7 @@ Chapter 4
 - [x] In particular, it matters how the `σ` quantified in 4.2.
   This "hides" the usual notion of most general unifier that would be good to explicitly state as well.
 
-- [ ] In invariant 4.2.1/m-alloc: when performing `Mv = mvar N _`, it is assumed that there is a single arity to fill the hole? It's unclear at this point of `m-alloc` will be used, it becomes clearer only when looking at Figure 4.5.a that 
+- [x] In invariant 4.2.1/m-alloc: when performing `Mv = mvar N _`, it is assumed that there is a single arity to fill the hole? It's unclear at this point of `m-alloc` will be used, it becomes clearer only when looking at Figure 4.5.a that 
 Mv is an input-output parameter basically, with the arity being fixed at 0 there, and in later refinements depending on the arity of occurrences. Please highlight this.
 
 

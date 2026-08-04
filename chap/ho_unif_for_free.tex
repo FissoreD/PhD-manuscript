@@ -808,6 +808,12 @@ to record its arity.
 \label{clause:malloc}
 }
 
+The predicate \eI{m-alloc} allocates a fresh \Ho variable while preserving
+the arity information carried by its argument \eI{Ag}. In particular,
+\eI{Ag} should be understood as an input-output parameter: the predicate does
+not choose an arbitrary arity, but creates a variable whose arity is fixed by
+the current compilation phase, see for example \cref{fig:comp-fo}.
+
 \noindent
 When a single \eI{ovariable} occurs multiple times with different numbers
 of arguments, the compiler generates multiple mappings for it, on a first
