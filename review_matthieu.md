@@ -130,7 +130,7 @@ I have reworked the proof of `Fidelity in` $\mathcal{W}_{βη}$, should be clear
 
 - [x] Definition 4.6.4, you state that if maybe-eta T does not hold, a unification is triggered, in `progress1`. Why does this rule related to η not appear in the section related to η instead?
 
-- [ ] L2122: or maybe it is instantiated but does not beta-reduce to a term in L? I don't see immediately what guarantees that it will fall in the pattern fragment.
+- [ ] L2132: or maybe it is instantiated but does not beta-reduce to a term in L? I don't see immediately what guarantees that it will fall in the pattern fragment.
 
 - [x] L2160: you could precise that it is used by Rocq's type-class resolution and vanilla tactics (e.g. `apply`), through Rocq's "first-order" unification heuristic, IIUC.
 
