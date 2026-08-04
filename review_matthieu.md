@@ -300,7 +300,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] L1267: function,the  -> function and 
 - [x] L1372: isproblematic
-- [ ] L1521/Figure 4.1: missing `type` highlightings
+- [x] L1521/Figure 4.1: missing `type` highlightings
 
 - [x] L1547: introduce_d_ by pi
 - [x] L1549: "how weaker" -> that =m is much weaker than =o

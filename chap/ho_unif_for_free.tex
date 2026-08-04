@@ -208,10 +208,24 @@ is encoded as
 
 \begin{figure}
   \begin{subfigure}{0.47\textwidth}
-    \input{ho-for-free/img/fo_tm.tex}
+    % \input{ho-for-free/img/fo_tm.tex}
+    \begin{elpicode}
+      kind ~\otm~ type.
+      type ~\oapp~ list ~\otm~ ~$\to$~ ~\otm~.
+      ~\PYG{k+kd}{type}~ ~\olam~ (~\otm~ ~$\to$~ ~\otm~) ~$\to$~ ~\otm~.
+      type ~\ocon~ string ~$\to$~ ~\otm~.
+      type ~\ouva~ addr ~$\to$~ ~\otm~.
+    \end{elpicode}
   \end{subfigure}
   \begin{subfigure}{0.47\textwidth}
-    \input{ho-for-free/img/ho_tm.tex}
+    % \input{ho-for-free/img/ho_tm.tex}
+    \begin{elpicode}
+      kind ~\mtm~  type.
+      type ~\mapp~ list ~\mtm~ ~$\to$~ ~\mtm~.
+      ~\PYG{k+kd}{type}~ ~\mlam~ (~\mtm~ ~$\to$~ ~\mtm~) ~$\to$~ ~\mtm~.
+      type ~\mcon~ string ~$\to$~ ~\mtm~.
+      type ~\muva~ addr ~$\to$~ list ~\mtm~ ~$\to$~ ~\mtm~.
+    \end{elpicode}
   \end{subfigure}
   \caption{The \Fo{} and \Ho languages}\vspace{0.3em}
   \label{code:common-terms}
