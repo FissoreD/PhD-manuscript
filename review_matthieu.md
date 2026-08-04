@@ -100,7 +100,7 @@ Chapter 4
 Mv is an input-output parameter basically, with the arity being fixed at 0 there, and in later refinements depending on the arity of occurrences. Please highlight this.
 
 
-- [ ] L1791: The proposition comes a bit out of the blue, it seems to be the overall correctness lemma for decompilation.   What does `n` represent here? The arity of the image A of the o-variable X? 
+- [x] L1791: The proposition comes a bit out of the blue, it seems to be the overall correctness lemma for decompilation.   What does `n` represent here? The arity of the image A of the o-variable X? 
   It is a bit surprising that there is no use of the `l` and `m` variables in the conclusion, shouldn't `M` and `L` be replaced by `m` and `l`. I suppose one wants to have the whole mapping and list of links in the call to decompilation rather that some arbitrary `l` and `m` elements. Alternatively this is a restiction to a "single" unification due to the `σ = { A -> t}` assumption. 
 
 

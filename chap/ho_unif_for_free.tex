@@ -1096,7 +1096,7 @@ each \eI{abs} node can be decompiled to a \olam one.
 However, if the \olam node was carrying more information,
 as is the case for \rocq where it holds the type of the bound variable,
 one would need to store this piece of information in the memory map,
-were we store the arity (that is a very simple function type).
+where we store the arity (that is a very simple function type).
 
 \begin{proposition}[Compilation round trip]\label{prop:comprt}
   % \eI{compile F T [] M [] L [] S} then 
@@ -1108,12 +1108,11 @@ were we store the arity (that is a very simple function type).
   $\rho X \Eo \rho s$.
 \end{proposition}
 
-% \noindent
-% The statement above roughly states that the translation from
-% \Fo{} to \Ho is not lossy, it can be reversed. The statement
-% is made convoluted by the fact that we hid the procedure to
-% decompile a term in favor of the one to decompile substitutions.
-% We omit to sketch the proof of this property for brevity.
+\noindent
+The proposition above states that the translation from \Fo{} to \Ho{} is not
+lossy: it can be reversed. The statement is made somewhat convoluted by the
+fact that we hide the procedure for decompiling a term and instead state the
+property in terms of decompiling substitutions.
 
 % \noteD{Should also decompile links\dots}
 % \begin{proof}[Proof sketch]
