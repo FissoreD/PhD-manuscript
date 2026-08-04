@@ -305,7 +305,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L1547: introduce_d_ by pi
 - [x] L1549: "how weaker" -> that =m is much weaker than =o
 
-- [ ] L1571: (resp =o) in L
+- [x] L1571: (resp =o) in L
 - [x] L1597: all term_s_, belongs -> belong
 - [x] L1685: /of/ in
 
