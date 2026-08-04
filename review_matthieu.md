@@ -109,7 +109,10 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
  we assume `s = \x.r`, so surely applying the empty substitution validates `ε (\x.r) =o s`. I think you should precise that you want to detect that `s` is equal to `ρ(\x.r)` up-to `=o` on beta-normal terms, specifically when this equality uses the η-conversion rules of `=o`.
  The analysis and definitions below better illustrates the notion.
 
-- [ ] L1925: the term \x. f (A x) (A x) is in L, as far as I can tell, how does it not break the invariant that failures are in lock-step?
+- [x] L1925: the term \x. f (A x) (A x) is in L, as far as I can tell, how does it not break the invariant that failures are in lock-step?
+
+I have reworked the proof of `Fidelity in` $\mathcal{W}_{βη}$, should be clearer
+
 - [x] L1930: discrepancy with the figure, where "G" is used instead.
 - [x] L1934: shouldn't it link to 4.2.1 instead?
 

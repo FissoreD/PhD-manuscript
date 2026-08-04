@@ -1912,24 +1912,23 @@ using \Ue.
           This unification succeeds iff $s_1 \Uo s_2$ succeeds by \cref{th:fidelity-beta}.
 
 
-    \item $s_2 \notin \maybeeta$. In this case, $s_2$ is compiled to $t_2$, and the
-    unification step $u$ assigns $t_2$ to $X$, thereby triggering
+    \item $s_2 \notin \maybeeta$. In this case, $s_2$ is compiled to $t_2$, and
+    the unification step $u$ assigns $t_2$ to $X$, thereby triggering
     \progressetaleft. If $s_1 \Uo s_2$ succeeds, then either $r_{\eta_l}$ or
-    $r_{\lambda\lambda}$ from \cref{fig:feq} is applied. In the former case,
-    the progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of
-    $t_2$, namely $\lambda x.t_2\appsep x$. The link progression therefore
-    attempts to unify $t_1$ with $t_2\appsep x$. Since both terms belong to
-    $\maybebeta$, they unify in \Ho by \cref{th:fidelity-beta} and the
-    hypothesis that $s_1 \Uo s_2$. In the latter case, $t_2$ has the form
-    $\lambda x.t_2'$, where $t_2' \in \maybebeta$. Hence, the link
-    progression unifies $t_1$ with $t_2'$, and again the unification succeeds
-    by \cref{th:fidelity-beta}.
+    $r_{\lambda\lambda}$ from \cref{fig:feq} is applied. In the former case, the
+    progression $p$ unifies $\lambda x.t_1$ with the $\eta$-redex of $t_2$,
+    namely $\lambda x.t_2\appsep x$. The link progression therefore attempts to
+    unify $t_1$ with $t_2\appsep x$. Since both terms belong to $\wellb_{\beta
+    \eta}$, they unify in \Ho by \cref{th:fidelity-beta}. In the latter case,
+    $t_2$ has the form $\lambda x.t_2'$, where $t_2' \in \wellb_{\beta \eta}$.
+    Hence, the link progression unifies $t_1$ with $t_2'$, and again the
+    unification succeeds by \cref{th:fidelity-beta}.
 
     Conversely, if $s_1 \Uo s_2$ fails, then neither $r_{\eta_l}$ nor
     $r_{\lambda\lambda}$ succeeds. Depending on the shape of $t_2$,
     \progressetaleft attempts to unify $t_1$ either with $t_2$ or with its
     $\eta$-redex. In both cases, the unification is performed between terms
-    in $\maybebeta$. Since $s_1 \Uo s_2$ fails by hypothesis, the
+    in $\wellb_{\beta \eta}$. Since $s_1 \Uo s_2$ fails by hypothesis, the
     corresponding higher-order unification also fails by
     \cref{th:fidelity-beta}.
   \end{itemize}
