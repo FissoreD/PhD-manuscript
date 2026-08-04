@@ -281,7 +281,7 @@ Résumé, p. v: et cut, et coupure ?
   uses quite a few primitives that are not defined before they are used. It would help to summarize with a documentation the basic predicates you are using (list rev, append, boolean negation, rocq-specific mk-app, safe-dest-app, etc...). I think it should appear in either in the Elpi API section or an appendix.
 
 - [x] L1112: an existential variable
-- [ ] L1117: can be used /a/ on  any goal. This is a bit unclear: shouldn't it be `a pattern that can match any goal for Add`? 
+- [x] L1117: can be used /a/ on  any goal. This is a bit unclear: shouldn't it be `a pattern that can match any goal for Add`? 
 
 - [x] L1120: more advanced than then one of section 3.2
 - [x] L1124: This time, comp takes (do not start sentences with a symbol)
