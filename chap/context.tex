@@ -1921,10 +1921,12 @@ a list of subgoals in the form of a list of sealed-goals. It is customary for
 \elpi{} tactics to invoke \eI{refine} in order to produce the output list for the
 \eI{solve} predicate.
 
-For performance reasons, \elpi{} also provides a variant, \eI{refine.no_check},
-which skips typechecking and directly produces the list of sealed subgoals from
-the given term and goal. This results in faster, although less reliable,
-computation.
+The \eI{refine} procedure may be slow, especially when applied to large proof
+terms. This is because it type-checks the entire term. For performance reasons,
+\elpi also provides a variant, \eI{refine.no_check}, which skips type checking
+and directly produces the list of sealed subgoals from the given term and goal.
+This approach is faster, although less reliable, since it assumes that the
+provided proof term is well typed.
 
 % \subsection{Concluding remarks}
 

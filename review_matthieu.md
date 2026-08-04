@@ -273,7 +273,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] L800: missing end of `]`
 
-- [ ] L893: which computation are you referring to?
+- [x] L893: which computation are you referring to?
 
 - [x] L1107: before backchaining
 
