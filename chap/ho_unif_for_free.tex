@@ -2022,9 +2022,11 @@ To address this issue, we post-process \mapStore
 to ensure the following property:
 
 \begin{proposition}[\mapStore is a bijection]
-  After compilation, for each \Fo{}-variable $X$ in \foUnifPb{} and for each
-  \Ho{}-variable $A$ in \hoUnifPb{} there is exactly one entry $X \mapsto A^n$
-  in \mapStore.
+After compilation, \mapStore defines a bijective correspondence between
+\Fo{}-variables in \foUnifPb{} and \Ho{}-variables in \hoUnifPb{}. In
+particular, for every entry $X \mapsto A^n \in \mapStore$, there is no
+distinct variable $X' \neq X$ such that $X' \mapsto A^n \in \mapStore$, and
+no distinct variable $A'^n \neq A$ such that $X \mapsto A'^n \in \mapStore$.
 \end{proposition}
 
 \noindent
