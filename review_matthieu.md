@@ -32,9 +32,9 @@ Chapter 2
  
  - [ ] TODO: N8 It should be said in a bit more detail around L406 what "matching" means and how it relates to unification.
 
-- [ ] L417: "which restrict the shape of class arguments during resolution." The notions of ground term, and terms with "rigid" head symbols are not introduced before use, so this might be unclear to readers. "ground" should probably be done at the beginning of 2.1 when introducing lambda calculus, for rigid heads probably here. Please add also add an example explaining the meaning/use of modes for `Add` and how it can avoid non-termination in some cases.   
+- [ ] TODO: L417: "which restrict the shape of class arguments during resolution." The notions of ground term, and terms with "rigid" head symbols are not introduced before use, so this might be unclear to readers. "ground" should probably be done at the beginning of 2.1 when introducing lambda calculus, for rigid heads probably here. Please add also add an example explaining the meaning/use of modes for `Add` and how it can avoid non-termination in some cases.   
 
-- [ ] L421: its not clear what "matching" a mode means here, please define it. I guess a mode m1 .. mn matches a goal C t1 .. tn, if each ti respects the mode mi. 
+- [ ] TODO: L421: its not clear what "matching" a mode means here, please define it. I guess a mode m1 .. mn matches a goal C t1 .. tn, if each ti respects the mode mi. 
 
 - [x] L508: how do you represent multiple arguments after the arrow?
 
@@ -116,7 +116,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
 - [ ] Corollary 4.4.4. How do you ensure that the invariants hold at the right time? An arbitrary instantiation of an existential variable at any point could break the link invariants, isn't there a hidden reliance on the fact that e.g. comp produces _fresh_ variables. I would have liked to see a discussion of what the "invariants" impose and at which boundary they should hold, before the presentation of the algorithm. Later on, it seems that they are ensured because links/CHRs are reconsidered before doing anything else when a variable subject to a constraint is instantiated.
 - [x] L1943: "where in L"? I guess the variable application to `Scope` is indeed in L as the set of free names is duplicate-free?
 - [x] L1947: broken 4.4.5 link (goes to 2.3.5)
-- [ ] Definition 4.4.4. Can you explain informally why these two cases occur? Why make a difference here? 
+- [x] Definition 4.4.4. Can you explain informally why these two cases occur? Why make a difference here? 
 - [ ] I don't understand how lemma 4.4.6 follows from 4.4.5.
   It seems rather related to Invariant 4.4.1.
 - [ ] The notion that the memory map is bijective is not formally stated yet, what does it mean? Intuitively there should be a bijection between o-vars and m-vars but it's not explicitely stated until later.
@@ -138,7 +138,7 @@ Chapter 5
 
 - [x] L2523/5.4.1: The contravariance/covariance labels in the table for the subtyping relations seem to be interchanged.
 
-- [ ] According to the subtyping relation, we have:
+- [x] According to the subtyping relation, we have:
 
   (* -i> (* -o> Rel)) -i> (* -i> (* -o> Fun))
   \incl 
@@ -151,6 +151,33 @@ Chapter 5
   
   This seems to allow to use a "stronger" map that takes relations as arguments but must be using cut to be deterministic as a whole where a map taking functions is expected. 
   This seems to go against the above point where it is assumed that if `map F` is deterministic then `F` must be as well.
+
+> In our definition of \incl, t1 \incl t2 implies that a predicate with
+> signature t2 morally produces more (or the same nb of) solutions than t1. A
+> relation clearly produces more (or the same) results than a function.  
+> I would call the map with the first signature mapW and the map with the second
+> signature simply map.  
+> In your example, as you point out, the implementation of mapW is accepted only
+> if there is a cut just after the call to the relation (like mapW R [X|Xs]
+> [Y|Ys] :- R X Y, !, ...).  
+> There is no way to mis-call mapW, since passing a relation or a function
+> to mapW as first argument does not change its deterministic behavior.  
+> On the other hand, you can mis-call the predicate map, and in this case it
+> will behave as a relation. Producing therefore "more solution" than the mapW
+> implementation. This is how to read the incl relation in contravariant way
+>
+> Concerning `map F` in the `fuse` implementation, we are assuming that `map F`
+> is deterministic, and with this assumption, we can safely assume then `F` must
+> be as well a function. We are in fact assuming the precondition on the first
+> argument of fuse, that is `map F` is a function. In order to be a function,
+> this argument should assume `F` to be a function, too.  
+> Note that if at runtime, we call `fuse (map r) ...` with `r` being a relation
+> we will not have the guarantee that `fuse` behaves deterministically and no
+> assumption can be done on its postconditions.  
+> If, however, we call `fuse (map f)` and `f` is a function, then we are
+> satisfying the precondition of fuse: `map f` is a funciton, and this is
+> exactly the kind of assumption we are doing on the static analysis for the
+> implementation of fuse.
 
 - [x] L2643: Isn't this inductive process rather starting from the empty program? I'm not sure what you mean by "from the end" here.
 

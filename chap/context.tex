@@ -541,7 +541,7 @@ existential variable, \cI{addProd} matches by instantiating \cI{?X} as
 \cI{?X1 * ?X2}. This produces the subgoal \cI{Add ?X1}. Since
 \cI{addProd} is considered first, it is used again and instantiates
 \cI{?X1} as \cI{?X3 * ?X4}, generating a new subgoal \cI{Add ?X3}. The
-same situation repeats indefinitely, leading to a non-terminating search.
+same situation repeats indefinitely, leading to a non-terminating search. \marginpar{TODO: N417 Explain rigid head + ground and example of mode with Add}
 
 To control the search, several mechanisms are available. A common one is the use
 of \emph{modes}, which restrict the shape of class arguments during resolution.
@@ -550,8 +550,8 @@ indicating respectively ground terms, terms with rigid head symbol, and
 arguments with no constraints on their shape.
 
 A type class may have multiple modes. During search, these modes are checked
-dynamically, and the solver proceeds only if at least one mode matches the
-current goal.
+dynamically, and the solver proceeds only if the current shape of goal
+satisfies at least one mode constraint. For example, \marginpar{TODO: 421 add example}
 
 Another important aspect is that multiple instances may match the same goal,
 which requires backtracking. Some libraries, such as \stdpp{}, exploit this

@@ -1738,12 +1738,26 @@ we know for sure if their head lambdas can (or cannot) be $\eta$-contracted.
 A link \linketaM{\Gamma}{X}{t} is removed from \linkStore when
   $X$ becomes instantiated in a substitution $\sigma$. Let $y\in\Gamma$. There are two cases:
 \begin{enumerate}
+  \item if $\sigma X = \lambda x.s$ we call ``run $(X \Ue{} t)\ \sigma$'';
   \item if $\sigma X = a$ or $\sigma X = y$ or $\sigma X = f \appsep a_1\ldots a_n$
-    we unify the $\eta$-redex of $X$ with $t$, that is we run
-    $(\lambda x.X \appsep x\Ue{} t)\ \sigma$
-    \item if $\sigma X = \lambda x.s$ we run $(X \Ue{} t)\ \sigma$.
+    we unify the $\eta$-redex of $X$ with $t$, that is we call ``run
+    $(\lambda x.X \appsep x\Ue{} t)\ \sigma$''.
 \end{enumerate}
 \end{definition}
+
+The idea behind \progressetaleft is that the link is triggered whenever the
+suspended variable of the \maybeeta link is assigned a term. In this
+situation, we need to simulate either the $r_{\eta_l}$ rule or the
+$r_{\lambda\lambda}$ rule from \cref{fig:feq}, depending on whether the head
+constructor of the term $\sigma X$ is a $\lambda$-abstraction.
+
+In the first case, the head of the term $\sigma X$ is a $\lambda$-abstraction.
+Therefore, we simulate the $r_{\lambda\lambda}$ rule by calling the unification
+procedure on the two terms. In the second case, the term $t$ must be an
+$\eta$-redex. To simulate the unification performed in the object language by
+$r_{\eta_l}$, we $\eta$-expand the term $\sigma X$ and then unify the two terms
+using \Ue.
+
 
 % There is a third case in which a link is removed from \linkStore, namely
 % when the \lhs is assigned to a variable that is the \lhs of another
