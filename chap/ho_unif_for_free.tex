@@ -1521,7 +1521,8 @@ predicate defined in \cref{sec:execution}.
 When compiling a term $t$, we need to determine if any
 subterm $s$ of $t$ that is of the form $\lambda x. r$
 can be an $\eta$-redex, i.e. if
-there exists a substitution $\rho$ such that $\rho (\lambda x.r) \Eo s$.
+there exists a substitution $\rho$ such that $\rho (\lambda x.r) \Eo r'$ and
+$r'$ is not a $\lambda$-abstraction.
 The detection of lambda abstractions that can ``disappear''
 is not as trivial as it may seems. Here a few examples:
 %

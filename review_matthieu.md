@@ -104,7 +104,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
   It is a bit surprising that there is no use of the `l` and `m` variables in the conclusion, shouldn't `M` and `L` be replaced by `m` and `l`. I suppose one wants to have the whole mapping and list of links in the call to decompilation rather that some arbitrary `l` and `m` elements. Alternatively this is a restiction to a "single" unification due to the `σ = { A -> t}` assumption. 
 
 
-- [ ] Section 4.4.1: You state that the subset of eta terms is the set of term `\x.s` such that there exists σ s.t. `ρ(\x.s)` _can be an eta redex_, e.g. with `ρ = {X -> f}`, `ρ(\x.X x) = \x. f x =o f`.
+- [x] Section 4.4.1: You state that the subset of eta terms is the set of term `\x.s` such that there exists σ s.t. `ρ(\x.s)` _can be an eta redex_, e.g. with `ρ = {X -> f}`, `ρ(\x.X x) = \x. f x =o f`.
  The point that it should be such that `ρ(\x.r) =o s` is a bit confusing to me, because the empty substitution would always works here: 
  we assume `s = \x.r`, so surely applying the empty substitution validates `ε (\x.r) =o s`. I think you should precise that you want to detect that `s` is equal to `ρ(\x.r)` up-to `=o` on beta-normal terms, specifically when this equality uses the η-conversion rules of `=o`.
  The analysis and definitions below better illustrates the notion.
