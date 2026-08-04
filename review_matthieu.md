@@ -277,7 +277,7 @@ Résumé, p. v: et cut, et coupure ?
 
 - [x] L1107: before backchaining
 
-- [ ] p36/Fig 3.4: for readers unfamiliar with elpi, the code 
+- [x] p36/Fig 3.4: for readers unfamiliar with elpi, the code 
   uses quite a few primitives that are not defined before they are used. It would help to summarize with a documentation the basic predicates you are using (list rev, append, boolean negation, rocq-specific mk-app, safe-dest-app, etc...). I think it should appear in either in the Elpi API section or an appendix.
 
 - [x] L1112: an existential variable

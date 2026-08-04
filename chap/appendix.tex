@@ -1,7 +1,74 @@
-\chapter{Simple compiler full implementation}
-\label{app:full-simpl-compiler}
+% \chapter{Simple compiler full implementation}
+% \label{app:full-simpl-compiler}
 
 
-We provide here the complete code for the simple elpi compiler.
+% We provide here the complete code for the simple elpi compiler.
 
-\input{code/toy_compiler_simpl_full.tex}
+% \input{code/toy_compiler_simpl_full.tex}
+
+\chapter{Reference for \elpi{} Predicates and Built-ins}
+\label{app:builtins}
+
+This appendix provides the implementations and signatures of the \elpi{}
+predicates and built-in procedures referenced throughout the code snippets in
+the manuscript.
+
+\begin{elpicode}
+  % [rex.split Rex Subject Out] Out is obtained by splitting Subject at all
+  % occurrences of Rex. See also OCaml's Str.split
+  external func rex.split string, string -> list string.
+
+  func append list A, list A -> list A.
+  append [X|XS] L [X|L1] :- append XS L L1 .
+  append [] L L .
+
+  func map list A, (func A -> B) -> list B.
+  map [] _ [].
+  map [X|XS] F [Y|YS] :- F X Y, map XS F YS.
+
+  func map-filter list A, (func A -> B) -> list B.
+  map-filter [] _ [].
+  map-filter [X|XS] F [Y|YS] :- F X Y, !, map-filter XS F YS.
+  map-filter [_|XS] F YS :- map-filter XS F YS.
+
+  func rev list A -> list A.
+  rev L RL  :- rev.aux L []  RL.
+
+  pred mem list A -> A.
+  mem [X|_] X.
+  mem [_|L] X :- mem L X.
+
+  func neg bool -> bool.
+  neg tt ff.
+  neg ff tt.
+
+  func rev.aux list A, list A -> list A.
+  rev.aux [X|XS] ACC R :- rev.aux XS [X|ACC] R.
+  rev.aux [] L L.
+
+  % [coq.TC.class? GR] checks if GR is a class
+  external func coq.TC.class? gref.
+
+  pred get-tm-gref term -> gref.
+  get-tm-gref (prod _ _ T) G :- pi x\ get-tm-gref (T x) G.
+  get-tm-gref (global G) G.
+  get-tm-gref (app [T | _]) G :- get-tm-gref T G.
+
+  pred is-class? term ->.
+  is-class? A :- get-class? A _.
+
+  pred get-class? term -> gref.
+  get-class? T G:- get-tm-gref T G, coq.TC.class? G.
+
+  func mk-app term, list term -> term.
+  mk-app HD [] HD :- !.
+  mk-app (app L) Args R :- !, append L Args LArgs, R = app LArgs.
+  mk-app (fun _ _ F) [A|Args] R :- !, mk-app (F A) Args R.
+  mk-app (let _ _ A F) Args R :- !, mk-app (F A) Args R.
+  mk-app HD Args (app [HD|Args]).
+
+  func coq.safe-dest-app term -> term, list term.
+  coq.safe-dest-app (app [X|XS]) HD AllArgs :- !,
+    coq.safe-dest-app X HD ARGS, append ARGS XS AllArgs.
+  coq.safe-dest-app X X [].
+\end{elpicode}

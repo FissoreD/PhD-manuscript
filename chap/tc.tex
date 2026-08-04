@@ -138,7 +138,8 @@ By invariant, a query of the form \eI{tc T I} ensures that the term
 
 As an example, consider the \cI{Add} type-class introduced in
 \cref{sec:ad-hoc-poly}. For convenience, the full definition of the class and
-its instances is reproduced in \cref{fig:add-class-full}.
+its instances is reproduced in \cref{fig:add-class-full}\footnote{The auxiliary
+predicates are provided in \cref{app:builtins}}.
 
 \begin{figure}
   % \input{code/toy_compiler_tc.tex}
@@ -344,7 +345,8 @@ declare modes using the attribute \cI{~\#~[mode="..."]}. If no mode declaration
 is provided, the parameters of the class are considered outputs by default.
 
 The compiler responsible for generating the corresponding \elpi predicate is
-shown in \cref{fig:class-compiler}.
+shown in \cref{fig:class-compiler}\footnote{The auxiliary
+predicates are provided in \cref{app:builtins}.}.
 
 \begin{figure}
   \input{code/toy_compiler_pred.tex}
