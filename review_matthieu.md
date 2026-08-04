@@ -288,8 +288,8 @@ Résumé, p. v: et cut, et coupure ?
 
 - [ ] L1131: whose "applicative head". This notion is not defined, should be in chapter 2. Maybe add "a declared type-class"? Is it a lookup in the registered type classes?
 
-- [ ] L1136: onBo x
-- [ ] L1156: it produces the implicationPrems
+- [x] L1136: onBo x
+- [x] L1156: it produces the implicationPrems
 
 - [x] L1217: a_n_ formula
 - [x] L1224: isinterresting

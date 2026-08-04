@@ -481,7 +481,7 @@ If this condition holds, we are compiling a conditional instance and rule
 instance with type \eI{Ty}. To construct the premise
 corresponding to \eI{x}, the compiler recursively invokes \eI{comp} on \eI{x}
 while switching the boolean in the recursive call. This recursive call produces the
-premise \eI{M}, which abstracts \eI{x}. Compilation then continues on% \marginpar{FIXME: enrico?}
+premise \eI{M}, which abstracts \eI{x}. Compilation then continues on % \marginpar{FIXME: enrico?}
 \eI{Bo x}, while extending the accumulators with the new instance argument
 \eI{x} and the new premise \eI{M x}.
 
@@ -512,7 +512,7 @@ instance arguments, they are reversed before constructing the final rule.
 Finally, the predicate \eI{build-rule} assembles the rule according to the
 current position tag: positive or negative. In the former
 case, it produces a standard clause
-\eI{Head :- Prems}. Otherwise, it produces the implication% \marginpar{FIXME: enrico,per soddisfare sintassi}
+\eI{Head :- Prems}. Otherwise, it produces the implication % \marginpar{FIXME: enrico,per soddisfare sintassi}
 \eI{Prems => Head}.
 
 Given the instance in \cref{fig:add-class-full}, this version of the
