@@ -17,7 +17,7 @@ def clean_line(_):
         l = re.sub("==l",r"~$\\Ue$~",l) 
         l = re.sub("==m",r"~$\\Ee$~",l) 
         l = re.sub("===o",r"~$\\Uo$~",l)
-        l = re.sub(r">=llam",r"~$=_\\beta$~",l)
+        l = re.sub(r">=llam",r"~$=_\\llambda$~",l)
         l = re.sub(r">=eta",r"~$=_\\eta$~",l)
         l = re.sub("==o",r"~$\\Eo$~",l)
         l = re.sub(".*% *HIDE.*\n","",l)

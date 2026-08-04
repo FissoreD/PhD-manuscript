@@ -310,7 +310,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L1685: /of/ in
 
 - [x] L1709: invariant invariant
-- [ ] L1716: shouldn't it be =L instead of =Β, as used just below ?
+- [x] L1716: shouldn't it be =L instead of =Β, as used just below ?
 
 - [x] L1951: when X becomes _instantiated_ ?
 - [x] L1994: "are different s2"  
