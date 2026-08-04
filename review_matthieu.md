@@ -120,7 +120,7 @@ Mv is an input-output parameter basically, with the arity being fixed at 0 there
 - [ ] I don't understand how lemma 4.4.6 follows from 4.4.5.
   It seems rather related to Invariant 4.4.1.
 - [ ] The notion that the memory map is bijective is not formally stated yet, what does it mean? Intuitively there should be a bijection between o-vars and m-vars but it's not explicitely stated until later.
-- [ ] L1983/Thm 4.4.11: here we assume that u is performed by the rule in figure 4.6 and not any other, right?
+- [x] L1983/Thm 4.4.11: here we assume that u is performed by the rule in figure 4.6 and not any other, right?
  I don't get all the details of this proof sketch, especially the second case where s2 is definitely not eta reducible. When you state "if s1 is different from s2 it cannot be because of the λ constructor in the head of t1", are we not in the situation `s1 = \x. t1` rather?
 - [x] The statement that M is a bijection seems wrong, it states that every two variables in P and Q are linked by an entry in M, while I would expect only some pairs to appear. Shouldn't it rather be: for each O-variable X in P, there is exactly one q ∈ Q and `p -> q^n` in M and vice-versa for every q ∈ Q, exactly (or at most one due to generation of free variables?) p ∈ P and `p -> q^n`, no?
 - [x] L2054: "the resolution of Q1 assigns a to A". It should be `f` to `A` no?
