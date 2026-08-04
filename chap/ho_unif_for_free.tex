@@ -2654,7 +2654,9 @@ arbitrary solution we can modify \progress by applying the desired heuristic
 instead of failing.
 For instance, in $X \appsep a \appsep b = Y \appsep b$, the last
 argument of the two terms is the same and unification can succeed by assigning
-$X a$ to $Y$. This heuristic is used by~\cite{sozeau2008-tc}.
+$X a$ to $Y$.  
+This heuristic is is used by Rocq's type-class resolution and vanilla tactics
+(like ``apply''), through Rocq's ``first-order'' unification heuristic.
 
 %\input{code/progress_heuristic}
 %\noindent
