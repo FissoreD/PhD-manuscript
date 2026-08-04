@@ -474,8 +474,7 @@ from the information accumulated during the recursive traversal.
 When the current type has the form $\forall \eI{x}: \eI{Ty}, \eI{Bo x}$, the
 abstraction binds a variable of type \eI{Ty} in the body \eI{Bo}. The test
 \eI{is-class? Ty} checks whether \eI{Ty} has the shape $\forall x_1 \dots x_n,
-  T$ (possibly with zero quantifiers), where $T$ is a term whose applicative
-head is a type class.
+\eI{app[C|Ag]}$ (possibly with zero quantifiers) and \eI{C} is a declared type class.
 
 If this condition holds, we are compiling a conditional instance and rule
 \eI{~\PYG{c}{r$\to$}~} is applied. The rule introduces a fresh nominal variable

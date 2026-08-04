@@ -286,7 +286,7 @@ Résumé, p. v: et cut, et coupure ?
 - [x] L1120: more advanced than then one of section 3.2
 - [x] L1124: This time, comp takes (do not start sentences with a symbol)
 
-- [ ] L1131: whose "applicative head". This notion is not defined, should be in chapter 2. Maybe add "a declared type-class"? Is it a lookup in the registered type classes?
+- [x] L1131: whose "applicative head". This notion is not defined, should be in chapter 2. Maybe add "a declared type-class"? Is it a lookup in the registered type classes?
 
 - [x] L1136: onBo x
 - [x] L1156: it produces the implicationPrems
