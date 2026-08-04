@@ -757,12 +757,18 @@ can arbitrarily customize the proof search by defining their own rules.
 In particular, there are no restrictions on these extensions:
 users are free to implement any custom rule that suits their needs.
 
-Extending the database with ad-hoc rules is possible in the \rocq system thanks
-to the \cI{Hint} system, that allows to tweak somehow the search engine, for
-example the \cI{Hint Extern} command allows to apply a list of tactics on goals
-matching a particular pattern. This approach, however, asks the user to write
-ad-hoc rules in a language which is not the same as the \rocq solver, and which,
-in some cases has not the expressiveness power of \elpi.% \marginpar{FIXME: enrico?}
+Although the \rocq proof search mechanism can be extended through the \cI{Hint}
+database, and in particular through the \cI{Hint Extern} command, which allows
+the user to invoke Ltac tactics when goals match a given pattern, this
+customization is limited to the resolution of individual proof obligations.
+Since \cI{Hint Extern} is directly integrated into the built-in proof search
+engine, it naturally allows user-defined tactics to participate in resolution.
+However, the proof-search strategy itself remains fixed and cannot be
+customized. In contrast, our type class solver approach makes both the proof
+search strategy and the individual proof steps programmable. This provides
+substantially greater expressive power, for example by enabling search
+strategies and control mechanisms, such as non-local cuts, that are not
+available through \cI{Hint Extern}.
 
 \section{Experimental results}
 \label{sec:exp-res}
