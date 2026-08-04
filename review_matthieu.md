@@ -120,7 +120,7 @@ I have reworked the proof of `Fidelity in` $\mathcal{W}_{βη}$, should be clear
 - [x] L1943: "where in L"? I guess the variable application to `Scope` is indeed in L as the set of free names is duplicate-free?
 - [x] L1947: broken 4.4.5 link (goes to 2.3.5)
 - [x] Definition 4.4.4. Can you explain informally why these two cases occur? Why make a difference here? 
-- [ ] I don't understand how lemma 4.4.6 follows from 4.4.5.
+- [x] I don't understand how lemma 4.4.6 follows from 4.4.5.
   It seems rather related to Invariant 4.4.1.
 - [x] The notion that the memory map is bijective is not formally stated yet, what does it mean? Intuitively there should be a bijection between o-vars and m-vars but it's not explicitely stated until later.
 - [x] L1983/Thm 4.4.11: here we assume that u is performed by the rule in figure 4.6 and not any other, right?
