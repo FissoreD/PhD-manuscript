@@ -861,6 +861,14 @@ instance search and typechecking, since they are mixed together. In fact,
 partial typechecking is done after each instance selection. For this reason, we
 cannot easily measure them separately.
 
+The benchmarks can be reproduced by cloning the GitHub repositories
+\url{https://github.com/FissoreD/coq} and
+\url{https://github.com/FissoreD/coq-elpi}, checking out the \cI{phd} branch in
+both repositories, and compiling them. Once the build is complete, the benchmark
+script \cI{bench_inj.py} should be executed from the \cI{app/tc} subdirectory.
+The script contains brief documentation describing its usage and the available
+command-line options.
+
 The results in \cref{fig:bench-1} show that instance search is very
 fast. For goals with $2^{15}$ nodes, it takes about $0.25$ seconds
 out of a total of $4.9$ seconds. On the other hand, query
