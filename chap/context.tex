@@ -1722,10 +1722,13 @@ These constructs can be nested arbitrarily.
 \label{sec:elpi-main-API}
 
 Thanks to the HOAS representation of \rocq terms in \elpi, the two
-languages become closer and can share a common representation. This
-makes their interaction easier and allows interleaving computations
-between them. The \rocq language exposes several APIs that can be used
-directly from \elpi.
+languages become more closely aligned and can share a common
+representation. This simplifies their interaction and allows
+computations to be interleaved between them. The \rocq language exposes
+several APIs that can be invoked directly from
+\elpi\footnote{These APIs are
+available at
+\url{https://github.com/LPCIC/coq-elpi/blob/master/builtin-doc/coq-builtin.elpi}.}
 %
 \begin{center}
   \eI{pred coq.unify-eq term, term ~$\to$~ diagnostic.}
