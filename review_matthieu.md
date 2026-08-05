@@ -47,7 +47,7 @@ Chapter 2
 
 - [x] 2.4.2: it would be good here and elsewhere in the document to link to Rocq-elpi's documentation for more detailed explanations of the primitives that are used.
 
-- [ ] L847: pred main list argument ->. might be unusual syntax for readers. 
+- [x] L847: pred main list argument ->. might be unusual syntax for readers. 
   What is the `argument` type?
 
 - [ ] L868: What happens to the ?S_r unification variable when ?S is instantiated? "Deelaboration"?

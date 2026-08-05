@@ -1801,7 +1801,7 @@ These last two predicates are particularly useful in the context of
     Commands                        & Tactic                        & Description \\
     \hline
     \cI{Elpi Command command_name.} & \cI{Elpi Tactic tactic_name.} & Declaration \\
-    \cI{Elpi command_name.}         & \cI{elpi tactic_name.}        & Invocation \\
+    \cI{Elpi command_name args.}         & \cI{elpi tactic_name args.}        & Invocation \\
     \eI{main}                       & \eI{msolve} and \eI{solve}    & Entry point
   \end{tabular}
   \caption{Command and Tactic main commands}
@@ -1828,11 +1828,24 @@ Elpi Accumulate [command_name|tactic_name] lp:{{
 \end{coqcode}
 
 As mentioned at the beginning of this chapter, commands are used to extend the
-\rocq language with new definitions and theorems. In other words, a command does
-not return a value: it is mainly used for modifying the internal
+\rocq language with new definitions and theorems. In other words, a command
+does not return a value; rather, it is primarily used to modify the internal
 state of the system. The entry point of a command is a predicate named
 \eI{main}, with signature \eI{pred main list argument ~$\to$~}.
-An argument is a 
+The type of command arguments is defined as follows:
+
+\begin{elpicode}
+kind argument type.
+type int      : int    -> argument.
+type str      : string -> argument.
+type trm      : term   -> argument.
+type open-trm : int -> term -> argument.
+\end{elpicode}
+
+When invoked, an \elpi command typically receives arguments that
+parameterize its behavior. In particular, the \elpi command parser can parse
+integers, strings, and (possibly open) terms. These correspond to the main
+kinds of data that a user may wish to pass to an \elpi command.
 
 Tactics in \elpi are used to solve \rocq goals through the \elpi interpreter.
 Their declaration is similar to that of commands. The entry point of a tactic is
