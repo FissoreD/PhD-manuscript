@@ -822,26 +822,41 @@ $$
 
 \begin{figure}
   \centering
-  \begin{subfigure}{.7\textwidth}
+  \begin{subfigure}{.45\textwidth}
     \centering
-    \includegraphics{img/bench/elpi_stat_check.pdf}
+    \includegraphics[width=\textwidth]{img/bench1/classic.pdf}
     \caption{With typechecking}
     \label{fig:bench-1}
-  \end{subfigure}
-  \begin{subfigure}{.7\textwidth}
+  \end{subfigure}  
+  \begin{subfigure}{.45\textwidth}
     \centering
-    \includegraphics{img/bench/share.pdf}
-    \caption{With memory sharing}
-    \label{fig:bench-2}
+    \includegraphics[width=\textwidth]{img/bench1/classic_small.pdf}
+    \caption{With typechecking}
+    \label{fig:benchs-1}
   \end{subfigure}
 
-  \begin{subfigure}{.7\textwidth}
+  % \begin{subfigure}{.7\textwidth}
+  %   \centering
+  %   \includegraphics[width=\textwidth]{img/bench1/share.pdf}
+  %   \caption{With memory sharing}
+  %   \label{fig:bench-2}
+  % \end{subfigure}
+
+  \begin{subfigure}{.45\textwidth}
     \centering
-    \includegraphics{img/bench/elpi_stat_no_check.pdf}
+    \includegraphics[width=\textwidth]{img/bench1/no_check.pdf}
     \caption{Without typechecking}
     \label{fig:bench-3}
   \end{subfigure}
-  \caption{Benchmarks of \elpi solver}
+  \begin{subfigure}{.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{img/bench1/no_check_small.pdf}
+    \caption{Without typechecking}
+    \label{fig:benchs-3}
+  \end{subfigure}
+  \caption{Benchmarks of the \elpi solver.
+    The x-axis of each plot represents the problem size, expressed as the number of nodes.
+    The y-axis represents the resolution time, expressed in seconds.}
 \end{figure}
 
 For a given $n$, we submit the goal \cI{Inj ~$g_n$~} to the solver. The size of

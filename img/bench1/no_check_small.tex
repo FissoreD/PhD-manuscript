@@ -16,15 +16,15 @@
       axis lines=center,
       x label style={at={(axis description cs:.5,-.1)},anchor=north},
       y label style={at={(axis description cs:-.1,.5)},rotate=90, anchor=south},
-      xlabel={Problem size (\# of nodes)},
-      ylabel={Time (s)},
+      % xlabel={Problem size (\# of nodes)},
+      % ylabel={Time (s)},
       xtick={2,4,8,16},
       legend pos=north west,
       scaled x ticks=false
     ]
 
     % Base axis line
-    \path[name path=axis] (axis cs:0,0) -- (axis cs:32,0);
+    \path[name path=axis] (axis cs:0,0) -- (axis cs:64,0);
 
     % Main plots (these WILL appear automatically in legend)
     \foreach \col in \cols{
