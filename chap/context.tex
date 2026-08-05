@@ -1805,11 +1805,17 @@ These last two predicates are particularly useful in the context of
   \label{tab:comm-tac}
 \end{table}
 
-We now describe how to implement commands and tactics in \rocqelpi. In
-\cref{tab:comm-tac}, we summarize how to define commands and tactics, how to
-invoke them, and what their entry points are. Both commands and tactics are
-typically built on top of an \elpi database, which they can read and, if needed,
-modify. A database is added using the command \cI{Elpi Accumulate Db db_name}.
+We now describe how to implement commands and tactics in \rocqelpi. A complete
+description is available at
+\url{https://lpcic.github.io/coq-elpi/tutorial_coq_elpi_command.html} and
+\url{https://lpcic.github.io/coq-elpi/tutorial_coq_elpi_tactic.html},
+respectively. \Cref{tab:comm-tac} summarizes how to define commands and
+tactics, how to invoke them, and their corresponding entry points.
+
+Both commands and tactics are typically built on top of an \elpi database,
+which they can query and, if necessary, modify. A database is declared using
+the command \cI{Elpi Accumulate Db db_name}.
+
 The code of commands and tactics can be extended as follows:
 
 \begin{coqcode}
@@ -1823,6 +1829,7 @@ As mentioned at the beginning of this chapter, commands are used to extend the
 not return a value: it is mainly used for modifying the internal
 state of the system. The entry point of a command is a predicate named
 \eI{main}, with signature \eI{pred main list argument ~$\to$~}.
+An argument is a 
 
 Tactics in \elpi are used to solve \rocq goals through the \elpi interpreter.
 Their declaration is similar to that of commands. The entry point of a tactic is
