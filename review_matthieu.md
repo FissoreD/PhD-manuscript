@@ -52,7 +52,7 @@ Chapter 2
 
 - [ ] L868: What happens to the ?S_r unification variable when ?S is instantiated? "Deelaboration"?
 
-- [ ] L879/852: the text does not really explain the motivatiomn behind the multigoal solving tactic msolve. Is the idea behind it to have tactics that work accross multiple goals like the `all` goal selector of Rocq ? 
+- [x] L879/852: the text does not really explain the motivatiomn behind the multigoal solving tactic msolve. Is the idea behind it to have tactics that work accross multiple goals like the `all` goal selector of Rocq ? 
   Again it would be nice to see a small example rocq-elpi tactic for illustration/explanation purposes.
 
 

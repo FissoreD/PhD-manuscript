@@ -1871,11 +1871,14 @@ type goal  goal-ctx ~$\to$~ term ~$\to$~ term ~$\to$~ term ~$\to$~ list argument
 \label{fig:goals-type}
 \end{figure}
 
-The \eI{msolve} predicate takes as input a list of \rocq sealed goals and
-returns an updated list of sealed goals. The type \eI{sealed-goal}, shown in
-\cref{fig:goals-type}, represents goals that may contain abstractions, typically
-encoding the context in which the goal lives. These abstractions are encoded
-using the \eI{nabla} constructor.
+An \elpi tactic is a ``multi-goal'' tactic, meaning that it can operate on
+multiple goals simultaneously. To support this, the \eI{msolve} predicate takes
+as input a list of sealed \rocq goals and returns an updated list of sealed
+goals. The goals in the list may be reordered to improve proof search.
+
+A \eI{sealed-goal}, shown in \cref{fig:goals-type}, represents a goal that may
+contain abstractions, typically encoding the context in which the goal is
+defined. These abstractions are represented using the \eI{nabla} constructor.
 
 For example, consider the \rocq{} goal
 \begin{prooftree}
@@ -1909,27 +1912,65 @@ The list $L$ contains additional arguments that guide the resolution
 process. In this work, we mainly use two projections of a goal: the
 context and the goal type.
 
-We can now define more precisely the shape of the translation of
+We can now describe more precisely the translation of the proof state
+
 \begin{prooftree}
   \AxiomC{$h : t$}
   \UnaryInfC{$?s : t$}
 \end{prooftree}
-which is represented in \elpi{} as \eI{nabla x\ (goal [decl x ~«t»~] (X x)
-~«t»~ (Y x) [])}. The context \eI{[decl x ~«t»~]} records that \cI{x} has
-type \eI{t}. The two higher-order variables \cI{X} and \cI{Y} are associated
-with the \rocq{} existential variable \cI{?s}.
+
+into \elpi. It is represented as
+\eI{nabla x\ (goal [decl x ~«t»~] (X x) ~«t»~ (Y x) [])}. The context
+\eI{[decl x ~«t»~]} records that \cI{x} has type \eI{t}. The two
+higher-order variables \cI{X} and \cI{Y} are associated with the
+\rocq existential variable \cI{?s}.
+
+Below we present a simple example of an \elpi tactic whose purpose is to solve
+the goal shown above, that is, a tactic that instantiates the \rocq
+existential variable \cI{?s}.
+
+\begin{coqcodeX}
+Elpi Tactic C.
+Elpi Accumulate lp:{{
+  msolve [nabla (x\ seal (L x))] R :- pi x\ solve-ctx (L x) R.
+
+  pred solve-ctx goal -> list sealed-goal.
+  solve-ctx (goal [decl H T] _ T R []) [] :- R = H.
+}}.
+\end{coqcodeX}
+
+The tactic expects a singleton list containing a single sealed-goal. This
+sealed-goal is expected to abstract over a single \eI{nabla}, corresponding to
+the hypothesis \eI{h}. The auxiliary predicate \eI{solve-ctx} checks that the
+type of the goal matches the type of the hypothesis in the context. When this is
+the case, the solution variable \eI{R} is instantiated with \eI{H}, and the
+empty list of goals is returned, indicating that the proof has been completed.
 
 
 If the predicate \eI{msolve L N} is not defined, or if it fails when applied to
-the list of goals \eI{L}, then the system attempts to solve each goal in
-\eI{L} individually using the predicate \eI{solve}. In this case, \eI{solve} is
-called on the content of the \eI{seal} constructor, meaning that all
-\eI{nabla}s have already been traversed, and the type of these nablas loaded in
-the context as local rules with \eI{=>}.
-%
+the list of goals \eI{L}, the system attempts to solve each goal in \eI{L}
+individually using the predicate \eI{solve}. In this case, \eI{solve} is
+invoked on the contents of the \eI{seal} constructor. Consequently, all
+\eI{nabla} abstractions have already been traversed, and the corresponding
+bound variables have been quantified and loaded in the current state.
+
 \begin{center}
-  \eI{pred solve goal ~$\to$~ list sealed-goal.}
+\eI{pred solve goal ~$\to$~ list sealed-goal.}
 \end{center}
+
+Using the \eI{solve} predicate, the implementation of the tactic \cI{C} shown
+above can be simplified as follows:
+
+\begin{coqcodeX}
+Elpi Tactic C.
+Elpi Accumulate lp:{{
+solve (goal [decl H _ T] _ T R []) [] :- R = H.
+}}.
+\end{coqcodeX}
+
+In this implementation, there is no need to traverse the \eI{sealed-goal}
+explicitly, since it has already been traversed before the call to the
+\eI{solve} predicate.
 
 The final point addressed in this section concerns the \eI{refine} predicate.
 
