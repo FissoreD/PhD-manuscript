@@ -501,11 +501,12 @@ have the same priority, their relative order is determined by their
 declaration order in the source code: the instance declared first is
 placed before the other.
 
-The search procedure is similar to a depth-first search and closely
-resembles the \prolog{} SLD-resolution
-algorithm~\cite{sld}. To solve a goal, the type-class solver traverses
-the instance database in order and attempts to unify the conclusion of
-each instance with the current goal.
+The search procedure is similar to a depth-first search and closely resembles
+the \prolog{} SLD-resolution algorithm~\cite{sld}. To solve a goal, the
+type-class solver traverses the instance database in order and attempts to unify
+the conclusion of each instance with the current goal. An instance whose
+conclusion successfully unifies with the goal is said to be \emph{applicable} to
+that goal.
 
 When unification succeeds, the premises of the selected instance become
 new subgoals. These subgoals are solved recursively using the same
@@ -526,9 +527,10 @@ asks the elaborator to find an implementation for symbol \cI{plus}
 used on the type \cI{nat * R}. Said in other words,
 we need to find an instance for following goal \cI{Add (nat * R)}.
 The type-class solver examines
-the instances in the order in which the instances are declared. The first two instances are discarded
-because their conclusions do not unify with the goal. The instance \marginpar{TODO: Spiegare cosa vuol dire unify}
-\cI{addProd} matches and generates the subgoals \cI{Add nat} and
+the instances in the order in which the instances are declared. The first 
+two instances are discarded
+because their conclusions do not unify with the goal. The instance
+\cI{addProd} can be applied and generates the subgoals \cI{Add nat} and
 \cI{Add R}. These subgoals are solved by \cI{addNat} and \cI{addR},
 respectively, yielding the solution
 \eI{addProd nat R addNat addR}.
@@ -543,17 +545,35 @@ existential variable, \cI{addProd} matches by instantiating \cI{?X} as
 \cI{?X1} as \cI{?X3 * ?X4}, generating a new subgoal \cI{Add ?X3}. The
 same situation repeats indefinitely, leading to a non-terminating search. 
 
-To control the search, several mechanisms are available. A common one is the use
-of \emph{modes}, which restrict the shape of class arguments during resolution.
-In \rocq{}, modes are lists of symbols \texttt{+}, \texttt{!}, and \texttt{-},
-indicating respectively ground terms, terms with rigid head symbol, and\marginpar{TODO: N417 Explain rigid head + ground and example of mode with Add}
-arguments with no constraints on their shape.
+To control the search, several mechanisms are available. One of the most common
+is the use of \emph{modes}, which restrict the shape of class arguments during
+resolution. In \rocq{}, a mode is a list of symbols \texttt{+}, \texttt{!}, and
+\texttt{-}, indicating, respectively, ground terms (i.e., terms without
+unification variables), terms with a rigid head symbol (i.e., terms whose head
+is not a variable), and arguments for which no shape restriction is imposed.
 
-A type class may have multiple modes. During search, these modes are checked
-dynamically, and the solver proceeds only if the current shape of goal
-satisfies at least one mode constraint. \marginpar{spiagare come il constraint è lanciato}
+A type class may declare multiple modes. During type class resolution, these
+modes are checked dynamically against the current goal. Resolution proceeds only
+if the arguments of the goal satisfy at least one of the declared modes.
 
-TODO: add example for Add and mode, show how it stop loop\marginpar{right}
+As an example, suppose that the class \cI{Add} is declared with the mode \cI{!}
+on its first argument, and consider the goal \cI{Add (nat * ?X)}. Before
+searching the instance database, the solver first checks whether the goal
+satisfies the mode constraints. In this case, the first argument, \cI{nat * ?X},
+has the application symbol \cI{*} at its head, which is rigid. Therefore, the
+mode constraint is satisfied, and the search proceeds.
+
+Among the available instances, the only applicable one is \eI{addProd}, which
+reduces the original goal to the two subgoals \cI{Add nat} and \cI{Add ?X}. The
+first subgoal satisfies the mode constraint and is immediately solved by the
+instance \cI{addNat}.
+
+The second subgoal, however, is \cI{Add ?X}. Its argument consists solely of the
+unification variable \cI{?X}, whose head is therefore not rigid. Consequently,
+the mode constraint is violated. Since no declared mode matches the current
+goal, type class resolution fails at this point, and the original goal cannot be
+solved. In this example, the infinite search loop that would occur without modes
+is prevented immediately by the mode check.
 
 Another important aspect is that multiple instances may match the same goal,
 which requires backtracking. Some libraries, such as \stdpp{}, exploit this

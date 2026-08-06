@@ -30,11 +30,11 @@ Chapter 2
 
  - [ ] TODO: N7 L336: you also need delta/iota reduction here, due to the encoding of record types, that should also be introduced. 
  
- - [ ] TODO: N8 L406 It should be said in a bit more detail around L406 what "matching" means and how it relates to unification.
+ - [x] TODO: N8 L406 It should be said in a bit more detail around L406 what "matching" means and how it relates to unification.
 
-- [ ] TODO: L417: "which restrict the shape of class arguments during resolution." The notions of ground term, and terms with "rigid" head symbols are not introduced before use, so this might be unclear to readers. "ground" should probably be done at the beginning of 2.1 when introducing lambda calculus, for rigid heads probably here. Please add also add an example explaining the meaning/use of modes for `Add` and how it can avoid non-termination in some cases.   
+- [x] TODO: L417: "which restrict the shape of class arguments during resolution." The notions of ground term, and terms with "rigid" head symbols are not introduced before use, so this might be unclear to readers. "ground" should probably be done at the beginning of 2.1 when introducing lambda calculus, for rigid heads probably here. Please add also add an example explaining the meaning/use of modes for `Add` and how it can avoid non-termination in some cases.   
 
-- [ ] TODO: L421: its not clear what "matching" a mode means here, please define it. I guess a mode m1 .. mn matches a goal C t1 .. tn, if each ti respects the mode mi. 
+- [x] TODO: L421: its not clear what "matching" a mode means here, please define it. I guess a mode m1 .. mn matches a goal C t1 .. tn, if each ti respects the mode mi. 
 
 - [x] L508: how do you represent multiple arguments after the arrow?
 
