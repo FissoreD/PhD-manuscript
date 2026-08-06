@@ -152,66 +152,214 @@ $\Gamma$. If such a derivation exists, the term is said to
 
 However, the simply-typed $\lambda$-calculus can be too restrictive for
 expressing more abstract constructions. Several extensions exist, as
-illustrated by the Barendregt cube~\cite{cube}. One important extension
-is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
-terms may depend on types.
+illustrated by the Barendregt cube~\cite{cube}. 
 
-Consider the identity function $\lambda x.x$. In the simply-typed % \marginpar{FIXME: enrico}
-setting, it must be assigned a fixed type, for example
-$\lambda (x:\texttt{bool}).x : \texttt{bool} \to \texttt{bool}$. A separate definition would be needed for
-each type, such as $\texttt{nat}$. This duplication can be avoided in the
-polymorphic calculus.
+An extension of typed $\lambda$-calculus is the ability to define new
+data structures through \emph{inductive types}. An inductive type is specified
+by a set of constructors that describe how its elements can be generated.
+This provides a principled way to represent recursive mathematical objects.
 
-Polymorphism allows quantification over types. The syntax is extended as
-follows:
+For example, the type of booleans can be defined by two constructors:
+$$
+\cI{bool := true | false}
+$$
+Similarly, the natural numbers can be described inductively using zero and
+the successor operation:
+$$
+\cI{nat := O | S nat}
+$$
+Thus, every natural number is either the constructor \cI{O} or is
+obtained by repeatedly applying \cI{S} to another natural number:
 %
-$$t := \dots\ |\ \tau \qquad
-  \tau := \dots\ |\ \forall (x:\square).\tau$$
+$$
+0 = \cI{O}, \qquad
+1 = \cI{S O}, \qquad
+2 = \cI{S (S O)}, \ldots
+$$
 
-The constructor $\forall$ expresses that a type may depend on another
-type. The $\forall (x : \square), \tau$ constructor is a generalization of $\square \to \tau$,
-in particular the two representation are equivalent if $x$ does not appear
-as a free variable in $\tau$.
+Inductive types are accompanied by elimination principles, which allow
+definitions by pattern matching and proofs by induction over the structure
+of values. For instance, a function over natural numbers can be defined by
+considering separately the base case $\cI{O}$ and the successor case
+$\cI{S}\;n$. This combination of constructors and elimination principles
+makes inductive types a fundamental mechanism for representing mathematical
+objects in proof assistants such as \rocq.
 
-At the term level, we write $\lambda (x:\square).t$ to abstract over a
-type. With this, the polymorphic identity function can be written as
-$\lambda (T:\square).\lambda (y:T).y$.
+However, while inductive types allow the definition of specific families of
+data structures, they do not by themselves provide abstraction over types.
+For this purpose, richer type systems introduce additional forms of
+polymorphism.
 
-The typing system is extended with:
-%
+Although inductive types allow the definition of structured data, the simply
+typed $\lambda$-calculus still requires every function to be specialized to a
+particular type. For example, the identity function must be defined separately
+for each type on which it is used:
+\[
+\mathsf{id}_{\mathsf{nat}} : \mathsf{nat} \rightarrow \mathsf{nat},
+\]
+\[
+\mathsf{id}_{\mathsf{bool}} : \mathsf{bool} \rightarrow \mathsf{bool}.
+\]
+
+However, these functions share exactly the same computational behaviour. This
+duplication can be avoided by introducing \emph{polymorphic types}, which allow
+a term to be parameterized by a type.
+
+The polymorphic $\lambda$-calculus, also known as System~F~\cite{systemf},
+extends the simply typed $\lambda$-calculus with abstraction over types. In
+addition to ordinary function abstraction over terms, System~F introduces type
+abstraction: $\Lambda X : \square.t$ where $X$ is a type variable of kind
+$\square$.
+The typing system is extended with the following rule:
+
 \begin{center}
-  \begin{bprooftree}
-    \AxiomC{$\Gamma + (T:\square) \vdash t:\tau$}
-    \RightLabel{\rulelabel{$T_\forall$}}
-    \UnaryInfC{$\Gamma \vdash \lambda (T:\square).t:\forall (T:\square).\tau$}
-  \end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$\Gamma, \alpha: \square \vdash t : \tau$}
+  \RightLabel{\rulelabel{$T_\forall$}}
+  \UnaryInfC{$\Lambda X : \square.t : \forall X : \square.\tau$}
+\end{bprooftree}
 \end{center}
 
-Using this definition, the identity function can be applied as
-$(\lambda (T:\square).\lambda (y:T).y)\ \texttt{nat}\ 3$, which reduces to $3$
-by successive $\beta$-steps.
+A polymorphic function can therefore be defined once and instantiated with
+different types. For example, the polymorphic identity function is written as $
+\mathsf{id} = \Lambda X : \square.\lambda x:X.x $ and has type $\mathsf{id} :
+\forall X : \square.X \rightarrow X$.
 
-In practice, explicitly passing types can be inconvenient. If the typing
-environment already assigns $3$ the type \texttt{nat}, the system can
-infer that the first argument should be \texttt{nat}. One may then write
-$(\lambda (T:\square).\lambda (y:T).y)\ \_\ 3$, where the underscore denotes
-missing information to be inferred.
+The universal quantifier $\forall$ expresses that the function is valid for
+every possible type $X$. Type abstraction is eliminated by type application,
+whose computation is governed by the $\beta$-reduction rule:
+$$ \frac{}{(\Lambda X.t_1) t_2 \to_\beta t_2[X \backslash t_1]} $$
 
-Such placeholders, often called \emph{holes}, correspond to existentially
-quantified
-meta-variables that the typechecker must instantiate. In systems like \rocq,
-these arguments are often omitted.
+Applying this rule, the term \cI{id nat} reduces to the
+monomorphic identity function $\lambda x : \cI{nat}, x$ which has type
+$\cI{nat} \to \cI{nat}$.
 
-This illustrates how type inference improves usability, allowing the
-user to leave parts of a term unspecified when the system is able to reconstruct
-them automatically.
+This mechanism is known as \emph{parametric polymorphism}: the behaviour of a
+polymorphic function must be independent of the concrete type supplied as an
+argument. The function cannot inspect or manipulate values of the abstract
+type $X$; it can only use the operations that are available uniformly for all
+types. This restriction provides strong abstraction guarantees and allows
+generic definitions and proofs to be established once and reused for every
+instantiation.
+
+A common example of a polymorphic inductive type is the type of lists:
+%
+$$ \cI{list A := nil | cons : A ~$\to$~ list A ~$\to$~ list A.} $$
+
+\noindent
+where the first constructor represent the empty list 
+and the second represent the concatenation operator
+which separetes the head from the queue of the list. The
+type parameter \cI{A} stands for the polymorphic nature of a list. Thanks to
+this definition, we can derive list of integers, list of booleans\dots We sum-up
+the type of the constructors we have defined so far in table~\cref{table:1}.
+%
+\begin{table}
+  \begin{center}
+    \begin{tabular}{ccc}
+  Symbol & & Type \\
+  \hline
+  \cI{true}    & : & \cI{bool} \\
+  \cI{false}    & : & \cI{bool} \\
+  \cI{O}    & : & \cI{nat} \\
+  \cI{S}    & : & \cI{nat ~$\to$~ nat} \\
+  \cI{nil}  & : & \cI{~$\forall$~ T, list T} \\
+  \cI{cons} & : & \cI{~$\forall$~ T, T ~$\to$~ list T ~$\to$~ list T}
+\end{tabular}
+  \end{center}
+  \caption{Simple inductive types}
+  \label{table:1}
+\end{table}
+
+As an example, the list containing the natural numbers from $2$ to $0$ can be
+written explicitly as
+$$\cI{cons nat (S (S O)) (cons nat (S O) (cons nat O (nil nat)))}$$
+Although this representation is perfectly valid in \rocq, it is unnecessarily
+verbose. In particular, the type parameter \cI{nat} of the constructors
+\cI{cons} and \cI{nil} can be inferred automatically from the surrounding
+context. Furthermore, notation mechanisms allow more concise representations of
+common data structures. For instance, natural numbers are usually written using
+decimal notation, while lists are written using the familiar notation
+$$[2;1;0]$$
+These notations improve readability without changing the underlying terms
+manipulated by the proof assistant.
+
+In the Curry--Howard interpretation, polymorphism also has a logical meaning:
+a type variable corresponds to a universally quantified proposition. Thus, a
+term of type
+$$\forall X: \square.X\rightarrow X$$
+can be understood as a proof that, for every proposition $X$, $X$ implies
+itself.
+
+While System~F provides abstraction over types, it does not allow types to
+depend on values. The next step in this hierarchy is therefore the introduction
+of dependent types, in which the type of a term may depend on another term. This
+extension leads to the calculi of the Barendregt cube and, in particular, to the
+Calculus of Constructions underlying \rocq. Since dependent types are not the
+focus of this manuscript, we do not discuss them further here.
+
+
+% One important extension
+% is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
+% terms may depend on types.
+
+% Consider the identity function $\lambda x.x$. In the simply-typed % \marginpar{FIXME: enrico}
+% setting, it must be assigned a fixed type, for example
+% $\lambda (x:\texttt{bool}).x : \texttt{bool} \to \texttt{bool}$. A separate definition would be needed for
+% each type, such as $\texttt{nat}$. This duplication can be avoided in the
+% polymorphic calculus.
+
+% Polymorphism allows quantification over types. The syntax is extended as
+% follows:
+% %
+% $$t := \dots\ |\ \tau \qquad
+%   \tau := \dots\ |\ \forall (x:\square).\tau$$
+
+% The constructor $\forall$ expresses that a type may depend on another
+% type. The $\forall (x : \square), \tau$ constructor is a generalization of $\square \to \tau$,
+% in particular the two representation are equivalent if $x$ does not appear
+% as a free variable in $\tau$.
+
+% At the term level, we write $\lambda (x:\square).t$ to abstract over a
+% type. With this, the polymorphic identity function can be written as
+% $\lambda (T:\square).\lambda (y:T).y$.
+
+% The typing system is extended with:
+% %
+% \begin{center}
+%   \begin{bprooftree}
+%     \AxiomC{$\Gamma + (T:\square) \vdash t:\tau$}
+%     \RightLabel{\rulelabel{$T_\forall$}}
+%     \UnaryInfC{$\Gamma \vdash \lambda (T:\square).t:\forall (T:\square).\tau$}
+%   \end{bprooftree}
+% \end{center}
+
+% Using this definition, the identity function can be applied as
+% $(\lambda (T:\square).\lambda (y:T).y)\ \texttt{nat}\ 3$, which reduces to $3$
+% by successive $\beta$-steps.
+
+% In practice, explicitly passing types can be inconvenient. If the typing
+% environment already assigns $3$ the type \texttt{nat}, the system can
+% infer that the first argument should be \texttt{nat}. One may then write
+% $(\lambda (T:\square).\lambda (y:T).y)\ \_\ 3$, where the underscore denotes
+% missing information to be inferred.
+
+% Such placeholders, often called \emph{holes}, correspond to existentially
+% quantified
+% meta-variables that the typechecker must instantiate. In systems like \rocq,
+% these arguments are often omitted.
+
+% This illustrates how type inference improves usability, allowing the
+% user to leave parts of a term unspecified when the system is able to reconstruct
+% them automatically.
 
 \section{Elaboration in the \rocq proof assistant}
 % TODO: vedere dove è usata
 \label{sec:rocq-intro}
 
-The possibility of writing terms with holes, as indicated in the previous section,
-is just one of the functionalities supported by the elaborator~\cite[Chap.~6]{elaboration}.
+The possibility of extending the system to infer implicit information and use
+notation is just one of the functionalities supported by 
+the elaborator~\cite[Chap.~6]{elaboration}.
 In this section, we study more deeply this technical component that mediates the
 interaction between the user and the \rocq system. This component is present in all
 proof assistants. Its role is to accept expressions that may be
@@ -236,42 +384,39 @@ Elaboration performs several tasks, including notation resolution,
 type inference, resolution of overloaded
 symbols\dots
 
-\emph{Notation resolution} removes syntactic ambiguity by replacing
-user-defined notations with their underlying constructors in the
-abstract syntax tree. The obtained term is unambiguous, although it may
-still contain holes. For example, the term \cI{[1, 0]} uses common
-mathematical notation for lists and natural numbers. After this step,
-it becomes:
-%
-\begin{center}
-  \cI{cons _ (S O) (cons _ O (nil _))}
-\end{center}
+\emph{Notation resolution} replaces user-defined concrete syntax with the
+corresponding underlying terms in the abstract syntax tree.
 
-\noindent
-Here, \cI{cons} and \cI{nil} are constructors for lists, representing
-respectively insertion at the head and the empty list. The symbols
-\cI{S} and \cI{O} denote the successor function and the constant $0$.
+\begin{coqcode}
+  Notation "[ ]" := nil (format "[ ]") : list_scope.
+  Notation "[ x ]" := (cons x nil) : list_scope.
+  Notation "[ x ; y ; .. ; z ]" := (cons x (cons y .. (cons z nil) ..))
+    (format "[ '[' x ; '/' y ; '/' .. ; '/' z ']' ]") : list_scope.
+\end{coqcode}
+
+The excerpt above, taken from the \rocq standard library, defines the familiar
+list notation in terms of the constructors \cI{nil} and \cI{cons}. Likewise,
+decimal numerals are interpreted as the corresponding applications of the
+constructors \cI{O} and \cI{S}.
+
+After notation expansion, the resulting term is unambiguous, although it may
+still contain holes that must be filled during elaboration. For example, the
+term \cI{[1; 0]} is expanded into
+$$\cI{cons _ (S O) (cons _ O (nil _))}$$
+
+The underscore symbols denote omitted implicit arguments. In this example,
+they correspond to the element type of the list, which can be inferred from
+the surrounding context during elaboration.
 
 \emph{Type inference} fills in the missing information using the typing
-environment. It relies on a set of rules that propagate type
-constraints through the term.
+environment. It relies on a set of rules that propagate type constraints through
+the term. Each hole is represented internally by a unification variable. During
+type checking, these variables can be unified~\cite{rocq-unif} with the types
+required by the typing constraints generated for the term.
 
-As an example, consider the following typing environment:
-%
-\begin{center}
-\begin{tabular}{ccc}
-  Symbol & & Type \\
-  \hline
-  \cI{cons} & : & \cI{~$\forall$~ T, T ~$\to$~ list T ~$\to$~ list T} \\
-  \cI{nil}  & : & \cI{~$\forall$~ T, list T} \\
-  \cI{S}    & : & \cI{nat ~$\to$~ nat} \\
-  \cI{O}    & : & \cI{nat}
-\end{tabular}
-\end{center}
+Running the type checker on the previous term produces the fully elaborated
+version:
 
-Running the typechecker on the previous term produces the fully
-elaborated version:
-%
 \begin{center}
 \cI{cons nat (S O) (cons nat O (nil nat))}
 \end{center}
@@ -373,7 +518,7 @@ we can define:
 
 The declaration \cI{addNat : Add nat} provides an implementation of
 \cI{plus}. After registering it, the term \cI{plus 3 4} is elaborated as:
-\cI{plus nat addNat 3 4 : nat} which is equivalent by $\beta$-reduction \marginpar{TODO: N7}
+\cI{plus nat addNat 3 4 : nat} which is equivalent by $\beta\delta\iota$-reduction
 to \cI{Nat.add 3 4 : nat}.
 
 Similarly, using \cI{Rplus}, computing addition over \cI{R}eal numbers,

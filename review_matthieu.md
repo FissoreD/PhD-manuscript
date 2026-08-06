@@ -26,7 +26,7 @@ Chapter 2
 
 - [x] 2.2.1. "+ has a stable meaning". Shouldn't you rather say that the meaning of "+" depends on the context of usage, so that ambiguity is resolvable by inspecting the context of its occurrence (e.g. the type of objects it is applied to) ?
 
-- [ ] L292: here unification could be mentionned more explicitly and exemplified: it is the mechanism that instantiates the holes for `?T` to `nat`, because we get a unification problem `nat = ?T` from typechecking the `S O` and `O` arguments.
+- [x] L292: here unification could be mentionned more explicitly and exemplified: it is the mechanism that instantiates the holes for `?T` to `nat`, because we get a unification problem `nat = ?T` from typechecking the `S O` and `O` arguments.
 
  - [ ] TODO: N7 L336: you also need delta/iota reduction here, due to the encoding of record types, that should also be introduced. 
  
