@@ -1,183 +1,130 @@
 \chapter{Introduction}
 
-% In meno di un secolo la nostra società è radicalmente cambiata ed è indubbio
-% come le innovazioni scientifiche e gli sviluppi tecnologici siano i veri
-% promotori di queste dinamiche. Prima i computer, poi internet, ci hanno permesso
-% di vivere in un mondo iperconnesso in cui enormi quantità di informazioni
-% vengono elaborate da potenti algoritmi.
-
-% Tempo fa ho sentito un comico (di cui non ricordo il nome) che rifletteva sul
-% perchè di questi cambiamenti, e alla base del suo ragionamento risiedeva una
-% parola: la pigrizia. Secondo lui siamo diventati sendentari per il bisogno di
-% ridurre i nostri sforzi nel procurarci del cibo, la rivoluzione industriale ha
-% delegato gran parte del nostro lavoro fisico alle macchine per aumentare la
-% produttività e infine con la rivoluzione digitale [ref] di questi ultimi anni si
-% sta delegando sempre più il nostro lavoro intellettuale agli algoritmi. 
-
-% Da un lato diversi allarmi stanno suonando al fine di contrastare l'evoluzione
-% sfrenata di questi progressi, ad esempio, ricercatori di importanti università
-% hanno chiesto di fermarsi e studiare più a fondo i potenziali benefici/drawback
-% di questi progressi informatici. Un altro esempio è l'enciclica ... chiede di
-% mettere al centro l'umanità, di ritrovare il nostro legame interpersnale e non
-% lasciare ai giganti del web il pieno controllo di queste tecnologie.
-
-% Dall'altro lato, l'automazione nel mondo informatico, quando controllata, sta
-% portando a diversi benefici.
-
 Logical reasoning plays a central role in the way humans justify actions,
 choices, and conclusions, particularly when decisions are not primarily driven
 by emotions or other non-rational factors.
 
 For example, if ``All men are mortal'' and ``Socrates is a man'', then we can
-conclude that ``Socrates is mortal''. This particular form of reasoning, known as
-an Aristotelian syllogism, is irrefutable: the conclusion follows directly from
-the premises.
+conclude that ``Socrates is mortal''. This form of reasoning, known as an
+Aristotelian syllogism, illustrates how conclusions can be derived
+mechanically from a collection of premises. A similar principle underlies
+mathematics, where the validity of a statement is established through a proof
+constructed from axioms and inference rules.
 
-A counterpart to these philosophical ideas can be found in mathematical
-reasoning. Much like a syllogism, the validity of a mathematical statement is
-established through a proof constructed from a collection of axioms and
-inference rules.
+The search for a formal foundation for mathematics dates back to the work of
+Frege, whose \emph{Begriffsschrift} (1879) attempted to express mathematical
+reasoning within a single logical formalism. Russell's paradox later revealed
+that Frege's system was inconsistent, motivating the development of new
+foundational frameworks. Today, several approaches coexist, including
+axiomatic set theory, intuitionistic logic, and various forms of type theory.
 
-In his 1879 work Begriffsschrift (``concept writing'' in English), Gottlob Frege
-attempted to formalize a complete logical foundation for mathematics based on a
-set of axioms.
+In parallel, Church introduced the $\lambda$-calculus as a mathematical model
+of computation~\cite{church}. Originally untyped, it was later enriched with
+types to prevent meaningless computations and eventually extended with
+polymorphism, inductive definitions, and dependent types. These developments
+culminated in the \emph{Calculus of Inductive Constructions} (CIC), introduced
+by Coquand and Huet, which combines a dependently typed
+$\lambda$-calculus with inductive types. CIC forms the logical foundation of
+the \rocq proof assistant (formerly known as \coq).
 
-The axioms underlying a theory must satisfy a fundamental requirement: they
-should not give rise to paradoxes, otherwise the theory itself becomes
-meaningless. Frege's logical system was later shown to be inconsistent following
-Russell's discovery of the paradox that now bears his name. Today, several
-foundational frameworks coexist, including classical set theory, intuitionistic
-logic, and various forms of type theory.
+A fundamental connection between logic and computation was made by Curry and
+Howard~\cite{Howard-correspondance}, who observed that logical propositions
+and types share the same structure. Under this
+\emph{Curry--Howard correspondence}, propositions are interpreted as types,
+proofs as programs, and proof checking becomes ordinary type checking.
 
-In the middle of the twentieth century, with the advent of computer science,
-Curry and Howard~\cite{Howard-correspondance} discovered a deep connection
-between the representation of propositions and their proofs on the one hand, and
-typed computation on the other. Under this correspondence, a proof of a proposition
-can be viewed as a well-typed program, while the proposition itself corresponds
-to the type of that program.
+A simple example is the proposition
+$ A \rightarrow A. $
+Under the Curry--Howard correspondence, this proposition is interpreted as the
+type of functions taking an argument of type \(A\) and returning a result of
+the same type. The identity function
+$ \lambda (x:A).x $
+is therefore simultaneously a program and a proof of the proposition
+\(A \rightarrow A\). More generally, constructing a proof amounts to writing a
+well-typed program, while checking the correctness of the proof reduces to
+verifying that the corresponding program typechecks.
 
-Using software to construct proofs has increasingly become a viable alternative
-to pen-and-paper proofs: once a proof is provided to a machine, it becomes the
-machine's responsibility to verify that the proof guarantees the desired
-property. Proof assistants are software systems designed to support the
-construction and verification of formal proofs while providing interactive
-human-machine collaboration. As a result, one can state with a high degree of
-confidence that a program satisfies a formally verified specification.
+An essential feature of CIC is the support for \emph{inductive types},
+which provide a principled mechanism for defining recursive data structures.
+For example, the natural numbers are generated by the constructors
+\cI{nat := O | S nat},
+while polymorphic lists are defined as
+\cI{list A := nil | cons : A ~$\rightarrow$~ list A ~$\rightarrow$~ list A.}
 
-For example, the operator $+$ can be described as a program that takes two
-integers and computes their sum. Within a proof assistant, it is possible to
-prove in a single line of code, using induction, that $0$ is a neutral element
-for addition, i.e., $\forall a, a + 0 = a$.
+Every natural number is therefore obtained by repeatedly applying the
+constructor \cI{S} to \cI{O}, whereas every list is either empty or consists of
+a head element followed by another list. Such definitions automatically give
+rise to recursion and induction principles, making inductive types a central
+mechanism for programming and proving in \rocq.
 
-The importance of certified algorithms is particularly evident in
-safety-critical domains such as medicine and aerospace engineering.
+Using software to construct proofs has become an increasingly viable
+alternative to pen-and-paper mathematics. Rather than trusting the human
+author, one only needs to trust the small kernel of the proof assistant,
+whose role is to verify that every proof term is well typed. Once a proof has
+been accepted by the kernel, the desired theorem is guaranteed to follow from
+the underlying logical foundations.
 
-In such settings, the tolerance for implementation errors is extremely low. For
-instance, when launching a rocket into space, it is unacceptable for the mission
-to fail because of a software bug. A well-known example is the maiden flight of
-the Ariane 5 rocket in 1996, which ended in failure due to a software error.
+For example, addition over natural numbers can be defined recursively, after
+which one may prove that zero is a right neutral element:
+$ \forall n : \cI{nat},\; n + 0 = n. $
+Although the proof proceeds by induction over the structure of natural
+numbers, the proof assistant mechanically checks every inference step,
+eliminating the possibility of mistakes in the logical argument.
 
-Beyond checking proofs, proof assistants also help users write proofs by
-automating parts of the proving process.
+The importance of machine-checked proofs is particularly evident in
+safety-critical domains such as aerospace engineering, medicine, and
+cryptography, where software errors may have catastrophic consequences. A
+well-known example is the failure of the Ariane~5 maiden flight in 1996,
+caused by a software defect.
 
-In general, formal proofs developed in a proof assistant must be extremely
-detailed and are often difficult for humans to read. To reduce the effort
-required during proof development, modern proof assistants, such as the
-\rocq~\cite{coqart} proof assistant (formerly known as \coq), provide various
-forms of automation that allow users to write incomplete proof terms, leaving
-some information to be inferred automatically by the system.
-
-These mechanisms are collectively referred to as the
-\emph{elaborator}~~\cite[Chap.~6]{elaboration}. The purpose of elaboration is to bridge
-the gap between the notation written by users and the internal representation
-manipulated by the proof assistant. Just as a computer does not directly
-understand ordinary text, the elaborator translates user-written terms into a
-machine-interpretable form. Moreover, elaboration allows incomplete proof terms
-to be submitted and automatically completed by the system. In some situations,
-ambiguities may even be left intentionally in the source code, with the
-elaborator responsible for resolving them using information available in the
-current environment.
-
-A common source of ambiguity arises from symbol overloading. In mathematics, it
-is customary to reuse the same notation in different contexts. For example, the
-symbol $+$ may denote addition over natural numbers in the expression $1 + 2$,
-or vector addition in the expression $[\pi, e] + [\sqrt{2}, \frac{1}{3}]$. A
-human reader can usually infer the intended meaning from the surrounding
-context.
-
-A similar ambiguity exists in programming languages. In object-oriented
-languages, a common interface may admit multiple implementations, and the
-compiler is responsible for selecting the appropriate one. Functional
-programming languages vary in the support they provide for overloading. For
-instance, in \ocaml, different operators are typically required for different
-notions of addition, whereas \haskell supports overloading through its
-type-class mechanism~\cite{wadler1989-tc}. Since many proof assistants are based
-on functional programming languages, they often provide a type-class system as
-well. In \rocq, for example, type classes were introduced in
-2008~\cite{sozeau2008-tc}.
-
-The role of the type-class solver is to determine which implementation should be
-used in a given context. Conceptually, the expression $1 +_{?} 2$ can be viewed
-as containing a missing piece of information, represented here by the
-placeholder $?$: the implementation of addition appropriate for the current
-types. The task of the type-class solver is to infer this implementation
+Beyond checking proofs, modern proof assistants also assist users in
+constructing them. Although every proof ultimately has a fully explicit
+representation, requiring users to write this representation directly would
+make proof development prohibitively verbose. Instead, systems such as
+\rocq allow users to omit information that can be reconstructed
 automatically.
 
-As observed in~~\cite[Chap.~6]{elaboration}, elaboration mechanisms are often based on
-inference rules reminiscent of logic programming. In this work, we investigate
-an alternative implementation of type-class resolution based on a logic
-programming language. This approach offers an immediate advantage: the
-possibility of reusing existing logic-programming techniques developed by the
-logic-programming community, as well as existing inference engines, rather than
-reimplementing the resolution procedure from scratch. At the same time, it
-raises several questions. How naturally can \rocq's inference problems be
-translated into a logic-programming setting? What are the performance
-implications of such a translation? More generally, what are the benefits and
-limitations of this design choice?
+These mechanisms are collectively referred to as
+\emph{elaboration}~\cite[Chap.~6]{elaboration}. The elaborator bridges the gap
+between the concise notation written by users and the fully explicit proof
+terms manipulated by the kernel. Besides expanding notations, elaboration
+infers omitted arguments, reconstructs implicit types, inserts coercions,
+resolves overloaded symbols, and generates proof obligations left implicit by
+the user.
 
-To explore these questions, we rely on \elpi~\cite{dunchev15}, the
-\emph{Embeddable Lambda-Prolog Interpreter}. On the one hand, \elpi is an
-implementation of \lprolog~\cite{miller1988}; on the other hand, it integrates
-easily with a host application such as \rocq. The \rocqelpi
-plugin~\cite{tassi2018} provides such an integration between \rocq and \elpi.
+For instance, the list
+\cI{[1;2;3]}
+is internally represented by the considerably more explicit term
+\cI{cons nat 1 (cons nat 2 (cons nat 3 (nil nat)))}.
 
-This setup gives rise to a form of metaprogramming in which \rocq serves as the
-object language and delegates part of its computation to \elpi, the
-meta-language. The key idea is that the object language is embedded within the
-meta-language, meaning that terms of the former are translated into terms of the
-latter. In our encoding, terms are represented using a shallow embedding,
-allowing users to inspect and manipulate them directly. Furthermore, a
-collection of APIs for the object language is exposed, enabling the
-meta-language to leverage some of the object language's functionalities.
+A common source of ambiguity arises from symbol overloading. In mathematics,
+the notation \(+\) may denote integer addition, vector addition, or matrix
+addition, with the intended meaning inferred from the surrounding context.
+Similarly, in \rocq, a notation may admit several implementations. The
+elaborator must therefore infer the appropriate interpretation by solving a
+collection of constraints generated during type checking.
 
-In this work, we study the integration of \rocq with an alternative type-class
-solver implemented in \elpi. This requires translating type classes and
-instances from \rocq into an \elpi database, which can be viewed as a
-compilation step. We show in \cref{sec:simple-instance-compiler} that a basic
-compiler can be written in only a few lines while relying on the existing \elpi
-interpreter for resolution. We then extend this translation to support more
-complex instances and compare the resulting solver with \rocq's native
-solver~(\cref{sec:class-encoding,sec:instance-encoding,sec:exp-res}).
-
-A central challenge in this approach arises from the mismatch between the object
-language and the meta-language. Although both support higher-order
-unification~\cite{miller1991-pf} and $\beta\eta$-conversion, the shallow
-encoding of terms, which underlies our metaprogramming setup, creates terms
-whose $\lambda$-abstractions and applications are represented using rigid
-constructors rather than the native constructs of the meta-language. As a
-consequence, additional constraints are introduced during unification.
-
-As a result, terms that are unifiable in \rocq may fail to unify after
-translation into \elpi. Simply delegating unification to the meta-language is
-therefore insufficient. This motivates another contribution of this thesis.
-
-To address this unification mismatch, we propose a compilation scheme in
-\cref{chap:ho-for-free} that preserves most of the structure of terms while
-isolating problematic subterms. These subterms are replaced with unification
-variables only when necessary and recorded to the original term with
-\emph{links}, representing delayed constraints. These links are checked during
-execution, allowing us to recover the intended behavior without reimplementing
-unification.
+As observed in~\cite[Chap.~6]{elaboration}, elaboration algorithms are often
+specified using inference rules strongly reminiscent of logic programming.
+Indeed, resolving an elaboration problem, such as finding a missing
+argument, an implicit coercion, or a type-class instance, amounts to
+searching for a term that satisfies a given goal, drawn from a database of
+candidate rules: user-declared instances, coercions, or notations. This
+search may require exploring several candidates and backtracking when a
+choice turns out to be unsuitable, which is precisely the computational
+model implemented by logic-programming interpreters through unification and
+backtracking over a database of clauses. This structural correspondence
+suggests that a logic-programming language is not merely a convenient
+implementation vehicle for elaboration, but a reasonably natural model of
+the search process elaboration already performs. In this thesis, we
+investigate an alternative implementation of \rocq's type-class resolution
+mechanism based on the logic programming language \elpi. This approach
+makes it possible to reuse mature logic-programming engines and techniques
+instead of reimplementing a dedicated inference procedure inside the proof
+assistant. At the same time, it raises several questions. How naturally can
+\rocq's inference problems be translated into a logic-programming setting?
+What are the performance implications of such a translation? More
+generally, what are the benefits and limitations of this design choice?
 
 Beyond type-class resolution, the intrinsic nature of logic programming raises
 another important concern, especially for users unfamiliar with logic
@@ -208,6 +155,9 @@ simplifies the formalization and allows us to produce a fully mechanized proof.
 Although this model does not capture all higher-order features of \elpi, it
 encompasses the aspects relevant to our analysis and provides a first foundation
 for establishing machine-checked correctness guarantees for the \elpi language.
+
+The remainder of this introduction presents the contributions of this thesis
+towards answering these questions.
 
 
 \section{Contributions and structure of the thesis}
