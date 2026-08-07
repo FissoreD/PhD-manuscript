@@ -185,20 +185,59 @@ $\cI{S}\;n$. This combination of constructors and elimination principles
 makes inductive types a fundamental mechanism for representing mathematical
 objects in proof assistants such as \rocq.
 
-However, while inductive types allow the definition of specific families of
-data structures, they do not by themselves provide abstraction over types.
-For this purpose, richer type systems introduce additional forms of
-polymorphism.
+A particular case of an inductive type is a \emph{record type}. A record type
+is simply an inductive type with a single constructor. The arguments of this
+constructor are given names, called \emph{fields}. For each field, \rocq
+automatically defines a corresponding \emph{projection}, that is, a function
+which, given a record instance, returns the value stored in that field.
+
+For example, a record representing pairs of natural numbers can be defined as
+$$
+\cI{Record pair := Build_pair { fst : nat; snd : nat }.}
+$$
+The constructor \cI{Build_pair} takes two arguments, named \cI{fst} and
+\cI{snd}. \rocq then generates two projection functions with the same names:
+\cI{fst : pair ~$\to$~ nat} and \cI{snd : pair ~$\to$~ nat}. If we define $
+\cI{p := Build_pair 2 0} $, then the first component of \cI{p} is obtained by
+applying the corresponding projection: \cI{fst p}.
+
+More generally, let a record type have constructor \cI{Build_R}
+whose fields are denoted by $$ f_1 : t_1; ~\ldots~; f_n : t_n$$
+
+For each field \(f_i\), the associated projection computes by extracting
+the corresponding constructor argument. This behaviour is captured by the
+following $\iota$-reduction rule:
+%
+\begin{center}
+  \begin{bprooftree}
+    \AxiomC{$\,$}
+    \RightLabel{\rulelabel{$\iota$-rule}}
+    \UnaryInfC{$f_i \cI{(Build_R}\ a_1\ \cdots\ a_n\cI{)} \to_\iota a_i$}
+  \end{bprooftree}
+\end{center}
+%
+The previous example is the particular case where \(\cI{Build_R}=\cI{Build_pair}\),
+\(f_1=\cI{fst}\), and \(f_2=\cI{snd}\).
+
+Record types are frequently used to package together related data and, more
+generally, mathematical structures. For example, algebraic structures are
+typically represented as records containing a carrier type, the associated
+operations, and proofs that these operations satisfy the required axioms.
+
+% However, while inductive types allow the definition of specific families of
+% data structures, they do not by themselves provide abstraction over types.
+% For this purpose, richer type systems introduce additional forms of
+% polymorphism.
 
 Although inductive types allow the definition of structured data, the simply
 typed $\lambda$-calculus still requires every function to be specialized to a
 particular type. For example, the identity function must be defined separately
 for each type on which it is used:
 \[
-\mathsf{id}_{\mathsf{nat}} : \mathsf{nat} \rightarrow \mathsf{nat},
+\mathsf{id}_{\mathsf{nat}} := \lambda x : \mathsf{nat} . x : \mathsf{nat} \rightarrow \mathsf{nat},
 \]
 \[
-\mathsf{id}_{\mathsf{bool}} : \mathsf{bool} \rightarrow \mathsf{bool}.
+\mathsf{id}_{\mathsf{bool}} := \lambda x : \mathsf{bool} . x : \mathsf{bool} \rightarrow \mathsf{bool}.
 \]
 
 However, these functions share exactly the same computational behaviour. This
@@ -222,7 +261,7 @@ The typing system is extended with the following rule:
 
 A polymorphic function can therefore be defined once and instantiated with
 different types. For example, the polymorphic identity function is written as $
-\mathsf{id} = \Lambda X : \square.\lambda x:X.x $ and has type $\mathsf{id} :
+\mathsf{id} := \Lambda X : \square.\lambda x:X.x $ and has type $\mathsf{id} :
 \forall X : \square.X \rightarrow X$.
 
 The universal quantifier $\forall$ expresses that the function is valid for
@@ -230,7 +269,7 @@ every possible type $X$. Type abstraction is eliminated by type application,
 whose computation is governed by the $\beta$-reduction rule:
 $$ \frac{}{(\Lambda X.t_1) t_2 \to_\beta t_2[X \backslash t_1]} $$
 
-Applying this rule, the term \cI{id nat} reduces to the
+Applying this rule, the term $(\Lambda X : \square.\lambda x:X.x) \cI{nat}$ reduces to the
 monomorphic identity function $\lambda x : \cI{nat}, x$ which has type
 $\cI{nat} \to \cI{nat}$.
 
@@ -238,9 +277,10 @@ This mechanism is known as \emph{parametric polymorphism}: the behaviour of a
 polymorphic function must be independent of the concrete type supplied as an
 argument. The function cannot inspect or manipulate values of the abstract
 type $X$; it can only use the operations that are available uniformly for all
-types. This restriction provides strong abstraction guarantees and allows
-generic definitions and proofs to be established once and reused for every
-instantiation.
+types.
+%  This restriction provides strong abstraction guarantees and allows
+% generic definitions and proofs to be established once and reused for every
+% instantiation.
 
 A common example of a polymorphic inductive type is the type of lists:
 %
