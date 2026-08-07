@@ -79,7 +79,22 @@ It would be best to present the sources of your benchmark so that it can be asse
   - [x] You only present one micro-benchmark, but do not discuss what are the performances on general queries? Did you not experiment on tlc and stdpp?
 
   
-3.5.2. The ambiguity you show here is easily resolved using an annotation on `mx` or None. Did you report it to stdpp developers, wouldn't they agree that the lemma is ambiguous and would prefer to get the error using the elpi resolution?
+3.5.2. The ambiguity you show here is easily resolved using an annotation on
+`mx` or None. Did you report it to stdpp developers, wouldn't they agree that
+the lemma is ambiguous and would prefer to get the error using the elpi
+resolution?
+
+> In the discussions we had, there are indeed some aspects of the resolution that
+> are not suitable for the stdpp developpers, in particular they would wish to
+> have a class engine which is more predictable, there are mainly concerns about
+> how tc and unifications interacts that make it hard to debug execution traces.
+> Our approach is traying indeed to go into this direction but there are some
+> aspects that should still be studied deeply, for example our unification is
+> simpler, and predictable, but this causes several unification problems that
+> maybe the stdpp developper does not want to see. I think there is some
+> compromise we need to pay in both approaches. Enrico told me that he had a
+> discussion with the Iris team, the wish to try our solver in their development,
+> but for now, we have no conversation in that direction.
 
 
 Chapter 4
