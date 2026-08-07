@@ -58,69 +58,73 @@ execution model. Finally, in \cref{sec:coq-elpi}, we describe the main ideas
 behind the \rocqelpi plugin.
 
 \section{Parametric polymorphism: first steps into elaboration}
-% TODO: vedere dove è usata
 \label{sec:rocq-intro-lam-calc}
 
-As anticipated, the \rocq language is based on type theory~\cite{coq-huet}.
+As anticipated, the \rocq language is founded on dependent type theory and
+inherits its computational interpretation from the $\lambda$-calculus~\cite{coq-huet}.
+In this section, we briefly recall the main notions that will be used
+throughout this manuscript, starting from the untyped $\lambda$-calculus and
+progressively introducing the extensions that lead to the core language of
+\rocq.
+
 At its core lies the pure $\lambda$-calculus, introduced by Church
-in 1932~\cite{church}. The $\lambda$-calculus is language whose syntax is defined
-by \emph{terms}:% \marginpar{FIXME: enrico}
-%
-$$t := x\ |\ t\ t\ |\ \lambda x.t$$
+in 1932~\cite{church}. Its syntax is given by
+$$
+t := x \mid t\ t \mid \lambda x.t.
+$$
 
-A term can be a variable $x$, an application $t\ t$, or an abstraction $\lambda
-x.t$. A \emph{subterm} is any term occurring inside another term. In an
-application, the first (sub)term is called the \emph{head} and the second the
-\emph{argument}. An abstraction $\lambda x.t$ binds the variable $x$ in its
-abstraction body $t$, we say that $x$ is a \emph{bound} variable in $\lambda
-x.t$. A variable that occurs in an expression but is not bound by any enclosing
-lambda abstraction is called \emph{free}.% \marginpar{FIXME:enrico}
+A term is either a variable $x$, an application $t\ t$, or an abstraction
+$\lambda x.t$. A \emph{subterm} is any term occurring inside another term.
+In an application, the first subterm is called the \emph{head} and the second
+the \emph{argument}. An abstraction $\lambda x.t$ binds the variable $x$ in
+its body $t$; we therefore say that $x$ is \emph{bound} in $\lambda x.t$. A
+variable occurring outside the scope of its binder is said to be
+\emph{free}.
 
-For instance, the term $\lambda x.\lambda y.x$ (often called
-\texttt{fst}) contains two bound variables, $x$ and $y$. The term
-$\lambda y.x$ is a subterm of \texttt{fst}, and $x$ is free in it.
+For instance, the term $\lambda x.\lambda y.x$ contains two bound variables,
+$x$ and $y$. The term $\lambda y.x$ is a subterm of it, and $x$ is free within
+that subterm.
 
-Evaluation of $\lambda$-terms is defined by \emph{reduction} rules. The
-main rules used here are:
+Computation in the $\lambda$-calculus is defined by reduction rules. The
+principal rules used throughout this manuscript are the following:
 %
 \begin{center}
-  \begin{bprooftree}
-    \AxiomC{$~$}
-    \RightLabel{\rulelabel{$\beta$-rule}}
-    \UnaryInfC{$(\lambda x.t_1)\ t_2 \to_\beta t_1[x\backslash t_2]$}
-  \end{bprooftree}
-  \begin{bprooftree}
-    \AxiomC{$x \text{ is not free in } t$}
-    \RightLabel{\rulelabel{$\eta$-rule}}
-    \UnaryInfC{$\lambda x.t\ x \to_\eta t$}
-  \end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$\phantom{hh}$}
+  \RightLabel{\rulelabel{$\beta$-rule}}
+  \UnaryInfC{$(\lambda x.t_1)\ t_2 \to_\beta t_1[x\backslash t_2]$}
+\end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$x \notin FV(t)$}
+  \RightLabel{\rulelabel{$\eta$-rule}}
+  \UnaryInfC{$\lambda x.t\ x \to_\eta t$}
+\end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$x := t$}
+  \RightLabel{\rulelabel{$\delta$-rule}}
+  \UnaryInfC{$x \to_\delta t$}
+\end{bprooftree}
 \end{center}
 
-The $\beta$-rule describes function application: when the head is an
-abstraction, the argument replaces all free occurrences of $x$ in $t_1$.
-A term where this rule applies is called a $\beta$-redex. A term with no
-such reductions is in $\beta$-normal form. For example,
-$((\lambda x.\lambda y.x)\ 1)\ 2$ reduces first to
-$(\lambda y.1)\ 2$, and then to $1$.
+The $\beta$-rule models function application by substituting the argument for
+the bound variable in the function body. The $\delta$-rule unfolds transparent
+definitions, while the $\eta$-rule expresses function extensionality by
+identifying functions that differ only by the application of an argument.
+Terms on which these rules apply are respectively called
+$\beta$-, $\delta$-, and $\eta$-redexes. Two terms are considered equivalent
+when they reduce to the same term.
 
-The $\eta$-rule expresses a form of extensionality: if $x$ does not occur
-free in $t$, then $\lambda x.t\ x$ is equivalent to $t$. Terms where this
-rule applies are called $\eta$-redexes.
-
-Two terms are considered equivalent if they reduce to the same term.
-
-In simple type theory, the pure $\lambda$-calculus is extended with typing
-rules. These constrain how terms can be formed by assigning a
-\emph{type} to each term. This extension is known as the
-simply-typed $\lambda$-calculus~\cite{church-type}:
-%
-$$\tau := \alpha\ |\ \tau \to \tau$$
-
-Types are either base types $\alpha$ or function types
-$\tau \to \tau$, where the first component is the domain and the second
-the codomain. Term abstractions are annotated accordingly:
-%
-$$t := x\ |\ t\ t\ |\ \lambda (x:\tau).t$$
+The pure $\lambda$-calculus can be extended with a type system restricting the
+formation of well-defined terms. This extension is known as the
+simply-typed $\lambda$-calculus~\cite{church-type}, whose types are defined by
+$$
+\tau := \alpha \mid \tau \rightarrow \tau,
+$$
+where $\alpha$ ranges over base types. Function abstractions are annotated
+accordingly:
+$$
+t := x \mid t\ t \mid \lambda(x:\tau).t.
+$$
 
 A \emph{typing environment} $\Gamma$ maps variables to types. We write
 $\Gamma + (x:\tau)$ for the extension of $\Gamma$ with a new binding.
@@ -150,84 +154,70 @@ $\Gamma$. If such a derivation exists, the term is said to
 \emph{typecheck}. The algorithm implementing these rules is called the
 \emph{typechecker}.
 
-However, the simply-typed $\lambda$-calculus can be too restrictive for
-expressing more abstract constructions. Several extensions exist, as
-illustrated by the Barendregt cube~\cite{cube}. 
+Although the simply-typed $\lambda$-calculus guarantees that computations are
+well-typed, it provides only a fixed collection of base types. To define new
+mathematical objects, proof assistants extend it with \emph{inductive types}.
 
-An extension of typed $\lambda$-calculus is the ability to define new
-data structures through \emph{inductive types}. An inductive type is specified
-by a set of constructors that describe how its elements can be generated.
-This provides a principled way to represent recursive mathematical objects.
+An inductive type is defined by specifying a finite collection of
+constructors, each describing one way of building an element of the type.
+Consequently, every inhabitant of an inductive type is obtained by a finite
+composition of its constructors.
 
-For example, the type of booleans can be defined by two constructors:
+For example, the booleans are defined by
 $$
-\cI{bool := true | false}
+\cI{bool := true | false},
 $$
-Similarly, the natural numbers can be described inductively using zero and
-the successor operation:
+while the natural numbers are generated by
 $$
-\cI{nat := O | S nat}
+\cI{nat := O | S nat}.
 $$
-Thus, every natural number is either the constructor \cI{O} or is
-obtained by repeatedly applying \cI{S} to another natural number:
-%
+Hence every natural number is either \cI{O} or is obtained by repeatedly
+applying the constructor \cI{S}:
 $$
-0 = \cI{O}, \qquad
-1 = \cI{S O}, \qquad
-2 = \cI{S (S O)}, \ldots
+0=\cI{O}, \qquad
+1=\cI{S O}, \qquad
+2=\cI{S (S O)}, \ldots
 $$
 
-Inductive types are accompanied by elimination principles, which allow
-definitions by pattern matching and proofs by induction over the structure
-of values. For instance, a function over natural numbers can be defined by
-considering separately the base case $\cI{O}$ and the successor case
-$\cI{S}\;n$. This combination of constructors and elimination principles
-makes inductive types a fundamental mechanism for representing mathematical
-objects in proof assistants such as \rocq.
+% Inductive types are equipped with elimination principles, allowing functions
+% to be defined by pattern matching and proofs by structural induction. Their
+% computational behaviour is governed by $\iota$-reduction, which selects the
+% branch corresponding to the constructor of the value being eliminated.
 
-A particular case of an inductive type is a \emph{record type}. A record type
-is simply an inductive type with a single constructor. The arguments of this
-constructor are given names, called \emph{fields}. For each field, \rocq
-automatically defines a corresponding \emph{projection}, that is, a function
-which, given a record instance, returns the value stored in that field.
+A particularly important instance of an inductive type is a \emph{record type}.
+A record is simply an inductive type with a single constructor. The arguments of
+this constructor are given names, called \emph{fields}. For each field, \rocq
+automatically generates a corresponding function, called \emph{projection},
+namely a function that extracts the value stored in that field.
 
-For example, a record representing pairs of natural numbers can be defined as
+For example, pairs of natural numbers can be represented as
 $$
 \cI{Record pair := Build_pair { fst : nat; snd : nat }.}
 $$
-The constructor \cI{Build_pair} takes two arguments, named \cI{fst} and
-\cI{snd}. \rocq then generates two projection functions with the same names:
-\cI{fst : pair ~$\to$~ nat} and \cI{snd : pair ~$\to$~ nat}. If we define $
-\cI{p := Build_pair 2 0} $, then the first component of \cI{p} is obtained by
-applying the corresponding projection: \cI{fst p}.
+The constructor \cI{Build_pair} has two fields, \cI{fst} and \cI{snd}, and
+\rocq automatically defines the projections
+\cI{fst : pair ~$\rightarrow$~ nat} and \cI{snd : pair ~$\rightarrow$~ nat}.
 
-More generally, let a record type have constructor \cI{Build_R}
-whose fields are denoted by $$ f_1 : t_1; ~\ldots~; f_n : t_n$$
+More generally, let a record type have constructor
+\cI{Build_R} whose fields are
+\[ {f_1 : t_1;\ \ldots;\ f_n : t_n} \]
 
 For each field \(f_i\), the associated projection computes by extracting
 the corresponding constructor argument. This behaviour is captured by the
 following $\iota$-reduction rule:
 %
 \begin{center}
-  \begin{bprooftree}
-    \AxiomC{$\,$}
-    \RightLabel{\rulelabel{$\iota$-rule}}
-    \UnaryInfC{$f_i \cI{(Build_R}\ a_1\ \cdots\ a_n\cI{)} \to_\iota a_i$}
-  \end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$\,$}
+  \RightLabel{\rulelabel{$\iota$-rule}}
+  \UnaryInfC{$f_i \cI{(Build_R}\ a_1\ \cdots\ a_n\cI{)} \to_\iota a_i$}
+\end{bprooftree}
 \end{center}
-%
-The previous example is the particular case where \(\cI{Build_R}=\cI{Build_pair}\),
-\(f_1=\cI{fst}\), and \(f_2=\cI{snd}\).
 
-Record types are frequently used to package together related data and, more
-generally, mathematical structures. For example, algebraic structures are
-typically represented as records containing a carrier type, the associated
-operations, and proofs that these operations satisfy the required axioms.
-
-% However, while inductive types allow the definition of specific families of
-% data structures, they do not by themselves provide abstraction over types.
-% For this purpose, richer type systems introduce additional forms of
-% polymorphism.
+If \cI{p := Build_pair 2 0},
+then evaluating \cI{fst p} first unfolds the definition of \cI{p} by
+$\delta$-reduction and then computes using the projection rule, returning
+to result \cI{2}.
 
 Although inductive types allow the definition of structured data, the simply
 typed $\lambda$-calculus still requires every function to be specialized to a
@@ -338,60 +328,6 @@ extension leads to the calculi of the Barendregt cube and, in particular, to the
 Calculus of Constructions underlying \rocq. Since dependent types are not the
 focus of this manuscript, we do not discuss them further here.
 
-
-% One important extension
-% is the polymorphic $\lambda$-calculus (System~F)~\cite{systemf}, where
-% terms may depend on types.
-
-% Consider the identity function $\lambda x.x$. In the simply-typed % \marginpar{FIXME: enrico}
-% setting, it must be assigned a fixed type, for example
-% $\lambda (x:\texttt{bool}).x : \texttt{bool} \to \texttt{bool}$. A separate definition would be needed for
-% each type, such as $\texttt{nat}$. This duplication can be avoided in the
-% polymorphic calculus.
-
-% Polymorphism allows quantification over types. The syntax is extended as
-% follows:
-% %
-% $$t := \dots\ |\ \tau \qquad
-%   \tau := \dots\ |\ \forall (x:\square).\tau$$
-
-% The constructor $\forall$ expresses that a type may depend on another
-% type. The $\forall (x : \square), \tau$ constructor is a generalization of $\square \to \tau$,
-% in particular the two representation are equivalent if $x$ does not appear
-% as a free variable in $\tau$.
-
-% At the term level, we write $\lambda (x:\square).t$ to abstract over a
-% type. With this, the polymorphic identity function can be written as
-% $\lambda (T:\square).\lambda (y:T).y$.
-
-% The typing system is extended with:
-% %
-% \begin{center}
-%   \begin{bprooftree}
-%     \AxiomC{$\Gamma + (T:\square) \vdash t:\tau$}
-%     \RightLabel{\rulelabel{$T_\forall$}}
-%     \UnaryInfC{$\Gamma \vdash \lambda (T:\square).t:\forall (T:\square).\tau$}
-%   \end{bprooftree}
-% \end{center}
-
-% Using this definition, the identity function can be applied as
-% $(\lambda (T:\square).\lambda (y:T).y)\ \texttt{nat}\ 3$, which reduces to $3$
-% by successive $\beta$-steps.
-
-% In practice, explicitly passing types can be inconvenient. If the typing
-% environment already assigns $3$ the type \texttt{nat}, the system can
-% infer that the first argument should be \texttt{nat}. One may then write
-% $(\lambda (T:\square).\lambda (y:T).y)\ \_\ 3$, where the underscore denotes
-% missing information to be inferred.
-
-% Such placeholders, often called \emph{holes}, correspond to existentially
-% quantified
-% meta-variables that the typechecker must instantiate. In systems like \rocq,
-% these arguments are often omitted.
-
-% This illustrates how type inference improves usability, allowing the
-% user to leave parts of a term unspecified when the system is able to reconstruct
-% them automatically.
 
 \section{Elaboration in the \rocq proof assistant}
 % TODO: vedere dove è usata
