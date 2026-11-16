@@ -92,7 +92,7 @@ Observers can be activated or deactivated when needed.
 
 A type-class solver is registered using \mlI{register_solver}, which
 takes a name, a value of type \mlI{tc_solver}, and a condition. The
-\mlI{tc_solver} is a higher-order function that receives a \rocq
+\mlI{tc_solver} argument is a higher-order function that receives a \rocq
 context together with a list of goals, and returns an updated environment
 where some type-class goals may be solved. The condition specifies
 whether the solver should be applied to the current list of goals. This

@@ -39,8 +39,7 @@ In \rocqelpi:
   additional forms of automation during proof development. For example, the
   \trocq~\cite{enzo2023,enzo2024} library provides a tactic for proof transfer
   that both translates a user's goal into a related variant and constructs a
-  proof of the corresponding implication. In contrast, the \algtac~\cite{algtac}
-  library offers tactics for reasoning about polynomial and rational equations.% \marginpar{FIXME: enrico}
+  proof of the corresponding implication.
 \end{itemize}
 
 In the following sections, we introduce the key concepts that form the
@@ -60,7 +59,7 @@ behind the \rocqelpi plugin.
 \section{Parametric polymorphism: first steps into elaboration}
 \label{sec:rocq-intro-lam-calc}
 
-As anticipated, the \rocq language is founded on dependent type theory and
+The \rocq language is founded on dependent type theory and
 inherits its computational interpretation from the $\lambda$-calculus~\cite{coq-huet}.
 In this section, we briefly recall the main notions that will be used
 throughout this manuscript, starting from the untyped $\lambda$-calculus and
@@ -95,14 +94,14 @@ principal rules used throughout this manuscript are the following:
   \UnaryInfC{$(\lambda x.t_1)\ t_2 \to_\beta t_1[x\backslash t_2]$}
 \end{bprooftree}
 \begin{bprooftree}
-  \AxiomC{$x \notin FV(t)$}
-  \RightLabel{\rulelabel{$\eta$-rule}}
-  \UnaryInfC{$\lambda x.t\ x \to_\eta t$}
-\end{bprooftree}
-\begin{bprooftree}
   \AxiomC{$x := t$}
   \RightLabel{\rulelabel{$\delta$-rule}}
   \UnaryInfC{$x \to_\delta t$}
+\end{bprooftree}
+\begin{bprooftree}
+  \AxiomC{$x \notin FV(t)$}
+  \RightLabel{\rulelabel{$\eta$-rule}}
+  \UnaryInfC{$\lambda x.t\ x \to_\eta t$}
 \end{bprooftree}
 \end{center}
 
@@ -423,8 +422,8 @@ lecture notes, Strachey~\cite{polymorphism} distinguishes two main forms:
 parametric polymorphism and ad-hoc polymorphism. Parametric polymorphic
 functions are \emph{uniform}, meaning that their behavior does not depend on the
 specific type at which they are instantiated. For example, if we take the
-function \cI{id} from \cref{sec:rocq-intro-lam-calc}, we can note that when
-applied to either \cI{1} or \cI{["foo","bar"]}, it always return its input, that
+function \cI{id} from \cref{sec:rocq-intro-lam-calc}, when it is
+applied to either \cI{1} or \cI{["foo","bar"]}, it always returns its input, that
 is, the same implementation is reused for every instantiation of its type
 parameter.
 
@@ -442,8 +441,8 @@ be commutative and to admit a neutral element, conventionally denoted by $0$.
 
 In contrast, parametric polymorphism does not support multiple
 type-dependent implementations of the same symbol. This limitation appears in
-languages such as \ocaml, where integer and floating-point additions are
-represented by different operators, $+$ and $+.$. One writes $1 + 2$ for integers
+languages such as \ocaml, where floating-point and integer additions are
+represented by different operators, $+.$ and $+$. One writes $1 + 2$ for integers
 and $\pig +\!.\ e$ for floating-point numbers. In general, a new symbol must be
 introduced for each type implementing the same mathematical operation.
 
@@ -475,7 +474,7 @@ follows.
 
 The method \cI{plus} has the following implementation \cI{fun T (f :
 Add T) => f.(plus)} where \cI{f.(plus)} is the syntax for
-retrieve the method plus inside the instance \cI{f}. The type of \cI{plus} is
+retrieve the method \texttt{plus} inside the instance \cI{f}. The type of \cI{plus} is
 $\forall \{\cI{T}\},\ \{\cI{Add T}\} \to \cI{T} \to \cI{T} \to \cI{T}$,
 where the type parameters surrounded by curly brackets are implicit.
 Typechecking the term \cI{plus 3 4} gives:
@@ -579,14 +578,14 @@ duplication of code by resolving instances automatically.
 
 In a proof assistant such as \rocq, the type class
 mechanism reuses the same intuition behind symbol overloading so that not only
-function symbols can be overload but also theorem symbols.
+function symbols can be overloaded but also theorem symbols.
 For instance, one may enrich \cI{Add} with the commutativity specification:
 
 \input{code/plus_tc_add1.tex}
 
 An instance of this refined class must now provide both an implementation of the
 function \cI{plus} and a proof that \cI{plus} is commutative. Then, if
-\cI{addNat}, \cI{addR} and \cI{addProd} are implemented according the new
+\cI{addNat}, \cI{addR} and \cI{addProd} are implemented according to the new
 definition of \cI{Add}, the \cI{comm} symbol can be used as a proof that
 addition is commutative over natural and real numbers and pairs.
 
@@ -829,7 +828,7 @@ style. In contrast with \prolog, arguments are not passed within
 parentheses, which allows partial application. We write, for example,
 \eI{p 1 X}, instead of \eI{p(1, X)}.
 
-An formula~\ATOM\ represents an executable unit. It can be:
+A formula~\ATOM\ represents an executable unit. It can be:
 \begin{enumerate}
   \item the cut operator (\eI{!} in the concrete syntax),
   \item a predicate call (called atom in the literature),
@@ -1031,7 +1030,7 @@ The remaining rules of \runE, namely \runE[!], \runE[\backchain],
 contains a non-empty list of goals. Such alternative list has the form
 $\ConsHd{\ConsHd{q}\ConsTl{g}}{\ConsTl{a}}$, where $q$ is the current query, $g$
 the list of goals to be solved after $q$ if $q$ succeeds, and
-$a$ is the list of alternatives to execute if it the execution of
+$a$ is the list of alternatives to execute if the execution of
 $\ConsHd{q}\ConsTl{g}$ brings no solution. The derivation rule to use depends on
 the syntactic form of $q$, which can be one of the four forms of atoms listed
 in \cref{fig:elpi-syntax}.
@@ -1053,7 +1052,7 @@ Finally, if $q$ is a predicate call, the interpreter performs \emph{backchaining
 the rules stored in $\prog.\txtI{index}$. Backchaining retrieves the rules that
 can be used on the query $q$. In standard \prolog this is done by selecting
 rules whose head unifies with $q$. In \elpi the process depends on predicate
-modes, which determine if a argument should be \emph{matched} or \emph{unified}.
+modes, which determine if an argument should be \emph{matched} or \emph{unified}.
 
 \elpi provides two procedures, \unify\ and \matching. Both have type
 \[
@@ -1182,8 +1181,8 @@ The function \backchainE, used by rule \runE[\backchain] in
 \cref{fig:elpi-semantics}, builds a new list of alternatives from the result of
 \backchain ($F_v$ is the function retrieving the set of free variables in % \marginpar{FIXME: enrico}
 the term $t$, we lift the definition over list of terms, and substitution%
-\footnote{$F_v(\sigma)$ is made by the domain of $\sigma$ and the free variables
-in all terms appearing in the codomain in $\sigma$}).
+\footnote{$F_v(\sigma)$ returns all the free variables
+appearing in $\sigma$}).
 For each filtered rule, the atoms in the rule body become new
 goals whose cut-to alternatives are $a$ and whose continuation is $g$. The
 substitution associated with each alternative is the one returned by
@@ -1197,7 +1196,7 @@ comprehensive description of \elpi can be found in Enrico Tassi's work~\cite{hdr
 
 We highlight here the main differences between his presentation and the one
 adopted in ours. First, in the syntax, we use binary application for
-terms, instead of the $n$-ary application used in \cite{hdr}. Second, in the
+terms, instead of the $n$-ary application used in \cite{hdr}. Second, in our
 semantics, programs carry not only the list of rules and nominal variables, but
 also the signature of declared predicates. We also omit the formal treatment of
 constraints, as it is not required for the remainder of this manuscript; a brief
@@ -1482,7 +1481,9 @@ reference when discussing determinacy checking in \elpi (see
 
 \paragraphTwo{Higher-order programming} A well-known higher-order predicate in \elpi is \eI{map}, whose
 implementation is shown below.
-%
+
+\phantom{aa}
+
 \begin{elpicode}
 pred map (pred A ~$\to$~ B), list A ~$\to$~ list B.
 map _ [] [].
@@ -1854,7 +1855,7 @@ subterms, whereas \elpi{} does not provide such a mechanism.
 
 To simplify development, \rocqelpi{} offers a system of quotations and
 antiquotations. This mechanism allows embedding \rocq{} syntax within \elpi{}
-code, and conversely \elpi{} syntax within \rocq{} code, in a recursive manner.
+code, and conversely \elpi{} syntax within \rocq{} code.
 
 An illustrative example, adapted from~\cite{hdr}, is the following:
 %
@@ -1902,7 +1903,7 @@ corresponding type-error diagnostic message to \eI{D}.
 
 In \cite[Sec. 4.4.3]{hdr}, a database is defined as a programmatically
 extensible \elpi
-program. It contain a collection of code that can be included into commands
+program. It contains a collection of code that can be included into commands
 or tactics by referring to its name.
 
 When a program is executed, it does not use the state of the database at the
