@@ -58,87 +58,6 @@ disjunctions. In \cref{equiv}, we prove the equivalence of the two semantics.
 Finally, in \cref{sec:determinacy}, we prove the correctness of the determinacy
 analysis with respect to the And-Or tree semantics..
 
-\begin{comment}
-\section{Introduction}
-
-
-\elpi is a dialect of \lprologP (see \cite{miller1991-pf,miller2012,dunchev15,TASSI_2019})
-used as an extension language for the \rocq prover (formerly the \coqP proof
-assistant). \elpi has become an important infrastructure component: several
-projects and libraries depend on it~\cite{krebbers2025,enzo2023,maas2024,fissore2023,fissore2024}.
-Other notable Rocq libraries based on \elpi
-include the Hierarchy-Builder library-structuring tool~\cite{hb};
-the Trocq proof-transfer tool~\cite{Trocq,TrocqJ}
-and Derive~\cite{tassi2018,tassi2019,tassi2023}, a program-and-proof synthesis
-framework with industrial applications at SkyLabs AI.
-
-Starting with version 3, \elpi is equipped with a static analysis for
-determinacy~\cite{fissore2026} to help users control backtracking.
-\rocq{} users are familiar with functional programming, but not necessarily
-with logic programming; in particular, uncontrolled backtracking is a common
-source of inefficiency and makes debugging harder. The determinacy checker
-allows users to specify which predicates should be considered deterministic
-and then verifies that these predicates behave like functions, i.e., that
-they commit to their first solution and leave no \emph{choice points}
-(places where backtracking could resume). A choice point corresponds to a
-suspended, \emph{alternative}, computation. In the following, we
-use \emph{choice point} and \emph{alternative} as synonyms.
-
-Intuitively, nondeterminism arises when a computation can be completed using
-two different rules. The static analysis in~\cite{fissore2026} excludes this
-situation in two steps. The first step, called \emph{mutual exclusion},
-checks that at most one rule can apply to a given query. This condition is
-satisfied if either (i) no two rules have overlapping heads, so that no
-query can unify with both, or (ii) the analysis accounts for the presence of
-cut in rule premises, so that once the cut is executed all remaining rules
-are discarded. The second step, called \emph{rule checking}, verifies that
-each rule either (i) calls only functions, ensuring that no choice point
-remains after the premises of the chosen rule have been executed, or (ii)
-executes a cut after calling relations, in which case any choice points left
-by the call are discarded.
-
-The static analysis introduced in~\cite{fissore2026} is supported by
-benchmarks that demonstrate its usefulness, but it is not accompanied by a
-proof of soundness. This paper reports our first steps toward mechanizing
-the soundness of this analysis. In particular, we focus on the control
-operator \emph{cut}, which is pervasively used to write deterministic code
-and causes the semantics to depart from a purely logical reading.
-
-We mechanize two operational semantics for \prolog with cut. The first is a
-stack-based semantics that closely models \elpi's implementation and is
-essentially the semantics given by Debray and
-Mishra~\cite[Sec.~4.3]{debray1988}, which underlies standard \prolog
-abstract machines~\cite{warren1983,ait1991-wam,pusch1996}.
-This semantics admits efficient implementations, but it makes reasoning
-about the scope of cut difficult: alternatives are stored in a stack, in
-chronological order, and the cut operator is represented as a pointer to a
-shorter stack. The relation between the rule being cut and the affected
-stack frames is therefore not immediately visible.
-
-To address this limitation, we introduce a semantics based on And-Or trees,
-in which the history of the computation is represented in a structured way:
-given a goal, each applicable rule generates an Or-branch, which is in turn
-followed by an And-branch for each premise.
-This enables an explicit characterization of the cut operator as a function
-that prunes selected branches of the tree. The tree-based semantics allows
-us to formulate introduction and elimination rules for disjunction in the
-presence of cut, which, as expected, differ from those of classical logic.
-For example, $q_1 \lor q_2$ is not equivalent to $q_2 \lor q_1$,
-since $q_2$ may be cut away by $q_1$.
-
-Finally, we use the tree-based semantics to prove the correctness of the
-static determinacy analysis from~\cite{fissore2026}. We prove in Rocq that
-any call to a predicate identified as deterministic leaves no additional
-Or-branches in the tree when it terminates. By composing this result with
-the equivalence between the two semantics, we obtain that any call to a
-deterministic predicate leaves no choice points on the stack used by the
-\elpi interpreter.
-
-Our mechanization is axiom-free and is available at 
-% \url{https://github.com/FissoreD/elpi-formalization}.
-\url{ANONYMEZED_FOR_BLINDNESS}
-\end{comment}
-% questa deve stare vicino all'intro perchè aiuta a capire la det
 
 \section{Preliminaries: syntax}
 \label{sec:preliminaries}
@@ -546,7 +465,7 @@ The type of these two functions is given below.
 The step routine, among its outputs, also returns a \emph{tag}, whose definition
 is described in the very following section.
 
-To avoid the constraint that all functions must terminate in Rocq, we define the transitive closure
+To avoid the constraint that all functions must terminate in \rocq, we define the transitive closure
 of \step and \na as the inductive relation \runT.
 More precisely \runT iterates calls to \step on incomplete trees to expand
 Unexplored nodes. When a tree fails it calls \na to find
