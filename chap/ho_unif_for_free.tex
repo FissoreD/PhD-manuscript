@@ -542,7 +542,7 @@ The simplest example is the sequence $F \UnifRel \lambda x.a$ and
 $F \appsep a \UnifRel a$: the second problem is not in \llambda and has two
 unifiers, namely $\sigma_1 = \{~ F \mapsto \lambda x.x ~\}$ and
 $\sigma_2 = \{~ F \mapsto \lambda x.a ~\}$. If we execute the two unification
-problem in order, the first unification return $\sigma_2$,
+problem in order, the first unification returns $\sigma_2$,
 making the second problem re-enter \llambda.
 
 % \paragraph{Backtracking} We omit it from our model of logic-program execution
@@ -1179,7 +1179,7 @@ Since \eI{progress1} is a no-op, \fstep and \hstep coincide. By
 
 In the following sections we use the following notation to represent
 the behavior of the compiler. 
-\foUnifPb represent the input unification problems in \Fo{}
+\foUnifPb represents the input unification problems in \Fo{}
 while \hoUnifPb their corresponding compiled version with memory mapping
 \mapStore and links \linkStore. For example:
 %
@@ -1529,7 +1529,7 @@ can be an $\eta$-redex, i.e. if
 there exists a substitution $\rho$ such that $\rho (\lambda x.r) \Eo r'$ and
 $r'$ is not a $\lambda$-abstraction.
 The detection of lambda abstractions that can ``disappear''
-is not as trivial as it may seems. Here a few examples:
+is not as trivial as it may seem. Here a few examples:
 %
 \begin{center}
   \begin{tabular}{lll}
@@ -2453,7 +2453,7 @@ Let $l$ be a \linkbeta of the form \linkbetaM{\Gamma}{T}{\rhsBeta}
   \item
   there exists another link $l' \in \linkStore$ with the same \lhs as $l$; or
   \item the \lhs of $l$
-  become rigid.
+  becomes rigid.
   \end{itemize}
 \end{definition}
 \noindent
@@ -2616,7 +2616,7 @@ a ~\}$.
 \newcommand{\progBetaNoLLWait}{\emph{progress-beta-\notllambda}}
 
 % from https://www.cs.mcgill.ca/~bpientka/papers/unif_miller60.pdf
-Working with terms in \llambda is sometime too restrictive~\cite{pientka2018}
+Working with terms in \llambda is sometimes too restrictive~\cite{pientka2018}
 and we could find in the literature a few strategies to go beyond \llambda without 
 implementing Huet's algorithm~\cite{huet75} which is a semi-decision procedure.
 Some implementations of \lprolog~\cite{miller1988} such as
@@ -2645,7 +2645,7 @@ In the example below $\foUnifPb_1$ is in \notllambda.
 
 \noindent
 If we want the object-language unification to delay the first unification problem
-(waiting for $X$ to be be instantiated),
+(waiting for $X$ to be instantiated),
 we can relax \cref{def:progBetaFail}. 
 Instead of failing when the \lhs of $\linkStore_1$ becomes rigid (equal to $a$),
 we keep it in \linkStore until the head of its \rhs also becomes rigid.
@@ -2682,7 +2682,7 @@ the runtime of the programming language. In particular the runtime iterates
 \lprolog with constraints (suspended goals) and
 Constraint Handling Rules (\chr) to operate on them~(\cref{sec:chr}).
 Similarly to \cite{pfenning1993} a constraint is a goal % unification problems
-suspended on a list of variables that is resumed \emph{as soon as one of these variable
+suspended on a list of variables that is resumed \emph{as soon as one of these variables
 is assigned}, before any other existing goal is considered. 
 In turn link activation grants~\cref{prop:fidelity}.
 We point out that \cite{pfenning1993} delays \notllambda unification problems
@@ -2742,7 +2742,7 @@ eigenvariables \eI{N1}.
 Object-language terms can be unified using
 different strategies.
 
-The first approach that comes to mind consist in implementing \Uo as a
+The first approach that comes to mind consists in implementing \Uo as a
 regular routine, i.e. write rules as follows
 
 \begin{elpicode}

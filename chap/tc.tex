@@ -116,7 +116,7 @@ Conceptually, a type-class goal can be translated into a query with two
 arguments: the goal itself and a concrete instance witnessing it. The
 search is expressed using the predicate \eI{pred tc term ~$\to$~ term}.
 
-By invariant, a query of the form \eI{tc T I} ensures that the term
+By construction, a query of the form \eI{tc T I} ensures that the term
 \eI{I} has type \eI{T}.
 
 
@@ -428,7 +428,13 @@ modifies the unification strategy by using the \matching procedure
 In order to see the different mode behavior of the \rocq and \elpi modes, we
 rework the implementation of the \cI{Add} type class.
 %
-\input{code/add_dummy.tex}
+\begin{coqcode}
+#[mode="+"] Class Add T := ...
+
+Instance addNat : Add nat.
+Instance addDummy T : Add T.
+\end{coqcode}
+
 
 Consider a goal $g = \cI{Add ?X}$ where \cI{?X} is an existential
 variable. With the \rocq mode system, this goal has no solution because the
@@ -785,7 +791,7 @@ evaluation can reveal limitations of our implementation and suggest directions
 for future work. An important goal of this evaluation is to compare our solver
 with the native \rocq solver.
 
-As a first benchmark, we consider a set of classes and instances from
+As a first benchmark, we consider a simplified set of classes and instances from
 \stdpp. We focus on the \cI{Inj} type class, defined as follows:
 
 \begin{coqcode}
@@ -984,7 +990,7 @@ lemma that relies on it.
 \input{code/UNION_LEMMA.tex}
 \mvspace{}
 
-The \cI{ounion} instance implement the class \cI{Union} for the type
+The \cI{ounion} instance implements the class \cI{Union} for the type
 option, the \cI{union} function behaves as follows: it returns \cI{None} if
 both arguments are \cI{None}; it uses the higher-order function
 to determine which element to keep if the arguments are
@@ -1153,7 +1159,7 @@ in \rocq exhibits a similar behavior, our goal was not to faithfully reproduce
 the \rocq solver. Instead, we aimed to leverage the distinctive features of \elpi
 whenever possible.
 
-A key advantage inherited from \elpi is the control the user have over the search
+A key advantage inherited from \elpi is the control the user has over the search
 process. This control is achieved through several mechanisms, including rule
 priorities, predicate modes, the \unify/\matching unification algorithm, and the
 \cut operator. All these aspects have been discussed in previous sections, with

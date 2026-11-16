@@ -346,7 +346,7 @@ we look at the list of goals $h$ (under the substitution $\sigma_0$). If $h$ is 
 leaving $a$ as the unexplored alternatives.
 If $h$ is not empty we look at its head goal $(t, ca)$ where $t$ is the atom and $ca$ is its
 cut-to alternatives. If $t$ is a cut, rule
-\cuts continues to evaluate the tail of $h$ under with alternatives $ca$. Finally, when $t$ is a call, rule \calls backchains:
+\cuts continues to evaluate the tail of $h$ with alternatives $ca$. Finally, when $t$ is a call, rule \calls backchains:
 for each rule it pairs each premise with the current stack of
 alternatives, and prepends the obtained goals to the tail of $h$.
 Note that if backchain returns the empty list, the second
@@ -606,12 +606,12 @@ the next alternative and continues from there, if one exists.
     | Unexplored (call t) => 
         let: (v, l) := backchain u p v t s in
         (v, Expanded,
-        if l is ((s0, x0) :: xs) then Or None s0 (big_or x0 xs) else KO)
+        if l is ((s0, x0) :: xs) then Or ~$\square$~ s0 (big_or x0 xs) else KO)
     | Or A sB B =>
-        if A is Some A then 
+        if A is ~$\cdot$~A then 
           let: (v, tA, rA) := step p v s A in
           (v, if is_cb tA then Expanded else tA, 
-           Or (Some rA) sB (if is_cb tA then KO else B))
+           Or (~$\cdot$~rA) sB (if is_cb tA then KO else B))
         else
           let: (v, tB, rB) := step p v sB B in
           (v, if is_cb tB then Expanded else tB, Or A sB rB)
@@ -1204,6 +1204,7 @@ in \runS.
     \includegraphics[width=0.8\textwidth, keepaspectratio]{./img/det_check_coq/t2lex.pdf}
   \end{center}
 \caption{Example of \ttl execution\label{fig:cc}}
+  \label{fig:translate}
 \end{figure}
 %
 As an example of a call to \ttl, we take the tree and the stack in~\cref{fig:cc},
@@ -1335,7 +1336,7 @@ a tree correspond to those returned as a stack.
 We proceed by induction on the execution of \runT'. There are five cases
 to consider. The first (similar) cases arises from \stopot and \stopt; they deal with
 successful trees. A successful tree corresponds to a stack that
-start with an empty list, in both cases
+starts with an empty list, in both cases
 we conclude using \stops. The case for \stept
 requires treating two subcases: \step evaluates either a cut or a call.
 Accordingly, we apply \cuts or \calls, followed by the
@@ -1449,7 +1450,7 @@ are acyclic in this sense.
 
 % \input{./formalization/img/unif_correct.tex}
 
-\begin{lemma}[unify\_correct]\label{th:unifycorrect}%
+\begin{lemma}[unify\_sound]\label{th:unifycorrect}%
 $$\forall\ t_1\ t_2\ s\ s' ,\ \mathrm{acyclic\_sigma}\ s \to \mathrm{unify}\ t_1\ t_2\ s = \mathrm{Some}\ s' \to s'\ t_1 = s'\ t_2 $$
 \end{lemma}
 
@@ -1515,12 +1516,12 @@ query, if both heads match the query $q$, then the two heads must unify.
 \begin{lemma}[matching\_unify\_transP]\label{th:matchingunifytransP}%
 \begin{multline*}
 	\forall\ h_1\ h_2\ q .\ h_1 \cap h_2 = \varnothing \to h_1 \cap q = \varnothing \to h_2 \cap q = \varnothing \to \\
-	\mathrm{matching}\ h_1\ q\ \varnothing \to \mathrm{matching}\ h_2\ q\ \varnothing \to \mathrm{unify}\ h_1\ h_2\ \varnothing 
+	\mathrm{matching}\ h_1\ q\ \varepsilon \to \mathrm{matching}\ h_2\ q\ \varepsilon \to \mathrm{unify}\ h_1\ h_2\ \varepsilon 
 \end{multline*}
 \end{lemma}
 
 \begin{proof}
-  By \cref{um}, we now that the matching of $h_1$ (resp. $h_2$) and $q$ gives a
+  By \cref{um}, we know that the matching of $h_1$ (resp. $h_2$) and $q$ gives a
   substitution $\sigma_1$ (resp. $\sigma_2$) where the variables in $q$ are not
   assigned, i.e. its domain only contains variables in $h_1$ (resp $h_2$). Using
   \cref{th:unifycomplete} we need to prove that there exists a
@@ -1586,7 +1587,7 @@ outputs; therefore, all three predicates are expected to take an
 
 The signatures of the program are stored in the \texttt{sig} field of
 the program and are encoded as described in
-\cite{fissore2026}: we distinguish data from predicates, and predicates
+\cref{chap:det-elpi}: we distinguish data from predicates, and predicates
 are classified as deterministic or non-deterministic.
 
 A program execution behaves deterministically if, given a program, a
@@ -1615,7 +1616,8 @@ The theorem we want to prove is the following one:
 \end{theorem}
 
 Here, check\_program denotes the function that checks the program
-with respect to mutual exclusion and rule checking. %, and \emph{tm\_is\_det}
+with respect to mutual exclusion and rule checking (it is defined in
+\cref{chap:det-elpi}). %, and \emph{tm\_is\_det}
 % denotes the function that tests whether the head of the term refers to a rigid
 % constant with a deterministic type.
 
@@ -1668,7 +1670,7 @@ point contain a cut that prevents the non-deterministic behaviour arising
 from the evaluation of $A$.
 
 For \orC trees, the interesting case is when the left-hand side contains
-an tree. In this case, $A$ must be deterministic. If $A$
+a tree. In this case, $A$ must be deterministic. If $A$
 contains a superficial cut, then $B$ must also be deterministic. Indeed,
 if $A$ succeeds, the cut discards $B$; otherwise, if $A$ fails before
 reaching the cut, then no solution is produced by $A$ and $B$ is evaluated.
@@ -1685,7 +1687,7 @@ operations \step and \na.
 %\input{./formalization/img/det_tree_step.tex}
 \begin{lemma}[det\_tree\_step]\label{th:dettreestep}
   $\forall\ \mathrm{p}\ v\ \sigma_1\ A\ r ,\ \mathrm{check\_program}\ \mathrm{p} \to$\\
-	$\phantom{xxxxx} \mathrm{step}\ u\ \mathrm{p}\ v\ \sigma_1\ A = r \to \mathrm{det\_tree}\ \mathrm{pr}\ (\mathrm{snd}\ r) $
+	$\phantom{xxxxx} \mathrm{step}\ u\ \mathrm{p}\ v\ \sigma_1\ A = r \to \mathrm{det\_tree}\ \mathrm{p}\ (\mathrm{snd}\ r) $
 \end{lemma}
 
 % \input{./formalization/img/det_tree_prune.tex}
@@ -1809,7 +1811,7 @@ conjunction, and disjunction, as well as the proof of equivalence between the
 tree-based semantics and the operational stack-based semantics.
 
 Building on these foundations, we formalized the static determinacy analysis
-introduced in~\cite{fissore2026}. The analysis captures 
+introduced in~\cref{chap:det-elpi}. The analysis captures 
 the mutual-exclusion and
 rule-checking conditions required for deterministic execution. The mechanization
 establishes that these syntactic conditions are sufficient to guarantee the

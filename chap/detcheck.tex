@@ -633,8 +633,8 @@ are encoded as generic symbols that match any term. For instance, in
 \cref{fig:disc-tree}, rules 1 and 2 share the same path and are stored in the
 same bucket. Unlike the approach described in~\cite{disc-tree}, retrieval in our
 setting must take modes into account. For example, if the predicate \eI{g} has
-one input and one output argument, the query \eI{g X Y} retrieves only rules 7 and
-8. If both arguments are outputs, then rules 7, 8, and 9 are returned.
+one input argument, the query \eI{g Y} retrieves only rules 7 and
+8. If its argument is an output, then rules 7, 8, and 9 are returned.
 
 For efficiency, terms are encoded as sequences of integers, where each integer
 represents multiple pieces of information at the bit level. Modes are included
@@ -677,7 +677,7 @@ to support mutual exclusion checking.
 During compilation, an auxiliary discrimination tree is built. Each rule of a
 deterministic predicate is inserted into this structure. When a new rule is
 added, the tree is queried to retrieve the set of potentially overlapping rules
-$r$. By invariant, $r$ is an ordered (possibly empty) list in which all rules,
+$r$. By construction, $r$ is an ordered (possibly empty) list in which all rules,
 except possibly the last one, contain a \cut. The mutual exclusion checker then
 verifies that either the new rule is inserted at the end of the list, or that it
 contains a \cut. This ensures that any potentially overlapping rule is either
@@ -1123,7 +1123,7 @@ Rule~$tm_\top^i$ corresponds to the standard typing rule for
 application. When the input arguments match the expected signature, it
 computes the resulting type and reports no miscall (i.e.\ $\top$).
 
-Otherwise, the head or the argument contain a miscall, 
+Otherwise, the head or the argument contains a miscall, 
 or when the argument does not match the expected signature,
 rule~$tm_\bot^i$ is applied. In this case, a miscall is reported and the
 resulting signature is obtained by weakening the signature inferred from the
